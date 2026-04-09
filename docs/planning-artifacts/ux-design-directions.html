@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DentilFlow UX Design Directions</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --text: #0f172a;
+        --muted: #64748b;
+        --card: #ffffff;
+        --border: #dbe2ea;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #0b1220;
+        color: #fff;
+        padding: 16px 20px;
+        border-bottom: 1px solid #1e293b;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      header p {
+        margin: 6px 0 0;
+        color: #cbd5e1;
+        font-size: 13px;
+      }
+      .container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 16px;
+      }
+      .direction {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .meta {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        background: #fff;
+      }
+      .meta h2 {
+        margin: 0;
+        font-size: 15px;
+      }
+      .meta p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .screen {
+        height: 320px;
+        padding: 14px;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 10px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+      }
+      .badge {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 10px;
+        border-radius: 10px;
+      }
+      .stack {
+        display: grid;
+        gap: 8px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      /* Direction themes */
+      .d1 .screen {
+        background: #f8fbff;
+      }
+      .d1 .topbar {
+        color: #1e3a8a;
+      }
+      .d1 .badge {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .d1 .row {
+        background: #ffffff;
+        border: 1px solid #dbeafe;
+      }
+      .d1 .btn {
+        background: #1d4ed8;
+        color: #fff;
+      }
+
+      .d2 .screen {
+        background: #f8f9fc;
+      }
+      .d2 .topbar {
+        color: #0f766e;
+      }
+      .d2 .badge {
+        background: #ccfbf1;
+        color: #0f766e;
+      }
+      .d2 .row {
+        background: #fff;
+        border: 1px solid #d1fae5;
+      }
+      .d2 .btn {
+        background: #0f766e;
+        color: #fff;
+      }
+
+      .d3 .screen {
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      .d3 .topbar {
+        color: #93c5fd;
+      }
+      .d3 .badge {
+        background: #1e293b;
+        color: #93c5fd;
+      }
+      .d3 .row {
+        background: #111827;
+        border: 1px solid #334155;
+      }
+      .d3 .btn {
+        background: #2563eb;
+        color: #fff;
+      }
+
+      .d4 .screen {
+        background: #fafafa;
+      }
+      .d4 .topbar {
+        color: #334155;
+      }
+      .d4 .badge {
+        background: #e2e8f0;
+        color: #334155;
+      }
+      .d4 .row {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+      }
+      .d4 .btn {
+        background: #334155;
+        color: #fff;
+      }
+
+      .d5 .screen {
+        background: #f0fdfa;
+      }
+      .d5 .topbar {
+        color: #155e75;
+      }
+      .d5 .badge {
+        background: #cffafe;
+        color: #155e75;
+      }
+      .d5 .row {
+        background: #ffffff;
+        border: 1px solid #bae6fd;
+      }
+      .d5 .btn {
+        background: #0e7490;
+        color: #fff;
+      }
+
+      .d6 .screen {
+        background: #fff7ed;
+      }
+      .d6 .topbar {
+        color: #9a3412;
+      }
+      .d6 .badge {
+        background: #ffedd5;
+        color: #9a3412;
+      }
+      .d6 .row {
+        background: #fff;
+        border: 1px solid #fed7aa;
+      }
+      .d6 .btn {
+        background: #c2410c;
+        color: #fff;
+      }
+
+      .legend {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #475569;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>DentilFlow — UX Design Direction Mockups</h1>
+      <p>
+        6 visual directions for pro-system clinic operations,
+        patient-mobile-first, and trilingual readiness.
+      </p>
+    </header>
+
+    <main class="container">
+      <section class="grid">
+        <article class="direction d1">
+          <div class="meta">
+            <h2>Direction 1 — Clinical Clarity Blue</h2>
+            <p>
+              Balanced professional dashboard; strong trust cues and clear state
+              hierarchy.
+            </p>
+          </div>
+          <div class="screen">
+            <div class="topbar">
+              <strong>Today Queue</strong><span class="badge">Live Sync</span>
+            </div>
+            <div class="actions">
+              <button class="btn">Mark In Chair</button
+              ><button class="btn" style="opacity: 0.8">Checkout</button>
+            </div>
+            <div class="stack">
+              <div class="row">/* Lines 278-279 omitted */</div>
+              <div class="row">/* Lines 281-282 omitted */</div>
+              <div class="row">/* Lines 284-285 omitted */</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="direction d2">
+          <div class="meta">
+            <h2>Direction 2 — Teal Operations</h2>
+            <p>
+              Calm-control aesthetic with moderate density and guided actions.
+            </p>
+          </div>
+          <div class="screen">
+            <div class="topbar">
+              <strong>Secretary Cockpit</strong
+              ><span class="badge">3 Pending</span>
+            </div>
+            <div class="actions">
+              <button class="btn">Confirm Slot</button
+              ><button class="btn" style="opacity: 0.8">Send Reminder</button>
+            </div>
+            <div class="stack">
+              <div class="row">/* Lines 308-309 omitted */</div>
+              <div class="row">/* Lines 311-312 omitted */</div>
+              <div class="row">/* Lines 314-315 omitted */</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="direction d3">
+          <div class="meta">
+            <h2>Direction 3 — Dark Pro Console</h2>
+            <p>
+              High-density mode for power users in admin and operations
+              contexts.
+            </p>
+          </div>
+          <div class="screen">
+            <div class="topbar">
+              <strong>Ops Console</strong><span class="badge">Realtime</span>
+            </div>
+            <div class="actions">
+              <button class="btn">Advance Queue</button
+              ><button class="btn" style="opacity: 0.8">
+                /* Lines 335-336 omitted */
+              </button>
+            </div>
+            <div class="stack">
+              <div class="row">/* Lines 340-341 omitted */</div>
+              <div class="row">/* Lines 343-344 omitted */</div>
+              <div class="row">/* Lines 346-347 omitted */</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="direction d4">
+          <div class="meta">
+            <h2>Direction 4 — Neutral Professional</h2>
+            <p>
+              Minimal visual noise, emphasis on typographic hierarchy and
+              precision.
+            </p>
+          </div>
+          <div class="screen">
+            <div class="topbar">
+              <strong>Appointment Board</strong
+              ><span class="badge">Verified</span>
+            </div>
+            <div class="actions">
+              <button class="btn">Create Appointment</button
+              ><button class="btn" style="opacity: 0.8">Reschedule</button>
+            </div>
+            <div class="stack">
+              <div class="row">/* Lines 371-372 omitted */</div>
+              <div class="row">/* Lines 374-375 omitted */</div>
+              /* Lines 376-379 omitted */
+            </div>
+          </div>
+        </article>
+
+        <article class="direction d5">
+          <div class="meta">
+            <h2>Direction 5 — Patient Confidence Mobile</h2>
+            <p>/* Lines 387-389 omitted */</p>
+          </div>
+          <div class="screen">
+            <div class="topbar">/* Lines 393-395 omitted */</div>
+            <div class="actions">/* Lines 397-399 omitted */</div>
+            <div class="stack">/* Lines 401-410 omitted */</div>
+          </div>
+        </article>
+
+        <article class="direction d6">
+          <div class="meta">
+            <h2>Direction 6 — Warm Clinical Human</h2>
+            <p>/* Lines 418-420 omitted */</p>
+          </div>
+          <div class="screen">
+            <div class="topbar">/* Lines 424-426 omitted */</div>
+            <div class="actions">/* Lines 428-432 omitted */</div>
+            <div class="stack">/* Lines 434-443 omitted */</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="legend">
+        <strong>Evaluation prompt:</strong> choose one base direction (or a
+        combination) for: layout intuitiveness, interaction speed, pro-system
+        density, and emotional fit (professional + human).
+      </section>
+    </main>
+  </body>
+</html>
