@@ -1,0 +1,59 @@
+# generated: 2026-04-10
+# last_updated: 2026-04-10
+# project: dentiflow-menorepo
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/docs/implementation-artifacts
+
+generated: 2026-04-10
+last_updated: 2026-04-10
+project: dentiflow-menorepo
+project_key: NOKEY
+tracking_system: file-system
+story_location: docs/implementation-artifacts
+
+development_status:
+  epic-0: in-progress
+  0-1-initialize-next-js-frontend-with-design-system: done
+  0-2-create-patient-mobile-shell-layout: ready-for-dev
+  0-3-build-landing-page-with-hero-and-sections: ready-for-dev
+  0-4-implement-appointment-booking-wizard: ready-for-dev
+  0-5-create-patient-login-register-pages: ready-for-dev
+  0-6-develop-admin-dashboard-shell-with-sidebar-and-header: ready-for-dev
+  0-7-populate-dashboard-with-mock-operational-data: ready-for-dev
+  epic-0-retrospective: optional
+
+  epic-1: backlog
+  1-1-implement-jwt-authentication-with-role-based-access: backlog
+  1-2-add-middleware-guards-for-admin-dashboard: backlog
+  1-3-integrate-auth-with-admin-dashboard: backlog
+  1-4-ensure-accessibility-compliance-wcag-2-1-aa: backlog
+  1-5-implement-dark-mode-toggle-system-wide: backlog
+  1-6-add-rtl-ltr-visual-regression-testing: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  epic-7-retrospective: optional
+
+  epic-8: in-progress
+  8-1-initialize-shared-packages-shared-db-shared-logger-shared-config: ready-for-dev
+  8-2-set-up-api-gateway-with-basic-routing: ready-for-dev
+  8-3-initialize-auth-service-with-basic-endpoints: ready-for-dev
+  8-4-configure-docker-compose-for-local-development: ready-for-dev
+  8-5-validate-service-communication-grpc-nats: ready-for-dev
+  epic-8-retrospective: optional

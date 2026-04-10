@@ -15,6 +15,11 @@ export function AppThemeProvider({
   children,
   direction = "ltr",
 }: AppThemeProviderProps) {
+  if (!["ltr", "rtl"].includes(direction)) {
+    console.warn(`Invalid direction "${direction}". Defaulting to "ltr".`);
+    direction = "ltr";
+  }
+
   const options =
     direction === "rtl"
       ? {key: "muirtl", stylisPlugins: [prefixer, rtlPlugin]}
