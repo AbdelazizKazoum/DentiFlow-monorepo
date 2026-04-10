@@ -13,9 +13,9 @@ tracking_system: file-system
 story_location: docs/implementation-artifacts
 
 development_status:
-  epic-0: in-progress
+   epic-0: in-progress
   0-1-initialize-next-js-frontend-with-design-system: done
-  0-2-create-patient-mobile-shell-layout: ready-for-dev
+  0-2-create-patient-mobile-shell-layout: review
   0-3-build-landing-page-with-hero-and-sections: ready-for-dev
   0-4-implement-appointment-booking-wizard: ready-for-dev
   0-5-create-patient-login-register-pages: ready-for-dev

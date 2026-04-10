@@ -11,6 +11,10 @@ const config = {
   testEnvironment: "jest-environment-jsdom",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
+    "^@emotion/styled$": "<rootDir>/node_modules/@emotion/styled",
+    "^@emotion/react$": "<rootDir>/node_modules/@emotion/react",
+    "^react$": "<rootDir>/node_modules/react",
+    "^react-dom$": "<rootDir>/node_modules/react-dom"
   },
 };
 
