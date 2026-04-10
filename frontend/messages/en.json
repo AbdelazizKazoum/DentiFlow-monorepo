@@ -3,5 +3,91 @@
     "home": "Home",
     "services": "Services",
     "about": "About Us"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Trusted by 500+ Dental Clinics",
+      "headline": "Modern Dental Clinic Management",
+      "subheadline": "Streamline appointments, manage patients, and grow your practice with our all-in-one dental SaaS platform.",
+      "cta_primary": "Book a Demo",
+      "cta_secondary": "Learn More"
+    },
+    "features": {
+      "title": "Everything Your Clinic Needs",
+      "subtitle": "Powerful tools designed for modern dental practices",
+      "items": {
+        "scheduling": {
+          "title": "Smart Scheduling",
+          "description": "Intelligent appointment booking with automated reminders and conflict detection."
+        },
+        "patients": {
+          "title": "Patient Management",
+          "description": "Complete patient profiles, medical history, and treatment records at your fingertips."
+        },
+        "billing": {
+          "title": "Billing & Invoicing",
+          "description": "Automated billing, insurance claims, and payment tracking in one place."
+        },
+        "analytics": {
+          "title": "Real-Time Analytics",
+          "description": "Data-driven insights to monitor revenue, appointments, and clinic performance."
+        },
+        "security": {
+          "title": "Data Security",
+          "description": "HIPAA-compliant data storage with end-to-end encryption and audit logs."
+        },
+        "notifications": {
+          "title": "Smart Notifications",
+          "description": "Automated SMS and email reminders reduce no-shows by up to 60%."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "What Our Clients Say",
+      "subtitle": "Trusted by dental professionals worldwide"
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "subtitle": "Choose the plan that fits your practice",
+      "per_month": "/month",
+      "get_started": "Get Started",
+      "contact_sales": "Contact Sales",
+      "most_popular": "Most Popular",
+      "custom": "Custom",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "description": "Perfect for small clinics just getting started.",
+          "features": {
+            "f1": "Up to 2 practitioners",
+            "f2": "500 patient records",
+            "f3": "Basic scheduling",
+            "f4": "Email support"
+          }
+        },
+        "professional": {
+          "name": "Professional",
+          "description": "Ideal for growing practices with advanced needs.",
+          "features": {
+            "f1": "Up to 10 practitioners",
+            "f2": "Unlimited patient records",
+            "f3": "Advanced analytics",
+            "f4": "SMS & email reminders",
+            "f5": "Priority support"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "For large clinics and multi-branch practices.",
+          "features": {
+            "f1": "Unlimited practitioners",
+            "f2": "Multi-branch management",
+            "f3": "Custom integrations",
+            "f4": "Dedicated account manager",
+            "f5": "SLA guarantee"
+          }
+        }
+      }
+    }
   }
 }

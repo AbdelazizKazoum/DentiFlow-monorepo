@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -7,7 +9,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Button,
   Drawer,
   Box,
   useTheme,

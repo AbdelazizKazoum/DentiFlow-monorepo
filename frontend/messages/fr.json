@@ -3,5 +3,91 @@
     "home": "Accueil",
     "services": "Services",
     "about": "À Propos"
+  },
+  "landing": {
+    "hero": {
+      "badge": "Approuvé par 500+ Cliniques Dentaires",
+      "headline": "Gestion Moderne de Clinique Dentaire",
+      "subheadline": "Simplifiez vos rendez-vous, gérez vos patients et développez votre cabinet avec notre plateforme SaaS tout-en-un.",
+      "cta_primary": "Réserver une Démo",
+      "cta_secondary": "En Savoir Plus"
+    },
+    "features": {
+      "title": "Tout Ce Dont Votre Clinique a Besoin",
+      "subtitle": "Des outils puissants conçus pour les cabinets dentaires modernes",
+      "items": {
+        "scheduling": {
+          "title": "Planification Intelligente",
+          "description": "Réservation de rendez-vous intelligente avec rappels automatiques et détection de conflits."
+        },
+        "patients": {
+          "title": "Gestion des Patients",
+          "description": "Profils patients complets, antécédents médicaux et dossiers de traitement à portée de main."
+        },
+        "billing": {
+          "title": "Facturation & Invoicing",
+          "description": "Facturation automatisée, demandes d'assurance et suivi des paiements en un seul endroit."
+        },
+        "analytics": {
+          "title": "Analyses en Temps Réel",
+          "description": "Informations basées sur les données pour surveiller les revenus, les rendez-vous et les performances."
+        },
+        "security": {
+          "title": "Sécurité des Données",
+          "description": "Stockage de données conforme HIPAA avec chiffrement de bout en bout et journaux d'audit."
+        },
+        "notifications": {
+          "title": "Notifications Intelligentes",
+          "description": "Les rappels SMS et e-mail automatisés réduisent les absences jusqu'à 60%."
+        }
+      }
+    },
+    "testimonials": {
+      "title": "Ce Que Disent Nos Clients",
+      "subtitle": "Approuvé par des professionnels dentaires du monde entier"
+    },
+    "pricing": {
+      "title": "Tarification Simple et Transparente",
+      "subtitle": "Choisissez le plan adapté à votre cabinet",
+      "per_month": "/mois",
+      "get_started": "Commencer",
+      "contact_sales": "Contacter les Ventes",
+      "most_popular": "Le Plus Populaire",
+      "custom": "Sur Mesure",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "description": "Parfait pour les petites cliniques qui débutent.",
+          "features": {
+            "f1": "Jusqu'à 2 praticiens",
+            "f2": "500 dossiers patients",
+            "f3": "Planification de base",
+            "f4": "Support par e-mail"
+          }
+        },
+        "professional": {
+          "name": "Professionnel",
+          "description": "Idéal pour les cabinets en croissance avec des besoins avancés.",
+          "features": {
+            "f1": "Jusqu'à 10 praticiens",
+            "f2": "Dossiers patients illimités",
+            "f3": "Analyses avancées",
+            "f4": "Rappels SMS et e-mail",
+            "f5": "Support prioritaire"
+          }
+        },
+        "enterprise": {
+          "name": "Entreprise",
+          "description": "Pour les grandes cliniques et les pratiques multi-sites.",
+          "features": {
+            "f1": "Praticiens illimités",
+            "f2": "Gestion multi-sites",
+            "f3": "Intégrations personnalisées",
+            "f4": "Gestionnaire de compte dédié",
+            "f5": "Garantie SLA"
+          }
+        }
+      }
+    }
   }
 }

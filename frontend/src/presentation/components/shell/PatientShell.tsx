@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Header from "./Header";
 
@@ -5,7 +7,7 @@ interface PatientShellProps {
   children: React.ReactNode;
 }
 
-export default function PatientShell({children}: PatientShellProps) {
+export default function PatientShell({ children }: PatientShellProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

@@ -1,8 +1,8 @@
-import type {Metadata} from "next";
-import {Geist, Geist_Mono} from "next/font/google";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {AppThemeProvider} from "@/infrastructure/theme/AppThemeProvider";
-import { NextIntlClientProvider } from 'next-intl';
+import { AppThemeProvider } from "@/infrastructure/theme/AppThemeProvider";
+import { getLocale } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,13 +19,14 @@ export const metadata: Metadata = {
   description: "Comprehensive SaaS platform for dental clinic operations",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Hardcoded direction for now; could be loaded from cookie or route parameters
-  const direction = "ltr";
+  // Derive direction from locale; "ar" uses RTL, all others use LTR
+  const locale = await getLocale();
+  const direction: "ltr" | "rtl" = locale === "ar" ? "rtl" : "ltr";
 
   return (
     <html
@@ -34,9 +35,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider>
-          <AppThemeProvider direction={direction}>{children}</AppThemeProvider>
-        </NextIntlClientProvider>
+        <AppThemeProvider direction={direction}>{children}</AppThemeProvider>
       </body>
     </html>
   );

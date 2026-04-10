@@ -1,36 +1,33 @@
-﻿import {PageTransition} from "@/presentation/components/transitions/PageTransition";
-import {Button, Typography, Container, Box} from "@mui/material";
+﻿import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { LandingPage } from "@/presentation/components/landing/LandingPage";
 
-export default function Home() {
-  return (
-    <PageTransition>
-      <Container maxWidth="md" className="py-12">
-        <Box className="flex flex-col items-center justify-center gap-6 text-center">
-          <Typography
-            variant="h2"
-            component="h1"
-            className="font-bold text-primary-dark"
-          >
-            Welcome to DentiFlow
-          </Typography>
-          <Typography variant="h5" color="text.secondary">
-            Modern SaaS Platform for Dental Clinic Operations
-          </Typography>
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const t = await getTranslations({ locale, namespace: "landing.hero" as any });
 
-          <Box className="flex flex-wrap gap-4 mt-8">
-            <Button
-              variant="contained"
-              size="large"
-              className="bg-primary-main"
-            >
-              Get Started
-            </Button>
-            <Button variant="outlined" size="large">
-              Learn More
-            </Button>
-          </Box>
-        </Box>
-      </Container>
-    </PageTransition>
-  );
+  return {
+    title: `DentiFlow — ${t("headline")}`,
+    description: t("subheadline"),
+    openGraph: {
+      title: `DentiFlow — ${t("headline")}`,
+      description: t("subheadline"),
+      type: "website",
+      siteName: "DentiFlow",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `DentiFlow — ${t("headline")}`,
+      description: t("subheadline"),
+    },
+  };
+}
+
+export default function HomePage() {
+  return <LandingPage />;
 }
