@@ -16,7 +16,7 @@ development_status:
    epic-0: in-progress
   0-1-initialize-next-js-frontend-with-design-system: done
   0-2-create-patient-mobile-shell-layout: review
-  0-3-build-landing-page-with-hero-and-sections: ready-for-dev
+  0-3-build-landing-page-with-hero-and-sections: review
   0-4-implement-appointment-booking-wizard: ready-for-dev
   0-5-create-patient-login-register-pages: ready-for-dev
   0-6-develop-admin-dashboard-shell-with-sidebar-and-header: ready-for-dev
@@ -57,3 +57,4 @@ development_status:
   8-4-configure-docker-compose-for-local-development: ready-for-dev
   8-5-validate-service-communication-grpc-nats: ready-for-dev
   epic-8-retrospective: optional
+
