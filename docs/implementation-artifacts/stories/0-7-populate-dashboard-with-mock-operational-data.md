@@ -2,7 +2,7 @@
 story_id: 0-7-populate-dashboard-with-mock-operational-data
 epic: Epic 0 - Frontend Foundation & Mock Data
 title: Populate Dashboard with Mock Operational Data
-status: ready-for-dev
+status: done
 assignee: TBD
 estimate: 3 pts
 priority: Low
@@ -57,8 +57,8 @@ So that I can validate the UI/UX for daily operations with premium feel.
 
 ## Definition of Done
 
-- [ ] Mock data integrated
-- [ ] Queue widget populated
-- [ ] Appointment table with interactions
-- [ ] Animations working
-- [ ] Theme consistency
+- [x] Mock data integrated
+- [x] Queue widget populated
+- [x] Appointment table with interactions
+- [x] Animations working
+- [x] Theme consistency

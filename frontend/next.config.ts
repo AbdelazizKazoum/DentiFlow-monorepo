@@ -6,7 +6,9 @@ const withNextIntl = createNextIntlPlugin(
 );
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    root: './',
+  },
 };
 
 export default withNextIntl(nextConfig);
