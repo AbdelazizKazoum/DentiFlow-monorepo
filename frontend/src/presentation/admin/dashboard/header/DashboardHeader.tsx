@@ -11,7 +11,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   theme,
 }) => {
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+    <header className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-6">
       <div>
         <h1 className="text-2xl font-semibold text-slate-800 dark:text-white tracking-tight">
           Dashboard

@@ -44,7 +44,10 @@ export default function AdminLayout({children}: AdminLayoutProps) {
       />
       <div className="flex-1 flex flex-col min-w-0">
         <div className="sticky top-0 z-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-          <DashboardHeader onToggleTheme={handleToggleTheme} theme={theme.mode} />
+          <DashboardHeader
+            onToggleTheme={handleToggleTheme}
+            theme={theme.mode}
+          />
         </div>
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6 lg:p-8">
           {children}

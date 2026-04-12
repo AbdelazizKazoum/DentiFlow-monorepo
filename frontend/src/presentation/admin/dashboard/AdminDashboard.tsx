@@ -37,12 +37,8 @@ export const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         <div className="xl:col-span-5 space-y-8">
-          <TodayAppointments
-            appointments={dashboardData.todayAppointments}
-          />
-          <AppointmentRequests
-            requests={dashboardData.appointmentRequests}
-          />
+          <TodayAppointments appointments={dashboardData.todayAppointments} />
+          <AppointmentRequests requests={dashboardData.appointmentRequests} />
         </div>
 
         <div className="xl:col-span-7 space-y-8">
