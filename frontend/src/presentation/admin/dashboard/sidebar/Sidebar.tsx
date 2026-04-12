@@ -6,8 +6,6 @@ import {
   MessageSquare,
   Pill,
   LogOut,
-  ChevronLeft,
-  Menu,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -33,18 +31,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside
-      className={`h-screen bg-[#1e56d0] dark:bg-slate-900 text-white flex flex-col transition-all duration-300 shadow-2xl ${
+      className={`bg-[#1e56d0] dark:bg-slate-900 text-white flex flex-col transition-all duration-300 shadow-2xl ${
         isCollapsed ? "w-20" : "w-72"
       }`}
     >
-      {/* Sidebar Toggle Button */}
-      <button
-        onClick={onToggle}
-        className="absolute -right-3 top-10 bg-white dark:bg-slate-800 text-[#1e56d0] dark:text-white p-1 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 hover:scale-110 transition-transform"
-      >
-        {isCollapsed ? <Menu size={16} /> : <ChevronLeft size={16} />}
-      </button>
-
       {/* Profile Section */}
       <div
         className={`flex flex-col items-center py-10 transition-all duration-300 ${isCollapsed ? "px-2" : "px-6"}`}
@@ -59,7 +49,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
         </div>
         {!isCollapsed && (
-          <div className="text-center">
+          <div className="text-center opacity-100 transform translate-x-0 transition-all duration-300 ease-in-out">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Dr. Stranger
+            </h2>
+            <p className="text-white/60 text-xs font-medium">Dentist</p>
+          </div>
+        )}
+        {isCollapsed && (
+          <div className="text-center opacity-0 transform -translate-x-4 transition-all duration-300 ease-in-out">
             <h2 className="text-lg font-semibold tracking-tight">
               Dr. Stranger
             </h2>
@@ -74,16 +72,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             key={item.name}
             onClick={() => onTabChange(item.name)}
-            className={`w-full flex items-center rounded-xl transition-all duration-200 group relative ${
-              isCollapsed ? "justify-center py-3.5" : "px-5 py-3.5 space-x-4"
+            className={`w-full flex items-center rounded-xl transition-all duration-200 group relative py-3.5 ${
+              isCollapsed ? "justify-center" : "justify-start px-5 space-x-4"
             } ${
               activeTab === item.name
                 ? "bg-white text-[#1e56d0] font-semibold shadow-md"
                 : "text-white/70 hover:bg-white/10 hover:text-white"
             }`}
           >
-            <div className="flex-shrink-0">{item.icon}</div>
-            {!isCollapsed && <span className="text-[14px]">{item.name}</span>}
+            <div
+              className={`flex-shrink-0 transition-transform duration-300 ${
+                isCollapsed ? "scale-110" : "scale-100"
+              }`}
+            >
+              {item.icon}
+            </div>
+            <span
+              className={`text-[14px] transition-all duration-300 ease-in-out ${
+                isCollapsed
+                  ? "opacity-0 transform translate-x-2 w-0 overflow-hidden absolute"
+                  : "opacity-100 transform translate-x-0 w-auto relative"
+              }`}
+            >
+              {item.name}
+            </span>
 
             {isCollapsed && (
               <div className="absolute left-full ml-4 px-3 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
@@ -102,7 +114,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }`}
         >
           <LogOut size={22} />
-          {!isCollapsed && <span className="text-[14px]">Logout</span>}
+          <span
+            className={`text-[14px] transition-all duration-300 ease-in-out ${
+              isCollapsed
+                ? "opacity-0 transform -translate-x-4 scale-0 w-0 overflow-hidden"
+                : "opacity-100 transform translate-x-0 scale-100 w-auto"
+            }`}
+          >
+            Logout
+          </span>
         </button>
       </div>
     </aside>

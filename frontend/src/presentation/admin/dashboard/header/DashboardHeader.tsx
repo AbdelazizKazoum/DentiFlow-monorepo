@@ -1,21 +1,35 @@
 import React from "react";
-import {Bell, Sun, Moon, Search, Settings} from "lucide-react";
+import {Bell, Sun, Moon, Search, Settings, Menu} from "lucide-react";
 
 interface DashboardHeaderProps {
   onToggleTheme: () => void;
   theme: "light" | "dark";
+  onToggleSidebar: () => void;
+  isSidebarCollapsed: boolean;
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onToggleTheme,
   theme,
+  onToggleSidebar,
+  isSidebarCollapsed,
 }) => {
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-800 dark:text-white tracking-tight">
-          Dashboard
-        </h1>
+    <header className="flex items-center justify-between p-6 gap-6">
+      <div className="flex items-center gap-4">
+        {/* Hamburger Menu Button - Always visible */}
+        <button
+          onClick={onToggleSidebar}
+          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        >
+          <Menu size={20} />
+        </button>
+
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-800 dark:text-white tracking-tight">
+            Dashboard
+          </h1>
+        </div>
       </div>
 
       <div className="flex items-center flex-wrap gap-4">

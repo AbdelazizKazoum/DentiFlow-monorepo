@@ -33,25 +33,29 @@ export default function AdminLayout({children}: AdminLayoutProps) {
 
   return (
     <div
-      className="flex h-screen bg-gray-50 dark:bg-gray-900"
+      className="h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden"
       style={{fontFamily: "'Poppins', sans-serif"}}
     >
-      <Sidebar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        isCollapsed={isCollapsed}
-        onToggle={handleToggleSidebar}
-      />
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="sticky top-0 z-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-          <DashboardHeader
-            onToggleTheme={handleToggleTheme}
-            theme={theme.mode}
-          />
+      <div className="flex h-full overflow-hidden">
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isCollapsed={isCollapsed}
+          onToggle={handleToggleSidebar}
+        />
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <div className="flex-shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+            <DashboardHeader
+              onToggleTheme={handleToggleTheme}
+              theme={theme.mode}
+              onToggleSidebar={handleToggleSidebar}
+              isSidebarCollapsed={isCollapsed}
+            />
+          </div>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 dark:bg-gray-900 p-6 lg:p-8">
+            {children}
+          </main>
         </div>
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6 lg:p-8">
-          {children}
-        </main>
       </div>
     </div>
   );
