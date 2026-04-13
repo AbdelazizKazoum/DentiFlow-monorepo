@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside
-      className={`bg-[#1e56d0] dark:bg-slate-900 text-white flex flex-col transition-all duration-300 shadow-2xl ${
+      className={`bg-[#1e56d0] dark:bg-[#141b2d] text-white flex flex-col transition-all duration-300 shadow-2xl ${
         isCollapsed ? "w-20" : "w-72"
       }`}
     >
@@ -98,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </span>
 
             {isCollapsed && (
-              <div className="absolute left-full ml-4 px-3 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+              <div className="absolute left-full ml-4 px-3 py-1 bg-[#222b44] text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
                 {item.name}
               </div>
             )}

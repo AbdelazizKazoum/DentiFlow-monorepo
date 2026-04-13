@@ -10,7 +10,7 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
   patient,
 }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-sm border border-slate-50 dark:border-slate-800 relative">
+    <div className="bg-white dark:bg-[#222b44] rounded-3xl p-8 shadow-sm border border-slate-50 dark:border-[#2d3a54] relative">
       <div className="flex justify-between items-start mb-8">
         <h3 className="font-semibold text-slate-400 dark:text-slate-500 text-[11px] uppercase tracking-wide">
           Next Patient Details
@@ -61,11 +61,11 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
                 key={i}
                 className={`px-3 py-1 rounded-lg text-[10px] font-semibold ${
                   i === 0
-                    ? "bg-amber-50 text-amber-600"
+                    ? "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400"
                     : i === 1
-                      ? "bg-teal-50 text-teal-600"
-                      : "bg-purple-50 text-purple-600"
-                } dark:bg-opacity-10`}
+                      ? "bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400"
+                      : "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
+                }`}
               >
                 {tag}
               </span>
@@ -77,11 +77,11 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
               <Phone size={14} />
               <span>(308) 555-0121</span>
             </button>
-            <button className="flex items-center space-x-2 bg-white dark:bg-slate-800 border border-blue-100 dark:border-slate-700 text-blue-500 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-all">
+            <button className="flex items-center space-x-2 bg-white dark:bg-[#2a3557] border border-blue-100 dark:border-[#2d3a54] text-blue-500 dark:text-blue-400 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-[#33406a] transition-all">
               <FileText size={14} />
               <span>Documents</span>
             </button>
-            <button className="flex items-center space-x-2 bg-white dark:bg-slate-800 border border-blue-100 dark:border-slate-700 text-blue-500 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-all">
+            <button className="flex items-center space-x-2 bg-white dark:bg-[#2a3557] border border-blue-100 dark:border-[#2d3a54] text-blue-500 dark:text-blue-400 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-[#33406a] transition-all">
               <MessageCircle size={14} />
               <span>Chat</span>
             </button>

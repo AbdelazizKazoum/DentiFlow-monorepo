@@ -16,6 +16,16 @@ export default function AdminLayout({children}: AdminLayoutProps) {
   const {isCollapsed} = useSidebarStore();
   const [activeTab, setActiveTab] = useState("Dashboard");
 
+  // Sync dark class on <html> with the theme store
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme.mode === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme.mode]);
+
   // Inject Poppins Font for admin pages
   useEffect(() => {
     const link = document.createElement("link");
@@ -33,7 +43,7 @@ export default function AdminLayout({children}: AdminLayoutProps) {
 
   return (
     <div
-      className="h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden"
+      className="h-screen bg-[#F8FAFF] dark:bg-[#1a2035] overflow-hidden"
       style={{fontFamily: "'Poppins', sans-serif"}}
     >
       <div className="flex h-full overflow-hidden">
@@ -44,7 +54,7 @@ export default function AdminLayout({children}: AdminLayoutProps) {
           onToggle={handleToggleSidebar}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="flex-shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="flex-shrink-0 bg-white dark:bg-[#222b44] border-b border-slate-100 dark:border-[#2d3a54] shadow-sm">
             <DashboardHeader
               onToggleTheme={handleToggleTheme}
               theme={theme.mode}
@@ -52,7 +62,7 @@ export default function AdminLayout({children}: AdminLayoutProps) {
               isSidebarCollapsed={isCollapsed}
             />
           </div>
-          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 dark:bg-gray-900 p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-[#F8FAFF] dark:bg-[#1a2035] p-6 lg:p-8">
             {children}
           </main>
         </div>

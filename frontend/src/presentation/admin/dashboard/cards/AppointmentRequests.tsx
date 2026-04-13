@@ -10,7 +10,7 @@ export const AppointmentRequests: React.FC<AppointmentRequestsProps> = ({
   requests,
 }) => {
   return (
-    <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm">
+    <section className="bg-white dark:bg-[#222b44] rounded-3xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-md font-semibold text-slate-700 dark:text-slate-200">
           Appointment Requests
@@ -43,10 +43,10 @@ export const AppointmentRequests: React.FC<AppointmentRequestsProps> = ({
               </div>
             ) : (
               <div className="flex space-x-2">
-                <button className="p-2 bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-all">
+                <button className="p-2 bg-blue-50 dark:bg-blue-500/20 text-blue-500 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/30 transition-all">
                   <Check size={16} />
                 </button>
-                <button className="p-2 bg-red-50 text-red-400 rounded-lg hover:bg-red-100 transition-all">
+                <button className="p-2 bg-red-50 dark:bg-red-500/20 text-red-400 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/30 transition-all">
                   <X size={16} />
                 </button>
               </div>

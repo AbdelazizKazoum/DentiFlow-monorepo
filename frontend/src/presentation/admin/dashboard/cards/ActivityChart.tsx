@@ -16,7 +16,7 @@ interface ActivityChartProps {
 
 export const ActivityChart: React.FC<ActivityChartProps> = ({data}) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-[#222b44] rounded-3xl p-6 shadow-sm overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
           Patient Activity
@@ -37,7 +37,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({data}) => {
             <CartesianGrid
               strokeDasharray="4 4"
               vertical={false}
-              stroke="#1e293b"
+              stroke="var(--chart-grid)"
             />
             <XAxis
               dataKey="name"
