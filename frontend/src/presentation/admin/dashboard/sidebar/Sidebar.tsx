@@ -31,16 +31,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside
-      className={`bg-sidebar text-white flex flex-col transition-all duration-300 shadow-2xl ${
-        isCollapsed ? "w-20" : "w-72"
-      }`}
+      className={`bg-sidebar text-white flex flex-col flex-shrink-0 shadow-2xl
+        transition-[width] duration-300 ease-in-out
+        ${isCollapsed ? "w-16" : "w-60"}`}
     >
-      {/* Profile Section */}
-      <div
-        className={`flex flex-col items-center py-10 transition-all duration-300 ${isCollapsed ? "px-2" : "px-6"}`}
-      >
+      {/* Profile Section — always rendered, animated via max-h + opacity */}
+      <div className="flex flex-col items-center py-10 px-3 overflow-hidden">
         <div
-          className={`rounded-full border-4 border-white/20 overflow-hidden mb-4 shadow-xl transition-all duration-300 ${isCollapsed ? "w-10 h-10" : "w-24 h-24"}`}
+          className={`rounded-full border-4 border-white/20 overflow-hidden mb-4 shadow-xl
+            transition-all duration-300 ease-in-out
+            ${isCollapsed ? "w-10 h-10" : "w-24 h-24"}`}
         >
           <img
             src="https://i.pravatar.cc/150?u=drstranger"
@@ -48,22 +48,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-full h-full object-cover"
           />
         </div>
-        {!isCollapsed && (
-          <div className="text-center opacity-100 transform translate-x-0 transition-all duration-300 ease-in-out">
-            <h2 className="text-lg font-semibold tracking-tight">
-              Dr. Stranger
-            </h2>
-            <p className="text-white/60 text-xs font-medium">Dentist</p>
-          </div>
-        )}
-        {isCollapsed && (
-          <div className="text-center opacity-0 transform -translate-x-4 transition-all duration-300 ease-in-out">
-            <h2 className="text-lg font-semibold tracking-tight">
-              Dr. Stranger
-            </h2>
-            <p className="text-white/60 text-xs font-medium">Dentist</p>
-          </div>
-        )}
+        {/* Text always in DOM — delayed entrance, instant exit */}
+        <div
+          className={`text-center overflow-hidden transition-all duration-300 ease-in-out
+            ${
+              isCollapsed
+                ? "max-h-0 opacity-0"
+                : "max-h-16 opacity-100 delay-150"
+            }`}
+        >
+          <h2 className="text-lg font-semibold tracking-tight whitespace-nowrap">
+            Dr. Stranger
+          </h2>
+          <p className="text-white/60 text-xs font-medium">Dentist</p>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -72,36 +70,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             key={item.name}
             onClick={() => onTabChange(item.name)}
-            className={`w-full flex items-center rounded-xl transition-all duration-200 group relative py-3.5 ${
-              isCollapsed ? "justify-center" : "justify-start px-5 space-x-4"
-            } ${
-              activeTab === item.name
-                ? "bg-white text-primary font-semibold shadow-md"
-                : "text-white/70 hover:bg-white/10 hover:text-white"
-            }`}
+            className={`w-full flex items-center rounded-xl transition-colors duration-200 group relative py-3.5
+              ${isCollapsed ? "justify-center px-0" : "px-5 gap-4"}
+              ${
+                activeTab === item.name
+                  ? "bg-white text-primary font-semibold shadow-md"
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
           >
-            <div
-              className={`flex-shrink-0 transition-transform duration-300 ${
-                isCollapsed ? "scale-110" : "scale-100"
-              }`}
-            >
-              {item.icon}
-            </div>
+            <span className="flex-shrink-0">{item.icon}</span>
+
+            {/* Label — always in DOM, delayed entrance, instant exit */}
             <span
-              className={`text-[14px] transition-all duration-300 ease-in-out ${
-                isCollapsed
-                  ? "opacity-0 transform translate-x-2 w-0 overflow-hidden absolute"
-                  : "opacity-100 transform translate-x-0 w-auto relative"
-              }`}
+              className={`text-[14px] whitespace-nowrap overflow-hidden
+                transition-all duration-300 ease-in-out
+                ${
+                  isCollapsed
+                    ? "max-w-0 opacity-0"
+                    : "max-w-xs opacity-100 delay-150"
+                }`}
             >
               {item.name}
             </span>
 
-            {isCollapsed && (
-              <div className="absolute left-full ml-4 px-3 py-1 bg-card text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                {item.name}
-              </div>
-            )}
+            {/* Tooltip — only shown when collapsed */}
+            <span
+              className={`absolute left-full ml-4 px-3 py-1.5 bg-card text-white text-xs
+                font-medium rounded-lg pointer-events-none whitespace-nowrap z-50
+                transition-opacity duration-150
+                ${isCollapsed ? "opacity-0 group-hover:opacity-100" : "opacity-0"}`}
+            >
+              {item.name}
+            </span>
           </button>
         ))}
       </nav>
@@ -109,17 +109,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Logout */}
       <div className="p-3 mb-4">
         <button
-          className={`w-full flex items-center rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all ${
-            isCollapsed ? "justify-center py-3.5" : "px-5 py-3.5 space-x-4"
-          }`}
+          className={`w-full flex items-center rounded-xl text-white/70
+            hover:bg-white/10 hover:text-white transition-colors duration-200 py-3.5
+            ${isCollapsed ? "justify-center px-0" : "px-5 gap-4"}`}
         >
-          <LogOut size={22} />
+          <LogOut size={22} className="flex-shrink-0" />
           <span
-            className={`text-[14px] transition-all duration-300 ease-in-out ${
-              isCollapsed
-                ? "opacity-0 transform -translate-x-4 scale-0 w-0 overflow-hidden"
-                : "opacity-100 transform translate-x-0 scale-100 w-auto"
-            }`}
+            className={`text-[14px] whitespace-nowrap overflow-hidden
+              transition-all duration-300 ease-in-out
+              ${
+                isCollapsed
+                  ? "max-w-0 opacity-0"
+                  : "max-w-xs opacity-100 delay-150"
+              }`}
           >
             Logout
           </span>
