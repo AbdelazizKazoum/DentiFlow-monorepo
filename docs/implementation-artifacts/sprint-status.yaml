@@ -23,8 +23,8 @@ development_status:
   0-7-populate-dashboard-with-mock-operational-data: done
   epic-0-retrospective: optional
 
-  epic-1: backlog
-  1-1-implement-jwt-authentication-with-role-based-access: backlog
+  epic-1: in-progress
+  1-1-implement-jwt-authentication-with-role-based-access: ready-for-dev
   1-2-add-middleware-guards-for-admin-dashboard: backlog
   1-3-integrate-auth-with-admin-dashboard: backlog
   1-4-ensure-accessibility-compliance-wcag-2-1-aa: backlog

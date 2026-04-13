@@ -1,9 +1,9 @@
 // Implements the domain AdminAuthRepository interface.
 // Mock data lives here — in infrastructure, not in the application layer.
 
-import type { AdminAuthRepository } from "@/domain/auth/repositories/AdminAuthRepository";
-import type { AdminLoginCredentials } from "@/domain/auth/entities/AdminUser";
-import type { AdminUser } from "@/domain/auth/entities/AdminUser";
+import type {AdminAuthRepository} from "@/domain/auth/repositories/AdminAuthRepository";
+import type {AdminLoginCredentials} from "@/domain/auth/entities/AdminUser";
+import type {AdminUser} from "@/domain/auth/entities/AdminUser";
 
 const MOCK_ADMIN_PASSWORD = "admin123";
 
