@@ -27,11 +27,11 @@ export const StatsGrid: React.FC<StatsGridProps> = ({stats}) => {
       {stats.map((stat) => (
         <div
           key={stat.id}
-          className="bg-white dark:bg-[#222b44] p-6 rounded-2xl shadow-sm hover:shadow-md transition-all border border-transparent hover:border-blue-100 dark:hover:border-[#2d3a54]"
+          className="bg-card p-6 rounded-2xl shadow-sm hover:shadow-md transition-all border border-transparent hover:border-ui-border"
         >
           <div className="flex items-center justify-between mb-4">
             <div
-              className={`w-10 h-10 ${stat.bgColor} dark:bg-[#2a3557] rounded-xl flex items-center justify-center`}
+              className={`w-10 h-10 ${stat.bgColor} dark:bg-surface-hover rounded-xl flex items-center justify-center`}
             >
               {getIcon(stat.icon)}
             </div>

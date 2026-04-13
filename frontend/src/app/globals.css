@@ -3,23 +3,82 @@
 /* Enable class-based dark mode for Tailwind v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================
+   THEME TOKENS
+   To retheme the entire app, edit the values in :root below.
+   Dark-mode overrides are in the .dark block.
+
+   Tailwind utilities generated:
+     bg-primary          text-primary        border-primary
+     hover:bg-primary-dark
+     bg-page             bg-card             bg-sidebar
+     hover:bg-surface-hover
+     border-ui-border
+   ============================================================ */
+
 :root {
+  /* Brand */
+  --brand-primary: #1e56d0;
+  --brand-primary-dark: #1847b0;
+
+  /* Surfaces */
+  --surface-page: #f8faff;
+  --surface-card: #ffffff;
+  --surface-sidebar: #1e56d0; /* matches primary in light */
+  --surface-hover: #f1f5f9;
+
+  /* Borders */
+  --border-ui: #f1f5f9;
+
+  /* Chart */
+  --chart-grid: #e2e8f0;
+
+  /* Body */
   --background: #ffffff;
   --foreground: #171717;
-  --chart-grid: #e2e8f0;
 }
 
+.dark {
+  /* Brand (unchanged across modes — edit here to retheme dark primary) */
+  --brand-primary: #1e56d0;
+  --brand-primary-dark: #1847b0;
+
+  /* Surfaces */
+  --surface-page: #1a2035;
+  --surface-card: #222b44;
+  --surface-sidebar: #141b2d;
+  --surface-hover: #2a3557;
+
+  /* Borders */
+  --border-ui: #2d3a54;
+
+  /* Chart */
+  --chart-grid: #2a3557;
+
+  /* Body */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+/* Register theme tokens as Tailwind CSS utilities */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --chart-grid: #1e293b;
+  /* Brand */
+  --color-primary: var(--brand-primary);
+  --color-primary-dark: var(--brand-primary-dark);
+
+  /* Surfaces */
+  --color-page: var(--surface-page);
+  --color-card: var(--surface-card);
+  --color-sidebar: var(--surface-sidebar);
+  --color-surface-hover: var(--surface-hover);
+
+  /* Borders */
+  --color-ui-border: var(--border-ui);
 }
 
 body {

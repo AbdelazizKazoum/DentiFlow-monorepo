@@ -20,7 +20,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         {/* Hamburger Menu Button - Always visible */}
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#2a3557] transition-colors"
+          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-surface-hover transition-colors"
         >
           <Menu size={20} />
         </button>
@@ -35,28 +35,28 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex items-center flex-wrap gap-4">
         <div className="relative group">
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#1e56d0] transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors"
             size={16}
           />
           <input
             type="text"
             placeholder="Search..."
-            className="pl-10 pr-6 py-2.5 bg-white dark:bg-[#1a2035] dark:text-white border-none rounded-xl shadow-sm focus:ring-2 focus:ring-[#1e56d0]/20 outline-none w-full md:w-64 text-sm transition-all"
+            className="pl-10 pr-6 py-2.5 bg-page dark:text-white border-none rounded-xl shadow-sm focus:ring-2 focus:ring-primary/20 outline-none w-full md:w-64 text-sm transition-all"
           />
         </div>
 
-        <div className="flex items-center space-x-3 bg-white dark:bg-[#222b44] p-1.5 rounded-xl shadow-sm">
+        <div className="flex items-center space-x-3 bg-card p-1.5 rounded-xl shadow-sm">
           <button
             onClick={onToggleTheme}
-            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#2a3557] transition-colors"
+            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-surface-hover transition-colors"
           >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <button className="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#2a3557]">
+          <button className="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-surface-hover">
             <Bell size={18} />
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-white dark:border-[#222b44]"></span>
+            <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-card"></span>
           </button>
-          <div className="w-px h-4 bg-slate-100 dark:bg-[#2d3a54]"></div>
+          <div className="w-px h-4 bg-ui-border"></div>
           <div className="flex items-center space-x-1.5 px-2">
             <span className="text-xs font-medium text-slate-400">Setting</span>
             <Settings size={16} className="text-slate-400" />
