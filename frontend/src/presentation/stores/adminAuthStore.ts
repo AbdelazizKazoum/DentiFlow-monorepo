@@ -20,4 +20,3 @@ export const useAdminAuthStore = create<AdminAuthStoreState>()(() => ({
     await signOut({callbackUrl: `/${locale}/admin/login`});
   },
 }));
-
