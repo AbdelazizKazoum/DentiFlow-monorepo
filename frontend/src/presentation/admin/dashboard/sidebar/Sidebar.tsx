@@ -7,6 +7,8 @@ import {
   Pill,
   LogOut,
 } from "lucide-react";
+import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
+import { useLocale } from "next-intl";
 
 interface SidebarProps {
   activeTab: string;
@@ -34,6 +36,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   // The visual state: expanded if either explicitly opened OR hovering while collapsed
   const isExpanded = !isCollapsed || hovered;
+
+  const logout = useAdminAuthStore((s) => s.logout);
+  const locale = useLocale();
 
   return (
     <aside
@@ -109,6 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Logout */}
       <div className="p-3 mb-4">
         <button
+          onClick={() => logout(locale)}
           className={`w-full h-11 flex items-center rounded-xl text-white/70
             hover:bg-white/10 hover:text-white transition-colors duration-200
             ${isExpanded ? "px-5 gap-4" : "justify-center"}`}

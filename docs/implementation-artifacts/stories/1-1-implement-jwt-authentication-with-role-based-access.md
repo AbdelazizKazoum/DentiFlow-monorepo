@@ -19,6 +19,8 @@ so that users are securely authenticated with appropriate permissions enforced a
 7. **Given** the admin dashboard, **When** a user logs out, **Then** `signOut()` clears the NextAuth session and redirects to `/(locale)/admin/login`.
 8. **Given** the locale-routed middleware, **When** unauthenticated requests arrive, **Then** i18n locale detection (next-intl) still functions correctly alongside the auth guard.
 
+9. **Given** the admin dashboard sidebar, **When** the user clicks the logout button, **Then** they are securely logged out via NextAuth and redirected to the correct locale login page.
+
 ## Tasks / Subtasks
 
 - [ ] Task 1: Install `next-auth@^4.24.11` (AC: 1, 2, 5)
@@ -68,6 +70,7 @@ so that users are securely authenticated with appropriate permissions enforced a
   - [ ] Use `useSession()` from `next-auth/react` as the session source of truth
   - [ ] Keep `login(credentials)` method as a thin wrapper over `signIn("credentials", ...)`
   - [ ] `logout()` calls `signOut({ callbackUrl: "/${locale}/admin/login" })` from NextAuth
+  - [ ] Wire up the sidebar logout button to call `logout(locale)` from the store (AC: 7, 9)
 
 - [ ] Task 9: Wrap the App Router root with `SessionProvider` (AC: 6, 7)
   - [ ] Create or update `frontend/src/app/[locale]/layout.tsx` to wrap children in `<SessionProvider>` from `next-auth/react`
@@ -522,6 +525,12 @@ Claude Sonnet 4.6
 
 ### Debug Log References
 
+
 ### Completion Notes List
 
+- Implemented logout in the admin dashboard sidebar: clicking the logout button now calls `logout(locale)` from the store, which invokes NextAuth's `signOut` and redirects to the locale login page.
+
+
 ### File List
+
+- frontend/src/presentation/admin/dashboard/sidebar/Sidebar.tsx (logout button wired)
