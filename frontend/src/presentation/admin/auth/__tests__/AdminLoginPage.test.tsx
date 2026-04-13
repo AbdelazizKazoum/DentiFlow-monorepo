@@ -1,23 +1,23 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import { AdminLoginForm } from "../components/AdminLoginForm";
-import { BrandingPanel } from "../components/BrandingPanel";
+import {render, screen, fireEvent, waitFor, act} from "@testing-library/react";
+import {AdminLoginForm} from "../components/AdminLoginForm";
+import {BrandingPanel} from "../components/BrandingPanel";
 
 // Mock framer-motion to avoid animation issues in tests
 jest.mock("framer-motion", () => ({
   motion: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    div: ({children, ...props}: any) => <div {...props}>{children}</div>,
   },
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  AnimatePresence: ({children}: {children: React.ReactNode}) => <>{children}</>,
 }));
 
 jest.mock("@/application/useCases/auth/mockAdminLogin", () => ({
-  MockAdminLoginUseCase: { execute: jest.fn() },
+  MockAdminLoginUseCase: {execute: jest.fn()},
 }));
 
 jest.mock("next/navigation", () => ({
-  useRouter: () => ({ push: jest.fn() }),
+  useRouter: () => ({push: jest.fn()}),
 }));
 
 jest.mock("next-intl", () => ({
@@ -25,7 +25,7 @@ jest.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
-import { MockAdminLoginUseCase } from "@/application/useCases/auth/mockAdminLogin";
+import {MockAdminLoginUseCase} from "@/application/useCases/auth/mockAdminLogin";
 
 const mockExecute = MockAdminLoginUseCase.execute as jest.Mock;
 
@@ -44,7 +44,9 @@ describe("AdminLoginForm", () => {
 
     expect(screen.getByLabelText("login.email_label")).toBeInTheDocument();
     expect(screen.getByLabelText("login.password_label")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /login.submit/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {name: /login.submit/i}),
+    ).toBeInTheDocument();
   });
 
   it("shows validation error when submitted with empty email", async () => {
@@ -63,14 +65,16 @@ describe("AdminLoginForm", () => {
 
     // Fill in email so only password triggers error
     fireEvent.change(screen.getByLabelText("login.email_label"), {
-      target: { value: "admin@dentiflow.com" },
+      target: {value: "admin@dentiflow.com"},
     });
 
     const form = screen.getByLabelText("login.email_label").closest("form")!;
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(screen.getByText("validation.password_required")).toBeInTheDocument();
+      expect(
+        screen.getByText("validation.password_required"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -78,10 +82,14 @@ describe("AdminLoginForm", () => {
     render(<AdminLoginForm />);
 
     // Password input should be type="password" initially
-    const passwordInput = screen.getByLabelText("login.password_label") as HTMLInputElement;
+    const passwordInput = screen.getByLabelText(
+      "login.password_label",
+    ) as HTMLInputElement;
     expect(passwordInput.type).toBe("password");
 
-    const toggleBtn = screen.getByRole("button", { name: /toggle password visibility/i });
+    const toggleBtn = screen.getByRole("button", {
+      name: /toggle password visibility/i,
+    });
     fireEvent.click(toggleBtn);
 
     // After toggle, should be type="text"
@@ -94,18 +102,20 @@ describe("AdminLoginForm", () => {
     render(<AdminLoginForm />);
 
     fireEvent.change(screen.getByLabelText("login.email_label"), {
-      target: { value: "admin@dentiflow.com" },
+      target: {value: "admin@dentiflow.com"},
     });
 
     fireEvent.change(screen.getByLabelText("login.password_label"), {
-      target: { value: "admin123" },
+      target: {value: "admin123"},
     });
 
     const form = screen.getByLabelText("login.email_label").closest("form")!;
     fireEvent.submit(form);
 
     // Wait for loading state, then advance the 1500ms timer
-    await waitFor(() => expect(screen.getByText("login.authenticating")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText("login.authenticating")).toBeInTheDocument(),
+    );
 
     await act(async () => {
       jest.runAllTimers();
@@ -113,7 +123,10 @@ describe("AdminLoginForm", () => {
 
     await waitFor(() => {
       expect(mockExecute).toHaveBeenCalledWith(
-        expect.objectContaining({ email: "admin@dentiflow.com", password: "admin123" })
+        expect.objectContaining({
+          email: "admin@dentiflow.com",
+          password: "admin123",
+        }),
       );
     });
   });
@@ -124,18 +137,20 @@ describe("AdminLoginForm", () => {
     render(<AdminLoginForm />);
 
     fireEvent.change(screen.getByLabelText("login.email_label"), {
-      target: { value: "wrong@dentiflow.com" },
+      target: {value: "wrong@dentiflow.com"},
     });
 
     fireEvent.change(screen.getByLabelText("login.password_label"), {
-      target: { value: "wrongpass" },
+      target: {value: "wrongpass"},
     });
 
     const form = screen.getByLabelText("login.email_label").closest("form")!;
     fireEvent.submit(form);
 
     // Wait for loading state, then advance the 1500ms timer
-    await waitFor(() => expect(screen.getByText("login.authenticating")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText("login.authenticating")).toBeInTheDocument(),
+    );
 
     await act(async () => {
       jest.runAllTimers();
@@ -154,7 +169,7 @@ describe("BrandingPanel", () => {
     // Company name contains "Denti" and "Flow" in separate spans
     expect(screen.getByText(/Denti/i)).toBeInTheDocument();
     // h1 heading contains both taglines (may span multiple text nodes)
-    const heading = screen.getByRole("heading", { level: 1 });
+    const heading = screen.getByRole("heading", {level: 1});
     expect(heading).toHaveTextContent("branding.tagline_1");
     expect(heading).toHaveTextContent("branding.tagline_2");
   });

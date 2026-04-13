@@ -586,10 +586,12 @@ N/A
 ### File List
 
 **MOVED:**
+
 - `frontend/src/app/[locale]/admin/(dashboard)/layout.tsx` (was `admin/layout.tsx`)
 - `frontend/src/app/[locale]/admin/(dashboard)/dashboard/page.tsx` (was `admin/dashboard/page.tsx`)
 
 **NEW:**
+
 - `frontend/src/domain/auth/entities.ts`
 - `frontend/src/application/auth/adminAuthMockData.ts`
 - `frontend/src/application/useCases/auth/mockAdminLogin.ts`
@@ -602,6 +604,7 @@ N/A
 - `frontend/src/app/[locale]/admin/login/page.tsx`
 
 **MODIFIED:**
+
 - `frontend/src/shared/messages/en.json` (added `admin.auth` namespace)
 - `frontend/src/shared/messages/fr.json` (added `admin.auth` namespace)
 - `frontend/src/shared/messages/ar.json` (added `admin.auth` namespace)
