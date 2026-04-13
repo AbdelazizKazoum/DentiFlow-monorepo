@@ -1,4 +1,4 @@
-// No framework imports — pure TypeScript interfaces only
+// No framework imports — pure TypeScript domain types only
 
 export interface AdminLoginCredentials {
   email: string;
@@ -12,11 +12,4 @@ export interface AdminUser {
   lastName: string;
   email: string;
   role: "admin" | "doctor" | "secretariat";
-}
-
-export interface AdminAuthState {
-  isAuthenticated: boolean;
-  currentUser: AdminUser | null;
-  mockLogin: (credentials: AdminLoginCredentials) => boolean;
-  mockLogout: () => void;
 }

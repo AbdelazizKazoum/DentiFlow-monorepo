@@ -12,8 +12,8 @@ jest.mock("framer-motion", () => ({
   AnimatePresence: ({children}: {children: React.ReactNode}) => <>{children}</>,
 }));
 
-jest.mock("@/application/useCases/auth/mockAdminLogin", () => ({
-  MockAdminLoginUseCase: {execute: jest.fn()},
+jest.mock("@/presentation/stores/adminAuthStore", () => ({
+  useAdminAuthStore: jest.fn(),
 }));
 
 jest.mock("next/navigation", () => ({
@@ -25,11 +25,15 @@ jest.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
-import {MockAdminLoginUseCase} from "@/application/useCases/auth/mockAdminLogin";
+import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
 
-const mockExecute = MockAdminLoginUseCase.execute as jest.Mock;
+const mockLogin = jest.fn();
 
 beforeEach(() => {
+  (useAdminAuthStore as jest.Mock).mockImplementation(
+    (selector: (s: {login: jest.Mock}) => unknown) =>
+      selector({login: mockLogin}),
+  );
   jest.clearAllMocks();
   jest.useFakeTimers();
 });
@@ -96,8 +100,8 @@ describe("AdminLoginForm", () => {
     expect(passwordInput.type).toBe("text");
   });
 
-  it("calls MockAdminLoginUseCase.execute with form data on submission", async () => {
-    mockExecute.mockReturnValue(true);
+  it("calls store login with form data on submission", async () => {
+    mockLogin.mockResolvedValue(true);
 
     render(<AdminLoginForm />);
 
@@ -122,7 +126,7 @@ describe("AdminLoginForm", () => {
     });
 
     await waitFor(() => {
-      expect(mockExecute).toHaveBeenCalledWith(
+      expect(mockLogin).toHaveBeenCalledWith(
         expect.objectContaining({
           email: "admin@dentiflow.com",
           password: "admin123",
@@ -132,7 +136,7 @@ describe("AdminLoginForm", () => {
   });
 
   it("shows error status message when credentials are wrong", async () => {
-    mockExecute.mockReturnValue(false);
+    mockLogin.mockResolvedValue(false);
 
     render(<AdminLoginForm />);
 

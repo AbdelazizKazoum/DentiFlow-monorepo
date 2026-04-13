@@ -1,29 +1,28 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
-import type {
-  AdminAuthState,
-  AdminLoginCredentials,
-} from "@/domain/auth/entities";
-import {
-  MOCK_ADMIN_USERS,
-  MOCK_ADMIN_PASSWORD,
-} from "@/application/auth/adminAuthMockData";
+import type {AdminUser} from "@/domain/auth/entities/AdminUser";
+import type {AdminLoginCredentials} from "@/domain/auth/entities/AdminUser";
+import {adminLoginUseCase} from "@/infrastructure/container";
 
-export const useAdminAuthStore = create<AdminAuthState>()(
+interface AdminAuthStoreState {
+  isAuthenticated: boolean;
+  currentUser: AdminUser | null;
+  login: (credentials: AdminLoginCredentials) => Promise<boolean>;
+  logout: () => void;
+}
+
+export const useAdminAuthStore = create<AdminAuthStoreState>()(
   persist(
     (set) => ({
       isAuthenticated: false,
       currentUser: null,
-      mockLogin: (credentials: AdminLoginCredentials): boolean => {
-        if (credentials.password !== MOCK_ADMIN_PASSWORD) return false;
-        const user = MOCK_ADMIN_USERS.find(
-          (u) => u.email === credentials.email,
-        );
+      login: async (credentials: AdminLoginCredentials): Promise<boolean> => {
+        const user = await adminLoginUseCase.execute(credentials);
         if (!user) return false;
         set({isAuthenticated: true, currentUser: user});
         return true;
       },
-      mockLogout: () => set({isAuthenticated: false, currentUser: null}),
+      logout: () => set({isAuthenticated: false, currentUser: null}),
     }),
     {name: "admin-auth-storage"},
   ),

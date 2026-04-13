@@ -5,13 +5,14 @@ import {motion, AnimatePresence} from "framer-motion";
 import {Mail, Lock, Eye, EyeOff, ArrowRight} from "lucide-react";
 import {useRouter} from "next/navigation";
 import {useLocale, useTranslations} from "next-intl";
-import {MockAdminLoginUseCase} from "@/application/useCases/auth/mockAdminLogin";
-import type {AdminLoginCredentials} from "@/domain/auth/entities";
+import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
+import type {AdminLoginCredentials} from "@/domain/auth/entities/AdminUser";
 
 export function AdminLoginForm() {
   const t = useTranslations("admin.auth");
   const locale = useLocale();
   const router = useRouter();
+  const login = useAdminAuthStore((state) => state.login);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -26,7 +27,7 @@ export function AdminLoginForm() {
   const onSubmit = async (data: AdminLoginCredentials) => {
     setStatus("loading");
     await new Promise((r) => setTimeout(r, 1500));
-    const success = MockAdminLoginUseCase.execute(data);
+    const success = await login(data);
     if (success) {
       setStatus("success");
       setTimeout(() => router.push(`/${locale}/admin/dashboard`), 1000);
