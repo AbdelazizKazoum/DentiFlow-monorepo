@@ -74,8 +74,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             key={item.name}
             onClick={() => onTabChange(item.name)}
-            className={`w-full flex items-center rounded-xl transition-colors duration-200 group relative py-3.5
-              ${isExpanded ? "px-5 gap-4" : "justify-center px-0"}
+            className={`w-full h-11 flex items-center rounded-xl transition-colors duration-200 group relative
+              ${isExpanded ? "px-5 gap-4" : "justify-center"}
               ${
                 activeTab === item.name
                   ? "bg-white text-primary font-semibold shadow-md"
@@ -109,9 +109,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Logout */}
       <div className="p-3 mb-4">
         <button
-          className={`w-full flex items-center rounded-xl text-white/70
-            hover:bg-white/10 hover:text-white transition-colors duration-200 py-3.5
-            ${isExpanded ? "px-5 gap-4" : "justify-center px-0"}`}
+          className={`w-full h-11 flex items-center rounded-xl text-white/70
+            hover:bg-white/10 hover:text-white transition-colors duration-200
+            ${isExpanded ? "px-5 gap-4" : "justify-center"}`}
         >
           <LogOut size={22} className="flex-shrink-0" />
           <span
