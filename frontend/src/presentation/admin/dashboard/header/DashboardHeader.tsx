@@ -1,5 +1,13 @@
 import React from "react";
-import {Bell, Sun, Moon, Search, Settings, Menu} from "lucide-react";
+import {
+  Bell,
+  Sun,
+  Moon,
+  Search,
+  Settings,
+  Menu,
+  ChevronsRight,
+} from "lucide-react";
 
 interface DashboardHeaderProps {
   onToggleTheme: () => void;
@@ -20,8 +28,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <button
           onClick={onToggleSidebar}
           className="p-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:bg-surface-hover transition-colors"
+          title={isSidebarCollapsed ? "Open sidebar" : "Close sidebar"}
         >
-          <Menu size={17} />
+          {isSidebarCollapsed ? (
+            <ChevronsRight size={17} />
+          ) : (
+            <Menu size={17} />
+          )}
         </button>
 
         <h1 className="text-sm font-semibold text-slate-700 dark:text-slate-200 tracking-tight">
@@ -52,13 +65,21 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           >
             {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
           </button>
-          <button className="relative px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-surface-hover transition-colors" title="Notifications">
+          <button
+            className="relative px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-surface-hover transition-colors"
+            title="Notifications"
+          >
             <Bell size={17} />
             <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-card"></span>
           </button>
-          <button className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:bg-surface-hover transition-colors rounded-r-lg" title="Settings">
+          <button
+            className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:bg-surface-hover transition-colors rounded-r-lg"
+            title="Settings"
+          >
             <Settings size={17} />
-            <span className="text-xs font-medium hidden sm:inline">Settings</span>
+            <span className="text-xs font-medium hidden sm:inline">
+              Settings
+            </span>
           </button>
         </div>
       </div>
