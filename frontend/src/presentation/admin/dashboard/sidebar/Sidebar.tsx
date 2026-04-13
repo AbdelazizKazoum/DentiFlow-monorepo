@@ -7,8 +7,8 @@ import {
   Pill,
   LogOut,
 } from "lucide-react";
-import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
-import { useLocale } from "next-intl";
+import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
+import {useLocale} from "next-intl";
 
 interface SidebarProps {
   activeTab: string;

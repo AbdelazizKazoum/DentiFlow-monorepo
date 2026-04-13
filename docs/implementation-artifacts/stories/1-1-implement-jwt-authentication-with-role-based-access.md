@@ -525,11 +525,9 @@ Claude Sonnet 4.6
 
 ### Debug Log References
 
-
 ### Completion Notes List
 
 - Implemented logout in the admin dashboard sidebar: clicking the logout button now calls `logout(locale)` from the store, which invokes NextAuth's `signOut` and redirects to the locale login page.
-
 
 ### File List
 
