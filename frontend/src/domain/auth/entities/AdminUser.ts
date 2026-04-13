@@ -1,5 +1,12 @@
 // No framework imports — pure TypeScript domain types only
 
+export type UserRole =
+  | "patient"
+  | "secretariat"
+  | "dental_assistant"
+  | "doctor"
+  | "admin";
+
 export interface AdminLoginCredentials {
   email: string;
   password: string;
@@ -11,5 +18,5 @@ export interface AdminUser {
   firstName: string;
   lastName: string;
   email: string;
-  role: "admin" | "doctor" | "secretariat";
+  role: UserRole;
 }

@@ -25,6 +25,13 @@ jest.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
+jest.mock("next-auth/react", () => ({
+  useSession: () => ({data: null, status: "unauthenticated"}),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  SessionProvider: ({children}: {children: React.ReactNode}) => children,
+}));
+
 import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
 
 const mockLogin = jest.fn();
