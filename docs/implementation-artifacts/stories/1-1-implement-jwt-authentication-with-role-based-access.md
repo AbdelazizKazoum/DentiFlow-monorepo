@@ -1,6 +1,6 @@
 # Story 1.1: Implement JWT Authentication with Role-Based Access
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
