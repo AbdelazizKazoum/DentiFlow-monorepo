@@ -89,5 +89,37 @@
         }
       }
     }
+  },
+  "admin": {
+    "auth": {
+      "login": {
+        "title": "Admin Login",
+        "subtitle": "Please enter your credentials to access the management portal.",
+        "email_label": "Admin Email",
+        "email_placeholder": "admin@dentiflow.com",
+        "password_label": "Password",
+        "forgot": "Forgot?",
+        "remember": "Keep me signed in for 30 days",
+        "submit": "Secure Access",
+        "authenticating": "Authenticating\u2026",
+        "success": "Login successful! Redirecting\u2026",
+        "error": "Invalid credentials. Please try again.",
+        "support_text": "Need technical assistance?",
+        "support_link": "Contact IT Support"
+      },
+      "branding": {
+        "tagline_1": "Precision Care,",
+        "tagline_2": "Smart Management.",
+        "description": "Welcome back to the DentiFlow Admin Portal. Manage appointments, patients, and clinic operations in one place.",
+        "stats_label": "Active Patients Today",
+        "copyright": "\u00a9 2026 DentiFlow Systems. All rights reserved."
+      },
+      "validation": {
+        "email_required": "Email is required",
+        "email_invalid": "Enter a valid email address",
+        "password_required": "Password is required",
+        "password_min": "Password must be at least 6 characters"
+      }
+    }
   }
 }

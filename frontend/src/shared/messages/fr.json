@@ -89,5 +89,37 @@
         }
       }
     }
+  },
+  "admin": {
+    "auth": {
+      "login": {
+        "title": "Connexion Admin",
+        "subtitle": "Veuillez entrer vos identifiants pour acc\u00e9der au portail de gestion.",
+        "email_label": "Email Admin",
+        "email_placeholder": "admin@dentiflow.com",
+        "password_label": "Mot de passe",
+        "forgot": "Oubli\u00e9?",
+        "remember": "Rester connect\u00e9 pendant 30 jours",
+        "submit": "Acc\u00e8s S\u00e9curis\u00e9",
+        "authenticating": "Authentification\u2026",
+        "success": "Connexion r\u00e9ussie! Redirection\u2026",
+        "error": "Identifiants invalides. Veuillez r\u00e9essayer.",
+        "support_text": "Besoin d'assistance technique?",
+        "support_link": "Contacter le support IT"
+      },
+      "branding": {
+        "tagline_1": "Soins de Pr\u00e9cision,",
+        "tagline_2": "Gestion Intelligente.",
+        "description": "Bienvenue sur le portail Admin DentiFlow. G\u00e9rez les rendez-vous, les patients et les op\u00e9rations de la clinique en un seul endroit.",
+        "stats_label": "Patients Actifs Aujourd'hui",
+        "copyright": "\u00a9 2026 DentiFlow Systems. Tous droits r\u00e9serv\u00e9s."
+      },
+      "validation": {
+        "email_required": "L'email est requis",
+        "email_invalid": "Entrez une adresse email valide",
+        "password_required": "Le mot de passe est requis",
+        "password_min": "Le mot de passe doit comporter au moins 6 caract\u00e8res"
+      }
+    }
   }
 }

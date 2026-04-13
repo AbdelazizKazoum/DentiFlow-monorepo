@@ -202,40 +202,100 @@ Aligned with the UX Design Specification, the frontend adopts a modern, hybrid d
 
 ### Folder Structure
 
-All frontend code resides in the `frontend/` folder for isolation, following Clean Architecture principles:
+All frontend code resides in the `frontend/src/` folder, organized by feature within each Clean Architecture layer:
 
 ```
 frontend/
 ├── src/
-│   ├── application/        # Use cases, application services
-│   ├── domain/             # Entities, domain logic, interfaces
-│   ├── infrastructure/     # External concerns (API, persistence, UI framework adapters)
-│   │   ├── api/            # Axios configuration, interceptors
-│   │   ├── stores/         # Zustand stores for global state
-│   │   └── ui/             # MUI/Tailwind adapters
-│   └── presentation/       # React components, pages, hooks
-├── public/                 # Static assets
-├── Dockerfile.dev          # Development Dockerfile
-├── Dockerfile.prod         # Production Dockerfile
-└── package.json            # Dependencies and scripts
+│   ├── domain/
+│   │   ├── appointment/
+│   │   │   ├── entities/           # Appointment.ts (pure TS, no framework)
+│   │   │   └── repositories/       # AppointmentRepository.ts (interface only)
+│   │   ├── auth/
+│   │   │   ├── entities/
+│   │   │   └── repositories/
+│   │   ├── patient/
+│   │   │   ├── entities/
+│   │   │   └── repositories/
+│   │   └── treatment/
+│   │       ├── entities/
+│   │       └── repositories/
+│   ├── application/
+│   │   ├── appointment/
+│   │   │   └── useCases/           # CreateAppointment.ts, GetAppointments.ts, etc.
+│   │   └── auth/
+│   │       └── useCases/
+│   ├── infrastructure/
+│   │   ├── api/                    # HTTP calls only (Axios) — no business logic
+│   │   │   ├── appointmentApi.ts
+│   │   │   └── types.ts            # DTO types (API request/response shapes)
+│   │   ├── mappers/                # DTO → Domain Entity conversion
+│   │   │   └── appointmentMapper.ts
+│   │   ├── repositories/           # Domain interface implementations
+│   │   │   └── AppointmentRepositoryImpl.ts
+│   │   └── container/              # Dependency injection — instantiates repos + use cases
+│   │       └── index.ts
+│   ├── presentation/
+│   │   ├── store/                  # Zustand stores (call use cases, never API directly)
+│   │   │   └── useAppointmentStore.ts
+│   │   ├── components/             # React components (call store/use cases only)
+│   │   └── app/                    # Next.js App Router pages and layouts
+│   │       ├── [locale]/
+│   │       │   ├── layout.tsx
+│   │       │   ├── page.tsx
+│   │       │   ├── patient/
+│   │       │   ├── secretary/
+│   │       │   ├── doctor/
+│   │       │   ├── assistant/
+│   │       │   └── admin/
+│   │       └── api/
+│   │           └── auth/
+│   │               └── [...nextauth]/
+│   │                   └── route.ts
+│   └── shared/
+│       ├── types/                  # Shared cross-cutting types (NOT domain entities)
+│       └── utils/                  # Pure utility functions
+├── public/                         # Static assets
+├── Dockerfile.dev
+├── Dockerfile.prod
+└── package.json
 ```
 
 ### Clean Architecture Principles
 
-The frontend adheres to Clean Architecture:
+The frontend adheres strictly to feature-based Clean Architecture. Each feature (appointment, auth, patient, treatment) is a vertical slice through every layer.
 
-- **Domain Layer:** Core business logic, entities, and interfaces (independent of frameworks).
-- **Application Layer:** Use cases orchestrating domain logic.
-- **Infrastructure Layer:** Framework-specific implementations (React, Axios, Zustand).
-- **Presentation Layer:** UI components and user interactions.
-- **Dependency Inversion:** Inner layers don't depend on outer layers; abstractions define boundaries.
-- **SOLID Principles:** Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion enforced across layers.
+**Layer Responsibilities:**
+
+- **Domain Layer:** Contains ONLY entities (pure TypeScript business models with `Date`, enums, camelCase fields) and repository interfaces. Zero framework dependencies. No global `entities/` folder — entities live inside their feature sub-folder.
+- **Application Layer:** Contains ONLY use cases. Each use case is a class with an `execute()` method. Depends solely on domain repository interfaces. No API calls, no HTTP, no framework code.
+- **Infrastructure Layer:** Contains HTTP calls (`api/`), DTO types (`api/types.ts`), mappers (`mappers/`), repository implementations (`repositories/`), and the DI container (`container/`). DTOs must never leave this layer.
+- **Presentation Layer:** Contains Zustand stores (`store/`), React components (`components/`), and Next.js App Router pages (`app/`). Stores call use cases via the DI container; they never call the API directly.
+- **Shared Layer:** Cross-cutting utilities and types that are NOT domain entities.
+
+**Mandatory Dependency Direction:**
+
+```
+presentation → application → domain
+infrastructure → domain (implements interfaces)
+infrastructure → application (wires use cases)
+```
+
+**Strictly Forbidden:**
+
+- ❌ No global `entities/` folder
+- ❌ No API calls in Zustand stores or React components
+- ❌ No DTO types used outside `infrastructure/`
+- ❌ No business logic inside Zustand stores
+- ❌ No repository interfaces declared inside `infrastructure/`
 
 ### State Management
 
-- **Global State:** Zustand for lightweight, scalable state management (replaces Redux for simplicity).
-- **API Communication:** Axios with centralized configuration for interceptors (auth, error handling) and base URL.
-- **Stores:** Modular Zustand stores for user auth, clinic data, queue state, etc., ensuring separation of concerns.
+- **Global State:** Zustand stores under `presentation/store/`, one store per feature.
+- **Correct data flow:** `Zustand store` → `UseCase.execute()` → `RepositoryImpl` → `API` → `Mapper` → domain entity returned up the chain.
+- **Server pages (SSR):** May call use cases directly from the DI container without Zustand — still must never call the API directly.
+- **API Communication:** Axios configured in `infrastructure/api/`; interceptors handle auth headers and error normalization.
+- **DTO ≠ Entity:** `types.ts` DTOs use raw API shapes (snake_case, string dates). Domain entities use clean TypeScript shapes (camelCase, `Date` objects). Conversion happens exclusively in `mappers/`.
 
 ### Backend Integration
 
@@ -480,14 +540,20 @@ To keep service autonomy and future V2 multi-tenant evolution intact, the concep
 
 **Frontend Clean Architecture (Required):**
 
-- `domain/`: pure business models, value objects, and domain rules (framework-agnostic)
-- `application/`: use-cases and orchestration logic (no UI framework code)
-- `infrastructure/`: API clients, SSE adapters, storage adapters, mapper implementations
-- `presentation/`: React components, hooks, and view models (no routing ownership)
-- `app/`: Next.js App Router adapter layer only (`layout.tsx`, `page.tsx`, route handlers)
-- `shared/`: cross-cutting UI/core helpers (constants, utils, common types)
-- Dependency direction must remain inward (`app/presentation` -> `application` -> `domain`)
-- No direct HTTP/SSE calls inside page components; always through application/infrastructure ports
+The frontend uses a **feature-based** Clean Architecture. Each domain feature (appointment, auth, patient, treatment, etc.) is organized as a vertical slice within each layer — there is no global `entities/` folder.
+
+- `domain/{feature}/entities/`: Pure TypeScript business models. Use `Date` objects, enums, camelCase. Framework-agnostic.
+- `domain/{feature}/repositories/`: Repository interfaces declared here. Never in infrastructure.
+- `application/{feature}/useCases/`: One class per use case with an `execute()` method. Depends only on domain repository interfaces. No API calls.
+- `infrastructure/api/`: HTTP calls only (Axios). No business logic. Contains `types.ts` for DTO shapes (API request/response — these are NOT domain entities).
+- `infrastructure/mappers/`: Convert DTO → Domain Entity (handle snake_case → camelCase, string → Date).
+- `infrastructure/repositories/`: Implement domain repository interfaces. Use API + mappers. Return only domain entities.
+- `infrastructure/container/index.ts`: Instantiates repositories and use cases. Acts as the DI container.
+- `presentation/store/`: Zustand stores. Call use cases via the container. Never call API directly.
+- `presentation/components/`: React components. Never call API directly.
+- `presentation/app/`: Next.js App Router adapter layer only (`layout.tsx`, `page.tsx`, route handlers). SSR pages may call use cases directly from the container.
+- `shared/`: Cross-cutting utilities and types that are NOT domain entities.
+- Dependency direction must remain: `presentation` → `application` → `domain`; `infrastructure` implements `domain` interfaces.
 
 **NextAuth v4 Integration Rules:**
 
@@ -633,48 +699,91 @@ dentiflow/
   docker-compose.override.yml
 ```
 
-**Frontend Internal Structure (Clean Architecture):**
+**Frontend Internal Structure (Clean Architecture — Feature-Based):**
 
 ```text
-apps/frontend/src/
-├── app/
-│   ├── [locale]/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── patient/
-│   │   ├── secretary/
-│   │   ├── doctor/
-│   │   ├── assistant/
-│   │   └── admin/
-│   └── api/
-│       └── auth/
-│           └── [...nextauth]/
-│               └── route.ts
+frontend/src/
+│
 ├── domain/
-│   ├── entities/
-│   ├── value-objects/
-│   └── services/
+│   ├── appointment/
+│   │   ├── entities/
+│   │   │   └── Appointment.ts          # Pure TS: Date objects, enums, camelCase
+│   │   └── repositories/
+│   │       └── AppointmentRepository.ts  # Interface only — implemented in infrastructure
+│   ├── auth/
+│   │   ├── entities/
+│   │   └── repositories/
+│   ├── patient/
+│   │   ├── entities/
+│   │   └── repositories/
+│   └── treatment/
+│       ├── entities/
+│       └── repositories/
+│
 ├── application/
-│   ├── use-cases/
-│   ├── ports/
-│   └── dto/
+│   ├── appointment/
+│   │   └── useCases/
+│   │       ├── CreateAppointment.ts     # class with execute() — no API calls
+│   │       ├── GetAppointments.ts
+│   │       └── UpdateAppointmentStatus.ts
+│   └── auth/
+│       └── useCases/
+│
 ├── infrastructure/
 │   ├── api/
-│   ├── sse/
-│   ├── auth/
-│   ├── storage/
-│   ├── stores/         # Zustand stores
-│   └── mappers/
+│   │   ├── appointmentApi.ts            # Axios HTTP calls only
+│   │   └── types.ts                     # DTO types: snake_case, string dates
+│   ├── mappers/
+│   │   └── appointmentMapper.ts         # DTO → Domain Entity
+│   ├── repositories/
+│   │   └── AppointmentRepositoryImpl.ts # Implements AppointmentRepository interface
+│   └── container/
+│       └── index.ts                     # DI: instantiates repos + use cases
+│
 ├── presentation/
-│   ├── components/
-│   ├── hooks/
-│   ├── view-models/
-│   └── pages/
+│   ├── store/
+│   │   └── useAppointmentStore.ts       # Zustand: calls use cases via container
+│   ├── components/                      # React components — no direct API calls
+│   └── app/                             # Next.js App Router (pages + layouts)
+│       ├── [locale]/
+│       │   ├── layout.tsx
+│       │   ├── page.tsx
+│       │   ├── patient/
+│       │   ├── secretary/
+│       │   ├── doctor/
+│       │   ├── assistant/
+│       │   └── admin/
+│       └── api/
+│           └── auth/
+│               └── [...nextauth]/
+│                   └── route.ts
+│
 └── shared/
-    ├── constants/
-    ├── utils/
-    ├── types/
-    └── styles/
+    ├── types/                           # Shared cross-cutting types (NOT domain entities)
+    └── utils/                           # Pure utility functions
+```
+
+**Feature-Based Layer Rules:**
+
+| Layer                             | Contains                     | Forbidden                |
+| --------------------------------- | ---------------------------- | ------------------------ |
+| `domain/{feature}/entities/`      | Pure TS business models      | Framework imports, DTOs  |
+| `domain/{feature}/repositories/`  | Repository interfaces        | Implementations          |
+| `application/{feature}/useCases/` | `execute()` classes          | API calls, HTTP, UI code |
+| `infrastructure/api/`             | HTTP calls (Axios)           | Business logic           |
+| `infrastructure/api/types.ts`     | DTO shapes                   | Domain entities          |
+| `infrastructure/mappers/`         | DTO → Entity conversion      | Business rules           |
+| `infrastructure/repositories/`    | Interface implementations    | New interfaces           |
+| `infrastructure/container/`       | DI wiring                    | Business logic           |
+| `presentation/store/`             | Zustand stores (→ use cases) | Direct API calls         |
+| `presentation/components/`        | React components             | Direct API calls         |
+| `presentation/app/`               | Next.js routing adapter      | Business logic           |
+| `shared/`                         | Cross-cutting utils/types    | Domain entities          |
+
+**Correct Data Flow:**
+
+```
+Zustand store → UseCase.execute() → RepositoryImpl → API → Mapper → Domain Entity
 ```
 
 **Shared Module Reuse Rule:**
@@ -1510,8 +1619,8 @@ services:
     image: ghcr.io/your-org/dentiflow/api-gateway:${TAG}
     env_file: [.env.prod]
     depends_on:
-      mysql: { condition: service_healthy }
-      nats: { condition: service_healthy }
+      mysql: {condition: service_healthy}
+      nats: {condition: service_healthy}
     ports:
       - "3001:3001"
     restart: unless-stopped
@@ -1521,7 +1630,7 @@ services:
     image: ghcr.io/your-org/dentiflow/frontend:${TAG}
     env_file: [.env.prod]
     depends_on:
-      api-gateway: { condition: service_started }
+      api-gateway: {condition: service_started}
     ports:
       - "3000:3000"
     restart: unless-stopped

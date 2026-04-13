@@ -89,12 +89,19 @@ dentiflow/
 
 ### Clean Architecture Implementation
 
-**Frontend Layers:**
+**Frontend Layers (Feature-Based):**
 
-- `domain/`: Entities, value objects, business rules
-- `application/`: Use cases, ports, DTOs
-- `infrastructure/`: API clients, stores, external integrations
-- `presentation/`: Components, hooks, view models
+- `domain/{feature}/entities/`: Pure TypeScript business models (`Date`, enums, camelCase). Zero framework dependencies. No global `entities/` folder.
+- `domain/{feature}/repositories/`: Repository interfaces declared here, never in infrastructure.
+- `application/{feature}/useCases/`: Classes with `execute()`. Depends only on domain interfaces. No API calls.
+- `infrastructure/api/`: Axios HTTP calls only. `types.ts` holds DTO shapes (NOT domain entities).
+- `infrastructure/mappers/`: DTO → Domain Entity conversion (snake_case → camelCase, string → Date).
+- `infrastructure/repositories/`: Implement domain interfaces using API + mappers. Return only domain entities.
+- `infrastructure/container/index.ts`: DI wiring — instantiates repositories and use cases.
+- `presentation/store/`: Zustand stores per feature. Call use cases via container. Never call API directly.
+- `presentation/components/`: React components. Never call API directly.
+- `presentation/app/`: Next.js App Router adapter only (layouts, pages, route handlers). SSR pages call use cases from container.
+- `shared/`: Cross-cutting utilities and types that are NOT domain entities.
 
 **Backend Layers:**
 
@@ -175,6 +182,19 @@ dentiflow/
 - **Migrations:** Per-service, version-controlled, rollback-safe
 - **Indexing:** Performance-critical queries indexed
 - **Clinic Isolation:** All queries filtered by `clinic_id`
+
+### Frontend Clean Architecture Guidelines
+
+- **Feature-based organization:** Every domain feature (appointment, auth, patient, treatment) is a vertical slice across all layers.
+- **Correct data flow:** `Zustand store` → `UseCase.execute()` → `RepositoryImpl` → `API` → `Mapper` → Domain Entity.
+- **DTO ≠ Entity:** `infrastructure/api/types.ts` DTOs use raw API shapes. Domain entities use clean TS types. Conversion happens exclusively in `mappers/`.
+- **Dependency direction:** `presentation` → `application` → `domain`; `infrastructure` implements `domain` interfaces.
+- **Forbidden patterns:**
+  - ❌ No global `entities/` folder
+  - ❌ No API calls in Zustand stores or React components
+  - ❌ No DTO types used outside `infrastructure/`
+  - ❌ No business logic in Zustand stores
+  - ❌ No repository interfaces declared inside `infrastructure/`
 
 ### API Guidelines
 
