@@ -51,7 +51,7 @@ development_status:
   epic-7-retrospective: optional
 
   epic-8: in-progress
-  8-1-initialize-shared-packages-shared-db-shared-logger-shared-config: ready-for-dev
+  8-1-initialize-shared-packages-shared-db-shared-logger-shared-config: review
   8-2-set-up-api-gateway-with-basic-routing: ready-for-dev
   8-3-initialize-auth-service-with-basic-endpoints: ready-for-dev
   8-4-configure-docker-compose-for-local-development: ready-for-dev

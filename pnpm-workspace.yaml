@@ -1,4 +1,9 @@
+packages:
+  - "frontend"
+  - "packages/*"
+  - "services/*"
+
 allowBuilds:
-  '@parcel/watcher': false
-  '@swc/core': false
+  "@parcel/watcher": false
+  "@swc/core": false
   sharp: false
