@@ -84,7 +84,7 @@ so that all downstream services are protected behind a single authenticated ingr
 
 9. **No stack traces in error responses.** Override `handleRequest` in `JwtAuthGuard` to catch errors and re-throw a clean `UnauthorizedException`. Never leak internal error details to HTTP clients. [Source: OWASP A05:2021 — Security Misconfiguration]
 
-10. **`tsconfig.json` for `api-gateway` must set `rootDir: ".."` and include `../lib/**/*.ts`.** This compiles lib source directly into the gateway bundle (since lib has no own build step/package.json). Without `rootDir: ".."`, TypeScript will reject imports outside the `src/` folder. [Source: Story 8.1 Dev Notes — lib has no package.json]
+10. **`tsconfig.json` for `api-gateway` must set `rootDir: ".."` and include `../lib/**/\*.ts`.** This compiles lib source directly into the gateway bundle (since lib has no own build step/package.json). Without `rootDir: ".."`, TypeScript will reject imports outside the `src/` folder. [Source: Story 8.1 Dev Notes — lib has no package.json]
 
 11. **Each service has its own `package.json` as a pnpm workspace member.** `pnpm-workspace.yaml` has `services/*` which makes api-gateway a separate workspace package. It must have its own `package.json` with `"name": "dentiflow-api-gateway"`. [Source: docs/implementation-artifacts/stories/8-1-initialize-shared-packages-shared-db-shared-logger-shared-config.md#Project Structure Notes]
 
@@ -160,6 +160,7 @@ services/
 ### Key Code Patterns
 
 **`services/api-gateway/package.json`:**
+
 ```json
 {
   "name": "dentiflow-api-gateway",
@@ -209,6 +210,7 @@ services/
 ```
 
 **`services/api-gateway/tsconfig.json`:**
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -227,76 +229,80 @@ services/
 ```
 
 **`services/api-gateway/jest.config.ts`:**
+
 ```typescript
-import type { Config } from 'jest';
+import type {Config} from "jest";
 
 const config: Config = {
-  moduleFileExtensions: ['js', 'json', 'ts'],
-  roots: ['<rootDir>/src'],
-  testRegex: '.*\\.spec\\.ts$',
-  setupFiles: ['<rootDir>/jest.setup.ts'],
+  moduleFileExtensions: ["js", "json", "ts"],
+  roots: ["<rootDir>/src"],
+  testRegex: ".*\\.spec\\.ts$",
+  setupFiles: ["<rootDir>/jest.setup.ts"],
   transform: {
-    '^.+\\.(t|j)s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],
+    "^.+\\.(t|j)s$": ["ts-jest", {tsconfig: "<rootDir>/tsconfig.json"}],
   },
   moduleNameMapper: {
-    '^@lib$': '<rootDir>/../lib/index',
-    '^@lib/(.*)$': '<rootDir>/../lib/$1',
+    "^@lib$": "<rootDir>/../lib/index",
+    "^@lib/(.*)$": "<rootDir>/../lib/$1",
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s'],
-  coverageDirectory: './coverage',
-  testEnvironment: 'node',
+  collectCoverageFrom: ["src/**/*.(t|j)s"],
+  coverageDirectory: "./coverage",
+  testEnvironment: "node",
 };
 
 export default config;
 ```
 
 **`services/api-gateway/jest.setup.ts`:**
+
 ```typescript
-import 'reflect-metadata';
+import "reflect-metadata";
 ```
 
 **`services/api-gateway/src/main.ts`:**
+
 ```typescript
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { AppLogger, CorrelationInterceptor } from '../../lib';
-import { ConfigService } from '@nestjs/config';
+import "reflect-metadata";
+import {NestFactory} from "@nestjs/core";
+import {AppModule} from "./app.module";
+import {AppLogger, CorrelationInterceptor} from "../../lib";
+import {ConfigService} from "@nestjs/config";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {bufferLogs: true});
 
   app.useLogger(app.get(AppLogger));
   app.useGlobalInterceptors(app.get(CorrelationInterceptor));
 
   // /health and /events/queue are outside the versioned API prefix
-  app.setGlobalPrefix('api/v1', {
-    exclude: ['/health', '/events/queue'],
+  app.setGlobalPrefix("api/v1", {
+    exclude: ["/health", "/events/queue"],
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT', 3000);
+  const port = configService.get<number>("PORT", 3000);
 
   await app.listen(port);
-  app.get(AppLogger).log(`API Gateway running on port ${port}`, 'Bootstrap');
+  app.get(AppLogger).log(`API Gateway running on port ${port}`, "Bootstrap");
 }
 
 bootstrap();
 ```
 
 **`services/api-gateway/src/app.module.ts`:**
+
 ```typescript
-import { Module } from '@nestjs/common';
-import { ConfigModule as NestConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { HttpModule } from '@nestjs/axios';
-import { LoggerModule } from '../../lib/logger';
-import { validateGatewayEnv } from './shared/env.validation';
-import { JwtStrategy } from './shared/strategies/jwt.strategy';
-import { HealthModule } from './presentation/health/health.module';
-import { SseModule } from './presentation/sse/sse.module';
-import { ProxyModule } from './presentation/proxy/proxy.module';
+import {Module} from "@nestjs/common";
+import {ConfigModule as NestConfigModule, ConfigService} from "@nestjs/config";
+import {JwtModule} from "@nestjs/jwt";
+import {PassportModule} from "@nestjs/passport";
+import {HttpModule} from "@nestjs/axios";
+import {LoggerModule} from "../../lib/logger";
+import {validateGatewayEnv} from "./shared/env.validation";
+import {JwtStrategy} from "./shared/strategies/jwt.strategy";
+import {HealthModule} from "./presentation/health/health.module";
+import {SseModule} from "./presentation/sse/sse.module";
+import {ProxyModule} from "./presentation/proxy/proxy.module";
 
 @Module({
   imports: [
@@ -305,22 +311,22 @@ import { ProxyModule } from './presentation/proxy/proxy.module';
     NestConfigModule.forRoot({
       isGlobal: true,
       validate: validateGatewayEnv,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [".env.local", ".env"],
     }),
 
     // Global structured JSON logger + correlation interceptor
     LoggerModule,
 
     // Passport with JWT as default strategy
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({defaultStrategy: "jwt"}),
 
     // JwtModule — used by JwtStrategy for signature verification
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.getOrThrow<string>('JWT_SECRET'),
+        secret: configService.getOrThrow<string>("JWT_SECRET"),
         signOptions: {
-          expiresIn: configService.get<number>('JWT_EXPIRES_IN', 900),
+          expiresIn: configService.get<number>("JWT_EXPIRES_IN", 900),
         },
       }),
     }),
@@ -339,8 +345,9 @@ export class AppModule {}
 ```
 
 **`services/api-gateway/src/shared/env.validation.ts`:**
+
 ```typescript
-import { plainToInstance } from 'class-transformer';
+import {plainToInstance} from "class-transformer";
 import {
   IsEnum,
   IsNumber,
@@ -349,12 +356,12 @@ import {
   Max,
   Min,
   validateSync,
-} from 'class-validator';
+} from "class-validator";
 
 export enum NodeEnvironment {
-  Development = 'development',
-  Production = 'production',
-  Test = 'test',
+  Development = "development",
+  Production = "production",
+  Test = "test",
 }
 
 /**
@@ -375,7 +382,7 @@ export class GatewayEnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  LOG_LEVEL: string = 'info';
+  LOG_LEVEL: string = "info";
 
   @IsNumber()
   @Min(1)
@@ -386,11 +393,11 @@ export class GatewayEnvironmentVariables {
   // Downstream service URLs — placeholder until gRPC in Story 8.5
   @IsString()
   @IsOptional()
-  AUTH_SERVICE_URL: string = 'http://auth-service:3001';
+  AUTH_SERVICE_URL: string = "http://auth-service:3001";
 
   @IsString()
   @IsOptional()
-  CLINIC_SERVICE_URL: string = 'http://clinic-service:3002';
+  CLINIC_SERVICE_URL: string = "http://clinic-service:3002";
 }
 
 export function validateGatewayEnv(
@@ -399,11 +406,11 @@ export function validateGatewayEnv(
   const validated = plainToInstance(GatewayEnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
-  const errors = validateSync(validated, { skipMissingProperties: false });
+  const errors = validateSync(validated, {skipMissingProperties: false});
   if (errors.length > 0) {
     const messages = errors
-      .map((e) => Object.values(e.constraints ?? {}).join(', '))
-      .join('\n');
+      .map((e) => Object.values(e.constraints ?? {}).join(", "))
+      .join("\n");
     throw new Error(`Gateway environment validation failed:\n${messages}`);
   }
   return validated;
@@ -411,6 +418,7 @@ export function validateGatewayEnv(
 ```
 
 **`services/api-gateway/src/domain/auth/entities/jwt-payload.entity.ts`:**
+
 ```typescript
 /**
  * JwtPayload — the verified claims extracted from a DentilFlow JWT.
@@ -427,12 +435,13 @@ export interface JwtPayload {
 ```
 
 **`services/api-gateway/src/shared/strategies/jwt.strategy.ts`:**
+
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../../domain/auth/entities/jwt-payload.entity';
+import {Injectable} from "@nestjs/common";
+import {PassportStrategy} from "@nestjs/passport";
+import {ExtractJwt, Strategy} from "passport-jwt";
+import {ConfigService} from "@nestjs/config";
+import {JwtPayload} from "../../domain/auth/entities/jwt-payload.entity";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -440,7 +449,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      secretOrKey: configService.getOrThrow<string>("JWT_SECRET"),
     });
   }
 
@@ -453,17 +462,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 ```
 
 **`services/api-gateway/src/shared/guards/jwt-auth.guard.ts`:**
+
 ```typescript
 import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { JwtPayload } from '../../domain/auth/entities/jwt-payload.entity';
+} from "@nestjs/common";
+import {AuthGuard} from "@nestjs/passport";
+import {JwtPayload} from "../../domain/auth/entities/jwt-payload.entity";
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard("jwt") {
   canActivate(context: ExecutionContext) {
     return super.canActivate(context);
   }
@@ -471,7 +481,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest<T = JwtPayload>(err: Error | null, user: T | false): T {
     // Never leak internal error details to HTTP response
     if (err || !user) {
-      throw new UnauthorizedException('Invalid or missing authentication token');
+      throw new UnauthorizedException(
+        "Invalid or missing authentication token",
+      );
     }
     return user;
   }
@@ -479,32 +491,35 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 ```
 
 **`services/api-gateway/src/shared/decorators/current-user.decorator.ts`:**
+
 ```typescript
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { JwtPayload } from '../../domain/auth/entities/jwt-payload.entity';
+import {createParamDecorator, ExecutionContext} from "@nestjs/common";
+import {JwtPayload} from "../../domain/auth/entities/jwt-payload.entity";
 
 export const CurrentUser = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): JwtPayload => {
-    const request = ctx.switchToHttp().getRequest<{ user: JwtPayload }>();
+    const request = ctx.switchToHttp().getRequest<{user: JwtPayload}>();
     return request.user;
   },
 );
 ```
 
 **`services/api-gateway/src/presentation/health/health.controller.ts`:**
+
 ```typescript
-import { Controller, Get } from '@nestjs/common';
+import {Controller, Get} from "@nestjs/common";
 
 @Controller()
 export class HealthController {
-  @Get('/health')
-  check(): { status: string; timestamp: string } {
-    return { status: 'ok', timestamp: new Date().toISOString() };
+  @Get("/health")
+  check(): {status: string; timestamp: string} {
+    return {status: "ok", timestamp: new Date().toISOString()};
   }
 }
 ```
 
 **`services/api-gateway/src/presentation/sse/sse.controller.ts`:**
+
 ```typescript
 import {
   Controller,
@@ -512,12 +527,12 @@ import {
   Query,
   Sse,
   UseGuards,
-} from '@nestjs/common';
-import { Observable, EMPTY } from 'rxjs';
-import { MessageEvent } from '@nestjs/common';
-import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
-import { CurrentUser } from '../../shared/decorators/current-user.decorator';
-import { JwtPayload } from '../../domain/auth/entities/jwt-payload.entity';
+} from "@nestjs/common";
+import {Observable, EMPTY} from "rxjs";
+import {MessageEvent} from "@nestjs/common";
+import {JwtAuthGuard} from "../../shared/guards/jwt-auth.guard";
+import {CurrentUser} from "../../shared/decorators/current-user.decorator";
+import {JwtPayload} from "../../domain/auth/entities/jwt-payload.entity";
 
 @Controller()
 export class SseController {
@@ -527,15 +542,15 @@ export class SseController {
    * NATS subscription is wired in Story 8.5; returns EMPTY for now.
    */
   @UseGuards(JwtAuthGuard)
-  @Sse('/events/queue')
+  @Sse("/events/queue")
   queueEvents(
-    @Query('clinicId') clinicId: string,
+    @Query("clinicId") clinicId: string,
     @CurrentUser() user: JwtPayload,
   ): Observable<MessageEvent> {
     // clinic_id anti-leak: query param must match token claim
     if (clinicId !== user.clinic_id) {
       throw new ForbiddenException(
-        'clinicId does not match authenticated clinic scope',
+        "clinicId does not match authenticated clinic scope",
       );
     }
     // Stub: NATS subscription to queue.status.updated added in Story 8.5
@@ -545,9 +560,10 @@ export class SseController {
 ```
 
 **`services/api-gateway/src/presentation/proxy/proxy.controller.ts`:**
+
 ```typescript
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
+import {Controller, Get, UseGuards} from "@nestjs/common";
+import {JwtAuthGuard} from "../../shared/guards/jwt-auth.guard";
 
 /**
  * ProxyController — placeholder routes for downstream services.
@@ -556,19 +572,20 @@ import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class ProxyController {
-  @Get('auth/me')
-  authMe(): { message: string } {
-    return { message: 'auth-service proxy placeholder' };
+  @Get("auth/me")
+  authMe(): {message: string} {
+    return {message: "auth-service proxy placeholder"};
   }
 
-  @Get('clinics')
-  clinics(): { message: string } {
-    return { message: 'clinic-service proxy placeholder' };
+  @Get("clinics")
+  clinics(): {message: string} {
+    return {message: "clinic-service proxy placeholder"};
   }
 }
 ```
 
 **`services/api-gateway/Dockerfile`:**
+
 ```dockerfile
 # ── Build stage ─────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
@@ -611,6 +628,7 @@ CMD ["node", "dist/src/main.js"]
 ```
 
 **`services/api-gateway/.env.example`:**
+
 ```dotenv
 # Gateway port (default: 3000)
 PORT=3000

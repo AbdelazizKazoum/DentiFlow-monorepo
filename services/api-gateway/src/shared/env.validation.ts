@@ -1,4 +1,4 @@
-import { plainToInstance } from 'class-transformer';
+import {plainToInstance} from "class-transformer";
 import {
   IsEnum,
   IsNotEmpty,
@@ -8,12 +8,12 @@ import {
   Max,
   Min,
   validateSync,
-} from 'class-validator';
+} from "class-validator";
 
 export enum NodeEnvironment {
-  Development = 'development',
-  Production = 'production',
-  Test = 'test',
+  Development = "development",
+  Production = "production",
+  Test = "test",
 }
 
 /**
@@ -35,7 +35,7 @@ export class GatewayEnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  LOG_LEVEL: string = 'info';
+  LOG_LEVEL: string = "info";
 
   @IsNumber()
   @Min(1)
@@ -46,11 +46,11 @@ export class GatewayEnvironmentVariables {
   // Downstream service URLs — placeholder until gRPC in Story 8.5
   @IsString()
   @IsOptional()
-  AUTH_SERVICE_URL: string = 'http://auth-service:3001';
+  AUTH_SERVICE_URL: string = "http://auth-service:3001";
 
   @IsString()
   @IsOptional()
-  CLINIC_SERVICE_URL: string = 'http://clinic-service:3002';
+  CLINIC_SERVICE_URL: string = "http://clinic-service:3002";
 }
 
 export function validateGatewayEnv(
@@ -59,11 +59,11 @@ export function validateGatewayEnv(
   const validated = plainToInstance(GatewayEnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
-  const errors = validateSync(validated, { skipMissingProperties: false });
+  const errors = validateSync(validated, {skipMissingProperties: false});
   if (errors.length > 0) {
     const messages = errors
-      .map((e) => Object.values(e.constraints ?? {}).join(', '))
-      .join('\n');
+      .map((e) => Object.values(e.constraints ?? {}).join(", "))
+      .join("\n");
     throw new Error(`Gateway environment validation failed:\n${messages}`);
   }
   return validated;
