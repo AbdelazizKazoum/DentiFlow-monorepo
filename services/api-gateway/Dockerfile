@@ -28,6 +28,8 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY --from=builder /app/services/api-gateway/dist/ ./dist/
 COPY --from=builder /app/services/api-gateway/package.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
 
 # Install production dependencies only
 RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
@@ -35,4 +37,4 @@ RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
 USER appuser
 
 EXPOSE 3000
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/api-gateway/src/main.js"]

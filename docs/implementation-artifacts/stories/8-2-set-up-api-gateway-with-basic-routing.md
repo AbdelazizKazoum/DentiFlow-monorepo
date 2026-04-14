@@ -1,6 +1,6 @@
 # Story 8.2: Set Up API Gateway with Basic Routing
 
-Status: review
+Status: done
 
 ## Story
 
@@ -61,6 +61,22 @@ so that all downstream services are protected behind a single authenticated ingr
 - [x] Task 7: Docker setup (AC: 5)
   - [x] Create `services/api-gateway/Dockerfile` — multi-stage: `builder` stage compiles TypeScript (copies `tsconfig.base.json`, `services/lib/`, `services/api-gateway/`); `production` stage runs `dist/main.js` on `node:20-alpine` as non-root user
   - [x] Create `services/api-gateway/.env.example` — document all env vars with example values
+
+### Review Findings
+
+- [x] [Review][Patch] Dockerfile production stage: `pnpm-lock.yaml` never copied into production stage — `pnpm install --prod --frozen-lockfile` always fails [Dockerfile, production stage RUN line]
+- [x] [Review][Patch] `CMD`/`start` script path is `dist/src/main.js` but `rootDir: ".."` compiles `src/main.ts` to `dist/api-gateway/src/main.js` — container crashes immediately with module-not-found [Dockerfile:38, package.json `start`]
+- [x] [Review][Patch] SSE `undefined`-`undefined` bypass: `JwtStrategy.validate()` returns payload with no field-presence check; a JWT missing `clinic_id` + a request missing `?clinicId` makes `undefined !== undefined` evaluate to `false`, silently bypassing the clinic-scope anti-leak guard [src/shared/strategies/jwt.strategy.ts, src/presentation/sse/sse.controller.ts]
+- [x] [Review][Patch] SSE spec test: `"throws ForbiddenException with descriptive message"` uses bare try/catch with no `expect.assertions(1)` — test passes silently if the exception is never thrown [src/presentation/sse/sse.controller.spec.ts]
+- [x] [Review][Patch] `@CurrentUser()` returns `request.user` without null-guard — any unguarded route yields `undefined` typed as `JwtPayload`, causing a 500 with stack trace instead of a controlled 401 [src/shared/decorators/current-user.decorator.ts]
+- [x] [Review][Patch] `JWT_EXPIRES_IN` has no `@Min(1)` validator — a zero or negative value makes all issued tokens immediately expired at startup with no fail-fast error [src/shared/env.validation.ts]
+- [x] [Review][Patch] `bootstrap()` called without `.catch()` — startup failures after `NestFactory.create` bypass `AppLogger` and emit an unhandled rejection instead of a structured error log [src/main.ts, last line]
+- [x] [Review][Defer] `JWT_SECRET` no minimum length constraint (e.g., `@MinLength(32)`) — deferred, beyond story spec scope
+- [x] [Review][Defer] No CORS policy configured — `app.enableCors()` absent — deferred, not in story scope
+- [x] [Review][Defer] `JwtModule` configured with `signOptions` but gateway only verifies JWTs, never signs — deferred, architectural clarity concern for Story 8.5
+- [x] [Review][Defer] `canActivate` override in `JwtAuthGuard` is pure delegation with no added logic — deferred, pre-existing
+- [x] [Review][Defer] SSE `EMPTY` stream completes immediately, causing fast client reconnect loops — deferred, spec-approved stub behavior until Story 8.5
+- [x] [Review][Defer] No graceful shutdown hooks (`app.enableShutdownHooks()`) — deferred, infrastructure concern beyond story scope
 
 ## Dev Notes
 

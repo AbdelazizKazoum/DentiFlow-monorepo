@@ -22,4 +22,7 @@ async function bootstrap() {
   app.get(AppLogger).log(`API Gateway running on port ${port}`, "Bootstrap");
 }
 
-bootstrap();
+bootstrap().catch((err: unknown) => {
+  console.error("Fatal startup error", err);
+  process.exit(1);
+});

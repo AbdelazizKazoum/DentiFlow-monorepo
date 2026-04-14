@@ -34,6 +34,7 @@ describe("SseController", () => {
   });
 
   it("queueEvents throws ForbiddenException with descriptive message on mismatch", () => {
+    expect.assertions(1);
     try {
       controller.queueEvents("other-clinic", mockUser);
     } catch (error) {

@@ -30,6 +30,7 @@ export class GatewayEnvironmentVariables {
   JWT_SECRET!: string;
 
   @IsNumber()
+  @Min(1)
   @IsOptional()
   JWT_EXPIRES_IN: number = 900;
 
