@@ -1,0 +1,2 @@
+export const USER_REPOSITORY = "USER_REPOSITORY";
+export const JWT_SERVICE = "JWT_SERVICE";

@@ -1,3 +1,9 @@
+## Deferred from: code review of 8-3-initialize-auth-service-with-basic-endpoints (2026-04-15)
+
+- `JWT_SECRET` minimum-length validation absent — `EnvironmentVariables.JWT_SECRET` in `services/lib/config/env.validation.ts` only has `@IsNotEmpty()`; a 1-character secret passes. Pre-existing lib issue; not introduced by this story.
+- All request/response DTOs lack `@ApiProperty()` decorators — `RegisterUserDto`, `LoginUserDto`, `AuthResponseDto`, `UserProfileDto` have no Swagger annotations so the Swagger UI shows no schema. Not required by spec AC, doc-quality only.
+- Email case normalization not enforced at application level — `findByEmailAndClinic` queries the DB with mixed-case email as-is; if the DB uses a case-sensitive collation two accounts with the same email but different casing can coexist. Requires a product-level decision on normalization strategy.
+
 ## Deferred from: code review of 8-2-set-up-api-gateway-with-basic-routing (2026-04-14)
 
 - `JWT_SECRET` has no minimum-length constraint — `@IsString() @IsNotEmpty()` passes a 1-character secret; `@MinLength(32)` should be added to enforce HS256 minimum key strength — deferred, beyond story spec scope

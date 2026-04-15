@@ -6,7 +6,7 @@
 # story_location: {project-root}/docs/implementation-artifacts
 
 generated: 2026-04-10
-last_updated: 2026-04-13
+last_updated: 2026-04-15
 project: dentiflow-menorepo
 project_key: NOKEY
 tracking_system: file-system
@@ -53,7 +53,7 @@ development_status:
   epic-8: in-progress
   8-1-initialize-shared-packages-shared-db-shared-logger-shared-config: review
   8-2-set-up-api-gateway-with-basic-routing: done
-  8-3-initialize-auth-service-with-basic-endpoints: ready-for-dev
+  8-3-initialize-auth-service-with-basic-endpoints: done
   8-4-configure-docker-compose-for-local-development: ready-for-dev
   8-5-validate-service-communication-grpc-nats: ready-for-dev
   epic-8-retrospective: optional
