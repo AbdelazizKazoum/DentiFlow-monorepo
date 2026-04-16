@@ -1,0 +1,69 @@
+version: "3.8"
+
+networks:
+  dentiflow-network:
+    driver: bridge
+
+volumes:
+  db_data:
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-change_this}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-dentiflow_db}"
+      MYSQL_USER: "${MYSQL_USER:-root}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-change_this}"
+      TZ: UTC
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    networks:
+      - dentiflow-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LOG_LEVEL: info
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_EXPIRES_IN: 900
+      AUTH_SERVICE_URL: http://auth-service:3002
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      - auth-service
+    networks:
+      - dentiflow-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: "${DB_USERNAME:-root}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME:-dentiflow_db}"
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_EXPIRES_IN: 900
+    ports:
+      - "127.0.0.1:3002:3002"
+    depends_on:
+      - db
+    networks:
+      - dentiflow-network
+
+# Notes:
+# - Provide production secrets via environment or an external .env file when running
+# - Example run: `MYSQL_ROOT_PASSWORD=... DB_PASSWORD=... JWT_SECRET=... docker compose -f docker-compose.prod.yml up --build -d`
