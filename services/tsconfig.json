@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": ".",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["node", "jest"],
+    "ignoreDeprecations": "6.0"
   },
   "include": ["lib/**/*.ts"],
   "exclude": ["node_modules", "dist"]

@@ -4,11 +4,12 @@
     "outDir": "./dist",
     "rootDir": "..",
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@lib": ["../lib/index"],
       "@lib/*": ["../lib/*"]
     }
   },
   "include": ["src/**/*.ts", "../lib/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "../lib/**/*.spec.ts"]
 }
