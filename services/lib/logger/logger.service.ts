@@ -1,6 +1,6 @@
 import {Injectable, LoggerService, Optional, Scope} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
-import * as winston from "winston";
+import pino, {Logger} from "pino";
 
 export interface LogContext {
   clinicId?: string;
@@ -10,51 +10,68 @@ export interface LogContext {
 }
 
 /**
- * AppLogger — structured JSON logger backed by Winston.
+ * AppLogger — structured logger backed by pino.
  *
- * Replaces the default Nest logger in each service main.ts:
+ * - development/staging: colorized output via pino-pretty
+ * - production:          raw JSON (fast, pipe to log aggregator)
+ * - test:               silent (no output, all methods spyable)
+ *
+ * Replace the default Nest logger in each service main.ts:
  *   app.useLogger(app.get(AppLogger));
  *
- * Always call logWithContext() with { clinicId, userId, traceId }
- * for data-access and business-logic logs.
+ * For structured business-logic logs use logWithContext():
+ *   logger.logWithContext('info', 'patient created', { clinicId, userId, traceId });
  */
 @Injectable({scope: Scope.DEFAULT})
 export class AppLogger implements LoggerService {
-  private readonly logger: winston.Logger;
+  private readonly logger: Logger;
 
   constructor(@Optional() private readonly configService?: ConfigService) {
-    this.logger = winston.createLogger({
-      level:
-        configService?.get<string>("LOG_LEVEL") ??
-        process.env["LOG_LEVEL"] ??
-        "info",
-      format: winston.format.combine(
-        winston.format.timestamp({format: "YYYY-MM-DDTHH:mm:ss.SSSZ"}),
-        winston.format.errors({stack: true}),
-        winston.format.json(),
-      ),
-      transports: [new winston.transports.Console()],
-    });
+    const nodeEnv =
+      configService?.get<string>("NODE_ENV") ?? process.env["NODE_ENV"];
+    const level =
+      configService?.get<string>("LOG_LEVEL") ??
+      process.env["LOG_LEVEL"] ??
+      "info";
+
+    const isProduction = nodeEnv === "production";
+    const isTest = nodeEnv === "test";
+
+    this.logger = pino(
+      {level: isTest ? "silent" : level},
+      isProduction || isTest
+        ? undefined
+        : (pino.transport({
+            target: "pino-pretty",
+            options: {
+              colorize: true,
+              translateTime: "SYS:HH:MM:ss.l",
+              ignore: "pid,hostname",
+              singleLine: false,
+              levelFirst: true,
+            },
+          }) as unknown as import("pino").DestinationStream),
+    );
   }
 
   log(message: string, context?: string): void {
-    this.logger.info(message, {context});
+    this.logger.info({context}, message);
   }
 
   error(message: string, trace?: string, context?: string): void {
-    this.logger.error(message, {trace, context});
+    this.logger.error({trace, context}, message);
   }
 
   warn(message: string, context?: string): void {
-    this.logger.warn(message, {context});
+    this.logger.warn({context}, message);
   }
 
   debug(message: string, context?: string): void {
-    this.logger.debug(message, {context});
+    this.logger.debug({context}, message);
   }
 
   verbose(message: string, context?: string): void {
-    this.logger.verbose(message, {context});
+    this.logger.trace({context}, message);
   }
 
   logWithContext(
@@ -62,6 +79,6 @@ export class AppLogger implements LoggerService {
     message: string,
     ctx: LogContext,
   ): void {
-    this.logger.log(level, message, ctx);
+    this.logger[level](ctx, message);
   }
 }
