@@ -1,6 +1,7 @@
 # ── Build stage ─────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
+ARG PNPM_FLAGS="--frozen-lockfile"
 
 # Copy root tsconfig
 COPY tsconfig.base.json ./
@@ -15,7 +16,7 @@ COPY services/lib/ ./services/lib/
 COPY services/api-gateway/ ./services/api-gateway/
 
 # Install all deps (includes devDependencies for TypeScript compilation)
-RUN npm install -g pnpm && pnpm install -C ./services --frozen-lockfile
+RUN npm install -g pnpm && pnpm install -C ./services $PNPM_FLAGS
 
 # Compile TypeScript (rootDir: ".." in tsconfig covers ../lib too)
 RUN pnpm -C ./services build:api-gateway
@@ -32,8 +33,10 @@ COPY --from=builder /app/services/api-gateway/dist/ ./dist/
 COPY --from=builder /app/services/package.json ./
 COPY --from=builder /app/services/pnpm-lock.yaml ./
 
+# Allow overriding pnpm flags at build time for CI/dev flexibility
+ARG PROD_PNPM_FLAGS="--frozen-lockfile"
 # Install production dependencies only
-RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
+RUN npm install -g pnpm && pnpm install --prod $PROD_PNPM_FLAGS
 
 USER appuser
 
