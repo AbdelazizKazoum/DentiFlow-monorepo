@@ -1,6 +1,8 @@
 export {ConfigModule} from "./config.module";
 export {
-  EnvironmentVariables,
-  validateEnv,
+  baseSchema,
+  jwtSchema,
+  databaseSchema,
   NodeEnvironment,
 } from "./env.validation";
+export type {ValidatedEnv} from "./env.validation";

@@ -1,10 +1,10 @@
 import {Module} from "@nestjs/common";
-import {ConfigModule as NestConfigModule, ConfigService} from "@nestjs/config";
+import {ConfigService} from "@nestjs/config";
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
 import {HttpModule} from "@nestjs/axios";
-import {LoggerModule} from "../../lib/logger";
-import {validateGatewayEnv} from "./shared/env.validation";
+import {ConfigModule, LoggerModule} from "@lib";
+import {gatewaySchema} from "./shared/env.validation";
 import {JwtStrategy} from "./shared/strategies/jwt.strategy";
 import {HealthModule} from "./presentation/health/health.module";
 import {SseModule} from "./presentation/sse/sse.module";
@@ -13,12 +13,7 @@ import {ProxyModule} from "./presentation/proxy/proxy.module";
 @Module({
   imports: [
     // MUST be first — provides ConfigService globally
-    // NOTE: Use NestConfigModule directly (NOT lib ConfigModule) — gateway has no DB
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      validate: validateGatewayEnv,
-      envFilePath: [".env.local", ".env"],
-    }),
+    ConfigModule.forRoot({validationSchema: gatewaySchema}),
 
     // Global structured JSON logger + correlation interceptor
     LoggerModule,

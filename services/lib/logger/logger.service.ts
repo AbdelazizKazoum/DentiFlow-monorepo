@@ -1,4 +1,5 @@
-import {Injectable, LoggerService, Scope} from "@nestjs/common";
+import {Injectable, LoggerService, Optional, Scope} from "@nestjs/common";
+import {ConfigService} from "@nestjs/config";
 import * as winston from "winston";
 
 export interface LogContext {
@@ -21,9 +22,12 @@ export interface LogContext {
 export class AppLogger implements LoggerService {
   private readonly logger: winston.Logger;
 
-  constructor() {
+  constructor(@Optional() private readonly configService?: ConfigService) {
     this.logger = winston.createLogger({
-      level: process.env["LOG_LEVEL"] ?? "info",
+      level:
+        configService?.get<string>("LOG_LEVEL") ??
+        process.env["LOG_LEVEL"] ??
+        "info",
       format: winston.format.combine(
         winston.format.timestamp({format: "YYYY-MM-DDTHH:mm:ss.SSSZ"}),
         winston.format.errors({stack: true}),

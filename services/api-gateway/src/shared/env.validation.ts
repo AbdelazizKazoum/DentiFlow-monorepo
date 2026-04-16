@@ -1,71 +1,26 @@
-import {plainToInstance} from "class-transformer";
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  validateSync,
-} from "class-validator";
+import * as Joi from "joi";
+import {jwtSchema, NodeEnvironment} from "@lib";
 
-export enum NodeEnvironment {
-  Development = "development",
-  Production = "production",
-  Test = "test",
-}
+export {NodeEnvironment};
 
 /**
- * GatewayEnvironmentVariables — validated env contract for api-gateway.
- * IMPORTANT: NO DB vars — the gateway has no database.
+ * gatewaySchema — adds gateway-specific vars on top of jwtSchema.
+ * Inherits: NODE_ENV, PORT, LOG_LEVEL, JWT_SECRET, JWT_EXPIRES_IN.
  */
-export class GatewayEnvironmentVariables {
-  @IsEnum(NodeEnvironment)
-  @IsOptional()
-  NODE_ENV: NodeEnvironment = NodeEnvironment.Development;
+export const gatewaySchema = jwtSchema.concat(
+  Joi.object({
+    // Downstream service URLs — placeholder until gRPC in Story 8.5
+    AUTH_SERVICE_URL: Joi.string().default("http://auth-service:3001"),
+    CLINIC_SERVICE_URL: Joi.string().default("http://clinic-service:3002"),
+  }),
+);
 
-  @IsString()
-  @IsNotEmpty()
-  JWT_SECRET!: string;
-
-  @IsNumber()
-  @Min(1)
-  @IsOptional()
-  JWT_EXPIRES_IN: number = 900;
-
-  @IsString()
-  @IsOptional()
-  LOG_LEVEL: string = "info";
-
-  @IsNumber()
-  @Min(1)
-  @Max(65535)
-  @IsOptional()
-  PORT: number = 3000;
-
-  // Downstream service URLs — placeholder until gRPC in Story 8.5
-  @IsString()
-  @IsOptional()
-  AUTH_SERVICE_URL: string = "http://auth-service:3001";
-
-  @IsString()
-  @IsOptional()
-  CLINIC_SERVICE_URL: string = "http://clinic-service:3002";
-}
-
-export function validateGatewayEnv(
-  config: Record<string, unknown>,
-): GatewayEnvironmentVariables {
-  const validated = plainToInstance(GatewayEnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
-  const errors = validateSync(validated, {skipMissingProperties: false});
-  if (errors.length > 0) {
-    const messages = errors
-      .map((e) => Object.values(e.constraints ?? {}).join(", "))
-      .join("\n");
-    throw new Error(`Gateway environment validation failed:\n${messages}`);
-  }
-  return validated;
-}
+export type GatewayEnv = {
+  NODE_ENV: NodeEnvironment;
+  PORT: number;
+  LOG_LEVEL: string;
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN: number;
+  AUTH_SERVICE_URL: string;
+  CLINIC_SERVICE_URL: string;
+};

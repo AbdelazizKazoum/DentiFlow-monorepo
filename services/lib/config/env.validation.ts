@@ -1,14 +1,4 @@
-import {plainToInstance} from "class-transformer";
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  validateSync,
-} from "class-validator";
+import * as Joi from "joi";
 
 export enum NodeEnvironment {
   Development = "development",
@@ -16,66 +6,32 @@ export enum NodeEnvironment {
   Test = "test",
 }
 
-/**
- * EnvironmentVariables — validated contract for required env vars.
- * Services may extend this class to add service-specific vars.
- */
-export class EnvironmentVariables {
-  @IsEnum(NodeEnvironment)
-  @IsOptional()
-  NODE_ENV: NodeEnvironment = NodeEnvironment.Development;
+/** Shared vars every service needs. */
+export const baseSchema = Joi.object({
+  NODE_ENV: Joi.string()
+    .valid(...Object.values(NodeEnvironment))
+    .default(NodeEnvironment.Development),
+  LOG_LEVEL: Joi.string().default("info"),
+  PORT: Joi.number().default(3000),
+});
 
-  @IsString()
-  @IsNotEmpty()
-  DB_HOST!: string;
+/** Adds JWT vars — for services that sign/verify tokens but have no DB. */
+export const jwtSchema = baseSchema.concat(
+  Joi.object({
+    JWT_SECRET: Joi.string().required(),
+    JWT_EXPIRES_IN: Joi.number().default(900), // seconds — 15 min
+  }),
+);
 
-  @IsNumber()
-  @Min(1)
-  @Max(65535)
-  @IsOptional()
-  DB_PORT: number = 3306;
+/** Adds DB vars on top of JWT — for services with a database. */
+export const databaseSchema = jwtSchema.concat(
+  Joi.object({
+    DB_HOST: Joi.string().required(),
+    DB_PORT: Joi.number().port().default(3306),
+    DB_USERNAME: Joi.string().required(),
+    DB_PASSWORD: Joi.string().required(),
+    DB_NAME: Joi.string().required(),
+  }),
+);
 
-  @IsString()
-  @IsNotEmpty()
-  DB_USERNAME!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DB_PASSWORD!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DB_NAME!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  JWT_SECRET!: string;
-
-  @IsNumber()
-  @IsOptional()
-  JWT_EXPIRES_IN: number = 900; // seconds — 15 min, matches frontend NextAuth TTL
-
-  @IsString()
-  @IsOptional()
-  LOG_LEVEL: string = "info";
-
-  @IsNumber()
-  @IsOptional()
-  PORT: number = 3000;
-}
-
-export function validateEnv(
-  config: Record<string, unknown>,
-): EnvironmentVariables {
-  const validated = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
-  const errors = validateSync(validated, {skipMissingProperties: false});
-  if (errors.length > 0) {
-    const messages = errors
-      .map((e) => Object.values(e.constraints ?? {}).join(", "))
-      .join("\n");
-    throw new Error(`Environment validation failed:\n${messages}`);
-  }
-  return validated;
-}
+export type ValidatedEnv = Record<string, unknown>;

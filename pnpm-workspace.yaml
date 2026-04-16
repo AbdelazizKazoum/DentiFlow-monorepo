@@ -1,7 +1,7 @@
 packages:
   - "frontend"
   - "packages/*"
-  - "services/*"
+  - "services"
 
 allowBuilds:
   "@parcel/watcher": false

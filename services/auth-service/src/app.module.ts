@@ -1,19 +1,15 @@
 import {Module} from "@nestjs/common";
-import {ConfigModule as NestConfigModule, ConfigService} from "@nestjs/config";
+import {ConfigService} from "@nestjs/config";
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
-import {LoggerModule, DatabaseModule, validateEnv} from "../../lib";
+import {ConfigModule, LoggerModule, DatabaseModule} from "@lib";
 import {AuthModule} from "./auth/auth.module";
 import {HealthModule} from "./presentation/health/health.module";
 
 @Module({
   imports: [
     // MUST be first — provides ConfigService globally
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      validate: validateEnv,
-      envFilePath: [".env.local", ".env"],
-    }),
+    ConfigModule.forRoot(),
 
     // Global structured JSON logger + correlation interceptor
     LoggerModule,

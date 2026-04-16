@@ -1,6 +1,11 @@
-import {validateEnv, NodeEnvironment} from "./env.validation";
+import {
+  databaseSchema,
+  jwtSchema,
+  baseSchema,
+  NodeEnvironment,
+} from "./env.validation";
 
-const VALID_ENV: Record<string, unknown> = {
+const VALID_DB_ENV = {
   NODE_ENV: "development",
   DB_HOST: "localhost",
   DB_PORT: "3306",
@@ -10,123 +15,106 @@ const VALID_ENV: Record<string, unknown> = {
   JWT_SECRET: "supersecretkey",
 };
 
-describe("validateEnv", () => {
+describe("baseSchema", () => {
+  it("applies defaults when nothing is provided", () => {
+    const {value, error} = baseSchema.validate({});
+    expect(error).toBeUndefined();
+    expect(value.NODE_ENV).toBe(NodeEnvironment.Development);
+    expect(value.LOG_LEVEL).toBe("info");
+    expect(value.PORT).toBe(3000);
+  });
+
+  it("rejects an invalid NODE_ENV", () => {
+    const {error} = baseSchema.validate({NODE_ENV: "staging"});
+    expect(error).toBeDefined();
+  });
+});
+
+describe("jwtSchema", () => {
+  it("requires JWT_SECRET", () => {
+    const {error} = jwtSchema.validate({});
+    expect(error).toBeDefined();
+    expect(error!.message).toContain("JWT_SECRET");
+  });
+
+  it("applies default JWT_EXPIRES_IN of 900", () => {
+    const {value, error} = jwtSchema.validate({JWT_SECRET: "secret"});
+    expect(error).toBeUndefined();
+    expect(value.JWT_EXPIRES_IN).toBe(900);
+  });
+
+  it("does NOT require DB vars", () => {
+    const {error} = jwtSchema.validate({JWT_SECRET: "secret"});
+    expect(error).toBeUndefined();
+  });
+});
+
+describe("databaseSchema", () => {
   describe("missing required variables", () => {
-    it("should throw when DB_HOST is missing", () => {
-      const config = {...VALID_ENV};
-      delete config["DB_HOST"];
+    it.each(["DB_HOST", "DB_USERNAME", "DB_PASSWORD", "DB_NAME", "JWT_SECRET"])(
+      "throws when %s is missing",
+      (key) => {
+        const config = {...VALID_DB_ENV, [key]: undefined};
+        const {error} = databaseSchema.validate(config);
+        expect(error).toBeDefined();
+      },
+    );
+  });
 
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+  describe("defaults", () => {
+    it("applies default DB_PORT of 3306", () => {
+      const config = {...VALID_DB_ENV};
+      delete (config as Record<string, unknown>)["DB_PORT"];
+      const {value, error} = databaseSchema.validate(config);
+      expect(error).toBeUndefined();
+      expect(value.DB_PORT).toBe(3306);
     });
 
-    it("should throw when JWT_SECRET is missing", () => {
-      const config = {...VALID_ENV};
-      delete config["JWT_SECRET"];
-
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+    it("applies default JWT_EXPIRES_IN of 900", () => {
+      const {value} = databaseSchema.validate(VALID_DB_ENV);
+      expect(value.JWT_EXPIRES_IN).toBe(900);
     });
 
-    it("should throw when DB_USERNAME is missing", () => {
-      const config = {...VALID_ENV};
-      delete config["DB_USERNAME"];
-
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+    it("applies default LOG_LEVEL of info", () => {
+      const {value} = databaseSchema.validate(VALID_DB_ENV);
+      expect(value.LOG_LEVEL).toBe("info");
     });
 
-    it("should throw when DB_PASSWORD is missing", () => {
-      const config = {...VALID_ENV};
-      delete config["DB_PASSWORD"];
-
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+    it("applies default PORT of 3000", () => {
+      const {value} = databaseSchema.validate(VALID_DB_ENV);
+      expect(value.PORT).toBe(3000);
     });
 
-    it("should throw when DB_NAME is missing", () => {
-      const config = {...VALID_ENV};
-      delete config["DB_NAME"];
-
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+    it("applies default NODE_ENV of development", () => {
+      const {value} = databaseSchema.validate(VALID_DB_ENV);
+      expect(value.NODE_ENV).toBe(NodeEnvironment.Development);
     });
   });
 
-  describe("valid config resolves with defaults", () => {
-    it("should return validated instance with correct values", () => {
-      const result = validateEnv(VALID_ENV);
-
-      expect(result.DB_HOST).toBe("localhost");
-      expect(result.JWT_SECRET).toBe("supersecretkey");
-    });
-
-    it("should apply default for DB_PORT when not provided", () => {
-      const config = {...VALID_ENV};
-      delete config["DB_PORT"];
-
-      const result = validateEnv(config);
-
-      expect(result.DB_PORT).toBe(3306);
-    });
-
-    it("should apply default for JWT_EXPIRES_IN when not provided", () => {
-      const config = {...VALID_ENV};
-      delete config["JWT_EXPIRES_IN"];
-
-      const result = validateEnv(config);
-
-      expect(result.JWT_EXPIRES_IN).toBe(900);
-    });
-
-    it("should apply default for LOG_LEVEL when not provided", () => {
-      const config = {...VALID_ENV};
-      delete config["LOG_LEVEL"];
-
-      const result = validateEnv(config);
-
-      expect(result.LOG_LEVEL).toBe("info");
-    });
-
-    it("should apply default for PORT when not provided", () => {
-      const config = {...VALID_ENV};
-      delete config["PORT"];
-
-      const result = validateEnv(config);
-
-      expect(result.PORT).toBe(3000);
-    });
-
-    it("should apply default NODE_ENV of development when not provided", () => {
-      const config = {...VALID_ENV};
-      delete config["NODE_ENV"];
-
-      const result = validateEnv(config);
-
-      expect(result.NODE_ENV).toBe(NodeEnvironment.Development);
+  describe("valid full config", () => {
+    it("returns validated values", () => {
+      const {value, error} = databaseSchema.validate(VALID_DB_ENV);
+      expect(error).toBeUndefined();
+      expect(value.DB_HOST).toBe("localhost");
+      expect(value.JWT_SECRET).toBe("supersecretkey");
     });
   });
 
   describe("invalid values", () => {
-    it("should throw when NODE_ENV is an invalid enum value", () => {
-      const config = {...VALID_ENV, NODE_ENV: "staging"};
-
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+    it("rejects invalid NODE_ENV", () => {
+      const {error} = databaseSchema.validate({
+        ...VALID_DB_ENV,
+        NODE_ENV: "staging",
+      });
+      expect(error).toBeDefined();
     });
 
-    it("should throw when DB_PORT is out of range", () => {
-      const config = {...VALID_ENV, DB_PORT: "99999"};
-
-      expect(() => validateEnv(config)).toThrow(
-        "Environment validation failed",
-      );
+    it("rejects DB_PORT out of valid range", () => {
+      const {error} = databaseSchema.validate({
+        ...VALID_DB_ENV,
+        DB_PORT: "99999",
+      });
+      expect(error).toBeDefined();
     });
   });
 });

@@ -12,7 +12,9 @@ export {
 export type {LogContext, CorrelationContext} from "./logger";
 export {
   ConfigModule,
-  EnvironmentVariables,
-  validateEnv,
+  baseSchema,
+  jwtSchema,
+  databaseSchema,
   NodeEnvironment,
 } from "./config";
+export type {ValidatedEnv} from "./config";

@@ -1,39 +1,36 @@
-import {validateGatewayEnv, NodeEnvironment} from "./env.validation";
+import {gatewaySchema, NodeEnvironment} from "./env.validation";
 
-describe("validateGatewayEnv", () => {
-  it("throws when JWT_SECRET is missing", () => {
-    expect(() => validateGatewayEnv({})).toThrow(
-      "Gateway environment validation failed",
-    );
+describe("gatewaySchema", () => {
+  it("requires JWT_SECRET", () => {
+    const {error} = gatewaySchema.validate({});
+    expect(error).toBeDefined();
+    expect(error!.message).toContain("JWT_SECRET");
   });
 
-  it("throws when JWT_SECRET is an empty string", () => {
-    expect(() => validateGatewayEnv({JWT_SECRET: ""})).toThrow(
-      "Gateway environment validation failed",
-    );
+  it("rejects an empty JWT_SECRET", () => {
+    const {error} = gatewaySchema.validate({JWT_SECRET: ""});
+    expect(error).toBeDefined();
   });
 
   it("resolves with defaults when only JWT_SECRET is provided", () => {
-    const result = validateGatewayEnv({JWT_SECRET: "super-secret"});
-    expect(result.JWT_SECRET).toBe("super-secret");
-    expect(result.PORT).toBe(3000);
-    expect(result.NODE_ENV).toBe(NodeEnvironment.Development);
-    expect(result.LOG_LEVEL).toBe("info");
-    expect(result.JWT_EXPIRES_IN).toBe(900);
+    const {value, error} = gatewaySchema.validate({JWT_SECRET: "super-secret"});
+    expect(error).toBeUndefined();
+    expect(value.JWT_SECRET).toBe("super-secret");
+    expect(value.PORT).toBe(3000);
+    expect(value.NODE_ENV).toBe(NodeEnvironment.Development);
+    expect(value.LOG_LEVEL).toBe("info");
+    expect(value.JWT_EXPIRES_IN).toBe(900);
+    expect(value.AUTH_SERVICE_URL).toBe("http://auth-service:3001");
+    expect(value.CLINIC_SERVICE_URL).toBe("http://clinic-service:3002");
   });
 
-  it("does NOT require DB_HOST, DB_USERNAME, DB_PASSWORD, or DB_NAME", () => {
-    // None of these DB vars should be required — gateway has no database
-    expect(() =>
-      validateGatewayEnv({
-        JWT_SECRET: "secret",
-        // DB vars intentionally absent
-      }),
-    ).not.toThrow();
+  it("does NOT require DB vars", () => {
+    const {error} = gatewaySchema.validate({JWT_SECRET: "secret"});
+    expect(error).toBeUndefined();
   });
 
-  it("accepts valid full configuration", () => {
-    const result = validateGatewayEnv({
+  it("accepts and coerces a full valid configuration", () => {
+    const {value, error} = gatewaySchema.validate({
       JWT_SECRET: "my-secret",
       PORT: "4000",
       NODE_ENV: "production",
@@ -42,9 +39,10 @@ describe("validateGatewayEnv", () => {
       AUTH_SERVICE_URL: "http://auth:3001",
       CLINIC_SERVICE_URL: "http://clinic:3002",
     });
-    expect(result.PORT).toBe(4000);
-    expect(result.NODE_ENV).toBe(NodeEnvironment.Production);
-    expect(result.LOG_LEVEL).toBe("debug");
-    expect(result.JWT_EXPIRES_IN).toBe(1800);
+    expect(error).toBeUndefined();
+    expect(value.PORT).toBe(4000);
+    expect(value.NODE_ENV).toBe(NodeEnvironment.Production);
+    expect(value.LOG_LEVEL).toBe("debug");
+    expect(value.JWT_EXPIRES_IN).toBe(1800);
   });
 });
