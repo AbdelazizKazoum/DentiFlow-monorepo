@@ -6,7 +6,7 @@
 # story_location: {project-root}/docs/implementation-artifacts
 
 generated: 2026-04-10
-last_updated: 2026-04-15
+last_updated: 2026-04-18
 project: dentiflow-menorepo
 project_key: NOKEY
 tracking_system: file-system
@@ -30,6 +30,7 @@ development_status:
   1-4-ensure-accessibility-compliance-wcag-2-1-aa: backlog
   1-5-implement-dark-mode-toggle-system-wide: backlog
   1-6-add-rtl-ltr-visual-regression-testing: backlog
+  1-7-create-login-register-with-social-login: ready-for-dev
   epic-1-retrospective: optional
 
   epic-2: backlog
