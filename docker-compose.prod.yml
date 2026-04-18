@@ -14,8 +14,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-change_this}"
       MYSQL_DATABASE: "${MYSQL_DATABASE:-dentiflow_db}"
-      MYSQL_USER: "${MYSQL_USER:-root}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-change_this}"
       TZ: UTC
     volumes:
       - db_data:/var/lib/mysql
