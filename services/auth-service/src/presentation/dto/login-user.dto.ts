@@ -1,4 +1,5 @@
-import {IsEmail, IsNotEmpty, IsString, IsUUID} from "class-validator";
+import {IsEmail, IsNotEmpty, IsOptional, IsString} from "class-validator";
+import {Transform} from "class-transformer";
 
 export class LoginUserDto {
   @IsEmail()
@@ -8,6 +9,8 @@ export class LoginUserDto {
   @IsNotEmpty()
   password!: string;
 
-  @IsUUID()
-  clinicId!: string;
+  @IsOptional()
+  @IsString()
+  @Transform(({value}) => value ?? "")
+  clinicId?: string;
 }

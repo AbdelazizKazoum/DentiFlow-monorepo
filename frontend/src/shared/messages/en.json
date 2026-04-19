@@ -105,7 +105,9 @@
         "success": "Login successful! Redirecting\u2026",
         "error": "Invalid credentials. Please try again.",
         "support_text": "Need technical assistance?",
-        "support_link": "Contact IT Support"
+        "support_link": "Contact IT Support",
+        "no_account": "Don't have an account?",
+        "create_account": "Create one"
       },
       "branding": {
         "tagline_1": "Precision Care,",
@@ -118,7 +120,33 @@
         "email_required": "Email is required",
         "email_invalid": "Enter a valid email address",
         "password_required": "Password is required",
-        "password_min": "Password must be at least 6 characters"
+        "password_min": "Password must be at least 6 characters",
+        "name_required": "Full name is required",
+        "name_min": "Name must be at least 2 characters",
+        "confirm_required": "Please confirm your password",
+        "passwords_mismatch": "Passwords do not match"
+      },
+      "register": {
+        "title": "Create Staff Account",
+        "subtitle": "Register a new staff member for the DentiFlow portal.",
+        "name_label": "Full Name",
+        "name_placeholder": "Dr. Jane Smith",
+        "email_label": "Email Address",
+        "email_placeholder": "staff@dentiflow.com",
+        "role_label": "Role",
+        "role_admin": "Administrator",
+        "role_doctor": "Doctor",
+        "role_secretariat": "Secretariat",
+        "role_dental_assistant": "Dental Assistant",
+        "password_label": "Password",
+        "confirm_label": "Confirm Password",
+        "submit": "Create Account",
+        "submitting": "Creating Account\u2026",
+        "success": "Account created! Redirecting to login\u2026",
+        "error": "Registration failed. Please try again.",
+        "error_conflict": "This email is already registered.",
+        "have_account": "Already have an account?",
+        "sign_in": "Sign in"
       }
     }
   }

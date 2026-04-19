@@ -6,8 +6,8 @@ ARG PNPM_FLAGS="--frozen-lockfile"
 # Copy root tsconfig
 COPY tsconfig.base.json ./
 
-# Copy services package manifests for dependency install
-COPY services/package.json services/pnpm-lock.yaml ./services/
+# Copy services package manifests and NestJS workspace config
+COPY services/package.json services/pnpm-lock.yaml services/nest-cli.json services/tsconfig.json ./services/
 
 # Copy shared lib (no package.json — source only)
 COPY services/lib/ ./services/lib/

@@ -12,6 +12,7 @@ describe("AuthController", () => {
 
   const mockAuthResponse = {
     accessToken: "signed-token",
+    refreshToken: "refresh-token",
     user: {
       id: "user-uuid",
       email: "dr@clinic.com",

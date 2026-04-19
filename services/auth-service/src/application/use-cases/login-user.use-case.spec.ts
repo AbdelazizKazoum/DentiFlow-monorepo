@@ -37,12 +37,16 @@ describe("LoginUserUseCase", () => {
   beforeEach(() => {
     userRepository = {
       findByEmailAndClinic: jest.fn(),
+      findByEmail: jest.fn(),
       save: jest.fn(),
       findById: jest.fn(),
+      findByIdGlobal: jest.fn(),
     };
 
     jwtService = {
       sign: jest.fn(),
+      signRefresh: jest.fn(),
+      verifyRefresh: jest.fn(),
     };
 
     useCase = new LoginUserUseCase(

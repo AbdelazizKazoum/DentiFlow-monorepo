@@ -30,7 +30,7 @@ development_status:
   1-4-ensure-accessibility-compliance-wcag-2-1-aa: backlog
   1-5-implement-dark-mode-toggle-system-wide: backlog
   1-6-add-rtl-ltr-visual-regression-testing: backlog
-  1-7-create-login-register-with-social-login: ready-for-dev
+  1-7-create-login-register-with-social-login: review
   epic-1-retrospective: optional
 
   epic-2: backlog

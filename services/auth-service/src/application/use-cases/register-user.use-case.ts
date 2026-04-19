@@ -20,6 +20,7 @@ export interface RegisterUserCommand {
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
   user: {
     id: string;
     email: string;
@@ -66,8 +67,13 @@ export class RegisterUserUseCase {
       role: saved.role,
     });
 
+    const refreshToken = await this.jwtService.signRefresh({
+      user_id: saved.id,
+    });
+
     return {
       accessToken,
+      refreshToken,
       user: {
         id: saved.id,
         email: saved.email,

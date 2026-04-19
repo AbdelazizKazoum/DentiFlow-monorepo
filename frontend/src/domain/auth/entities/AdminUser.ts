@@ -13,6 +13,14 @@ export interface AdminLoginCredentials {
   rememberMe?: boolean;
 }
 
+export interface AdminRegisterCredentials {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: Exclude<UserRole, "patient">;
+}
+
 export interface AdminUser {
   id: string;
   firstName: string;

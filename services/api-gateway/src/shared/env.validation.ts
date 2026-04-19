@@ -12,6 +12,8 @@ export const gatewaySchema = jwtSchema.concat(
     // Downstream service URLs — placeholder until gRPC in Story 8.5
     AUTH_SERVICE_URL: Joi.string().default("http://auth-service:3001"),
     CLINIC_SERVICE_URL: Joi.string().default("http://clinic-service:3002"),
+    // gRPC URL for auth-service
+    AUTH_SERVICE_GRPC_URL: Joi.string().default("auth-service:5001"),
   }),
 );
 
@@ -23,4 +25,5 @@ export type GatewayEnv = {
   JWT_EXPIRES_IN: number;
   AUTH_SERVICE_URL: string;
   CLINIC_SERVICE_URL: string;
+  AUTH_SERVICE_GRPC_URL: string;
 };

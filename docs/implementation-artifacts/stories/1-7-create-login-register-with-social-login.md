@@ -1,6 +1,6 @@
 # Story 1.7: Wire Real Admin Authentication via gRPC (Users Table)
 
-Status: ready-for-dev
+Status: review
 
 > **Scope note:** This story focuses exclusively on **admin authentication** against the real `users` table via gRPC. Patient auth (social login, patient register page) is out of scope and will be handled in a separate story.
 
@@ -23,12 +23,12 @@ so that the authentication is backed by a real database (not mock data) and issu
 
 ### BACKEND — Shared Proto (services/lib)
 
-- [ ] **Task 1: Install gRPC packages in services/** (AC: 1)
-  - [ ] In `services/`, run: `pnpm add @nestjs/microservices @grpc/grpc-js @grpc/proto-loader`
-  - [ ] This installs packages for both `auth-service` and `api-gateway` (monorepo shared node_modules)
+- [x] **Task 1: Install gRPC packages in services/** (AC: 1)
+  - [x] In `services/`, run: `pnpm add @nestjs/microservices @grpc/grpc-js @grpc/proto-loader`
+  - [x] This installs packages for both `auth-service` and `api-gateway` (monorepo shared node_modules)
 
-- [ ] **Task 2: Create shared proto file and TS path helper in services/lib/proto/** (AC: 1)
-  - [ ] Create `services/lib/proto/auth.proto`:
+- [x] **Task 2: Create shared proto file and TS path helper in services/lib/proto/** (AC: 1)
+  - [x] Create `services/lib/proto/auth.proto`:
 
     ```proto
     syntax = "proto3";
@@ -78,43 +78,43 @@ so that the authentication is backed by a real database (not mock data) and issu
     }
     ```
 
-  - [ ] Create `services/lib/proto/index.ts` — exports the runtime path constant:
+  - [x] Create `services/lib/proto/index.ts` — exports the runtime path constant:
     ```ts
     import {join} from "path";
     // __dirname at runtime = <service>/dist/lib/proto/ (since rootDir: ".." in both service tsconfigs)
     export const AUTH_PROTO_PATH = join(__dirname, "auth.proto");
     ```
     Both services import via the `@lib/*` path alias: `import { AUTH_PROTO_PATH } from '@lib/proto'`
-  - [ ] Add proto asset copy to `services/nest-cli.json` for both projects so `auth.proto` is present in `dist/`:
+  - [x] Add proto asset copy to `services/nest-cli.json` for both projects so `auth.proto` is present in `dist/`:
     ```json
     "api-gateway":  { ..., "assets": [{ "include": "../lib/proto/*.proto", "outDir": "./dist/lib/proto", "watchAssets": true }] },
     "auth-service": { ..., "assets": [{ "include": "../lib/proto/*.proto", "outDir": "./dist/lib/proto", "watchAssets": true }] }
     ```
-  - [ ] `services/lib/index.ts` is NOT modified (proto helper is imported via `@lib/proto` directly)
+  - [x] `services/lib/index.ts` is NOT modified (proto helper is imported via `@lib/proto` directly)
 
 ### BACKEND — auth-service gRPC Layer
 
-- [ ] **Task 3: Make `clinicId` optional in auth-service DTOs** (AC: 1)
-  - [ ] Update `services/auth-service/src/presentation/dto/login-user.dto.ts`:
+- [x] **Task 3: Make `clinicId` optional in auth-service DTOs** (AC: 1)
+  - [x] Update `services/auth-service/src/presentation/dto/login-user.dto.ts`:
     - Change `@IsUUID()` on `clinicId` → `@IsOptional() @IsString()` with `@Transform(() => "")` default
-  - [ ] Update `services/auth-service/src/presentation/dto/register-user.dto.ts`:
+  - [x] Update `services/auth-service/src/presentation/dto/register-user.dto.ts`:
     - Same change — `@IsOptional() @IsString()` for `clinicId`
 
-- [ ] **Task 4: Add `findByEmail` to user repository** (AC: 1, 2, 3)
-  - [ ] Add `findByEmail(email: string): Promise<User | null>` to `services/auth-service/src/domain/repositories/user-repository.interface.ts`
-  - [ ] Implement in `services/auth-service/src/infrastructure/persistence/repositories/user.repository.ts`:
+- [x] **Task 4: Add `findByEmail` to user repository** (AC: 1, 2, 3)
+  - [x] Add `findByEmail(email: string): Promise<User | null>` to `services/auth-service/src/domain/repositories/user-repository.interface.ts`
+  - [x] Implement in `services/auth-service/src/infrastructure/persistence/repositories/user.repository.ts`:
     - Query `WHERE email = :email` (no clinic scope — used when `clinicId` is empty)
 
-- [ ] **Task 5: Update login/register use cases to handle empty clinicId** (AC: 1, 2, 3)
-  - [ ] In `services/auth-service/src/application/use-cases/login-user.use-case.ts`:
+- [x] **Task 5: Update login/register use cases to handle empty clinicId** (AC: 1, 2, 3)
+  - [x] In `services/auth-service/src/application/use-cases/login-user.use-case.ts`:
     - If `clinicId` is empty string, call `userRepository.findByEmail(email)` instead of `findByEmailAndClinic`
     - Existing constant-time dummy bcrypt compare for unknown email stays unchanged
-  - [ ] In `services/auth-service/src/application/use-cases/register-user.use-case.ts`:
+  - [x] In `services/auth-service/src/application/use-cases/register-user.use-case.ts`:
     - Allow `clinicId: ""` — no change needed to conflict check (email + clinic_id uniqueness still holds)
-  - [ ] `AuthResponse` interface: add `refreshToken: string` alongside existing `accessToken`
+  - [x] `AuthResponse` interface: add `refreshToken: string` alongside existing `accessToken`
 
-- [ ] **Task 6: Extend `IJwtService` with refresh token support** (AC: 1)
-  - [ ] Update `services/auth-service/src/application/ports/jwt-service.interface.ts`:
+- [x] **Task 6: Extend `IJwtService` with refresh token support** (AC: 1)
+  - [x] Update `services/auth-service/src/application/ports/jwt-service.interface.ts`:
     ```ts
     export interface IJwtService {
       sign(payload: {
@@ -126,25 +126,25 @@ so that the authentication is backed by a real database (not mock data) and issu
       verifyRefresh(token: string): Promise<{user_id: string}>;
     }
     ```
-  - [ ] Update `services/auth-service/src/infrastructure/adapters/jwt.adapter.ts` to implement `signRefresh` and `verifyRefresh` using a separate `JwtService` instance configured with `REFRESH_TOKEN_SECRET` and `REFRESH_TOKEN_EXPIRES_IN`
-  - [ ] Add to `services/auth-service/.env`:
+  - [x] Update `services/auth-service/src/infrastructure/adapters/jwt.adapter.ts` to implement `signRefresh` and `verifyRefresh` using a separate `JwtService` instance configured with `REFRESH_TOKEN_SECRET` and `REFRESH_TOKEN_EXPIRES_IN`
+  - [x] Add to `services/auth-service/.env`:
     ```
     GRPC_PORT=5001
     REFRESH_TOKEN_SECRET=change-me-refresh-secret
     REFRESH_TOKEN_EXPIRES_IN=604800
     ```
-  - [ ] Update `services/auth-service/src/auth/auth.module.ts` to register a second `JwtModule` (or pass options) for the refresh JWT; inject it separately in `JwtAdapter`
+  - [x] Update `services/auth-service/src/auth/auth.module.ts` to register a second `JwtModule` (or pass options) for the refresh JWT; inject it separately in `JwtAdapter`
 
-- [ ] **Task 7a: Add `RefreshTokenUseCase` to auth-service** (AC: 1)
-  - [ ] Create `services/auth-service/src/application/use-cases/refresh-token.use-case.ts`:
+- [x] **Task 7a: Add `RefreshTokenUseCase` to auth-service** (AC: 1)
+  - [x] Create `services/auth-service/src/application/use-cases/refresh-token.use-case.ts`:
     - `execute(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }>`
     - Verify `refreshToken` via `jwtService.verifyRefresh()` → throws `RpcException(UNAUTHENTICATED)` if invalid/expired
     - Look up user by `user_id` from verified payload (use `userRepository.findById()`)
     - Issue new `accessToken` via `jwtService.sign()` and new `refreshToken` via `jwtService.signRefresh()` (token rotation)
-  - [ ] Register `RefreshTokenUseCase` in `auth.module.ts` providers
+  - [x] Register `RefreshTokenUseCase` in `auth.module.ts` providers
 
-- [ ] **Task 7b: Add gRPC transport to auth-service** (AC: 1)
-  - [ ] Update `services/auth-service/src/main.ts`:
+- [x] **Task 7b: Add gRPC transport to auth-service** (AC: 1)
+  - [x] Update `services/auth-service/src/main.ts`:
     - Keep existing HTTP app (`NestFactory.create(AppModule)`)
     - Add:
       ```ts
@@ -163,8 +163,8 @@ so that the authentication is backed by a real database (not mock data) and issu
       ```
     - Import: `Transport`, `MicroserviceOptions` from `@nestjs/microservices`
 
-- [ ] **Task 7c: Create gRPC controller in auth-service** (AC: 1, 2, 3, 4)
-  - [ ] Create `services/auth-service/src/presentation/grpc/auth.grpc-controller.ts`:
+- [x] **Task 7c: Create gRPC controller in auth-service** (AC: 1, 2, 3, 4)
+  - [x] Create `services/auth-service/src/presentation/grpc/auth.grpc-controller.ts`:
 
     ```ts
     @Controller()
@@ -192,13 +192,13 @@ so that the authentication is backed by a real database (not mock data) and issu
 
     - Propagate exceptions as `RpcException` (invalid/expired refresh token → `status.UNAUTHENTICATED`)
 
-  - [ ] Register `AuthGrpcController` in `services/auth-service/src/auth/auth.module.ts` controllers array
-  - [ ] Add `REFRESH_TOKEN_USE_CASE = 'REFRESH_TOKEN_USE_CASE'` to `services/auth-service/src/shared/constants/injection-tokens.ts`
+  - [x] Register `AuthGrpcController` in `services/auth-service/src/auth/auth.module.ts` controllers array
+  - [x] Add `REFRESH_TOKEN_USE_CASE = 'REFRESH_TOKEN_USE_CASE'` to `services/auth-service/src/shared/constants/injection-tokens.ts`
 
 ### BACKEND — api-gateway Auth Proxy
 
-- [ ] **Task 8: Create gRPC client module in api-gateway** (AC: 1)
-  - [ ] Create `services/api-gateway/src/infrastructure/grpc/auth-grpc-client.module.ts`:
+- [x] **Task 8: Create gRPC client module in api-gateway** (AC: 1)
+  - [x] Create `services/api-gateway/src/infrastructure/grpc/auth-grpc-client.module.ts`:
     ```ts
     import {AUTH_PROTO_PATH} from "@lib/proto";
     // ...
@@ -217,12 +217,12 @@ so that the authentication is backed by a real database (not mock data) and issu
       },
     ]);
     ```
-  - [ ] Add `AUTH_SERVICE_GRPC_URL=localhost:5001` to `services/api-gateway/.env`
-  - [ ] Update `services/api-gateway/src/shared/env.validation.ts`: add `AUTH_SERVICE_GRPC_URL: Joi.string().default('auth-service:5001')`
+  - [x] Add `AUTH_SERVICE_GRPC_URL=localhost:5001` to `services/api-gateway/.env`
+  - [x] Update `services/api-gateway/src/shared/env.validation.ts`: add `AUTH_SERVICE_GRPC_URL: Joi.string().default('auth-service:5001')`
 
-- [ ] **Task 9: Create public auth endpoints in api-gateway** (AC: 1, 2, 3, 4)
-  - [ ] Install `cookie-parser`: `pnpm add cookie-parser @types/cookie-parser` in `services/`
-  - [ ] Create `services/api-gateway/src/presentation/auth/admin-auth.controller.ts`:
+- [x] **Task 9: Create public auth endpoints in api-gateway** (AC: 1, 2, 3, 4)
+  - [x] Install `cookie-parser`: `pnpm add cookie-parser @types/cookie-parser` in `services/`
+  - [x] Create `services/api-gateway/src/presentation/auth/admin-auth.controller.ts`:
     - `@Controller('auth')` — NO `@UseGuards(JwtAuthGuard)` on this controller
     - `@Post('login')`: receives `{ email, password }` → calls gRPC `login({ email, password, clinic_id: "" })` → **sets two HTTP-only cookies** and returns body:
       ```ts
@@ -279,12 +279,12 @@ so that the authentication is backed by a real database (not mock data) and issu
       }
       ```
     - Error mapping: `status.UNAUTHENTICATED` → `UnauthorizedException`; `status.NOT_FOUND` → `UnauthorizedException`; 5xx → `InternalServerErrorException('Auth service unavailable')`
-  - [ ] Create `services/api-gateway/src/presentation/auth/dto/admin-login.dto.ts`: `{ email: string; password: string }` with `@IsEmail()`, `@IsString() @IsNotEmpty()`
-  - [ ] Create `services/api-gateway/src/presentation/auth/auth.module.ts` — declares `AdminAuthController`, imports `AuthGrpcClientModule`
-  - [ ] Register `AuthModule` in `services/api-gateway/src/app.module.ts`
+  - [x] Create `services/api-gateway/src/presentation/auth/dto/admin-login.dto.ts`: `{ email: string; password: string }` with `@IsEmail()`, `@IsString() @IsNotEmpty()`
+  - [x] Create `services/api-gateway/src/presentation/auth/auth.module.ts` — declares `AdminAuthController`, imports `AuthGrpcClientModule`
+  - [x] Register `AuthModule` in `services/api-gateway/src/app.module.ts`
 
-- [ ] **Task 10: Enable cookie-parser and ValidationPipe in api-gateway** (defensive)
-  - [ ] Update `services/api-gateway/src/main.ts`:
+- [x] **Task 10: Enable cookie-parser and ValidationPipe in api-gateway** (defensive)
+  - [x] Update `services/api-gateway/src/main.ts`:
     ```ts
     import * as cookieParser from "cookie-parser";
     app.use(cookieParser());
@@ -293,8 +293,8 @@ so that the authentication is backed by a real database (not mock data) and issu
 
 ### FRONTEND — Replace Mock with Real Repository
 
-- [ ] **Task 11: Replace `AdminAuthRepositoryImpl` with real HTTP implementation** (AC: 1, 2, 3, 4, 5)
-  - [ ] Overwrite `frontend/src/infrastructure/repositories/AdminAuthRepositoryImpl.ts`:
+- [x] **Task 11: Replace `AdminAuthRepositoryImpl` with real HTTP implementation** (AC: 1, 2, 3, 4, 5)
+  - [x] Overwrite `frontend/src/infrastructure/repositories/AdminAuthRepositoryImpl.ts`:
     - Remove all mock data constants (`MOCK_ADMIN_PASSWORD`, `MOCK_ADMIN_USERS`)
     - `login(credentials)`: call `POST ${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login` with `{ email, password }` via server-side `fetch`
     - On `200`: map response to `AdminUser` domain entity AND attach extra properties for the jwt callback:
@@ -307,10 +307,10 @@ so that the authentication is backed by a real database (not mock data) and issu
       - `(extra) backendRefreshToken: body.refreshToken`
     - On `401` / `403`: return `null`
     - On network error or 5xx: throw `new Error('AUTH_SERVICE_UNAVAILABLE')` (caught in `authorize()`)
-  - [ ] **`AdminLogin` use case and `AdminAuthRepository` interface are NOT changed**
+  - [x] **`AdminLogin` use case and `AdminAuthRepository` interface are NOT changed**
 
-- [ ] **Task 12: Update `nextauth.config.ts` — real tokens + automatic refresh** (AC: 1, 4)
-  - [ ] In the existing `CredentialsProvider` `authorize()`:
+- [x] **Task 12: Update `nextauth.config.ts` — real tokens + automatic refresh** (AC: 1, 4)
+  - [x] In the existing `CredentialsProvider` `authorize()`:
     - Wrap in try/catch; catch `AUTH_SERVICE_UNAVAILABLE` → return `null`
     - Return real values including both tokens:
       ```ts
@@ -325,7 +325,7 @@ so that the authentication is backed by a real database (not mock data) and issu
         backendRefreshToken: (user as any).backendRefreshToken ?? "",
       };
       ```
-  - [ ] Replace the `jwt` callback with refresh-aware version:
+  - [x] Replace the `jwt` callback with refresh-aware version:
     ```ts
     async jwt({ token, user }) {
       if (user) {
@@ -344,7 +344,7 @@ so that the authentication is backed by a real database (not mock data) and issu
       return refreshBackendToken(token);
     }
     ```
-  - [ ] Add `refreshBackendToken` helper (above `authOptions`, module scope):
+  - [x] Add `refreshBackendToken` helper (above `authOptions`, module scope):
     ```ts
     async function refreshBackendToken(token: any) {
       try {
@@ -369,7 +369,7 @@ so that the authentication is backed by a real database (not mock data) and issu
       }
     }
     ```
-  - [ ] Update `frontend/src/infrastructure/auth/next-auth.d.ts` — add new fields to `JWT` only (NOT to `Session`):
+  - [x] Update `frontend/src/infrastructure/auth/next-auth.d.ts` — add new fields to `JWT` only (NOT to `Session`):
     ```ts
     declare module "next-auth/jwt" {
       interface JWT {
@@ -381,15 +381,15 @@ so that the authentication is backed by a real database (not mock data) and issu
       }
     }
     ```
-  - [ ] Add `NEXT_PUBLIC_API_URL=http://localhost:3001` to `frontend/.env.local`
+  - [x] Add `NEXT_PUBLIC_API_URL=http://localhost:3001` to `frontend/.env.local`
 
-- [ ] **Task 13: Write unit tests** (AC: 1, 2, 3, 4)
-  - [ ] Create `services/auth-service/src/presentation/grpc/__tests__/auth.grpc-controller.spec.ts`:
+- [x] **Task 13: Write unit tests** (AC: 1, 2, 3, 4)
+  - [x] Create `services/auth-service/src/presentation/grpc/__tests__/auth.grpc-controller.spec.ts`:
     - `Login` with valid credentials → returns `AuthReply` with `access_token`, `refresh_token`, and `user`
     - `Login` with wrong password → throws `RpcException` with `UNAUTHENTICATED` code
     - `RefreshToken` with valid refresh token → returns `RefreshTokenReply` with new `access_token` and rotated `refresh_token`
     - `RefreshToken` with expired/invalid token → throws `RpcException` with `UNAUTHENTICATED` code
-  - [ ] Update `frontend/src/application/auth/useCases/__tests__/AdminLogin.test.ts` (if exists) to pass mock repo returning a real `AdminUser` shape (no mock password constants)
+  - [x] Update `frontend/src/application/auth/useCases/__tests__/AdminLogin.test.ts` (if exists) to pass mock repo returning a real `AdminUser` shape (no mock password constants)
 
 ---
 

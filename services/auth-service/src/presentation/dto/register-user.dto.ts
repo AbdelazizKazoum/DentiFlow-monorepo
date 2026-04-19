@@ -2,10 +2,11 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
-  IsUUID,
   MinLength,
 } from "class-validator";
+import {Transform} from "class-transformer";
 import {UserRole} from "../../domain/enums/user-role.enum";
 
 export class RegisterUserDto {
@@ -23,6 +24,8 @@ export class RegisterUserDto {
   @IsEnum(UserRole)
   role!: UserRole;
 
-  @IsUUID()
-  clinicId!: string;
+  @IsOptional()
+  @IsString()
+  @Transform(({value}) => value ?? "")
+  clinicId?: string;
 }

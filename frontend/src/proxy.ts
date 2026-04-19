@@ -2,7 +2,7 @@ import {withAuth} from "next-auth/middleware";
 import createIntlMiddleware from "next-intl/middleware";
 import type {NextRequest} from "next/server";
 
-const ADMIN_ROUTES = /^\/(ar|en|fr)\/admin(?!\/(login))(\/.*)?$/;
+const ADMIN_ROUTES = /^\/(ar|en|fr)\/admin(?!\/(login|register))(\/.*)?$/;
 const ALLOWED_ADMIN_ROLES = [
   "admin",
   "doctor",

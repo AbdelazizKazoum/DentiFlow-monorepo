@@ -21,7 +21,7 @@ export class AuthController {
       password: dto.password,
       fullName: dto.fullName,
       role: dto.role,
-      clinicId: dto.clinicId,
+      clinicId: dto.clinicId ?? "",
     });
   }
 
@@ -31,7 +31,7 @@ export class AuthController {
     return this.loginUserUseCase.execute({
       email: dto.email,
       password: dto.password,
-      clinicId: dto.clinicId,
+      clinicId: dto.clinicId ?? "",
     });
   }
 }

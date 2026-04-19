@@ -6,7 +6,7 @@ const config: Config = {
   testRegex: ".*\\.spec\\.ts$",
   setupFiles: ["<rootDir>/jest.setup.ts"],
   transform: {
-    "^.+\\.(t|j)s$": ["ts-jest", {tsconfig: "<rootDir>/tsconfig.json"}],
+    "^.+\\.(t|j)s$": ["ts-jest", {tsconfig: "<rootDir>/tsconfig.test.json"}],
   },
   moduleNameMapper: {
     "^@lib$": "<rootDir>/../lib/index",

@@ -9,6 +9,7 @@ import {JwtStrategy} from "./shared/strategies/jwt.strategy";
 import {HealthModule} from "./presentation/health/health.module";
 import {SseModule} from "./presentation/sse/sse.module";
 import {ProxyModule} from "./presentation/proxy/proxy.module";
+import {AuthModule} from "./presentation/auth/auth.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import {ProxyModule} from "./presentation/proxy/proxy.module";
     HealthModule,
     SseModule,
     ProxyModule,
+    AuthModule,
   ],
   providers: [JwtStrategy],
 })

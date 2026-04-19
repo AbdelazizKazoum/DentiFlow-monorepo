@@ -208,6 +208,15 @@ export function AdminLoginForm() {
           {t("login.support_link")}
         </a>
       </p>
+      <p className="mt-3 text-center text-sm text-slate-500">
+        {t("login.no_account")}{" "}
+        <a
+          href={`/${locale}/admin/register`}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          {t("login.create_account")}
+        </a>
+      </p>
     </div>
   );
 }

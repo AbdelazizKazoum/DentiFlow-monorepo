@@ -105,7 +105,9 @@
         "success": "تم تسجيل الدخول بنجاح! جار التحويل…",
         "error": "بيانات الاعتماد غير صالحة. يرجى المحاولة مرة أخرى.",
         "support_text": "هل تحتاج إلى مساعدة تقنية؟",
-        "support_link": "الاتصال بدعم تقنية المعلومات"
+        "support_link": "الاتصال بدعم تقنية المعلومات",
+        "no_account": "ليس لديك حساب؟",
+        "create_account": "إنشاء حساب"
       },
       "branding": {
         "tagline_1": "رعاية دقيقة،",
@@ -118,7 +120,33 @@
         "email_required": "البريد الإلكتروني مطلوب",
         "email_invalid": "أدخل عنوان بريد إلكتروني صالح",
         "password_required": "كلمة المرور مطلوبة",
-        "password_min": "يجب أن تكون كلمة المرور 6 أحرف على الأقل"
+        "password_min": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+        "name_required": "الاسم الكامل مطلوب",
+        "name_min": "يجب أن يتكون الاسم من حرفين على الأقل",
+        "confirm_required": "يرجى تأكيد كلمة المرور",
+        "passwords_mismatch": "كلمتا المرور غير متطابقتين"
+      },
+      "register": {
+        "title": "إنشاء حساب موظف",
+        "subtitle": "سجل عضوًا جديدًا من الموظفين في بوابة DentiFlow.",
+        "name_label": "الاسم الكامل",
+        "name_placeholder": "د. جين سميث",
+        "email_label": "عنوان البريد الإلكتروني",
+        "email_placeholder": "staff@dentiflow.com",
+        "role_label": "الدور",
+        "role_admin": "مسؤول",
+        "role_doctor": "طبيب",
+        "role_secretariat": "سكرتارية",
+        "role_dental_assistant": "مساعد أسنان",
+        "password_label": "كلمة المرور",
+        "confirm_label": "تأكيد كلمة المرور",
+        "submit": "إنشاء الحساب",
+        "submitting": "جاري إنشاء الحساب…",
+        "success": "تم إنشاء الحساب! جاري التحويل إلى تسجيل الدخول…",
+        "error": "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+        "error_conflict": "هذا البريد الإلكتروني مسجّل مسبقًا.",
+        "have_account": "لديك حساب بالفعل؟",
+        "sign_in": "تسجيل الدخول"
       }
     }
   }

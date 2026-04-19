@@ -22,10 +22,12 @@ export class LoginUserUseCase {
   ) {}
 
   async execute(command: LoginUserCommand): Promise<AuthResponse> {
-    const user = await this.userRepository.findByEmailAndClinic(
-      command.email,
-      command.clinicId,
-    );
+    const user = command.clinicId
+      ? await this.userRepository.findByEmailAndClinic(
+          command.email,
+          command.clinicId,
+        )
+      : await this.userRepository.findByEmail(command.email);
 
     if (!user) {
       // Constant-time dummy compare to prevent user-enumeration via response timing
@@ -51,8 +53,13 @@ export class LoginUserUseCase {
       role: user.role,
     });
 
+    const refreshToken = await this.jwtService.signRefresh({
+      user_id: user.id,
+    });
+
     return {
       accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,

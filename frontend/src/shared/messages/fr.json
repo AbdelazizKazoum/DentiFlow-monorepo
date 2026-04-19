@@ -105,7 +105,9 @@
         "success": "Connexion r\u00e9ussie! Redirection\u2026",
         "error": "Identifiants invalides. Veuillez r\u00e9essayer.",
         "support_text": "Besoin d'assistance technique?",
-        "support_link": "Contacter le support IT"
+        "support_link": "Contacter le support IT",
+        "no_account": "Pas encore de compte\u00a0?",
+        "create_account": "En cr\u00e9er un"
       },
       "branding": {
         "tagline_1": "Soins de Pr\u00e9cision,",
@@ -118,7 +120,33 @@
         "email_required": "L'email est requis",
         "email_invalid": "Entrez une adresse email valide",
         "password_required": "Le mot de passe est requis",
-        "password_min": "Le mot de passe doit comporter au moins 6 caract\u00e8res"
+        "password_min": "Le mot de passe doit comporter au moins 6 caract\u00e8res",
+        "name_required": "Le nom complet est requis",
+        "name_min": "Le nom doit comporter au moins 2 caract\u00e8res",
+        "confirm_required": "Veuillez confirmer votre mot de passe",
+        "passwords_mismatch": "Les mots de passe ne correspondent pas"
+      },
+      "register": {
+        "title": "Cr\u00e9er un Compte Personnel",
+        "subtitle": "Enregistrez un nouveau membre du personnel pour le portail DentiFlow.",
+        "name_label": "Nom Complet",
+        "name_placeholder": "Dr. Jane Smith",
+        "email_label": "Adresse Email",
+        "email_placeholder": "personnel@dentiflow.com",
+        "role_label": "R\u00f4le",
+        "role_admin": "Administrateur",
+        "role_doctor": "M\u00e9decin",
+        "role_secretariat": "Secr\u00e9tariat",
+        "role_dental_assistant": "Assistant Dentaire",
+        "password_label": "Mot de passe",
+        "confirm_label": "Confirmer le mot de passe",
+        "submit": "Cr\u00e9er le Compte",
+        "submitting": "Cr\u00e9ation du compte\u2026",
+        "success": "Compte cr\u00e9\u00e9\u00a0! Redirection vers la connexion\u2026",
+        "error": "\u00c9chec de l'inscription. Veuillez r\u00e9essayer.",
+        "error_conflict": "Cet email est d\u00e9j\u00e0 enregistr\u00e9.",
+        "have_account": "Vous avez d\u00e9j\u00e0 un compte\u00a0?",
+        "sign_in": "Se connecter"
       }
     }
   }

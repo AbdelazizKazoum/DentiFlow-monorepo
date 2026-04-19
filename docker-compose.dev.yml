@@ -74,6 +74,9 @@ services:
       DB_NAME: dentiflow_db
       JWT_SECRET: change-me-to-a-secure-random-string-of-at-least-32-characters
       JWT_EXPIRES_IN: 900
+      REFRESH_TOKEN_SECRET: change-me-refresh-secret-at-least-32-characters
+      REFRESH_TOKEN_EXPIRES_IN: 604800
+      GRPC_PORT: 5001
       CHOKIDAR_USEPOLLING: "true"
       FORCE_POLLING: "true"
       WATCHPACK_POLLING: "true"

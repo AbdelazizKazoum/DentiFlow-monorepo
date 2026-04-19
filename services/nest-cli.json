@@ -7,7 +7,7 @@
   "compilerOptions": {
     "tsConfigPath": "api-gateway/tsconfig.json",
     "webpack": false,
-    "deleteOutDir": true
+    "deleteOutDir": false
   },
   "projects": {
     "api-gateway": {
@@ -18,8 +18,15 @@
       "compilerOptions": {
         "tsConfigPath": "api-gateway/tsconfig.json",
         "webpack": false,
-        "deleteOutDir": true
-      }
+        "deleteOutDir": false
+      },
+      "assets": [
+        {
+          "include": "../../lib/proto/*.proto",
+          "outDir": "lib/proto",
+          "watchAssets": true
+        }
+      ]
     },
     "auth-service": {
       "type": "application",
@@ -29,8 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "auth-service/tsconfig.json",
         "webpack": false,
-        "deleteOutDir": true
-      }
+        "deleteOutDir": false
+      },
+      "assets": [
+        {
+          "include": "../../lib/proto/*.proto",
+          "outDir": "lib/proto",
+          "watchAssets": true
+        }
+      ]
     }
   }
 }

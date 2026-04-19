@@ -29,6 +29,11 @@ export class UserRepository
     return entity ? UserMapper.toDomain(entity) : null;
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    const entity = await this.repo.findOne({where: {email}});
+    return entity ? UserMapper.toDomain(entity) : null;
+  }
+
   // @ts-ignore - Intentionally overrides base class to return domain User instead of UserTypeOrmEntity
   async save(user: User): Promise<User> {
     const saved = await this.repo.save(
@@ -42,6 +47,11 @@ export class UserRepository
     const entity = await this.repo.findOne({
       where: {id, clinic_id: clinicId},
     });
+    return entity ? UserMapper.toDomain(entity) : null;
+  }
+
+  async findByIdGlobal(id: string): Promise<User | null> {
+    const entity = await this.repo.findOne({where: {id}});
     return entity ? UserMapper.toDomain(entity) : null;
   }
 }

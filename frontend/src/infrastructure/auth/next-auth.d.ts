@@ -14,6 +14,7 @@ declare module "next-auth" {
       role: UserRole;
       clinic_id: string;
     } & DefaultSession["user"];
+    error?: "RefreshAccessTokenError";
   }
 }
 
@@ -22,5 +23,9 @@ declare module "next-auth/jwt" {
     user_id: string;
     role: UserRole;
     clinic_id: string;
+    backendAccessToken: string;
+    backendRefreshToken: string;
+    backendTokenExpiry: number;
+    error?: "RefreshAccessTokenError";
   }
 }
