@@ -17,7 +17,7 @@ export const AUTH_GRPC_CLIENT = "AUTH_GRPC_CLIENT";
             package: "auth",
             protoPath: AUTH_PROTO_PATH,
             url: config.get<string>("AUTH_SERVICE_GRPC_URL", "localhost:5001"),
-            loader: { keepCase: true },
+            loader: {keepCase: true},
           },
         }),
       },

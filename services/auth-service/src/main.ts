@@ -48,7 +48,7 @@ async function bootstrap() {
       package: "auth",
       protoPath: AUTH_PROTO_PATH,
       url: `0.0.0.0:${grpcPort}`,
-      loader: { keepCase: true },
+      loader: {keepCase: true},
     },
   });
 
@@ -66,4 +66,3 @@ bootstrap().catch((err: unknown) => {
   console.error("Fatal startup error", err);
   process.exit(1);
 });
-
