@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {JwtModule, JwtService} from "@nestjs/jwt";
+import {JwtService} from "@nestjs/jwt";
 import {ConfigService} from "@nestjs/config";
 import {UserTypeOrmEntity} from "../infrastructure/persistence/entities/user.typeorm-entity";
 import {UserRepository} from "../infrastructure/persistence/repositories/user.repository";
@@ -20,24 +20,7 @@ import {
 } from "../shared/constants/injection-tokens";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserTypeOrmEntity]),
-    // Access token JwtModule (already registered globally in AppModule)
-    JwtModule,
-    // Refresh token JwtModule — separate secret + expiry
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.getOrThrow<string>("REFRESH_TOKEN_SECRET"),
-        signOptions: {
-          expiresIn: configService.get<number>(
-            "REFRESH_TOKEN_EXPIRES_IN",
-            604800,
-          ),
-        },
-      }),
-    }),
-  ],
+  imports: [TypeOrmModule.forFeature([UserTypeOrmEntity])],
   controllers: [AuthController, AuthGrpcController],
   providers: [
     RegisterUserUseCase,

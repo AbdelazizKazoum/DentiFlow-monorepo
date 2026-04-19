@@ -125,6 +125,8 @@ export class AdminAuthController implements OnModuleInit {
         }),
       );
     } catch (err: unknown) {
+      console.error("Error in register -----------------> :", err);
+
       this.handleGrpcError(err);
     }
 
