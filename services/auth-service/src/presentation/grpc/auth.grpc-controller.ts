@@ -117,18 +117,21 @@ export class AuthGrpcController {
   private rethrowAsRpc(err: unknown): never {
     if (err instanceof RpcException) throw err;
 
-    const httpStatus = (err as {status?: number})?.status;
+    const httpErr = err as {status?: number; message?: string};
+    const httpStatus = httpErr?.status;
+    const message = httpErr?.message ?? "Unknown error";
+
     if (httpStatus === 401 || httpStatus === 403) {
-      throw new RpcException({
-        code: status.UNAUTHENTICATED,
-        message: "Invalid credentials",
-      });
+      throw new RpcException({code: status.UNAUTHENTICATED, message});
+    }
+    if (httpStatus === 404) {
+      throw new RpcException({code: status.NOT_FOUND, message});
     }
     if (httpStatus === 409) {
-      throw new RpcException({
-        code: status.ALREADY_EXISTS,
-        message: "Email already registered",
-      });
+      throw new RpcException({code: status.ALREADY_EXISTS, message});
+    }
+    if (httpStatus === 400) {
+      throw new RpcException({code: status.INVALID_ARGUMENT, message});
     }
     throw new RpcException({
       code: status.INTERNAL,

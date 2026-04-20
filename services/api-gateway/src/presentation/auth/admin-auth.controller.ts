@@ -125,8 +125,6 @@ export class AdminAuthController implements OnModuleInit {
         }),
       );
     } catch (err: unknown) {
-      console.error("Error in register -----------------> :", err);
-
       this.handleGrpcError(err);
     }
 
@@ -188,15 +186,20 @@ export class AdminAuthController implements OnModuleInit {
   }
 
   private handleGrpcError(err: unknown): never {
-    const grpcErr = err as {code?: number; message?: string};
+    const grpcErr = err as {code?: number; message?: string; details?: string};
+    // gRPC-js puts the original message in `details`; `message` is formatted as "<code> STATUS: ..."
+    const detail = grpcErr?.details ?? grpcErr?.message;
     if (
       grpcErr?.code === GrpcStatus.UNAUTHENTICATED ||
       grpcErr?.code === GrpcStatus.NOT_FOUND
     ) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException(detail ?? "Invalid credentials");
     }
     if (grpcErr?.code === GrpcStatus.ALREADY_EXISTS) {
-      throw new ConflictException("Email already registered");
+      throw new ConflictException(detail ?? "Email already registered");
+    }
+    if (grpcErr?.code === GrpcStatus.INVALID_ARGUMENT) {
+      throw new ConflictException(detail ?? "Invalid request");
     }
     throw new InternalServerErrorException("Auth service unavailable");
   }

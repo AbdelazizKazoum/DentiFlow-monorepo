@@ -38,55 +38,49 @@ export class RegisterUserUseCase {
   ) {}
 
   async execute(command: RegisterUserCommand): Promise<AuthResponse> {
-    try {
-      try {
-      const existing = await this.userRepository.findByEmailAndClinic(
-        command.email,
-        command.clinicId,
-      );
+    const existing = await this.userRepository.findByEmailAndClinic(
+      command.email,
+      command.clinicId,
+    );
 
-      if (existing) {
-        throw new ConflictException("Email already registered for this clinic");
-      }
-
-      const passwordHash = await bcrypt.hash(command.password, 12);
-
-      const user = new User(
-        uuidv4(),
-        command.clinicId,
-        command.email,
-        passwordHash,
-        command.fullName,
-        command.role,
-        new Date(),
-      );
-
-      const saved = await this.userRepository.save(user);
-
-      const accessToken = await this.jwtService.sign({
-        user_id: saved.id,
-        clinic_id: saved.clinicId,
-        role: saved.role,
-      });
-
-      const refreshToken = await this.jwtService.signRefresh({
-        user_id: saved.id,
-      });
-
-      return {
-        accessToken,
-        refreshToken,
-        user: {
-          id: saved.id,
-          email: saved.email,
-          fullName: saved.fullName,
-          role: saved.role,
-          clinicId: saved.clinicId,
-        },
-      };
-    } catch (error) {
-      console.error("Error in RegisterUserUseCase.execute:", error);
-      throw error;
+    if (existing) {
+      throw new ConflictException("Email already registered for this clinic");
     }
+
+    const passwordHash = await bcrypt.hash(command.password, 12);
+
+    const user = new User(
+      uuidv4(),
+      command.clinicId,
+      command.email,
+      passwordHash,
+      command.fullName,
+      command.role,
+      new Date(),
+    );
+
+    const saved = await this.userRepository.save(user);
+
+    const accessToken = await this.jwtService.sign({
+      user_id: saved.id,
+      clinic_id: saved.clinicId,
+      role: saved.role,
+    });
+
+    const refreshToken = await this.jwtService.signRefresh({
+      user_id: saved.id,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: saved.id,
+        email: saved.email,
+        fullName: saved.fullName,
+        role: saved.role,
+        clinicId: saved.clinicId,
+      },
+    };
   }
 }
