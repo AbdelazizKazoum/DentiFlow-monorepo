@@ -14,6 +14,17 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const configService = app.get(ConfigService);
+  const frontendUrl =
+    configService.get<string>("FRONTEND_URL") ?? "http://localhost:3000";
+
+  app.enableCors({
+    origin: frontendUrl,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
+
   app.useGlobalPipes(new ValidationPipe({whitelist: true, transform: true}));
 
   // /health and /events/queue are outside the versioned API prefix
@@ -21,7 +32,6 @@ async function bootstrap() {
     exclude: ["/health", "/events/queue"],
   });
 
-  const configService = app.get(ConfigService);
   const port = configService.get<number>("PORT", 3000);
 
   await app.listen(port);

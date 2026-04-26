@@ -77,6 +77,7 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
 
     let res: Response;
     try {
+      console.log("Registering admin with email:", credentials.email);
       res = await fetch(`${apiUrl}/api/v1/auth/register`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -87,6 +88,8 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
           role: credentials.role,
         }),
       });
+
+      console.log("Register response status:", res.status);
     } catch {
       throw new Error("AUTH_SERVICE_UNAVAILABLE");
     }
