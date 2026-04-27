@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -7,8 +7,8 @@ import {
   Pill,
   LogOut,
 } from "lucide-react";
-import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
-import {useLocale} from "next-intl";
+import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
+import { useLocale } from "next-intl";
 
 interface SidebarProps {
   activeTab: string;
@@ -17,24 +17,52 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const sidebarItems = [
-  {name: "Dashboard", icon: <LayoutDashboard size={22} />},
-  {name: "Schedule", icon: <Calendar size={22} />},
-  {name: "Patients", icon: <Users size={22} />},
-  {name: "Messages", icon: <MessageSquare size={22} />},
-  {name: "Medicines", icon: <Pill size={22} />},
+interface NavItem {
+  name: string;
+  icon: React.ReactNode;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ name: "Dashboard", icon: <LayoutDashboard size={20} /> }],
+  },
+  {
+    label: "Clinical",
+    items: [
+      { name: "Schedule", icon: <Calendar size={20} /> },
+      { name: "Patients", icon: <Users size={20} /> },
+      { name: "Medicines", icon: <Pill size={20} /> },
+    ],
+  },
+  {
+    label: "Communication",
+    items: [{ name: "Messages", icon: <MessageSquare size={20} /> }],
+  },
+];
+
+// Flat ordered list for stagger index calculation
+const allItems = navGroups.flatMap((g) => g.items);
+
+const staggerDelays = [
+  "delay-[0ms]",
+  "delay-[40ms]",
+  "delay-[80ms]",
+  "delay-[120ms]",
+  "delay-[160ms]",
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onTabChange,
   isCollapsed,
-  onToggle,
 }) => {
-  // hovered is only relevant when sidebar is collapsed by the user button
   const [hovered, setHovered] = useState(false);
-
-  // The visual state: expanded if either explicitly opened OR hovering while collapsed
   const isExpanded = !isCollapsed || hovered;
 
   const logout = useAdminAuthStore((s) => s.logout);
@@ -42,18 +70,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`bg-sidebar text-white flex flex-col flex-shrink-0 shadow-2xl
-        transition-[width] duration-300 ease-in-out
-        ${isExpanded ? "w-60" : "w-16"}`}
+      style={{ width: isExpanded ? "256px" : "68px" }}
+      className="bg-sidebar text-white flex flex-col shrink-0 shadow-2xl
+        transition-[width] duration-380 ease-[cubic-bezier(0.65,0,0.35,1)]
+        will-change-[width] overflow-hidden"
       onMouseEnter={() => isCollapsed && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Profile Section — always rendered, animated via max-h + opacity */}
-      <div className="flex flex-col items-center py-10 px-3 overflow-hidden">
+      {/* ── Profile ── */}
+      <div className="flex flex-col items-center py-8 overflow-hidden px-3">
         <div
-          className={`rounded-full border-4 border-white/20 overflow-hidden mb-4 shadow-xl
-            transition-all duration-300 ease-in-out
-            ${isExpanded ? "w-24 h-24" : "w-10 h-10"}`}
+          className={`relative rounded-full overflow-hidden shadow-xl ring-2 ring-white/20
+            transition-[width,height,margin] duration-380 ease-[cubic-bezier(0.65,0,0.35,1)]
+            ${isExpanded ? "w-20 h-20 mb-4" : "w-9 h-9 mb-0"}`}
         >
           <img
             src="https://i.pravatar.cc/150?u=drstranger"
@@ -61,72 +90,150 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-full h-full object-cover"
           />
         </div>
-        {/* Text always in DOM — delayed entrance, instant exit */}
+
+        {/* Name + role */}
         <div
-          className={`text-center overflow-hidden transition-all duration-300 ease-in-out
-            ${isExpanded ? "max-h-16 opacity-100 delay-150" : "max-h-0 opacity-0"}`}
+          className={`text-center overflow-hidden
+            transition-[max-height,opacity,transform] duration-300 ease-in-out
+            ${
+              isExpanded
+                ? "max-h-16 opacity-100 translate-y-0 delay-180"
+                : "max-h-0 opacity-0 -translate-y-1 delay-[0ms]"
+            }`}
         >
-          <h2 className="text-lg font-semibold tracking-tight whitespace-nowrap">
+          <h2 className="text-[15px] font-semibold tracking-tight whitespace-nowrap leading-snug">
             Dr. Stranger
           </h2>
-          <p className="text-white/60 text-xs font-medium">Dentist</p>
+          <p className="text-white/50 text-[11px] font-medium tracking-wide uppercase mt-0.5">
+            Dentist
+          </p>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-1">
-        {sidebarItems.map((item) => (
-          <button
-            key={item.name}
-            onClick={() => onTabChange(item.name)}
-            className={`w-full h-11 flex items-center rounded-xl transition-colors duration-200 group relative
-              ${isExpanded ? "px-5 gap-4" : "justify-center"}
-              ${
-                activeTab === item.name
-                  ? "bg-white text-primary font-semibold shadow-md"
-                  : "text-white/70 hover:bg-white/10 hover:text-white"
-              }`}
-          >
-            <span className="flex-shrink-0">{item.icon}</span>
+      {/* ── Divider ── */}
+      <div className="mx-3 mb-3 h-px bg-white/10 rounded-full" />
 
-            {/* Label — always in DOM, delayed entrance, instant exit */}
-            <span
-              className={`text-[14px] whitespace-nowrap overflow-hidden
-                transition-all duration-300 ease-in-out
-                ${isExpanded ? "max-w-xs opacity-100 delay-150" : "max-w-0 opacity-0"}`}
+      {/* ── Navigation ── */}
+      <nav className="flex-1 px-2.5 space-y-5 overflow-hidden">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            {/* Group label */}
+            <div
+              className={`overflow-hidden transition-[max-height,opacity] duration-200 ease-in-out
+                ${
+                  isExpanded
+                    ? "max-h-8 opacity-100 delay-160"
+                    : "max-h-0 opacity-0 delay-[0ms]"
+                }`}
             >
-              {item.name}
-            </span>
+              <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest uppercase text-white/35 select-none">
+                {group.label}
+              </p>
+            </div>
 
-            {/* Tooltip — only shown when fully collapsed and not hovered */}
-            <span
-              className={`absolute left-full ml-4 px-3 py-1.5 bg-card text-white text-xs
-                font-medium rounded-lg pointer-events-none whitespace-nowrap z-50
-                transition-opacity duration-150
-                ${!isExpanded ? "opacity-0 group-hover:opacity-100" : "opacity-0"}`}
-            >
-              {item.name}
-            </span>
-          </button>
+            {/* Items */}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const globalIndex = allItems.findIndex(
+                  (i) => i.name === item.name,
+                );
+                const isActive = activeTab === item.name;
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => onTabChange(item.name)}
+                    className={`group relative w-full h-10 flex items-center rounded-xl
+                      transition-colors duration-200 ease-in-out
+                      ${isExpanded ? "px-4" : "justify-center"}
+                      ${
+                        isActive
+                          ? "bg-white text-primary font-semibold shadow-lg shadow-black/20"
+                          : "text-white/65 hover:bg-white/10 hover:text-white"
+                      }`}
+                  >
+                    {/* Icon — centered when collapsed, left-aligned when expanded */}
+                    <span
+                      className={`shrink-0 transition-transform duration-200
+                        ${isActive ? "scale-110" : "group-hover:scale-105"}`}
+                    >
+                      {item.icon}
+                    </span>
+
+                    {/* Label — width+opacity transition, no layout shift */}
+                    <span
+                      className={`text-[13.5px] whitespace-nowrap overflow-hidden leading-none text-left
+                        transition-[width,opacity,margin] duration-280 ease-in-out
+                        ${
+                          isExpanded
+                            ? `w-36 opacity-100 ml-3 ${staggerDelays[globalIndex] ?? "delay-0"}`
+                            : "w-0 opacity-0 ml-0 delay-[0ms]"
+                        }`}
+                    >
+                      {item.name}
+                    </span>
+
+                    {/* Tooltip when collapsed */}
+                    {!isExpanded && (
+                      <span
+                        className="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900/95 backdrop-blur-sm
+                          text-white text-xs font-medium rounded-lg pointer-events-none whitespace-nowrap z-50
+                          shadow-xl border border-white/10
+                          opacity-0 translate-x-0
+                          transition-[opacity,transform] duration-150
+                          group-hover:opacity-100 group-hover:translate-x-1"
+                      >
+                        {item.name}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3 mb-4">
+      {/* ── Divider ── */}
+      <div className="mx-3 mt-3 h-px bg-white/10 rounded-full" />
+
+      {/* ── Logout ── */}
+      <div className="p-2.5 mb-3">
         <button
           onClick={() => logout(locale)}
-          className={`w-full h-11 flex items-center rounded-xl text-white/70
-            hover:bg-white/10 hover:text-white transition-colors duration-200
-            ${isExpanded ? "px-5 gap-4" : "justify-center"}`}
+          className={`group relative w-full h-10 flex items-center rounded-xl
+            text-white/55 hover:bg-red-500/15 hover:text-red-300
+            transition-colors duration-200 ease-in-out
+            ${isExpanded ? "px-4" : "justify-center"}`}
         >
-          <LogOut size={22} className="flex-shrink-0" />
+          <LogOut
+            size={20}
+            className="shrink-0 transition-transform duration-200 group-hover:scale-105"
+          />
           <span
-            className={`text-[14px] whitespace-nowrap overflow-hidden
-              transition-all duration-300 ease-in-out
-              ${isExpanded ? "max-w-xs opacity-100 delay-150" : "max-w-0 opacity-0"}`}
+            className={`text-[13.5px] whitespace-nowrap overflow-hidden leading-none text-left
+              transition-[width,opacity,margin] duration-280 ease-in-out
+              ${
+                isExpanded
+                  ? "w-24 opacity-100 ml-3 delay-200"
+                  : "w-0 opacity-0 ml-0 delay-0"
+              }`}
           >
             Logout
           </span>
+
+          {/* Tooltip */}
+          {!isExpanded && (
+            <span
+              className="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900/95 backdrop-blur-sm
+                text-white text-xs font-medium rounded-lg pointer-events-none whitespace-nowrap z-50
+                shadow-xl border border-white/10
+                opacity-0 translate-x-0
+                transition-[opacity,transform] duration-150
+                group-hover:opacity-100 group-hover:translate-x-1"
+            >
+              Logout
+            </span>
+          )}
         </button>
       </div>
     </aside>
