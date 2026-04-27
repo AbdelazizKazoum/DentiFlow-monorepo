@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -7,12 +7,12 @@ import {
   Pill,
   LogOut,
 } from "lucide-react";
-import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
-import { useLocale } from "next-intl";
+import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
+import {useLocale} from "next-intl";
+
+import {usePathname, useRouter} from "next/navigation";
 
 interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
   isCollapsed: boolean;
   onToggle: () => void;
 }
@@ -30,19 +30,19 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     label: "Overview",
-    items: [{ name: "Dashboard", icon: <LayoutDashboard size={20} /> }],
+    items: [{name: "Dashboard", icon: <LayoutDashboard size={20} />}],
   },
   {
     label: "Clinical",
     items: [
-      { name: "Schedule", icon: <Calendar size={20} /> },
-      { name: "Patients", icon: <Users size={20} /> },
-      { name: "Medicines", icon: <Pill size={20} /> },
+      {name: "Schedule", icon: <Calendar size={20} />},
+      {name: "Patients", icon: <Users size={20} />},
+      {name: "Medicines", icon: <Pill size={20} />},
     ],
   },
   {
     label: "Communication",
-    items: [{ name: "Messages", icon: <MessageSquare size={20} /> }],
+    items: [{name: "Messages", icon: <MessageSquare size={20} />}],
   },
 ];
 
@@ -57,20 +57,46 @@ const staggerDelays = [
   "delay-[160ms]",
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  activeTab,
-  onTabChange,
-  isCollapsed,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({isCollapsed}) => {
   const [hovered, setHovered] = useState(false);
   const isExpanded = !isCollapsed || hovered;
 
   const logout = useAdminAuthStore((s) => s.logout);
   const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const getRouteForTab = (tabName: string) => {
+    switch (tabName) {
+      case "Dashboard":
+        return `/${locale}/admin/dashboard`;
+      case "Schedule":
+        return `/${locale}/admin/schedule`;
+      case "Patients":
+        return `/${locale}/admin/patients`;
+      case "Medicines":
+        return `/${locale}/admin/medicines`;
+      case "Messages":
+        return `/${locale}/admin/messages`;
+      default:
+        return `/${locale}/admin/dashboard`;
+    }
+  };
+
+  const getActiveTab = () => {
+    if (pathname.includes("/admin/dashboard")) return "Dashboard";
+    if (pathname.includes("/admin/schedule")) return "Schedule";
+    if (pathname.includes("/admin/patients")) return "Patients";
+    if (pathname.includes("/admin/medicines")) return "Medicines";
+    if (pathname.includes("/admin/messages")) return "Messages";
+    return "Dashboard";
+  };
+
+  const activeTab = getActiveTab();
 
   return (
     <aside
-      style={{ width: isExpanded ? "256px" : "68px" }}
+      style={{width: isExpanded ? "256px" : "68px"}}
       className="bg-sidebar text-white flex flex-col shrink-0 shadow-2xl
         transition-[width] duration-380 ease-[cubic-bezier(0.65,0,0.35,1)]
         will-change-[width] overflow-hidden"
@@ -141,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 return (
                   <button
                     key={item.name}
-                    onClick={() => onTabChange(item.name)}
+                    onClick={() => router.push(getRouteForTab(item.name))}
                     className={`group relative w-full h-10 flex items-center rounded-xl
                       transition-colors duration-200 ease-in-out
                       ${isExpanded ? "px-4" : "justify-center"}
