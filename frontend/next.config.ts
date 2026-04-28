@@ -6,10 +6,15 @@ const withNextIntl = createNextIntlPlugin(
   "./src/infrastructure/i18n/config.ts",
 );
 
+// Both turbopack.root and outputFileTracingRoot must match.
+// Point to the monorepo root so Turbopack can resolve all workspace packages.
+const monorepoRoot = path.resolve(__dirname, "..");
+
 const nextConfig: NextConfig = {
   turbopack: {
-    root: path.resolve(__dirname),
+    root: monorepoRoot,
   },
+  outputFileTracingRoot: monorepoRoot,
 };
 
 export default withNextIntl(nextConfig);
