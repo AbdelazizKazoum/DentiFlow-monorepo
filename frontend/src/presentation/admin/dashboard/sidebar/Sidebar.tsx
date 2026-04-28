@@ -114,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="mx-4 mb-4 h-px bg-white/5 rounded-full" />
 
       {/* ── Navigation ── */}
-      <nav className="flex-1 px-3 space-y-7 overflow-x-hidden overflow-y-auto sidebar-scroll">
+      <nav className="flex-1 px-3 pt-2 space-y-7 overflow-x-hidden overflow-y-auto sidebar-scroll">
         {navGroups.map((group) => (
           <div key={group.label} className="flex flex-col">
             {/* Group label */}
