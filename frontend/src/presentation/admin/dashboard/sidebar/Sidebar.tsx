@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
 import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   activeTab: string;
@@ -67,6 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const logout = useAdminAuthStore((s) => s.logout);
   const locale = useLocale();
+  const router = useRouter();
 
   return (
     <aside
@@ -141,7 +143,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 return (
                   <button
                     key={item.name}
-                    onClick={() => onTabChange(item.name)}
+                    onClick={() => {
+                      if (item.name === "Schedule") {
+                        router.push(`/${locale}/admin/appointments`);
+                      } else {
+                        onTabChange(item.name);
+                      }
+                    }}
                     className={`group relative w-full h-11.5 flex items-center rounded-xl
                       transition-all duration-200 ease-in-out
                       ${isExpanded ? "px-4 mx-1 w-[calc(100%-8px)]" : "justify-center"}
