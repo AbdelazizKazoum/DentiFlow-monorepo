@@ -70,8 +70,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      style={{ width: isExpanded ? "256px" : "68px" }}
-      className="bg-sidebar text-white flex flex-col shrink-0 shadow-2xl
+      style={{ width: isExpanded ? "260px" : "72px" }}
+      className="bg-sidebar text-white flex flex-col shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.4)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.6)] z-20
         transition-[width] duration-380 ease-[cubic-bezier(0.65,0,0.35,1)]
         will-change-[width] overflow-hidden"
       onMouseEnter={() => isCollapsed && setHovered(true)}
@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* ── Profile ── */}
       <div className="flex flex-col items-center py-8 overflow-hidden px-3">
         <div
-          className={`relative rounded-full overflow-hidden shadow-xl ring-2 ring-white/20
+          className={`relative rounded-full overflow-hidden shadow-lg ring-[3px] ring-white/20
             transition-[width,height,margin] duration-380 ease-[cubic-bezier(0.65,0,0.35,1)]
             ${isExpanded ? "w-20 h-20 mb-4" : "w-9 h-9 mb-0"}`}
         >
@@ -101,32 +101,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : "max-h-0 opacity-0 -translate-y-1 delay-[0ms]"
             }`}
         >
-          <h2 className="text-[15px] font-semibold tracking-tight whitespace-nowrap leading-snug">
+          <h2 className="text-[1rem] font-semibold tracking-tight whitespace-nowrap leading-snug">
             Dr. Stranger
           </h2>
-          <p className="text-white/50 text-[11px] font-medium tracking-wide uppercase mt-0.5">
+          <p className="text-white/40 text-[0.75rem] font-normal tracking-widest uppercase mt-0.5">
             Dentist
           </p>
         </div>
       </div>
 
       {/* ── Divider ── */}
-      <div className="mx-3 mb-3 h-px bg-white/10 rounded-full" />
+      <div className="mx-4 mb-4 h-px bg-white/5 rounded-full" />
 
       {/* ── Navigation ── */}
-      <nav className="flex-1 px-2.5 space-y-5 overflow-hidden">
+      <nav className="flex-1 px-3 space-y-7 overflow-x-hidden overflow-y-auto sidebar-scroll">
         {navGroups.map((group) => (
-          <div key={group.label}>
+          <div key={group.label} className="flex flex-col">
             {/* Group label */}
             <div
-              className={`overflow-hidden transition-[max-height,opacity] duration-200 ease-in-out
+              className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-in-out
                 ${
                   isExpanded
-                    ? "max-h-8 opacity-100 delay-160"
-                    : "max-h-0 opacity-0 delay-[0ms]"
+                    ? "max-h-8 opacity-100 mb-2 delay-150"
+                    : "max-h-0 opacity-0 mb-0 delay-0"
                 }`}
             >
-              <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest uppercase text-white/35 select-none">
+              <p className="px-4 text-[0.6875rem] font-semibold tracking-widest uppercase text-white/50 select-none">
                 {group.label}
               </p>
             </div>
@@ -142,13 +142,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     key={item.name}
                     onClick={() => onTabChange(item.name)}
-                    className={`group relative w-full h-10 flex items-center rounded-xl
-                      transition-colors duration-200 ease-in-out
-                      ${isExpanded ? "px-4" : "justify-center"}
+                    className={`group relative w-full h-11.5 flex items-center rounded-xl
+                      transition-all duration-200 ease-in-out
+                      ${isExpanded ? "px-4 mx-1 w-[calc(100%-8px)]" : "justify-center"}
                       ${
                         isActive
-                          ? "bg-white text-primary font-semibold shadow-lg shadow-black/20"
-                          : "text-white/65 hover:bg-white/10 hover:text-white"
+                          ? "bg-white text-primary dark:bg-linear-to-r dark:from-primary dark:to-primary-dark dark:text-white font-semibold shadow-[0_4px_12px_rgba(255,255,255,0.2)] dark:shadow-primary/40 transform -translate-y-0.5"
+                          : "text-white/70 hover:bg-white/10 hover:text-white"
                       }`}
                   >
                     {/* Icon — centered when collapsed, left-aligned when expanded */}
@@ -161,7 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                     {/* Label — width+opacity transition, no layout shift */}
                     <span
-                      className={`text-[13.5px] whitespace-nowrap overflow-hidden leading-none text-left
+                      className={`text-[0.9375rem] whitespace-nowrap overflow-hidden leading-none text-left
                         transition-[width,opacity,margin] duration-280 ease-in-out
                         ${
                           isExpanded
@@ -200,17 +200,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-2.5 mb-3">
         <button
           onClick={() => logout(locale)}
-          className={`group relative w-full h-10 flex items-center rounded-xl
-            text-white/55 hover:bg-red-500/15 hover:text-red-300
-            transition-colors duration-200 ease-in-out
-            ${isExpanded ? "px-4" : "justify-center"}`}
+          className={`group relative h-11 flex items-center rounded-lg
+            text-white/60 hover:bg-red-500/10 hover:text-red-400
+            transition-all duration-200 ease-in-out
+            ${isExpanded ? "px-4 mx-1 w-[calc(100%-8px)]" : "w-full justify-center"}`}
         >
           <LogOut
             size={20}
             className="shrink-0 transition-transform duration-200 group-hover:scale-105"
           />
           <span
-            className={`text-[13.5px] whitespace-nowrap overflow-hidden leading-none text-left
+            className={`text-[0.9375rem] whitespace-nowrap overflow-hidden leading-none text-left
               transition-[width,opacity,margin] duration-280 ease-in-out
               ${
                 isExpanded

@@ -1,12 +1,12 @@
 import React from "react";
-import {Users} from "lucide-react";
-import {StatsCard} from "@domain/dashboard/entities";
+import { Users } from "lucide-react";
+import { StatsCard } from "@domain/dashboard/entities";
 
 interface StatsGridProps {
   stats: StatsCard[];
 }
 
-export const StatsGrid: React.FC<StatsGridProps> = ({stats}) => {
+export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "users":
@@ -36,10 +36,10 @@ export const StatsGrid: React.FC<StatsGridProps> = ({stats}) => {
               {getIcon(stat.icon)}
             </div>
           </div>
-          <p className="text-slate-400 dark:text-slate-500 text-xs font-medium mb-1">
+          <p className="text-[0.8125rem] text-[#6d6b77] dark:text-slate-400 font-normal mb-1.5 tracking-wide">
             {stat.label}
           </p>
-          <h3 className="text-2xl font-semibold text-slate-800 dark:text-white tracking-tight">
+          <h3 className="text-[1.5rem] font-semibold text-slate-700 dark:text-slate-100 tracking-tight">
             {stat.value}
           </h3>
         </div>

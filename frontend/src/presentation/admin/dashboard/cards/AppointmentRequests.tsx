@@ -1,6 +1,6 @@
 import React from "react";
-import {Check, X} from "lucide-react";
-import {Appointment} from "@domain/dashboard/entities";
+import { Check, X } from "lucide-react";
+import { Appointment } from "@domain/dashboard/entities";
 
 interface AppointmentRequestsProps {
   requests: Appointment[];
@@ -12,7 +12,7 @@ export const AppointmentRequests: React.FC<AppointmentRequestsProps> = ({
   return (
     <section className="bg-card rounded-3xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-md font-semibold text-slate-700 dark:text-slate-200">
+        <h3 className="text-[1rem] font-semibold text-slate-700 dark:text-slate-200">
           Appointment Requests
         </h3>
         <button className="text-blue-500 text-xs font-semibold hover:underline">
@@ -29,10 +29,10 @@ export const AppointmentRequests: React.FC<AppointmentRequestsProps> = ({
                 alt=""
               />
               <div>
-                <h4 className="font-semibold text-[14px] text-slate-800 dark:text-slate-200">
+                <h4 className="font-semibold text-[0.9375rem] text-slate-700 dark:text-slate-200">
                   {req.name}
                 </h4>
-                <p className="text-[11px] text-slate-400 font-medium">
+                <p className="text-[0.8125rem] text-[#6d6b77] dark:text-slate-400 font-normal">
                   {req.type} • {req.time || "10:00"}
                 </p>
               </div>

@@ -1,6 +1,6 @@
 import React from "react";
-import {Phone, FileText, MessageCircle} from "lucide-react";
-import {Patient} from "@domain/dashboard/entities";
+import { Phone, FileText, MessageCircle } from "lucide-react";
+import { Patient } from "@domain/dashboard/entities";
 
 interface PatientDetailsCardProps {
   patient: Patient;
@@ -12,7 +12,7 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
   return (
     <div className="bg-card rounded-3xl p-8 shadow-sm border border-ui-border relative">
       <div className="flex justify-between items-start mb-8">
-        <h3 className="font-semibold text-slate-400 dark:text-slate-500 text-[11px] uppercase tracking-wide">
+        <h3 className="font-semibold text-[0.75rem] text-[#6d6b77] dark:text-slate-400 uppercase tracking-widest">
           Next Patient Details
         </h3>
       </div>
@@ -26,10 +26,10 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
               alt=""
             />
             <div>
-              <h2 className="text-xl font-semibold text-slate-800 dark:text-white">
+              <h2 className="text-[1.25rem] font-semibold text-slate-700 dark:text-slate-100">
                 {patient.name}
               </h2>
-              <p className="text-xs text-slate-400 mt-1 font-medium leading-relaxed">
+              <p className="text-[0.8125rem] text-[#6d6b77] dark:text-slate-400 mt-1 font-normal leading-relaxed">
                 {patient.address}
               </p>
             </div>
@@ -37,18 +37,18 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
 
           <div className="grid grid-cols-3 gap-y-6 gap-x-4 mb-8">
             {[
-              {label: "D.O.B", value: patient.dob},
-              {label: "Sex", value: patient.sex},
-              {label: "Weight", value: patient.weight},
-              {label: "Height", value: patient.height},
-              {label: "Last Appointment", value: patient.lastAppointment},
-              {label: "Register Date", value: patient.registerDate},
+              { label: "D.O.B", value: patient.dob },
+              { label: "Sex", value: patient.sex },
+              { label: "Weight", value: patient.weight },
+              { label: "Height", value: patient.height },
+              { label: "Last Appointment", value: patient.lastAppointment },
+              { label: "Register Date", value: patient.registerDate },
             ].map((item, idx) => (
               <div key={idx}>
-                <p className="text-[10px] text-slate-400 font-medium mb-1">
+                <p className="text-[0.75rem] text-[#6d6b77] dark:text-slate-400 font-normal mb-1">
                   {item.label}
                 </p>
-                <p className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
+                <p className="text-[0.875rem] font-semibold text-slate-700 dark:text-slate-200">
                   {item.value}
                 </p>
               </div>
@@ -73,15 +73,15 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button className="flex items-center space-x-2 bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-all">
+            <button className="flex items-center space-x-2 bg-primary text-white px-5 py-2.5 rounded-xl text-[0.9375rem] font-medium hover:bg-primary-dark transition-all shadow-sm">
               <Phone size={14} />
               <span>(308) 555-0121</span>
             </button>
-            <button className="flex items-center space-x-2 bg-white dark:bg-surface-hover border border-blue-100 dark:border-ui-border text-blue-500 dark:text-blue-400 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:brightness-110 transition-all">
-              <FileText size={14} />
+            <button className="flex items-center space-x-2 bg-white dark:bg-surface-hover border border-ui-border text-primary px-5 py-2.5 rounded-xl text-[0.9375rem] font-medium hover:bg-surface-hover transition-all">
+              <FileText size={15} />
               <span>Documents</span>
             </button>
-            <button className="flex items-center space-x-2 bg-white dark:bg-surface-hover border border-blue-100 dark:border-ui-border text-blue-500 dark:text-blue-400 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:brightness-110 transition-all">
+            <button className="flex items-center space-x-2 bg-white dark:bg-surface-hover border border-ui-border text-primary px-5 py-2.5 rounded-xl text-[0.9375rem] font-medium hover:bg-surface-hover transition-all">
               <MessageCircle size={14} />
               <span>Chat</span>
             </button>

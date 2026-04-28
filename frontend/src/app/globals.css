@@ -5,49 +5,41 @@
 
 /* ============================================================
    THEME TOKENS
-   To retheme the entire app, edit the values in :root below.
-   Dark-mode overrides are in the .dark block.
-
-   Tailwind utilities generated:
-     bg-primary          text-primary        border-primary
-     hover:bg-primary-dark
-     bg-page             bg-card             bg-sidebar
-     hover:bg-surface-hover
-     border-ui-border
    ============================================================ */
 
 :root {
-  /* Brand */
+  /* Brand — DentiFlow blue */
   --brand-primary: #1e56d0;
   --brand-primary-dark: #1847b0;
 
   /* Surfaces */
-  --surface-page: #f8faff;
+  --surface-page: #f8f7fa;
   --surface-card: #ffffff;
-  --surface-sidebar: #1e56d0; /* matches primary in light */
-  --surface-hover: #f1f5f9;
+  --surface-sidebar: #1e56d0;
+  --surface-hover: rgba(168, 170, 174, 0.08);
 
   /* Borders */
-  --border-ui: #f1f5f9;
+  --border-ui: #e9e9ea;
 
   /* Chart */
   --chart-grid: #e2e8f0;
 
-  /* Body */
+  /* Body — Vuexy text colors */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #444050;
+  --text-muted: #6d6b77;
+  --text-placeholder: #acaab1;
 }
 
 .dark {
-  /* Brand (unchanged across modes — edit here to retheme dark primary) */
   --brand-primary: #1e56d0;
   --brand-primary-dark: #1847b0;
 
   /* Surfaces */
   --surface-page: #1a2035;
-  --surface-card: #222b44;
-  --surface-sidebar: #141b2d;
-  --surface-hover: #2a3557;
+  --surface-card: #2f3349;
+  --surface-sidebar: #2f3349;
+  --surface-hover: rgba(255, 255, 255, 0.05);
 
   /* Borders */
   --border-ui: #2d3a54;
@@ -57,15 +49,18 @@
 
   /* Body */
   --background: #0a0a0a;
-  --foreground: #ededed;
+  --foreground: #cdd0dd;
+  --text-muted: #9e9caa;
+  --text-placeholder: #5c5a67;
 }
 
 /* Register theme tokens as Tailwind CSS utilities */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:
+    var(--font-public-sans), "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
 
   /* Brand */
   --color-primary: var(--brand-primary);
@@ -84,5 +79,25 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9375rem; /* 15px — Vuexy base */
+  line-height: 1.6;
+  font-family:
+    var(--font-public-sans), "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for Sidebar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
 }

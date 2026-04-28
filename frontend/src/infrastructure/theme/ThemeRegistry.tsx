@@ -10,13 +10,17 @@ interface ThemeRegistryProps {
 
 const themeOptions = {
   typography: {
-    fontFamily: "var(--font-geist-sans), Arial, sans-serif",
+    fontFamily: "var(--font-public-sans), 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+    fontWeightBold: 600,
   },
   palette: {
     primary: {
-      main: "#0a66c2",
+      main: "#1e56d0",
       light: "#3b82f6",
-      dark: "#1d4ed8",
+      dark: "#1847b0",
     },
     background: {
       default: "var(--background)",
