@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       style={{ width: isExpanded ? "260px" : "72px" }}
-      className="bg-sidebar text-white flex flex-col shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.4)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.6)] z-20
+      className="bg-sidebar text-white flex flex-col shrink-0 shadow-[4px_0_24px_rgba(0,0,0,0.25)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-30
         transition-[width] duration-380 ease-[cubic-bezier(0.65,0,0.35,1)]
         will-change-[width] overflow-hidden"
       onMouseEnter={() => isCollapsed && setHovered(true)}
