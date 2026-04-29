@@ -341,7 +341,7 @@ export default function AppointmentsPage() {
       <style>{`
         .fc {
           --fc-border-color: #e2e8f0;
-          --fc-today-bg-color: #fafafa;
+          --fc-today-bg-color: rgba(0,0,0,0.02);
           --fc-now-indicator-color: #1e56d0;
           font-family: inherit;
         }
@@ -356,6 +356,7 @@ export default function AppointmentsPage() {
           padding: 10px 0 16px !important;
           gap: 10px !important;
           flex-wrap: wrap !important;
+          background: var(--surface-card) !important;
         }
         .fc .fc-toolbar-chunk {
           display: flex !important;
@@ -703,7 +704,7 @@ export default function AppointmentsPage() {
               allDaySlot={false}
               events={calendarEvents}
               eventContent={(eventInfo) => {
-                const status = eventInfo.event.extendedProps.status;
+                const status = eventInfo.event.extendedProps.status as AppointmentStatus;
                 const color = STATUS_CONFIG[status]?.color || "#000";
                 return (
                   <div

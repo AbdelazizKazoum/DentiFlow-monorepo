@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { useThemeStore } from "./themeStore";
 
 interface ThemeRegistryProps {
   children: React.ReactNode;
@@ -157,18 +158,18 @@ export function ThemeRegistry({
   children,
   direction = "ltr",
 }: ThemeRegistryProps) {
-  // This is a placeholder for a real theme switching logic
-  const isDarkMode = false;
+  const { theme } = useThemeStore();
+  const isDarkMode = theme.mode === "dark";
 
-  let theme;
+  let themeMui;
   if (isDarkMode) {
-    theme = direction === "rtl" ? darkRtlTheme : darkLtrTheme;
+    themeMui = direction === "rtl" ? darkRtlTheme : darkLtrTheme;
   } else {
-    theme = direction === "rtl" ? rtlTheme : ltrTheme;
+    themeMui = direction === "rtl" ? rtlTheme : ltrTheme;
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeMui}>
       <CssBaseline />
       {children}
     </ThemeProvider>

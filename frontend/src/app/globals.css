@@ -58,6 +58,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-text-muted: var(--text-muted);
+  --color-text-placeholder: var(--text-placeholder);
   --font-sans:
     var(--font-public-sans), "Public Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, monospace;

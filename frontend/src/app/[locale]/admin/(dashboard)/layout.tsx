@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Sidebar } from "@presentation/admin/dashboard/sidebar/Sidebar";
 import { DashboardHeader } from "@presentation/admin/dashboard/header/DashboardHeader";
 import { useThemeStore } from "@infrastructure/theme/themeStore";
@@ -14,7 +14,6 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { theme } = useThemeStore();
   const { isCollapsed } = useSidebarStore();
-  const [activeTab, setActiveTab] = useState("Dashboard");
 
   // Sync dark class on <html> with the theme store
   useEffect(() => {
@@ -33,8 +32,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="h-screen bg-page overflow-hidden">
       <div className="flex h-full overflow-hidden">
         <Sidebar
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
           isCollapsed={isCollapsed}
           onToggle={handleToggleSidebar}
         />
