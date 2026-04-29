@@ -12,6 +12,15 @@ import type {
   EventInput,
 } from "@fullcalendar/core";
 import {
+  Calendar,
+  Clock,
+  Mail,
+  MessageSquare,
+  Phone,
+  User,
+  UserPlus,
+} from "lucide-react";
+import {
   Dialog,
   DialogTitle,
   DialogContent,
@@ -24,6 +33,8 @@ import {
   FormControl,
   IconButton,
   Typography,
+  Avatar,
+  Chip,
 } from "@mui/material";
 import { X } from "lucide-react";
 
@@ -33,20 +44,31 @@ type AppointmentStatus = "confirmed" | "pending" | "cancelled";
 
 interface AppointmentEvent extends EventInput {
   id: string;
-  title: string;
+  title: string; // This will be dynamically generated, e.g., "Patient Name — Service"
   start: string;
   end: string;
   extendedProps: {
     status: AppointmentStatus;
+    patientName: string;
+    service: string;
+    provider: string;
+    notes: string;
+    patientPhone: string;
+    patientEmail: string;
   };
 }
 
 interface FormState {
   id: string;
-  title: string;
   start: string;
   end: string;
   status: AppointmentStatus;
+  patientName: string;
+  service: string;
+  provider: string;
+  notes: string;
+  patientPhone: string;
+  patientEmail: string;
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -89,7 +111,15 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
       d.setHours(10, 30, 0, 0);
       return d.toISOString();
     })(),
-    extendedProps: { status: "confirmed" },
+    extendedProps: {
+      status: "confirmed",
+      patientName: "Alice Johnson",
+      service: "Checkup",
+      provider: "Dr. Emily Carter",
+      notes: "Patient reports minor sensitivity on the upper left side.",
+      patientPhone: "555-0101",
+      patientEmail: "alice.j@example.com",
+    },
   },
   {
     id: "2",
@@ -104,7 +134,15 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
       d.setHours(15, 0, 0, 0);
       return d.toISOString();
     })(),
-    extendedProps: { status: "pending" },
+    extendedProps: {
+      status: "pending",
+      patientName: "Bob Smith",
+      service: "Scaling",
+      provider: "Dr. John Harris",
+      notes: "New patient, requires full mouth x-ray.",
+      patientPhone: "555-0102",
+      patientEmail: "bob.smith@example.com",
+    },
   },
   {
     id: "3",
@@ -121,7 +159,15 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
       d.setHours(12, 0, 0, 0);
       return d.toISOString();
     })(),
-    extendedProps: { status: "cancelled" },
+    extendedProps: {
+      status: "cancelled",
+      patientName: "Diana Lee",
+      service: "Root Canal",
+      provider: "Dr. Emily Carter",
+      notes: "Patient cancelled, needs to reschedule.",
+      patientPhone: "555-0103",
+      patientEmail: "diana.l@example.com",
+    },
   },
 ];
 
@@ -130,15 +176,22 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
 function toDatetimeLocal(date: string | Date): string {
   const d = new Date(date);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+    d.getDate(),
+  )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 const EMPTY_FORM: FormState = {
   id: "",
-  title: "",
   start: "",
   end: "",
   status: "pending",
+  patientName: "",
+  service: "",
+  provider: "Dr. Emily Carter",
+  notes: "",
+  patientPhone: "",
+  patientEmail: "",
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -171,11 +224,9 @@ export default function AppointmentsPage() {
     now.setSeconds(0, 0);
     const later = new Date(now.getTime() + 30 * 60 * 1000);
     setForm({
-      id: "",
-      title: "",
+      ...EMPTY_FORM,
       start: start ?? toDatetimeLocal(now),
       end: end ?? toDatetimeLocal(later),
-      status: "pending",
     });
     setError("");
     setModalOpen(true);
@@ -192,10 +243,15 @@ export default function AppointmentsPage() {
     const { event } = info;
     setForm({
       id: event.id,
-      title: event.title,
       start: toDatetimeLocal(event.start!),
       end: toDatetimeLocal(event.end ?? event.start!),
       status: event.extendedProps.status as AppointmentStatus,
+      patientName: event.extendedProps.patientName,
+      service: event.extendedProps.service,
+      provider: event.extendedProps.provider,
+      notes: event.extendedProps.notes,
+      patientPhone: event.extendedProps.patientPhone,
+      patientEmail: event.extendedProps.patientEmail,
     });
     setError("");
     setModalOpen(true);
@@ -230,8 +286,8 @@ export default function AppointmentsPage() {
   );
 
   const handleSave = () => {
-    if (!form.title.trim()) {
-      setError("Patient name is required.");
+    if (!form.patientName.trim() || !form.service.trim()) {
+      setError("Patient name and service are required.");
       return;
     }
     if (new Date(form.end) <= new Date(form.start)) {
@@ -245,10 +301,18 @@ export default function AppointmentsPage() {
 
     const updated: AppointmentEvent = {
       id: form.id || String(Date.now()),
-      title: form.title,
+      title: `${form.patientName} — ${form.service}`,
       start: new Date(form.start).toISOString(),
       end: new Date(form.end).toISOString(),
-      extendedProps: { status: form.status },
+      extendedProps: {
+        status: form.status,
+        patientName: form.patientName,
+        service: form.service,
+        provider: form.provider,
+        notes: form.notes,
+        patientPhone: form.patientPhone,
+        patientEmail: form.patientEmail,
+      },
     };
 
     setEvents((prev) =>
@@ -276,13 +340,14 @@ export default function AppointmentsPage() {
       {/* ── FullCalendar global CSS overrides ── */}
       <style>{`
         .fc {
-          --fc-border-color: #f1f5f9;
+          --fc-border-color: #e2e8f0;
           --fc-today-bg-color: #fafafa;
           --fc-now-indicator-color: #1e56d0;
           font-family: inherit;
         }
         .dark .fc-theme-standard td, .dark .fc-theme-standard th, .dark .fc-theme-standard .fc-scrollgrid {
-          border-color: rgba(255,255,255,0.06) !important;
+          border-color: rgba(255,255,255,0.08) !important;
+          border-width: 1px !important;
         }
 
         /* ─── Toolbar ─── */
@@ -496,9 +561,19 @@ export default function AppointmentsPage() {
         }
         /* Clean minimal grid */
         .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
-          border-color: #f1f5f9 !important;
+          border-color: #e2e8f0 !important;
         }
-        .fc-col-header-cell { padding: 4px 0 !important; background: transparent !important; }
+        .fc-col-header-cell {
+          padding: 4px 0 !important;
+          background: transparent !important;
+          border-style: solid !important;
+          border-color: #e2e8f0 !important;
+          border-width: 0 1px 1px 0 !important; /* T, R, B, L */
+        }
+        .fc-col-header-cell:last-child {
+          border-right-width: 0 !important;
+        }
+        .dark .fc-col-header-cell { border-color: rgba(255,255,255,0.08) !important; }
         .fc-col-header-cell-cushion {
             font-size: 0.75rem !important;
             font-weight: 500 !important;
@@ -516,6 +591,30 @@ export default function AppointmentsPage() {
         }
         .fc-scrollgrid { border-radius: 0 !important; }
         .fc-scrollgrid-section > td { border: none !important; }
+
+        /* ─── Selection Mirror ─── */
+        .fc-select-mirror {
+          background-color: rgba(30, 86, 208, 0.3) !important;
+          border: 2px solid #1e56d0 !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 12px rgba(30, 86, 208, 0.4) !important;
+          color: #1e56d0 !important;
+          font-weight: 600 !important;
+          opacity: 1 !important;
+        }
+        .fc-select-mirror .fc-event-main,
+        .fc-select-mirror * {
+          color: #1e56d0 !important;
+          font-weight: 600 !important;
+        }
+
+        /* ─── Highlighted selection ─── */
+        .fc .fc-highlight {
+          background: rgba(30, 86, 208, 0.2) !important;
+          border-radius: 4px !important;
+          color: #1e56d0 !important;
+          font-weight: 600 !important;
+        }
       `}</style>
 
       <div className="p-6 lg:p-8 space-y-6">
@@ -633,13 +732,16 @@ export default function AppointmentsPage() {
       <Dialog
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        maxWidth="xs"
+        maxWidth="sm"
         fullWidth
         slotProps={{
           paper: {
             sx: {
               borderRadius: "16px",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+              boxShadow:
+                "0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -15px rgba(0, 0, 0, 0.1)",
+              border: "1px solid var(--border-ui)",
+              backgroundColor: "var(--surface-card)",
             },
           },
         }}
@@ -649,104 +751,205 @@ export default function AppointmentsPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            pb: 0,
+            p: "20px 24px",
+            borderBottom: "1px solid var(--border-ui)",
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            {form.id ? "Edit Appointment" : "Book Appointment"}
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ fontWeight: 700, color: "var(--foreground)" }}
+          >
+            {form.id ? "Edit Appointment" : "Book New Appointment"}
           </Typography>
-          <IconButton size="small" onClick={() => setModalOpen(false)}>
-            <X size={18} />
+          <IconButton
+            size="small"
+            onClick={() => setModalOpen(false)}
+            sx={{ color: "var(--text-muted)" }}
+          >
+            <X size={20} />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ pt: 2, pb: 1 }}>
+        <DialogContent
+          sx={{
+            p: "24px",
+            "& .MuiTextField-root": { mb: "16px" },
+            "& .MuiInputLabel-root": { fontSize: "0.875rem" },
+            "& .MuiInputBase-input": { fontSize: "0.875rem" },
+          }}
+        >
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
               {error}
             </div>
           )}
 
-          <div className="flex flex-col gap-4 pt-1">
-            <TextField
-              label="Patient Name"
-              fullWidth
-              size="small"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="e.g. Jane Doe — Checkup"
-            />
-            <TextField
-              label="Start Time"
-              type="datetime-local"
-              fullWidth
-              size="small"
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={form.start}
-              onChange={(e) => setForm({ ...form, start: e.target.value })}
-            />
-            <TextField
-              label="End Time"
-              type="datetime-local"
-              fullWidth
-              size="small"
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={form.end}
-              onChange={(e) => setForm({ ...form, end: e.target.value })}
-            />
-            <FormControl fullWidth size="small">
-              <InputLabel>Status</InputLabel>
-              <Select
-                label="Status"
-                value={form.status}
+          <div className="flex flex-col gap-1 pt-2">
+            {/* Patient & Service */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+              <TextField
+                label="Patient Name"
+                fullWidth
+                value={form.patientName}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    status: e.target.value as AppointmentStatus,
-                  })
+                  setForm({ ...form, patientName: e.target.value })
                 }
-              >
-                <MenuItem value="pending">⏳ Pending</MenuItem>
-                <MenuItem value="confirmed">✅ Confirmed</MenuItem>
-                <MenuItem value="cancelled">❌ Cancelled</MenuItem>
-              </Select>
-            </FormControl>
+                placeholder="e.g. Jane Doe"
+                required
+              />
+              <TextField
+                label="Service / Procedure"
+                fullWidth
+                value={form.service}
+                onChange={(e) => setForm({ ...form, service: e.target.value })}
+                placeholder="e.g. Annual Checkup"
+                required
+              />
+            </div>
+
+            {/* Time inputs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+              <TextField
+                label="Start Time"
+                type="datetime-local"
+                fullWidth
+                value={form.start}
+                onChange={(e) => setForm({ ...form, start: e.target.value })}
+              />
+              <TextField
+                label="End Time"
+                type="datetime-local"
+                fullWidth
+                value={form.end}
+                onChange={(e) => setForm({ ...form, end: e.target.value })}
+              />
+            </div>
+
+            {/* Provider & Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+              <FormControl fullWidth>
+                <InputLabel>Provider</InputLabel>
+                <Select
+                  label="Provider"
+                  value={form.provider}
+                  onChange={(e) =>
+                    setForm({ ...form, provider: e.target.value })
+                  }
+                >
+                  <MenuItem value="Dr. Emily Carter">Dr. Emily Carter</MenuItem>
+                  <MenuItem value="Dr. John Harris">Dr. John Harris</MenuItem>
+                  <MenuItem value="Dr. Sarah Chen">Dr. Sarah Chen</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  label="Status"
+                  value={form.status}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      status: e.target.value as AppointmentStatus,
+                    })
+                  }
+                >
+                  <MenuItem value="pending">⏳ Pending Confirmation</MenuItem>
+                  <MenuItem value="confirmed">✅ Confirmed</MenuItem>
+                  <MenuItem value="cancelled">❌ Cancelled</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+
+            {/* Contact Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+              <TextField
+                label="Patient Phone"
+                fullWidth
+                value={form.patientPhone}
+                onChange={(e) =>
+                  setForm({ ...form, patientPhone: e.target.value })
+                }
+                placeholder="e.g. 555-0101"
+              />
+              <TextField
+                label="Patient Email"
+                type="email"
+                fullWidth
+                value={form.patientEmail}
+                onChange={(e) =>
+                  setForm({ ...form, patientEmail: e.target.value })
+                }
+                placeholder="e.g. jane.d@example.com"
+              />
+            </div>
+
+            {/* Notes */}
+            <TextField
+              label="Notes / Comments"
+              fullWidth
+              multiline
+              rows={3}
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="e.g. Patient mentioned tooth sensitivity..."
+            />
           </div>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 3, justifyContent: "space-between" }}>
-          {form.id ? (
-            <Button
-              color="error"
-              variant="outlined"
-              size="small"
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
-          ) : (
-            <span />
-          )}
+        <DialogActions
+          sx={{
+            p: "16px 24px",
+            borderTop: "1px solid var(--border-ui)",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            {form.id && (
+              <Button
+                color="error"
+                variant="text"
+                onClick={handleDelete}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
           <div className="flex gap-2">
             <Button
               variant="outlined"
-              color="inherit"
-              size="small"
               onClick={() => setModalOpen(false)}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: "8px",
+                padding: "8px 16px",
+              }}
             >
               Cancel
             </Button>
             <Button
               variant="contained"
-              size="small"
               onClick={handleSave}
               sx={{
-                backgroundColor: "var(--brand-primary)",
-                "&:hover": { backgroundColor: "var(--brand-primary-dark)" },
+                textTransform: "none",
+                fontWeight: 600,
                 borderRadius: "8px",
+                padding: "8px 16px",
+                boxShadow: "0 1px 3px rgba(30,86,208,0.3)",
+                backgroundColor: "var(--brand-primary)",
+                "&:hover": {
+                  backgroundColor: "var(--brand-primary-dark)",
+                  boxShadow: "0 2px 6px rgba(30,86,208,0.4)",
+                },
               }}
             >
-              Save
+              {form.id ? "Save Changes" : "Create Appointment"}
             </Button>
           </div>
         </DialogActions>

@@ -7,7 +7,7 @@ import { getLocale } from "next-intl/server";
 const publicSans = Public_Sans({
   variable: "--font-public-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
