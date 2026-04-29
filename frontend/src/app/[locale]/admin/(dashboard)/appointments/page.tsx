@@ -704,7 +704,8 @@ export default function AppointmentsPage() {
               allDaySlot={false}
               events={calendarEvents}
               eventContent={(eventInfo) => {
-                const status = eventInfo.event.extendedProps.status as AppointmentStatus;
+                const status = eventInfo.event.extendedProps
+                  .status as AppointmentStatus;
                 const color = STATUS_CONFIG[status]?.color || "#000";
                 return (
                   <div
