@@ -592,28 +592,34 @@ export default function AppointmentsPage() {
         .fc-scrollgrid { border-radius: 0 !important; }
         .fc-scrollgrid-section > td { border: none !important; }
 
-        /* ─── Selection Mirror ─── */
+        /* ─── Selection: use FullCalendar CSS variables ─── */
+        :root {
+          --fc-highlight-color: rgba(30, 86, 208, 0.15);
+          --fc-event-bg-color: rgba(30, 86, 208, 0.25);
+          --fc-event-border-color: #1e56d0;
+          --fc-event-text-color: #1e56d0;
+          --fc-event-selected-overlay-color: rgba(0, 0, 0, 0);
+        }
+        .fc-timegrid-event.fc-v-event.fc-select-mirror,
         .fc-select-mirror {
-          background-color: rgba(30, 86, 208, 0.3) !important;
-          border: 2px solid #1e56d0 !important;
-          border-radius: 8px !important;
-          box-shadow: 0 4px 12px rgba(30, 86, 208, 0.4) !important;
-          color: #1e56d0 !important;
-          font-weight: 600 !important;
+          --fc-event-bg-color: rgba(30, 86, 208, 0.2) !important;
+          --fc-event-border-color: #1e56d0 !important;
+          --fc-event-text-color: #1e56d0 !important;
+          background-color: rgba(30, 86, 208, 0.2) !important;
+          border-left: 3px solid #1e56d0 !important;
+          border-top: none !important;
+          border-right: none !important;
+          border-bottom: none !important;
+          border-radius: 6px !important;
+          box-shadow: none !important;
           opacity: 1 !important;
         }
         .fc-select-mirror .fc-event-main,
-        .fc-select-mirror * {
+        .fc-select-mirror .fc-event-time,
+        .fc-select-mirror .fc-event-title {
           color: #1e56d0 !important;
           font-weight: 600 !important;
-        }
-
-        /* ─── Highlighted selection ─── */
-        .fc .fc-highlight {
-          background: rgba(30, 86, 208, 0.2) !important;
-          border-radius: 4px !important;
-          color: #1e56d0 !important;
-          font-weight: 600 !important;
+          font-size: 0.75rem !important;
         }
       `}</style>
 

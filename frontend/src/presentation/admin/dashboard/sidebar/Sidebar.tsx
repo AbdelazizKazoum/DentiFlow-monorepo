@@ -9,11 +9,9 @@ import {
 } from "lucide-react";
 import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
   isCollapsed: boolean;
   onToggle: () => void;
 }
@@ -58,9 +56,15 @@ const staggerDelays = [
   "delay-[160ms]",
 ];
 
+const routes: Record<string, string> = {
+  Dashboard: "/admin/dashboard",
+  Schedule: "/admin/appointments",
+  Patients: "/admin/patients",
+  Medicines: "/admin/medicines",
+  Messages: "/admin/messages",
+};
+
 export const Sidebar: React.FC<SidebarProps> = ({
-  activeTab,
-  onTabChange,
   isCollapsed,
 }) => {
   const [hovered, setHovered] = useState(false);
@@ -69,6 +73,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const logout = useAdminAuthStore((s) => s.logout);
   const locale = useLocale();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const getActiveTab = () => {
+    if (pathname.includes('/appointments')) return 'Schedule';
+    if (pathname.includes('/patients')) return 'Patients';
+    if (pathname.includes('/medicines')) return 'Medicines';
+    if (pathname.includes('/messages')) return 'Messages';
+    if (pathname.includes('/dashboard')) return 'Dashboard';
+    return '';
+  };
 
   return (
     <aside
@@ -139,17 +153,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 const globalIndex = allItems.findIndex(
                   (i) => i.name === item.name,
                 );
-                const isActive = activeTab === item.name;
+                const isActive = getActiveTab() === item.name;
                 return (
                   <button
                     key={item.name}
-                    onClick={() => {
-                      if (item.name === "Schedule") {
-                        router.push(`/${locale}/admin/appointments`);
-                      } else {
-                        onTabChange(item.name);
-                      }
-                    }}
+                    onClick={() => router.push(`/${locale}${routes[item.name]}`)}
                     className={`group relative w-full h-11.5 flex items-center rounded-xl
                       transition-all duration-200 ease-in-out
                       ${isExpanded ? "px-4 mx-1 w-[calc(100%-8px)]" : "justify-center"}
