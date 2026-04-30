@@ -7,6 +7,7 @@ import {
   MessageSquare,
   Pill,
   LogOut,
+  Stethoscope,
 } from "lucide-react";
 import { useAdminAuthStore } from "@/presentation/stores/adminAuthStore";
 import { useLocale } from "next-intl";
@@ -37,6 +38,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Schedule", icon: <Calendar size={20} /> },
       { name: "Patients", icon: <Users size={20} /> },
+      { name: "Treatments", icon: <Stethoscope size={20} /> },
       { name: "Medicines", icon: <Pill size={20} /> },
       { name: "Staff", icon: <UserCog size={20} /> },
     ],
@@ -62,6 +64,7 @@ const routes: Record<string, string> = {
   Dashboard: "/admin/dashboard",
   Schedule: "/admin/appointments",
   Patients: "/admin/patients",
+  Treatments: "/admin/treatments",
   Medicines: "/admin/medicines",
   Staff: "/admin/staff",
   Messages: "/admin/messages",
@@ -79,6 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const getActiveTab = () => {
     if (pathname.includes("/appointments")) return "Schedule";
     if (pathname.includes("/patients")) return "Patients";
+    if (pathname.includes("/treatments")) return "Treatments";
     if (pathname.includes("/medicines")) return "Medicines";
     if (pathname.includes("/staff")) return "Staff";
     if (pathname.includes("/messages")) return "Messages";

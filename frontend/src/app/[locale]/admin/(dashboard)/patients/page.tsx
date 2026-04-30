@@ -50,6 +50,7 @@ interface Patient {
   status: PatientStatus;
   avatar: string;
   registrationDate: string;
+  balance: number;
 }
 
 interface FormState {
@@ -66,6 +67,7 @@ interface FormState {
   lastVisit: string;
   nextAppointment: string;
   status: PatientStatus;
+  balance: number;
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -106,6 +108,7 @@ const INITIAL_PATIENTS: Patient[] = [
     status: "active",
     avatar: "https://i.pravatar.cc/150?u=alice",
     registrationDate: "2020-03-10",
+    balance: 120.5,
   },
   {
     id: "2",
@@ -123,6 +126,7 @@ const INITIAL_PATIENTS: Patient[] = [
     status: "active",
     avatar: "https://i.pravatar.cc/150?u=michael",
     registrationDate: "2021-07-18",
+    balance: 0,
   },
   {
     id: "3",
@@ -140,6 +144,7 @@ const INITIAL_PATIENTS: Patient[] = [
     status: "inactive",
     avatar: "https://i.pravatar.cc/150?u=sarah",
     registrationDate: "2019-01-15",
+    balance: 45.75,
   },
   {
     id: "4",
@@ -157,6 +162,7 @@ const INITIAL_PATIENTS: Patient[] = [
     status: "new",
     avatar: "https://i.pravatar.cc/150?u=david",
     registrationDate: "2026-04-28",
+    balance: 0,
   },
   {
     id: "5",
@@ -174,6 +180,7 @@ const INITIAL_PATIENTS: Patient[] = [
     status: "active",
     avatar: "https://i.pravatar.cc/150?u=emma",
     registrationDate: "2022-05-22",
+    balance: 300.0,
   },
 ];
 
@@ -191,6 +198,7 @@ const EMPTY_FORM: FormState = {
   lastVisit: "",
   nextAppointment: "",
   status: "new",
+  balance: 0,
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -244,6 +252,7 @@ export default function PatientsPage() {
       lastVisit: patient.lastVisit,
       nextAppointment: patient.nextAppointment,
       status: patient.status,
+      balance: patient.balance ?? 0,
     });
     setError("");
     setModalOpen(true);
@@ -292,6 +301,7 @@ export default function PatientsPage() {
       lastVisit: form.lastVisit,
       nextAppointment: form.nextAppointment,
       status: form.status,
+      balance: form.balance || 0,
       avatar: `https://i.pravatar.cc/150?u=${form.email}`,
       registrationDate:
         patients.find((p) => p.id === form.id)?.registrationDate ||
@@ -328,6 +338,14 @@ export default function PatientsPage() {
     return age;
   };
 
+  const getInitials = (name: string) => {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/);
+    const first = parts[0]?.charAt(0)?.toUpperCase() || "";
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0).toUpperCase() : "";
+    return `${first}${last}`;
+  };
+
   return (
     <>
       <div className="p-6 lg:p-8 space-y-6">
@@ -339,24 +357,6 @@ export default function PatientsPage() {
               Manage your patient records and appointments
             </p>
           </div>
-          <button
-            onClick={openNew}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white
-              shadow-sm transition-all duration-150"
-            style={{
-              backgroundColor: "var(--brand-primary)",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                "var(--brand-primary-dark)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
-            }
-          >
-            <Plus size={16} />
-            Add Patient
-          </button>
         </div>
 
         {/* ── Status Tabs & Count ── */}
@@ -398,17 +398,17 @@ export default function PatientsPage() {
             >
               {filtered.length}
             </span>
-            <span
-              className="text-sm"
-              style={{ color: "var(--text-muted)" }}
-            >
+            <span className="text-sm" style={{ color: "var(--text-muted)" }}>
               patient{filtered.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
 
-        {/* ── Search Bar ── */}
-        <div className="flex items-center gap-3">
+        {/* ── Search Bar (card) ── */}
+        <div
+          className="bg-card border rounded-xl p-4 flex flex-col sm:flex-row gap-3"
+          style={{ borderColor: "var(--border-ui)" }}
+        >
           <div className="relative flex-1">
             <Search
               size={16}
@@ -420,32 +420,35 @@ export default function PatientsPage() {
               placeholder="Search for anything here..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 h-10 text-sm rounded-lg border bg-transparent outline-none
-                focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="w-full pl-10 pr-4 h-9 text-sm rounded-lg border bg-transparent outline-none
+                focus:ring-2 focus:ring-blue-500/30"
               style={{
                 borderColor: "var(--border-ui)",
                 color: "var(--foreground)",
+                backgroundColor: "transparent",
               }}
             />
           </div>
-          <button
-            onClick={openNew}
-            className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-semibold text-white
-              shadow-sm transition-all duration-150 shrink-0"
-            style={{
-              backgroundColor: "var(--brand-primary)",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                "var(--brand-primary-dark)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
-            }
-          >
-            <Plus size={16} />
-            Add Patient
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={openNew}
+              className="inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-semibold text-white
+                shadow-sm transition-all duration-150 shrink-0"
+              style={{
+                backgroundColor: "var(--brand-primary)",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  "var(--brand-primary-dark)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
+              }
+            >
+              <Plus size={16} />
+              Add Patient
+            </button>
+          </div>
         </div>
 
         {/* ── Patients Table ── */}
@@ -508,14 +511,18 @@ export default function PatientsPage() {
                       className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
                       style={{ color: "var(--text-muted)" }}
                     >
-                      Status
+                      Balance
                     </th>
                     <th
                       className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
                       style={{ color: "var(--text-muted)" }}
                     >
-                      
+                      Status
                     </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    ></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -533,12 +540,12 @@ export default function PatientsPage() {
                         {/* Patient Name */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={patient.avatar}
-                              alt={patient.name}
-                              className="w-9 h-9 rounded-full object-cover ring-2 ring-white/20 shrink-0"
-                            />
+                            <div
+                              className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ring-2 ring-white/20 shrink-0"
+                              style={{ backgroundColor: "var(--brand-primary)", color: "white" }}
+                            >
+                              {getInitials(patient.name)}
+                            </div>
                             <div>
                               <p className="font-medium text-sm text-foreground">
                                 {patient.name}
@@ -568,7 +575,10 @@ export default function PatientsPage() {
                               style={{ color: "var(--text-muted)" }}
                             >
                               <Mail size={12} />
-                              <span className="truncate" style={{ maxWidth: "180px" }}>
+                              <span
+                                className="truncate"
+                                style={{ maxWidth: "180px" }}
+                              >
                                 {patient.email}
                               </span>
                             </div>
@@ -627,7 +637,10 @@ export default function PatientsPage() {
                               patient.medicalConditions !== "None" && (
                                 <p
                                   className="text-xs truncate"
-                                  style={{ color: "var(--text-muted)", maxWidth: "150px" }}
+                                  style={{
+                                    color: "var(--text-muted)",
+                                    maxWidth: "150px",
+                                  }}
                                   title={patient.medicalConditions}
                                 >
                                   {patient.medicalConditions}
@@ -650,11 +663,12 @@ export default function PatientsPage() {
                                 className="text-xs mt-0.5"
                                 style={{ color: "var(--text-muted)" }}
                               >
-                                {new Date(
-                                  patient.lastVisit,
-                                ).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                })}
+                                {new Date(patient.lastVisit).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                  },
+                                )}
                               </p>
                             </div>
                           ) : (
@@ -665,6 +679,16 @@ export default function PatientsPage() {
                               No visits
                             </span>
                           )}
+                        </td>
+
+                        {/* Balance */}
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-medium text-foreground">
+                            {new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                            }).format(patient.balance || 0)}
+                          </p>
                         </td>
 
                         {/* Status */}

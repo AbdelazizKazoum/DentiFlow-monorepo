@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
     root: monorepoRoot,
   },
   outputFileTracingRoot: monorepoRoot,
+  images: {
+    domains: ["i.pravatar.cc"],
+  },
 };
 
 export default withNextIntl(nextConfig);
