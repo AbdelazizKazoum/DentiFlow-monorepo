@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Calendar,
   Users,
+  UserCog,
   MessageSquare,
   Pill,
   LogOut,
@@ -37,6 +38,7 @@ const navGroups: NavGroup[] = [
       { name: "Schedule", icon: <Calendar size={20} /> },
       { name: "Patients", icon: <Users size={20} /> },
       { name: "Medicines", icon: <Pill size={20} /> },
+      { name: "Staff", icon: <UserCog size={20} /> },
     ],
   },
   {
@@ -61,12 +63,11 @@ const routes: Record<string, string> = {
   Schedule: "/admin/appointments",
   Patients: "/admin/patients",
   Medicines: "/admin/medicines",
+  Staff: "/admin/staff",
   Messages: "/admin/messages",
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  isCollapsed,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const [hovered, setHovered] = useState(false);
   const isExpanded = !isCollapsed || hovered;
 
@@ -76,12 +77,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const pathname = usePathname();
 
   const getActiveTab = () => {
-    if (pathname.includes('/appointments')) return 'Schedule';
-    if (pathname.includes('/patients')) return 'Patients';
-    if (pathname.includes('/medicines')) return 'Medicines';
-    if (pathname.includes('/messages')) return 'Messages';
-    if (pathname.includes('/dashboard')) return 'Dashboard';
-    return '';
+    if (pathname.includes("/appointments")) return "Schedule";
+    if (pathname.includes("/patients")) return "Patients";
+    if (pathname.includes("/medicines")) return "Medicines";
+    if (pathname.includes("/staff")) return "Staff";
+    if (pathname.includes("/messages")) return "Messages";
+    if (pathname.includes("/dashboard")) return "Dashboard";
+    return "";
   };
 
   return (
@@ -157,7 +159,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 return (
                   <button
                     key={item.name}
-                    onClick={() => router.push(`/${locale}${routes[item.name]}`)}
+                    onClick={() =>
+                      router.push(`/${locale}${routes[item.name]}`)
+                    }
                     className={`group relative w-full h-11.5 flex items-center rounded-xl
                       transition-all duration-200 ease-in-out
                       ${isExpanded ? "px-4 mx-1 w-[calc(100%-8px)]" : "justify-center"}
