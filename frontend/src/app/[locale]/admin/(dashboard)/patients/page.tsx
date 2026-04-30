@@ -11,8 +11,6 @@ import {
   Edit2,
   Trash2,
   X,
-  Calendar,
-  Clock,
   AlertCircle,
 } from "lucide-react";
 import {
@@ -29,7 +27,6 @@ import {
   IconButton,
   Typography,
   Menu,
-  Chip,
 } from "@mui/material";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -331,14 +328,6 @@ export default function PatientsPage() {
     return age;
   };
 
-  // Summary counts
-  const counts = {
-    total: patients.length,
-    active: patients.filter((p) => p.status === "active").length,
-    new: patients.filter((p) => p.status === "new").length,
-    inactive: patients.filter((p) => p.status === "inactive").length,
-  };
-
   return (
     <>
       <div className="p-6 lg:p-8 space-y-6">
@@ -370,100 +359,96 @@ export default function PatientsPage() {
           </button>
         </div>
 
-        {/* ── Summary Cards ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Total Patients", value: counts.total, dot: "#1e56d0" },
-            { label: "Active", value: counts.active, dot: "#279C41" },
-            { label: "New Patients", value: counts.new, dot: "#1e56d0" },
-            { label: "Inactive", value: counts.inactive, dot: "#94a3b8" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-card border rounded-xl p-4 flex flex-col gap-1"
-              style={{ borderColor: "var(--border-ui)" }}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: stat.dot }}
-                />
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: "var(--text-muted)" }}
+        {/* ── Status Tabs & Count ── */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {(["all", "active", "new", "inactive"] as const).map((s) => {
+              const isActive = statusFilter === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className="relative pb-3 text-sm font-semibold transition-colors"
+                  style={{
+                    color: isActive
+                      ? "var(--brand-primary)"
+                      : "var(--text-muted)",
+                  }}
                 >
-                  {stat.label}
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-            </div>
-          ))}
+                  {s === "all"
+                    ? "All Patients"
+                    : s === "new"
+                      ? "New Patients"
+                      : s.charAt(0).toUpperCase() + s.slice(1)}
+                  {isActive && (
+                    <span
+                      className="absolute bottom-0 left-0 right-0 h-0.5"
+                      style={{ backgroundColor: "var(--brand-primary)" }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <Users size={16} style={{ color: "var(--text-muted)" }} />
+            <span
+              className="text-sm font-semibold"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {filtered.length}
+            </span>
+            <span
+              className="text-sm"
+              style={{ color: "var(--text-muted)" }}
+            >
+              patient{filtered.length !== 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
 
-        {/* ── Filters ── */}
-        <div
-          className="bg-card border rounded-xl p-4 flex flex-col sm:flex-row gap-3"
-          style={{ borderColor: "var(--border-ui)" }}
-        >
-          {/* Search */}
+        {/* ── Search Bar ── */}
+        <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <Search
-              size={15}
+              size={16}
               className="absolute left-3 top-1/2 -translate-y-1/2"
               style={{ color: "var(--text-muted)" }}
             />
             <input
               type="text"
-              placeholder="Search by name, email or phone…"
+              placeholder="Search for anything here..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 h-9 text-sm rounded-lg border bg-transparent outline-none
-                focus:ring-2 focus:ring-blue-500/30"
+              className="w-full pl-10 pr-4 h-10 text-sm rounded-lg border bg-transparent outline-none
+                focus:ring-2 focus:ring-blue-500/20 transition-all"
               style={{
                 borderColor: "var(--border-ui)",
                 color: "var(--foreground)",
               }}
             />
           </div>
-
-          {/* Status filter pills */}
-          <div className="flex flex-wrap gap-2">
-            {(["all", "active", "new", "inactive"] as const).map((s) => {
-              const isActive = statusFilter === s;
-              const cfg = s !== "all" ? STATUS_CONFIG[s] : null;
-              return (
-                <button
-                  key={s}
-                  onClick={() => setStatusFilter(s)}
-                  className="px-3 h-9 rounded-lg text-xs font-semibold border transition-all duration-150"
-                  style={
-                    isActive && cfg
-                      ? {
-                          backgroundColor: cfg.bg,
-                          color: cfg.color,
-                          borderColor: cfg.color,
-                        }
-                      : isActive
-                        ? {
-                            backgroundColor: "#1e56d0",
-                            color: "#fff",
-                            borderColor: "#1e56d0",
-                          }
-                        : {
-                            backgroundColor: "transparent",
-                            color: "var(--text-muted)",
-                            borderColor: "var(--border-ui)",
-                          }
-                  }
-                >
-                  {s === "all" ? "All Patients" : STATUS_CONFIG[s]?.label || s}
-                </button>
-              );
-            })}
-          </div>
+          <button
+            onClick={openNew}
+            className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-semibold text-white
+              shadow-sm transition-all duration-150 shrink-0"
+            style={{
+              backgroundColor: "var(--brand-primary)",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor =
+                "var(--brand-primary-dark)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
+            }
+          >
+            <Plus size={16} />
+            Add Patient
+          </button>
         </div>
 
-        {/* ── Patients Grid ── */}
+        {/* ── Patients Table ── */}
         {filtered.length === 0 ? (
           <div
             className="bg-card border rounded-xl p-12 flex flex-col items-center gap-3"
@@ -478,137 +463,243 @@ export default function PatientsPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((patient) => {
-              const statusCfg =
-                STATUS_CONFIG[patient.status] || STATUS_CONFIG.active;
-              return (
-                <div
-                  key={patient.id}
-                  className="bg-card border rounded-xl p-5 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200"
-                  style={{ borderColor: "var(--border-ui)" }}
-                >
-                  {/* Top row */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={patient.avatar}
-                        alt={patient.name}
-                        className="w-11 h-11 rounded-full object-cover ring-2 ring-white/20 shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm text-foreground truncate leading-tight">
-                          {patient.name}
-                        </p>
-                        <p
-                          className="text-xs mt-0.5"
-                          style={{ color: "var(--text-muted)" }}
-                        >
-                          {calculateAge(patient.dateOfBirth)} years •{" "}
-                          {patient.bloodType}
-                        </p>
-                      </div>
-                    </div>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => openMenu(e, patient.id)}
-                      sx={{ color: "var(--text-muted)", flexShrink: 0 }}
-                    >
-                      <MoreVertical size={16} />
-                    </IconButton>
-                  </div>
-
-                  {/* Status Badge */}
-                  <div>
-                    <span
-                      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                      style={{
-                        backgroundColor: statusCfg.bg,
-                        color: statusCfg.color,
-                      }}
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: statusCfg.dot }}
-                      />
-                      {statusCfg.label}
-                    </span>
-                  </div>
-
-                  {/* Contact & Medical Info */}
-                  <div
-                    className="space-y-1.5 border-t pt-3"
+          <div
+            className="bg-card border rounded-xl overflow-hidden"
+            style={{ borderColor: "var(--border-ui)" }}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr
+                    className="border-b"
                     style={{ borderColor: "var(--border-ui)" }}
                   >
-                    <div
-                      className="flex items-center gap-2 text-xs"
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
                       style={{ color: "var(--text-muted)" }}
                     >
-                      <Mail size={13} />
-                      <span className="truncate">{patient.email}</span>
-                    </div>
-                    {patient.phone && (
-                      <div
-                        className="flex items-center gap-2 text-xs"
-                        style={{ color: "var(--text-muted)" }}
+                      Patient Name
+                    </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Contact
+                    </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Age / Blood Type
+                    </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Medical Info
+                    </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Last Visit
+                    </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      Status
+                    </th>
+                    <th
+                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((patient) => {
+                    const statusCfg =
+                      STATUS_CONFIG[patient.status] || STATUS_CONFIG.active;
+                    const hasAllergies =
+                      patient.allergies && patient.allergies !== "None";
+                    return (
+                      <tr
+                        key={patient.id}
+                        className="border-b transition-colors hover:bg-gray-50/50"
+                        style={{ borderColor: "var(--border-ui)" }}
                       >
-                        <Phone size={13} />
-                        <span>{patient.phone}</span>
-                      </div>
-                    )}
-                    {patient.allergies && patient.allergies !== "None" && (
-                      <div
-                        className="flex items-center gap-2 text-xs"
-                        style={{ color: "#c05621" }}
-                      >
-                        <AlertCircle size={13} />
-                        <span className="truncate">
-                          Allergies: {patient.allergies}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                        {/* Patient Name */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={patient.avatar}
+                              alt={patient.name}
+                              className="w-9 h-9 rounded-full object-cover ring-2 ring-white/20 shrink-0"
+                            />
+                            <div>
+                              <p className="font-medium text-sm text-foreground">
+                                {patient.name}
+                              </p>
+                              <p
+                                className="text-xs mt-0.5"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                Reg:{" "}
+                                {new Date(
+                                  patient.registrationDate,
+                                ).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
 
-                  {/* Visit Info */}
-                  <div
-                    className="space-y-1.5 border-t pt-3"
-                    style={{ borderColor: "var(--border-ui)" }}
-                  >
-                    {patient.lastVisit && (
-                      <div
-                        className="flex items-center gap-2 text-xs"
-                        style={{ color: "var(--text-muted)" }}
-                      >
-                        <Clock size={13} />
-                        <span>
-                          Last visit:{" "}
-                          {new Date(patient.lastVisit).toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric", year: "numeric" },
+                        {/* Contact */}
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            <div
+                              className="flex items-center gap-1.5 text-xs"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              <Mail size={12} />
+                              <span className="truncate" style={{ maxWidth: "180px" }}>
+                                {patient.email}
+                              </span>
+                            </div>
+                            {patient.phone && (
+                              <div
+                                className="flex items-center gap-1.5 text-xs"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                <Phone size={12} />
+                                <span>{patient.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Age / Blood Type */}
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            <p className="text-sm text-foreground font-medium">
+                              {calculateAge(patient.dateOfBirth)} years
+                            </p>
+                            <p
+                              className="text-xs"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              Blood: {patient.bloodType}
+                            </p>
+                          </div>
+                        </td>
+
+                        {/* Medical Info */}
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            {hasAllergies ? (
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium"
+                                  style={{
+                                    backgroundColor: "#fff7ed",
+                                    color: "#c2410c",
+                                  }}
+                                >
+                                  <AlertCircle size={11} />
+                                  Allergies
+                                </span>
+                              </div>
+                            ) : (
+                              <span
+                                className="text-xs"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                No allergies
+                              </span>
+                            )}
+                            {patient.medicalConditions &&
+                              patient.medicalConditions !== "None" && (
+                                <p
+                                  className="text-xs truncate"
+                                  style={{ color: "var(--text-muted)", maxWidth: "150px" }}
+                                  title={patient.medicalConditions}
+                                >
+                                  {patient.medicalConditions}
+                                </p>
+                              )}
+                          </div>
+                        </td>
+
+                        {/* Last Visit */}
+                        <td className="px-6 py-4">
+                          {patient.lastVisit ? (
+                            <div>
+                              <p className="text-sm text-foreground">
+                                {new Date(patient.lastVisit).toLocaleDateString(
+                                  "en-US",
+                                  { month: "short", day: "numeric" },
+                                )}
+                              </p>
+                              <p
+                                className="text-xs mt-0.5"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                {new Date(
+                                  patient.lastVisit,
+                                ).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                })}
+                              </p>
+                            </div>
+                          ) : (
+                            <span
+                              className="text-xs"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              No visits
+                            </span>
                           )}
-                        </span>
-                      </div>
-                    )}
-                    {patient.nextAppointment && (
-                      <div
-                        className="flex items-center gap-2 text-xs"
-                        style={{ color: "#279C41" }}
-                      >
-                        <Calendar size={13} />
-                        <span>
-                          Next:{" "}
-                          {new Date(patient.nextAppointment).toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric", year: "numeric" },
-                          )}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-6 py-4">
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+                            style={{
+                              backgroundColor: statusCfg.bg,
+                              color: statusCfg.color,
+                            }}
+                          >
+                            <span
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ backgroundColor: statusCfg.dot }}
+                            />
+                            {statusCfg.label}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-6 py-4">
+                          <IconButton
+                            size="small"
+                            onClick={(e) => openMenu(e, patient.id)}
+                            sx={{ color: "var(--text-muted)" }}
+                          >
+                            <MoreVertical size={16} />
+                          </IconButton>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
