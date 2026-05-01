@@ -175,7 +175,9 @@ function calculateWaitTime(arrivedAt: string, calledAt: string | null): string {
   }
   const arrived = new Date(arrivedAt);
   const called = new Date(calledAt);
-  const diffMinutes = Math.floor((called.getTime() - arrived.getTime()) / 60000);
+  const diffMinutes = Math.floor(
+    (called.getTime() - arrived.getTime()) / 60000,
+  );
   return `${diffMinutes} min`;
 }
 
@@ -344,7 +346,10 @@ export default function WaitingRoomPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b" style={{ borderColor: "var(--border-ui)" }}>
+                <tr
+                  className="border-b"
+                  style={{ borderColor: "var(--border-ui)" }}
+                >
                   <th
                     className="px-6 py-3 text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
                     style={{ color: "var(--text-muted)" }}
@@ -408,9 +413,7 @@ export default function WaitingRoomPage() {
                               <span>{entry.patientPhone}</span>
                             </div>
                             {entry.notes && (
-                              <div
-                                className="flex items-center gap-1 text-[11px] mt-1 text-amber-600 font-medium"
-                              >
+                              <div className="flex items-center gap-1 text-[11px] mt-1 text-amber-600 font-medium">
                                 <AlertCircle size={10} className="shrink-0" />
                                 <span className="truncate max-w-37.5">
                                   {entry.notes}
@@ -423,10 +426,11 @@ export default function WaitingRoomPage() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-1">
-                          <div
-                            className="flex items-center gap-1.5 text-xs text-foreground font-medium"
-                          >
-                            <Calendar size={12} style={{ color: "var(--text-muted)" }} />
+                          <div className="flex items-center gap-1.5 text-xs text-foreground font-medium">
+                            <Calendar
+                              size={12}
+                              style={{ color: "var(--text-muted)" }}
+                            />
                             <span>{entry.scheduledTime}</span>
                           </div>
                           <div
@@ -441,10 +445,17 @@ export default function WaitingRoomPage() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold" style={{ color: "var(--brand-primary)" }}>
-                            {calculateWaitTime(entry.arrivedAt, entry.calledAt)} elapsed
+                          <p
+                            className="text-xs font-semibold"
+                            style={{ color: "var(--brand-primary)" }}
+                          >
+                            {calculateWaitTime(entry.arrivedAt, entry.calledAt)}{" "}
+                            elapsed
                           </p>
-                          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                          <p
+                            className="text-xs"
+                            style={{ color: "var(--text-muted)" }}
+                          >
                             Arr: {formatTime(entry.arrivedAt)}
                           </p>
                         </div>
@@ -511,9 +522,7 @@ export default function WaitingRoomPage() {
                   >
                     <td className="px-6 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ring-1 ring-white/10 shrink-0 text-green-700 bg-green-100"
-                        >
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ring-1 ring-white/10 shrink-0 text-green-700 bg-green-100">
                           {getInitials(entry.patientName)}
                         </div>
                         <div>
@@ -572,8 +581,8 @@ export default function WaitingRoomPage() {
               borderRadius: "12px",
               border: "1px solid var(--border-ui)",
               boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-            }
-          }
+            },
+          },
         }}
       >
         {activeMenuEntry && (
@@ -609,7 +618,7 @@ export default function WaitingRoomPage() {
                 Mark as Done
               </MenuItem>
             )}
-            <MenuItem 
+            <MenuItem
               onClick={() => handleOpenNotesDialog(activeMenuEntry)}
               sx={{ fontSize: "0.875rem", py: 1.5 }}
             >
@@ -630,15 +639,24 @@ export default function WaitingRoomPage() {
           paper: {
             sx: {
               borderRadius: "16px",
-              p: 1
-            }
-          }
+              p: 1,
+            },
+          },
         }}
       >
         <DialogTitle sx={{ pb: 1 }}>
           <div className="flex items-center justify-between">
-            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: "1.125rem" }}>Patient Notes</Typography>
-            <IconButton onClick={handleCloseNotesDialog} size="small" sx={{ color: "var(--text-muted)" }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, fontSize: "1.125rem" }}
+            >
+              Patient Notes
+            </Typography>
+            <IconButton
+              onClick={handleCloseNotesDialog}
+              size="small"
+              sx={{ color: "var(--text-muted)" }}
+            >
               <FileText size={18} />
             </IconButton>
           </div>
@@ -655,32 +673,36 @@ export default function WaitingRoomPage() {
             placeholder="Add any notes or special instructions..."
             sx={{
               mt: 2,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '12px',
-              }
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "12px",
+              },
             }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button 
+          <Button
             onClick={handleCloseNotesDialog}
-            sx={{ color: "var(--text-muted)", textTransform: "none", fontWeight: 600 }}
+            sx={{
+              color: "var(--text-muted)",
+              textTransform: "none",
+              fontWeight: 600,
+            }}
           >
             Cancel
           </Button>
           <Button
             onClick={handleSaveNotes}
             variant="contained"
-            sx={{ 
+            sx={{
               backgroundColor: "var(--brand-primary)",
               textTransform: "none",
               fontWeight: 600,
               borderRadius: "8px",
               boxShadow: "none",
-              '&:hover': {
+              "&:hover": {
                 backgroundColor: "var(--brand-primary-dark)",
                 boxShadow: "none",
-              }
+              },
             }}
           >
             Save Notes
