@@ -9,7 +9,6 @@ import {
   Edit2,
   Trash2,
   X,
-  Star,
   Clock,
   DollarSign,
 } from "lucide-react";
@@ -334,11 +333,6 @@ export default function TreatmentsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const activeCount = treatments.filter((t) => t.status === "active").length;
-  const inactiveCount = treatments.filter(
-    (t) => t.status === "inactive",
-  ).length;
-
   return (
     <>
       <div className="p-6 lg:p-8 space-y-6">
@@ -350,24 +344,6 @@ export default function TreatmentsPage() {
               Manage your dental treatment services
             </p>
           </div>
-          <button
-            onClick={openNew}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white
-              shadow-sm transition-all duration-150"
-            style={{
-              backgroundColor: "var(--brand-primary)",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                "var(--brand-primary-dark)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
-            }
-          >
-            <Plus size={16} />
-            Add Treatment
-          </button>
         </div>
 
         {/* ── Status Tabs & Count ── */}
@@ -375,12 +351,6 @@ export default function TreatmentsPage() {
           <div className="flex items-center gap-6">
             {(["all", "active", "inactive"] as const).map((s) => {
               const isActive = statusFilter === s;
-              const count =
-                s === "all"
-                  ? treatments.length
-                  : s === "active"
-                    ? activeCount
-                    : inactiveCount;
               return (
                 <button
                   key={s}
@@ -421,8 +391,11 @@ export default function TreatmentsPage() {
           </div>
         </div>
 
-        {/* ── Search Bar ── */}
-        <div className="flex items-center gap-3">
+        {/* ── Search Bar (card) ── */}
+        <div
+          className="bg-card border rounded-xl p-4 flex flex-col sm:flex-row gap-3"
+          style={{ borderColor: "var(--border-ui)" }}
+        >
           <div className="relative flex-1">
             <Search
               size={16}
@@ -434,32 +407,34 @@ export default function TreatmentsPage() {
               placeholder="Search for anything here..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 h-10 text-sm rounded-lg border bg-transparent outline-none
-                focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="w-full pl-10 pr-4 h-9 text-sm rounded-lg border bg-transparent outline-none
+                focus:ring-2 focus:ring-blue-500/30"
               style={{
                 borderColor: "var(--border-ui)",
                 color: "var(--foreground)",
               }}
             />
           </div>
-          <button
-            onClick={openNew}
-            className="inline-flex items-center gap-2 px-4 h-10 rounded-lg text-sm font-semibold text-white
-              shadow-sm transition-all duration-150 shrink-0"
-            style={{
-              backgroundColor: "var(--brand-primary)",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor =
-                "var(--brand-primary-dark)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
-            }
-          >
-            <Plus size={16} />
-            Add Treatment
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={openNew}
+              className="inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-semibold text-white
+                shadow-sm transition-all duration-150 shrink-0"
+              style={{
+                backgroundColor: "var(--brand-primary)",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  "var(--brand-primary-dark)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "var(--brand-primary)")
+              }
+            >
+              <Plus size={16} />
+              Add Treatment
+            </button>
+          </div>
         </div>
 
         {/* ── Treatments Table ── */}
@@ -512,18 +487,7 @@ export default function TreatmentsPage() {
                     >
                       Type of Visit
                     </th>
-                    <th
-                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      Rating
-                    </th>
-                    <th
-                      className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      Review
-                    </th>
+
                     <th
                       className="text-left px-6 py-3 text-xs font-semibold uppercase tracking-wider"
                       style={{ color: "var(--text-muted)" }}
@@ -601,31 +565,6 @@ export default function TreatmentsPage() {
                             }}
                           >
                             {visitCfg.label}
-                          </span>
-                        </td>
-
-                        {/* Rating */}
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5">
-                            <Star
-                              size={14}
-                              fill="#fbbf24"
-                              style={{ color: "#fbbf24" }}
-                            />
-                            <span className="text-sm font-semibold text-foreground">
-                              {treatment.rating.toFixed(1)}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Review Count */}
-                        <td className="px-6 py-4">
-                          <span
-                            className="text-sm"
-                            style={{ color: "var(--text-muted)" }}
-                          >
-                            {treatment.reviewCount} Review
-                            {treatment.reviewCount !== 1 ? "s" : ""}
                           </span>
                         </td>
 

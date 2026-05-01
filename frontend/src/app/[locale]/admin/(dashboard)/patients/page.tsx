@@ -342,7 +342,8 @@ export default function PatientsPage() {
     if (!name) return "";
     const parts = name.trim().split(/\s+/);
     const first = parts[0]?.charAt(0)?.toUpperCase() || "";
-    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0).toUpperCase() : "";
+    const last =
+      parts.length > 1 ? parts[parts.length - 1].charAt(0).toUpperCase() : "";
     return `${first}${last}`;
   };
 
@@ -542,7 +543,10 @@ export default function PatientsPage() {
                           <div className="flex items-center gap-3">
                             <div
                               className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium ring-2 ring-white/20 shrink-0"
-                              style={{ backgroundColor: "var(--brand-primary)", color: "white" }}
+                              style={{
+                                backgroundColor: "var(--brand-primary)",
+                                color: "white",
+                              }}
                             >
                               {getInitials(patient.name)}
                             </div>
