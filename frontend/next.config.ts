@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["i.pravatar.cc"],
   },
+  allowedDevOrigins: ["192.168.130.95"],
 };
 
 export default withNextIntl(nextConfig);

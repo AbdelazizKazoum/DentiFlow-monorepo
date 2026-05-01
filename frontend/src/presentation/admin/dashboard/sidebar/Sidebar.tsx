@@ -5,7 +5,7 @@ import {
   Users,
   UserCog,
   MessageSquare,
-  Pill,
+  ClipboardList,
   LogOut,
   Stethoscope,
 } from "lucide-react";
@@ -39,7 +39,7 @@ const navGroups: NavGroup[] = [
       { name: "Schedule", icon: <Calendar size={20} /> },
       { name: "Patients", icon: <Users size={20} /> },
       { name: "Treatments", icon: <Stethoscope size={20} /> },
-      { name: "Medicines", icon: <Pill size={20} /> },
+      { name: "Waiting Room", icon: <ClipboardList size={20} /> },
       { name: "Staff", icon: <UserCog size={20} /> },
     ],
   },
@@ -65,7 +65,7 @@ const routes: Record<string, string> = {
   Schedule: "/admin/appointments",
   Patients: "/admin/patients",
   Treatments: "/admin/treatments",
-  Medicines: "/admin/medicines",
+  "Waiting Room": "/admin/waiting-room",
   Staff: "/admin/staff",
   Messages: "/admin/messages",
 };
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
     if (pathname.includes("/appointments")) return "Schedule";
     if (pathname.includes("/patients")) return "Patients";
     if (pathname.includes("/treatments")) return "Treatments";
-    if (pathname.includes("/medicines")) return "Medicines";
+    if (pathname.includes("/waiting-room")) return "Waiting Room";
     if (pathname.includes("/staff")) return "Staff";
     if (pathname.includes("/messages")) return "Messages";
     if (pathname.includes("/dashboard")) return "Dashboard";
