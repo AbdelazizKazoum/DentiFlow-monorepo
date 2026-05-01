@@ -292,7 +292,7 @@ export default function StaffPage() {
               Staff Management
             </h1>
             <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-              Manage your clinic's team members
+              Manage your clinic&apos;s team members
             </p>
           </div>
           <button

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useCallback, useRef} from "react";
+import React, { useState, useCallback, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -36,7 +36,7 @@ import {
   Avatar,
   Chip,
 } from "@mui/material";
-import {X} from "lucide-react";
+import { X } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ interface FormState {
 
 const STATUS_CONFIG: Record<
   AppointmentStatus,
-  {color: string; bg: string; border: string; label: string}
+  { color: string; bg: string; border: string; label: string }
 > = {
   confirmed: {
     color: "#279C41", // Green for text
@@ -241,7 +241,7 @@ export default function AppointmentsPage() {
   );
 
   const handleEventClick = useCallback((info: EventClickArg) => {
-    const {event} = info;
+    const { event } = info;
     setForm({
       id: event.id,
       start: toDatetimeLocal(event.start!),
@@ -260,7 +260,7 @@ export default function AppointmentsPage() {
 
   const handleEventChange = useCallback(
     (info: any) => {
-      const {event, oldEvent} = info;
+      const { event, oldEvent } = info;
       let startStr = event.start ? event.start.toISOString() : "";
       let endStr = event.end ? event.end.toISOString() : "";
 
@@ -635,7 +635,7 @@ export default function AppointmentsPage() {
         {/* ── Header ── */}
         <div>
           <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
-          <p className="text-sm" style={{color: "var(--text-muted)"}}>
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
             Manage your patient schedule
           </p>
         </div>
@@ -643,12 +643,12 @@ export default function AppointmentsPage() {
         {/* ── Calendar Card ── */}
         <div
           className="bg-card border rounded-lg overflow-hidden"
-          style={{borderColor: "var(--border-ui)"}}
+          style={{ borderColor: "var(--border-ui)" }}
         >
           {/* Legend bar */}
           <div
             className="px-6 py-3.5 border-b flex flex-wrap items-center gap-5"
-            style={{borderColor: "var(--border-ui)"}}
+            style={{ borderColor: "var(--border-ui)" }}
           >
             {(
               Object.entries(STATUS_CONFIG) as [
@@ -659,11 +659,11 @@ export default function AppointmentsPage() {
               <div key={key} className="flex items-center gap-2">
                 <span
                   className="w-2.5 h-2.5 rounded-full"
-                  style={{backgroundColor: cfg.border}}
+                  style={{ backgroundColor: cfg.border }}
                 />
                 <span
                   className="text-xs font-semibold"
-                  style={{color: "var(--text-muted)"}}
+                  style={{ color: "var(--text-muted)" }}
                 >
                   {cfg.label}
                 </span>
@@ -671,7 +671,7 @@ export default function AppointmentsPage() {
             ))}
             <span
               className="ml-auto text-xs hidden sm:inline"
-              style={{color: "var(--text-muted)"}}
+              style={{ color: "var(--text-muted)" }}
             >
               Click a slot to book · Drag to reschedule
             </span>
@@ -771,14 +771,14 @@ export default function AppointmentsPage() {
           <Typography
             variant="h6"
             component="div"
-            sx={{fontWeight: 700, color: "var(--foreground)"}}
+            sx={{ fontWeight: 700, color: "var(--foreground)" }}
           >
             {form.id ? "Edit Appointment" : "Book New Appointment"}
           </Typography>
           <IconButton
             size="small"
             onClick={() => setModalOpen(false)}
-            sx={{color: "var(--text-muted)"}}
+            sx={{ color: "var(--text-muted)" }}
           >
             <X size={20} />
           </IconButton>
@@ -787,9 +787,9 @@ export default function AppointmentsPage() {
         <DialogContent
           sx={{
             p: "24px",
-            "& .MuiTextField-root": {mb: "16px"},
-            "& .MuiInputLabel-root": {fontSize: "0.875rem"},
-            "& .MuiInputBase-input": {fontSize: "0.875rem"},
+            "& .MuiTextField-root": { mb: "16px" },
+            "& .MuiInputLabel-root": { fontSize: "0.875rem" },
+            "& .MuiInputBase-input": { fontSize: "0.875rem" },
           }}
         >
           {error && (
@@ -806,7 +806,7 @@ export default function AppointmentsPage() {
                 fullWidth
                 value={form.patientName}
                 onChange={(e) =>
-                  setForm({...form, patientName: e.target.value})
+                  setForm({ ...form, patientName: e.target.value })
                 }
                 placeholder="e.g. Jane Doe"
                 required
@@ -815,7 +815,7 @@ export default function AppointmentsPage() {
                 label="Service / Procedure"
                 fullWidth
                 value={form.service}
-                onChange={(e) => setForm({...form, service: e.target.value})}
+                onChange={(e) => setForm({ ...form, service: e.target.value })}
                 placeholder="e.g. Annual Checkup"
                 required
               />
@@ -828,14 +828,14 @@ export default function AppointmentsPage() {
                 type="datetime-local"
                 fullWidth
                 value={form.start}
-                onChange={(e) => setForm({...form, start: e.target.value})}
+                onChange={(e) => setForm({ ...form, start: e.target.value })}
               />
               <TextField
                 label="End Time"
                 type="datetime-local"
                 fullWidth
                 value={form.end}
-                onChange={(e) => setForm({...form, end: e.target.value})}
+                onChange={(e) => setForm({ ...form, end: e.target.value })}
               />
             </div>
 
@@ -846,7 +846,9 @@ export default function AppointmentsPage() {
                 <Select
                   label="Provider"
                   value={form.provider}
-                  onChange={(e) => setForm({...form, provider: e.target.value})}
+                  onChange={(e) =>
+                    setForm({ ...form, provider: e.target.value })
+                  }
                 >
                   <MenuItem value="Dr. Emily Carter">Dr. Emily Carter</MenuItem>
                   <MenuItem value="Dr. John Harris">Dr. John Harris</MenuItem>
@@ -879,7 +881,7 @@ export default function AppointmentsPage() {
                 fullWidth
                 value={form.patientPhone}
                 onChange={(e) =>
-                  setForm({...form, patientPhone: e.target.value})
+                  setForm({ ...form, patientPhone: e.target.value })
                 }
                 placeholder="e.g. 555-0101"
               />
@@ -889,7 +891,7 @@ export default function AppointmentsPage() {
                 fullWidth
                 value={form.patientEmail}
                 onChange={(e) =>
-                  setForm({...form, patientEmail: e.target.value})
+                  setForm({ ...form, patientEmail: e.target.value })
                 }
                 placeholder="e.g. jane.d@example.com"
               />
@@ -902,7 +904,7 @@ export default function AppointmentsPage() {
               multiline
               rows={3}
               value={form.notes}
-              onChange={(e) => setForm({...form, notes: e.target.value})}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
               placeholder="e.g. Patient mentioned tooth sensitivity..."
             />
           </div>

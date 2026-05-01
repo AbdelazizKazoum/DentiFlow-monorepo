@@ -242,10 +242,13 @@ CREATE TABLE patients (
 
 -- =============================================================================
 -- APPOINTMENT SERVICE
--- Purpose : Manages booking, slot conflict prevention, and appointment status.
+-- Purpose : Manages booking, slot conflict prevention, appointment status,
+--           and the real-time waiting room queue.
 --           Supports 3 intake channels: ONLINE (patient self-books),
 --           WALK_IN (secretary creates on arrival), PHONE (secretary creates
---           during a call). Emits events to NATS via the outbox table.
+--           during a call). Queue entries track patient journey through
+--           the waiting room: ARRIVED → WAITING → IN_CHAIR → DONE.
+--           Emits events to NATS via the outbox table.
 -- =============================================================================
 CREATE DATABASE IF NOT EXISTS appointment_service;
 USE appointment_service;
@@ -297,33 +300,6 @@ CREATE TABLE appointments (
   INDEX idx_appointments_status_date (clinic_id, status, scheduled_at)
 );
 
--- OUTBOX: same pattern used in every write-service.
--- Inserted in the same transaction as the domain write — guarantees events
--- are never lost if NATS is down. A relay process publishes and marks rows done.
-CREATE TABLE outbox (
-  id          CHAR(36)     NOT NULL DEFAULT (UUID()),
-  event_type  VARCHAR(100) NOT NULL,  -- e.g. 'appointment.confirmed', 'appointment.cancelled'
-  payload     JSON         NOT NULL,  -- full event consumed by notification-service, audit-service, etc.
-  published   BOOLEAN      NOT NULL DEFAULT FALSE,
-  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-  PRIMARY KEY (id),
-  -- Relay polls WHERE published = FALSE ORDER BY created_at — index makes it fast.
-  INDEX idx_outbox_unpublished (published, created_at)
-);
-
-
--- =============================================================================
--- QUEUE SERVICE
--- Purpose : Manages the real-time waiting room state machine per clinic.
---           One queue_entry is created when a patient arrives for their
---           appointment. It moves through: ARRIVED → WAITING → IN_CHAIR → DONE.
---           Status changes are pushed to browsers via SSE. The outbox feeds
---           NATS → API Gateway → SSE clients (all scoped to the clinic_id).
--- =============================================================================
-CREATE DATABASE IF NOT EXISTS queue_service;
-USE queue_service;
-
 -- Each row = one patient's journey through the waiting room on one visit day.
 -- Transition timestamps (arrived_at, called_at, seated_at, completed_at) let
 -- you calculate wait time and chair time for V2 analytics.
@@ -348,9 +324,9 @@ CREATE TABLE queue_entries (
   -- State machine: one direction only — you cannot go backwards.
   status           ENUM(
                      'ARRIVED',   -- patient checked in at reception
-                     'WAITING',   -- moved to the waiting room by secretary
-                     'IN_CHAIR',  -- doctor called them in
-                     'DONE'       -- treatment complete
+                     'WAITING',   -- called by assistant, waiting for chair
+                     'IN_CHAIR',  -- currently being treated
+                     'DONE'       -- treatment finished, ready for checkout
                    )          NOT NULL DEFAULT 'ARRIVED',
   -- Each timestamp is set once when the status transitions to that state, then never changed.
   arrived_at       DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -363,18 +339,24 @@ CREATE TABLE queue_entries (
   UNIQUE KEY uq_queue_appointment   (appointment_id),         -- one queue entry per appointment
   INDEX idx_queue_clinic_status     (clinic_id, status),      -- main waiting room query
   INDEX idx_queue_clinic_doctor     (clinic_id, doctor_id, status),  -- doctor's own queue view
-  INDEX idx_queue_clinic_date       (clinic_id, arrived_at)   -- daily queue history
+  INDEX idx_queue_clinic_date       (clinic_id, arrived_at),  -- daily queue history
+  -- Real FK within the same service schema — enforced at DB level.
+  CONSTRAINT fk_queue_entries_appointment FOREIGN KEY (appointment_id) REFERENCES appointments (id) ON DELETE CASCADE
 );
 
--- See outbox explanation above — same pattern, same purpose.
+-- OUTBOX: same pattern used in every write-service.
+-- Inserted in the same transaction as the domain write — guarantees events
+-- are never lost if NATS is down. A relay process publishes and marks rows done.
+-- Handles events from both appointments and queue operations.
 CREATE TABLE outbox (
   id          CHAR(36)     NOT NULL DEFAULT (UUID()),
-  event_type  VARCHAR(100) NOT NULL,  -- e.g. 'queue.status.updated' — payload includes clinic_id for SSE fanout
-  payload     JSON         NOT NULL,
+  event_type  VARCHAR(100) NOT NULL,  -- e.g. 'appointment.confirmed', 'appointment.cancelled', 'queue.status.updated'
+  payload     JSON         NOT NULL,  -- full event consumed by notification-service, audit-service, etc. Queue events include clinic_id for SSE fanout.
   published   BOOLEAN      NOT NULL DEFAULT FALSE,
   created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (id),
+  -- Relay polls WHERE published = FALSE ORDER BY created_at — index makes it fast.
   INDEX idx_outbox_unpublished (published, created_at)
 );
 
