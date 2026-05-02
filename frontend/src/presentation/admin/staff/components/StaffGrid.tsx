@@ -16,10 +16,7 @@ export function StaffGrid({members, onOpenMenu}: StaffGridProps) {
         style={{borderColor: "var(--border-ui)"}}
       >
         <UserCog size={40} style={{color: "var(--text-muted)"}} />
-        <p
-          className="text-sm font-medium"
-          style={{color: "var(--text-muted)"}}
-        >
+        <p className="text-sm font-medium" style={{color: "var(--text-muted)"}}>
           No staff members found
         </p>
       </div>

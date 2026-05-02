@@ -67,7 +67,11 @@ export function DeleteConfirmModal({
 
       <DialogContent sx={{p: "24px"}}>
         <Typography
-          sx={{color: "var(--foreground)", fontSize: "0.9375rem", lineHeight: 1.6}}
+          sx={{
+            color: "var(--foreground)",
+            fontSize: "0.9375rem",
+            lineHeight: 1.6,
+          }}
         >
           Are you sure you want to delete{" "}
           <strong style={{color: "var(--brand-primary)"}}>{staffName}</strong>?
