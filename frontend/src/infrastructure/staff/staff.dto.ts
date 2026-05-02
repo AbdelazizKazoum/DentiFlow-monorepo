@@ -1,4 +1,4 @@
-import {StaffRole} from "@domain/staff/entities/staff";
+import {StaffRole} from "../../domain/staff/entities/staff";
 
 export interface StaffDTO {
   id: string;

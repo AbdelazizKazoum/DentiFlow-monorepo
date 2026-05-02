@@ -13,10 +13,10 @@ export class Staff {
     public readonly role: StaffRole,
     public readonly firstName: string,
     public readonly lastName: string,
-    public readonly phone?: string,
-    public readonly isActive: boolean = true,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
+    public readonly phone?: string,
+    public readonly isActive: boolean = true,
   ) {}
 
   get fullName(): string {

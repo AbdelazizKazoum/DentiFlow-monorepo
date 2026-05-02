@@ -10,10 +10,10 @@ export const toDomain = (dto: StaffDTO): Staff =>
     dto.role,
     dto.firstName,
     dto.lastName,
-    dto.phone,
-    dto.isActive,
     dto.createdAt,
     dto.updatedAt,
+    dto.phone,
+    dto.isActive,
   );
 
 // 🔹 Domain → API (Full DTO)
