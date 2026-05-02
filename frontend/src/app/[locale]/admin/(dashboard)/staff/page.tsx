@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, {useState, useCallback} from "react";
 import {
   UserCog,
   Plus,
@@ -60,19 +60,19 @@ interface FormState {
 
 const ROLE_CONFIG: Record<
   StaffRole,
-  { label: string; color: string; bg: string }
+  {label: string; color: string; bg: string}
 > = {
-  doctor: { label: "Doctor", color: "#1e56d0", bg: "#e8f0fe" },
-  secretary: { label: "Secretary", color: "#c05621", bg: "#fef3e8" },
-  assistant: { label: "Assistant", color: "#6B46C1", bg: "#F3EBFA" },
-  admin: { label: "Admin", color: "#279C41", bg: "#E8F8EC" },
+  doctor: {label: "Doctor", color: "#1e56d0", bg: "#e8f0fe"},
+  secretary: {label: "Secretary", color: "#c05621", bg: "#fef3e8"},
+  assistant: {label: "Assistant", color: "#6B46C1", bg: "#F3EBFA"},
+  admin: {label: "Admin", color: "#279C41", bg: "#E8F8EC"},
 };
 
 const STATUS_CONFIG: Record<
   StaffStatus,
-  { label: string; color: string; bg: string; dot: string }
+  {label: string; color: string; bg: string; dot: string}
 > = {
-  active: { label: "Active", color: "#279C41", bg: "#E8F8EC", dot: "#279C41" },
+  active: {label: "Active", color: "#279C41", bg: "#E8F8EC", dot: "#279C41"},
   "on-leave": {
     label: "On Leave",
     color: "#c05621",
@@ -291,7 +291,7 @@ export default function StaffPage() {
             <h1 className="text-2xl font-bold text-foreground">
               Staff Management
             </h1>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+            <p className="text-sm" style={{color: "var(--text-muted)"}}>
               Manage your clinic&apos;s team members
             </p>
           </div>
@@ -318,24 +318,24 @@ export default function StaffPage() {
         {/* ── Summary Cards ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Total Staff", value: counts.total, dot: "#1e56d0" },
-            { label: "Active", value: counts.active, dot: "#279C41" },
-            { label: "On Leave", value: counts.onLeave, dot: "#f6ad55" },
-            { label: "Inactive", value: counts.inactive, dot: "#94a3b8" },
+            {label: "Total Staff", value: counts.total, dot: "#1e56d0"},
+            {label: "Active", value: counts.active, dot: "#279C41"},
+            {label: "On Leave", value: counts.onLeave, dot: "#f6ad55"},
+            {label: "Inactive", value: counts.inactive, dot: "#94a3b8"},
           ].map((stat) => (
             <div
               key={stat.label}
               className="bg-card border rounded-xl p-4 flex flex-col gap-1"
-              style={{ borderColor: "var(--border-ui)" }}
+              style={{borderColor: "var(--border-ui)"}}
             >
               <div className="flex items-center gap-2">
                 <span
                   className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: stat.dot }}
+                  style={{backgroundColor: stat.dot}}
                 />
                 <span
                   className="text-xs font-medium"
-                  style={{ color: "var(--text-muted)" }}
+                  style={{color: "var(--text-muted)"}}
                 >
                   {stat.label}
                 </span>
@@ -348,14 +348,14 @@ export default function StaffPage() {
         {/* ── Filters ── */}
         <div
           className="bg-card border rounded-xl p-4 flex flex-col sm:flex-row gap-3"
-          style={{ borderColor: "var(--border-ui)" }}
+          style={{borderColor: "var(--border-ui)"}}
         >
           {/* Search */}
           <div className="relative flex-1">
             <Search
               size={15}
               className="absolute left-3 top-1/2 -translate-y-1/2"
-              style={{ color: "var(--text-muted)" }}
+              style={{color: "var(--text-muted)"}}
             />
             <input
               type="text"
@@ -414,12 +414,12 @@ export default function StaffPage() {
         {filtered.length === 0 ? (
           <div
             className="bg-card border rounded-xl p-12 flex flex-col items-center gap-3"
-            style={{ borderColor: "var(--border-ui)" }}
+            style={{borderColor: "var(--border-ui)"}}
           >
-            <UserCog size={40} style={{ color: "var(--text-muted)" }} />
+            <UserCog size={40} style={{color: "var(--text-muted)"}} />
             <p
               className="text-sm font-medium"
-              style={{ color: "var(--text-muted)" }}
+              style={{color: "var(--text-muted)"}}
             >
               No staff members found
             </p>
@@ -434,7 +434,7 @@ export default function StaffPage() {
                 <div
                   key={member.id}
                   className="bg-card border rounded-xl p-5 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200"
-                  style={{ borderColor: "var(--border-ui)" }}
+                  style={{borderColor: "var(--border-ui)"}}
                 >
                   {/* Top row */}
                   <div className="flex items-start justify-between gap-3">
@@ -451,7 +451,7 @@ export default function StaffPage() {
                         </p>
                         <p
                           className="text-xs mt-0.5 truncate"
-                          style={{ color: "var(--text-muted)" }}
+                          style={{color: "var(--text-muted)"}}
                         >
                           {member.specialization}
                         </p>
@@ -460,7 +460,7 @@ export default function StaffPage() {
                     <IconButton
                       size="small"
                       onClick={(e) => openMenu(e, member.id)}
-                      sx={{ color: "var(--text-muted)", flexShrink: 0 }}
+                      sx={{color: "var(--text-muted)", flexShrink: 0}}
                     >
                       <MoreVertical size={16} />
                     </IconButton>
@@ -486,7 +486,7 @@ export default function StaffPage() {
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: statusCfg.dot }}
+                        style={{backgroundColor: statusCfg.dot}}
                       />
                       {statusCfg.label}
                     </span>
@@ -495,11 +495,11 @@ export default function StaffPage() {
                   {/* Contact */}
                   <div
                     className="space-y-1.5 border-t pt-3"
-                    style={{ borderColor: "var(--border-ui)" }}
+                    style={{borderColor: "var(--border-ui)"}}
                   >
                     <div
                       className="flex items-center gap-2 text-xs"
-                      style={{ color: "var(--text-muted)" }}
+                      style={{color: "var(--text-muted)"}}
                     >
                       <Mail size={13} />
                       <span className="truncate">{member.email}</span>
@@ -507,7 +507,7 @@ export default function StaffPage() {
                     {member.phone && (
                       <div
                         className="flex items-center gap-2 text-xs"
-                        style={{ color: "var(--text-muted)" }}
+                        style={{color: "var(--text-muted)"}}
                       >
                         <Phone size={13} />
                         <span>{member.phone}</span>
@@ -516,7 +516,7 @@ export default function StaffPage() {
                   </div>
 
                   {/* Join date */}
-                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  <p className="text-xs" style={{color: "var(--text-muted)"}}>
                     Joined{" "}
                     {new Date(member.joinDate).toLocaleDateString("en-US", {
                       year: "numeric",
@@ -553,13 +553,13 @@ export default function StaffPage() {
             const member = staff.find((s) => s.id === menuTarget);
             if (member) openEdit(member);
           }}
-          sx={{ fontSize: "0.875rem", gap: 1, color: "var(--foreground)" }}
+          sx={{fontSize: "0.875rem", gap: 1, color: "var(--foreground)"}}
         >
           <Edit2 size={15} /> Edit
         </MenuItem>
         <MenuItem
           onClick={() => menuTarget && handleDelete(menuTarget)}
-          sx={{ fontSize: "0.875rem", gap: 1, color: "#e53e3e" }}
+          sx={{fontSize: "0.875rem", gap: 1, color: "#e53e3e"}}
         >
           <Trash2 size={15} /> Delete
         </MenuItem>
@@ -595,14 +595,14 @@ export default function StaffPage() {
           <Typography
             variant="h6"
             component="div"
-            sx={{ fontWeight: 700, color: "var(--foreground)" }}
+            sx={{fontWeight: 700, color: "var(--foreground)"}}
           >
             {form.id ? "Edit Staff Member" : "Add Staff Member"}
           </Typography>
           <IconButton
             size="small"
             onClick={() => setModalOpen(false)}
-            sx={{ color: "var(--text-muted)" }}
+            sx={{color: "var(--text-muted)"}}
           >
             <X size={20} />
           </IconButton>
@@ -611,9 +611,9 @@ export default function StaffPage() {
         <DialogContent
           sx={{
             p: "24px",
-            "& .MuiTextField-root": { mb: "16px" },
-            "& .MuiInputLabel-root": { fontSize: "0.875rem" },
-            "& .MuiInputBase-input": { fontSize: "0.875rem" },
+            "& .MuiTextField-root": {mb: "16px"},
+            "& .MuiInputLabel-root": {fontSize: "0.875rem"},
+            "& .MuiInputBase-input": {fontSize: "0.875rem"},
           }}
         >
           {error && (
@@ -628,7 +628,7 @@ export default function StaffPage() {
               label="Full Name"
               fullWidth
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) => setForm({...form, name: e.target.value})}
               placeholder="e.g. Dr. Jane Doe"
               required
             />
@@ -641,7 +641,7 @@ export default function StaffPage() {
                   label="Role"
                   value={form.role}
                   onChange={(e) =>
-                    setForm({ ...form, role: e.target.value as StaffRole })
+                    setForm({...form, role: e.target.value as StaffRole})
                   }
                 >
                   <MenuItem value="doctor">Doctor</MenuItem>
@@ -656,7 +656,7 @@ export default function StaffPage() {
                   label="Status"
                   value={form.status}
                   onChange={(e) =>
-                    setForm({ ...form, status: e.target.value as StaffStatus })
+                    setForm({...form, status: e.target.value as StaffStatus})
                   }
                 >
                   <MenuItem value="active">✅ Active</MenuItem>
@@ -673,7 +673,7 @@ export default function StaffPage() {
                 type="email"
                 fullWidth
                 value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onChange={(e) => setForm({...form, email: e.target.value})}
                 placeholder="e.g. jane@dentiflow.com"
                 required
               />
@@ -681,7 +681,7 @@ export default function StaffPage() {
                 label="Phone"
                 fullWidth
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onChange={(e) => setForm({...form, phone: e.target.value})}
                 placeholder="e.g. 555-0201"
               />
             </div>
@@ -693,7 +693,7 @@ export default function StaffPage() {
                 fullWidth
                 value={form.specialization}
                 onChange={(e) =>
-                  setForm({ ...form, specialization: e.target.value })
+                  setForm({...form, specialization: e.target.value})
                 }
                 placeholder="e.g. Orthodontics"
               />
@@ -702,8 +702,8 @@ export default function StaffPage() {
                 type="date"
                 fullWidth
                 value={form.joinDate}
-                onChange={(e) => setForm({ ...form, joinDate: e.target.value })}
-                slotProps={{ inputLabel: { shrink: true } }}
+                onChange={(e) => setForm({...form, joinDate: e.target.value})}
+                slotProps={{inputLabel: {shrink: true}}}
               />
             </div>
           </div>
@@ -797,20 +797,20 @@ export default function StaffPage() {
           <Typography
             variant="h6"
             component="div"
-            sx={{ fontWeight: 700, color: "var(--foreground)" }}
+            sx={{fontWeight: 700, color: "var(--foreground)"}}
           >
             Delete Staff Member
           </Typography>
           <IconButton
             size="small"
             onClick={() => setDeleteConfirmOpen(false)}
-            sx={{ color: "var(--text-muted)" }}
+            sx={{color: "var(--text-muted)"}}
           >
             <X size={20} />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ p: "24px" }}>
+        <DialogContent sx={{p: "24px"}}>
           <Typography
             sx={{
               color: "var(--foreground)",
@@ -819,7 +819,7 @@ export default function StaffPage() {
             }}
           >
             Are you sure you want to delete{" "}
-            <strong style={{ color: "var(--brand-primary)" }}>
+            <strong style={{color: "var(--brand-primary)"}}>
               {staff.find((s) => s.id === deleteTargetId)?.name}
             </strong>
             ? This action cannot be undone.

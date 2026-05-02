@@ -1,4 +1,4 @@
-import {StaffRole} from "../entities/staff";
+import {StaffRole, StaffStatus} from "../entities/staff";
 
 export interface CreateStaffInput {
   userId: string;
@@ -6,5 +6,9 @@ export interface CreateStaffInput {
   firstName: string;
   lastName: string;
   role: StaffRole;
+  status: StaffStatus;
   phone?: string;
+  email?: string;
+  specialization?: string;
+  avatar?: string;
 }

@@ -1,4 +1,4 @@
-import {Staff, StaffRole} from "../../domain/staff/entities/staff";
+import {Staff, StaffRole, StaffStatus} from "../../domain/staff/entities/staff";
 import type {StaffDTO, CreateStaffDTO, UpdateStaffDTO} from "./staff.dto";
 import type {CreateStaffInput} from "../../domain/staff/commands/CreateStaffInput";
 import type {UpdateStaffInput} from "../../domain/staff/commands/UpdateStaffInput";
@@ -10,11 +10,15 @@ export const toDomain = (dto: StaffDTO): Staff =>
     dto.clinicId,
     dto.userId,
     dto.role,
+    dto.status,
     dto.firstName,
     dto.lastName,
     dto.createdAt,
     dto.updatedAt,
     dto.phone,
+    dto.email,
+    dto.specialization,
+    dto.avatar,
     dto.isActive,
   );
 
@@ -24,9 +28,13 @@ export const toDTO = (staff: Staff): StaffDTO => ({
   clinicId: staff.clinicId,
   userId: staff.userId,
   role: staff.role,
+  status: staff.status,
   firstName: staff.firstName,
   lastName: staff.lastName,
   phone: staff.phone,
+  email: staff.email,
+  specialization: staff.specialization,
+  avatar: staff.avatar,
   isActive: staff.isActive,
   createdAt: staff.createdAt,
   updatedAt: staff.updatedAt,
@@ -39,7 +47,11 @@ export const toCreateDTO = (input: CreateStaffInput): CreateStaffDTO => ({
   firstName: input.firstName,
   lastName: input.lastName,
   role: input.role,
+  status: input.status,
   phone: input.phone,
+  email: input.email,
+  specialization: input.specialization,
+  avatar: input.avatar,
 });
 
 // 🔹 Domain → API (Update)
@@ -47,6 +59,10 @@ export const toUpdateDTO = (input: UpdateStaffInput): UpdateStaffDTO => ({
   firstName: input.firstName,
   lastName: input.lastName,
   phone: input.phone,
+  email: input.email,
+  specialization: input.specialization,
+  avatar: input.avatar,
   role: input.role,
+  status: input.status,
   isActive: input.isActive,
 });
