@@ -1,7 +1,7 @@
-import {Staff} from "@domain/staff/entities/staff";
+import {Staff, StaffRole} from "../../domain/staff/entities/staff";
 import type {StaffDTO, CreateStaffDTO, UpdateStaffDTO} from "./staff.dto";
-import type {CreateStaffInput} from "@domain/staff/commands/CreateStaffInput";
-import type {UpdateStaffInput} from "@domain/staff/commands/UpdateStaffInput";
+import type {CreateStaffInput} from "../../domain/staff/commands/CreateStaffInput";
+import type {UpdateStaffInput} from "../../domain/staff/commands/UpdateStaffInput";
 
 // 🔹 API → Domain
 export const toDomain = (dto: StaffDTO): Staff =>
