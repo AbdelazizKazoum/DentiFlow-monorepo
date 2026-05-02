@@ -1,5 +1,7 @@
-import {Staff, StaffRole} from "../../domain/staff/entities/staff";
+import {Staff} from "@domain/staff/entities/staff";
 import type {StaffDTO, CreateStaffDTO, UpdateStaffDTO} from "./staff.dto";
+import type {CreateStaffInput} from "@domain/staff/commands/CreateStaffInput";
+import type {UpdateStaffInput} from "@domain/staff/commands/UpdateStaffInput";
 
 // 🔹 API → Domain
 export const toDomain = (dto: StaffDTO): Staff =>
@@ -31,27 +33,20 @@ export const toDTO = (staff: Staff): StaffDTO => ({
 });
 
 // 🔹 Domain → API (Create)
-export const toCreateDTO = (input: {
-  userId: string;
-  clinicId: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  phone?: string;
-}): CreateStaffDTO => ({
+export const toCreateDTO = (input: CreateStaffInput): CreateStaffDTO => ({
   userId: input.userId,
   clinicId: input.clinicId,
   firstName: input.firstName,
   lastName: input.lastName,
-  role: input.role as StaffRole,
+  role: input.role,
   phone: input.phone,
 });
 
 // 🔹 Domain → API (Update)
-export const toUpdateDTO = (input: Partial<Staff>): UpdateStaffDTO => ({
+export const toUpdateDTO = (input: UpdateStaffInput): UpdateStaffDTO => ({
   firstName: input.firstName,
   lastName: input.lastName,
   phone: input.phone,
-  role: input.role as StaffRole,
+  role: input.role,
   isActive: input.isActive,
 });

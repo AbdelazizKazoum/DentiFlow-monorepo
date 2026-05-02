@@ -1,9 +1,11 @@
 import axios from "axios";
-import {StaffRepository} from "@domain/staff/repositories/staffRepository";
-import {Staff} from "@domain/staff/entities/staff";
+import {StaffRepository} from "../../domain/staff/repositories/staffRepository";
+import {Staff} from "../../domain/staff/entities/staff";
 import {axiosClient} from "../http/axiosClient";
 import {toDomain, toCreateDTO, toUpdateDTO} from "./staff.mapper";
-import type {StaffDTO, CreateStaffDTO, UpdateStaffDTO} from "./staff.dto";
+import type {StaffDTO} from "./staff.dto";
+import type {CreateStaffInput} from "../../domain/staff/commands/CreateStaffInput";
+import type {UpdateStaffInput} from "../../domain/staff/commands/UpdateStaffInput";
 
 export class StaffHttpRepository implements StaffRepository {
   async findById(id: string): Promise<Staff | null> {
@@ -37,14 +39,16 @@ export class StaffHttpRepository implements StaffRepository {
     }
   }
 
-  async save(staff: Staff): Promise<void> {
-    const createDto = toCreateDTO(staff);
-    await axiosClient.post(`/staff`, createDto);
+  async create(input: CreateStaffInput): Promise<Staff> {
+    const createDto = toCreateDTO(input);
+    const response = await axiosClient.post<StaffDTO>(`/staff`, createDto);
+    return toDomain(response.data);
   }
 
-  async update(staff: Staff): Promise<void> {
-    const updateDto = toUpdateDTO(staff);
-    await axiosClient.put(`/staff/${staff.id}`, updateDto);
+  async update(id: string, input: UpdateStaffInput): Promise<Staff> {
+    const updateDto = toUpdateDTO(input);
+    const response = await axiosClient.put<StaffDTO>(`/staff/${id}`, updateDto);
+    return toDomain(response.data);
   }
 
   async delete(id: string): Promise<void> {
