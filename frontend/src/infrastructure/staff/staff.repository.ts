@@ -13,6 +13,13 @@ export class StaffHttpRepository
   extends BaseRepository
   implements StaffRepository
 {
+  async findAll(): Promise<Staff[]> {
+    const response = await this.execute(() =>
+      axiosClient.get<StaffDTO[]>(`/staff`),
+    );
+    return response.data.map(toDomain);
+  }
+
   async findById(id: string): Promise<Staff | null> {
     try {
       const response = await this.execute(() =>

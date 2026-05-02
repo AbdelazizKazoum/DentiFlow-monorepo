@@ -3,6 +3,7 @@ import type {CreateStaffInput} from "../commands/CreateStaffInput";
 import type {UpdateStaffInput} from "../commands/UpdateStaffInput";
 
 export interface StaffRepository {
+  findAll(): Promise<Staff[]>;
   findById(id: string): Promise<Staff | null>;
   findByClinicId(clinicId: string): Promise<Staff[]>;
   findByUserId(userId: string): Promise<Staff | null>;
