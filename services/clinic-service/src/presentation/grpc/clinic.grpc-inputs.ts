@@ -13,6 +13,7 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength,
   ValidateNested,
 } from "class-validator";
 import {Locale} from "../../domain/enums/locale.enum";
@@ -85,9 +86,6 @@ export class CreateStaffMemberInput {
   @IsUUID()
   clinicId!: string;
 
-  @IsUUID()
-  userId!: string;
-
   @IsEnum(StaffRole)
   role!: StaffRole;
 
@@ -101,15 +99,19 @@ export class CreateStaffMemberInput {
   @MaxLength(100)
   lastName!: string;
 
+  @IsEmail()
+  @MaxLength(255)
+  email!: string;
+
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  password!: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(30)
   phone?: string;
-
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(255)
-  email?: string;
 
   @IsOptional()
   @IsString()

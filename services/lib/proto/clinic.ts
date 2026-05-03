@@ -5,10 +5,13 @@
 // source: clinic.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import type { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import {BinaryReader, BinaryWriter} from "@bufbuild/protobuf/wire";
+import type {
+  handleUnaryCall,
+  UntypedServiceImplementation,
+} from "@grpc/grpc-js";
+import {GrpcMethod, GrpcStreamMethod} from "@nestjs/microservices";
+import {Observable} from "rxjs";
 
 export const protobufPackage = "clinic";
 
@@ -86,14 +89,14 @@ export interface WorkingHoursEntryInput {
 
 export interface CreateStaffMemberRequest {
   clinicId: string;
-  userId: string;
   role: string;
   firstName: string;
   lastName: string;
   phone?: string | undefined;
-  email?: string | undefined;
+  email: string;
   specialization?: string | undefined;
   avatar?: string | undefined;
+  password: string;
 }
 
 export interface ListStaffMembersRequest {
@@ -107,11 +110,14 @@ export interface StaffMembersListReply {
 export const CLINIC_PACKAGE_NAME = "clinic";
 
 function createBaseGetClinicRequest(): GetClinicRequest {
-  return { id: "" };
+  return {id: ""};
 }
 
 export const GetClinicRequest: MessageFns<GetClinicRequest> = {
-  encode(message: GetClinicRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetClinicRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -119,7 +125,8 @@ export const GetClinicRequest: MessageFns<GetClinicRequest> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): GetClinicRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetClinicRequest();
     while (reader.pos < end) {
@@ -144,11 +151,21 @@ export const GetClinicRequest: MessageFns<GetClinicRequest> = {
 };
 
 function createBaseClinicReply(): ClinicReply {
-  return { id: "", slug: "", name: "", timezone: "", locale: "", isActive: false };
+  return {
+    id: "",
+    slug: "",
+    name: "",
+    timezone: "",
+    locale: "",
+    isActive: false,
+  };
 }
 
 export const ClinicReply: MessageFns<ClinicReply> = {
-  encode(message: ClinicReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ClinicReply,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -171,7 +188,8 @@ export const ClinicReply: MessageFns<ClinicReply> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): ClinicReply {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseClinicReply();
     while (reader.pos < end) {
@@ -236,11 +254,14 @@ export const ClinicReply: MessageFns<ClinicReply> = {
 };
 
 function createBaseGetStaffMemberRequest(): GetStaffMemberRequest {
-  return { userId: "", clinicId: "" };
+  return {userId: "", clinicId: ""};
 }
 
 export const GetStaffMemberRequest: MessageFns<GetStaffMemberRequest> = {
-  encode(message: GetStaffMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetStaffMemberRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.userId !== "") {
       writer.uint32(10).string(message.userId);
     }
@@ -250,8 +271,12 @@ export const GetStaffMemberRequest: MessageFns<GetStaffMemberRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetStaffMemberRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetStaffMemberRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetStaffMemberRequest();
     while (reader.pos < end) {
@@ -301,7 +326,10 @@ function createBaseStaffMemberReply(): StaffMemberReply {
 }
 
 export const StaffMemberReply: MessageFns<StaffMemberReply> = {
-  encode(message: StaffMemberReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: StaffMemberReply,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -342,7 +370,8 @@ export const StaffMemberReply: MessageFns<StaffMemberReply> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): StaffMemberReply {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStaffMemberReply();
     while (reader.pos < end) {
@@ -455,19 +484,26 @@ export const StaffMemberReply: MessageFns<StaffMemberReply> = {
 };
 
 function createBaseGetWorkingHoursRequest(): GetWorkingHoursRequest {
-  return { clinicId: "" };
+  return {clinicId: ""};
 }
 
 export const GetWorkingHoursRequest: MessageFns<GetWorkingHoursRequest> = {
-  encode(message: GetWorkingHoursRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: GetWorkingHoursRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.clinicId !== "") {
       writer.uint32(10).string(message.clinicId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetWorkingHoursRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): GetWorkingHoursRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseGetWorkingHoursRequest();
     while (reader.pos < end) {
@@ -492,11 +528,21 @@ export const GetWorkingHoursRequest: MessageFns<GetWorkingHoursRequest> = {
 };
 
 function createBaseWorkingHoursEntry(): WorkingHoursEntry {
-  return { id: "", clinicId: "", dayOfWeek: 0, openTime: "", closeTime: "", isClosed: false };
+  return {
+    id: "",
+    clinicId: "",
+    dayOfWeek: 0,
+    openTime: "",
+    closeTime: "",
+    isClosed: false,
+  };
 }
 
 export const WorkingHoursEntry: MessageFns<WorkingHoursEntry> = {
-  encode(message: WorkingHoursEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WorkingHoursEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -519,7 +565,8 @@ export const WorkingHoursEntry: MessageFns<WorkingHoursEntry> = {
   },
 
   decode(input: BinaryReader | Uint8Array, length?: number): WorkingHoursEntry {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWorkingHoursEntry();
     while (reader.pos < end) {
@@ -584,19 +631,26 @@ export const WorkingHoursEntry: MessageFns<WorkingHoursEntry> = {
 };
 
 function createBaseWorkingHoursListReply(): WorkingHoursListReply {
-  return { entries: [] };
+  return {entries: []};
 }
 
 export const WorkingHoursListReply: MessageFns<WorkingHoursListReply> = {
-  encode(message: WorkingHoursListReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WorkingHoursListReply,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.entries) {
       WorkingHoursEntry.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): WorkingHoursListReply {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): WorkingHoursListReply {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWorkingHoursListReply();
     while (reader.pos < end) {
@@ -607,7 +661,9 @@ export const WorkingHoursListReply: MessageFns<WorkingHoursListReply> = {
             break;
           }
 
-          message.entries.push(WorkingHoursEntry.decode(reader, reader.uint32()));
+          message.entries.push(
+            WorkingHoursEntry.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -621,11 +677,14 @@ export const WorkingHoursListReply: MessageFns<WorkingHoursListReply> = {
 };
 
 function createBaseCreateClinicRequest(): CreateClinicRequest {
-  return { slug: "", name: "" };
+  return {slug: "", name: ""};
 }
 
 export const CreateClinicRequest: MessageFns<CreateClinicRequest> = {
-  encode(message: CreateClinicRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreateClinicRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.slug !== "") {
       writer.uint32(10).string(message.slug);
     }
@@ -650,8 +709,12 @@ export const CreateClinicRequest: MessageFns<CreateClinicRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateClinicRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreateClinicRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateClinicRequest();
     while (reader.pos < end) {
@@ -724,59 +787,72 @@ export const CreateClinicRequest: MessageFns<CreateClinicRequest> = {
 };
 
 function createBaseUpsertWorkingHoursRequest(): UpsertWorkingHoursRequest {
-  return { clinicId: "", entries: [] };
+  return {clinicId: "", entries: []};
 }
 
-export const UpsertWorkingHoursRequest: MessageFns<UpsertWorkingHoursRequest> = {
-  encode(message: UpsertWorkingHoursRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.clinicId !== "") {
-      writer.uint32(10).string(message.clinicId);
-    }
-    for (const v of message.entries) {
-      WorkingHoursEntryInput.encode(v!, writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): UpsertWorkingHoursRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseUpsertWorkingHoursRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.clinicId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.entries.push(WorkingHoursEntryInput.decode(reader, reader.uint32()));
-          continue;
-        }
+export const UpsertWorkingHoursRequest: MessageFns<UpsertWorkingHoursRequest> =
+  {
+    encode(
+      message: UpsertWorkingHoursRequest,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.clinicId !== "") {
+        writer.uint32(10).string(message.clinicId);
       }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
+      for (const v of message.entries) {
+        WorkingHoursEntryInput.encode(v!, writer.uint32(18).fork()).join();
       }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
+      return writer;
+    },
+
+    decode(
+      input: BinaryReader | Uint8Array,
+      length?: number,
+    ): UpsertWorkingHoursRequest {
+      const reader =
+        input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpsertWorkingHoursRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.clinicId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.entries.push(
+              WorkingHoursEntryInput.decode(reader, reader.uint32()),
+            );
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+  };
 
 function createBaseWorkingHoursEntryInput(): WorkingHoursEntryInput {
-  return { dayOfWeek: 0, isClosed: false };
+  return {dayOfWeek: 0, isClosed: false};
 }
 
 export const WorkingHoursEntryInput: MessageFns<WorkingHoursEntryInput> = {
-  encode(message: WorkingHoursEntryInput, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: WorkingHoursEntryInput,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.dayOfWeek !== 0) {
       writer.uint32(8).int32(message.dayOfWeek);
     }
@@ -792,8 +868,12 @@ export const WorkingHoursEntryInput: MessageFns<WorkingHoursEntryInput> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): WorkingHoursEntryInput {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): WorkingHoursEntryInput {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseWorkingHoursEntryInput();
     while (reader.pos < end) {
@@ -842,16 +922,23 @@ export const WorkingHoursEntryInput: MessageFns<WorkingHoursEntryInput> = {
 };
 
 function createBaseCreateStaffMemberRequest(): CreateStaffMemberRequest {
-  return { clinicId: "", userId: "", role: "", firstName: "", lastName: "" };
+  return {
+    clinicId: "",
+    role: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  };
 }
 
 export const CreateStaffMemberRequest: MessageFns<CreateStaffMemberRequest> = {
-  encode(message: CreateStaffMemberRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: CreateStaffMemberRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.clinicId !== "") {
       writer.uint32(10).string(message.clinicId);
-    }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
     }
     if (message.role !== "") {
       writer.uint32(26).string(message.role);
@@ -865,7 +952,7 @@ export const CreateStaffMemberRequest: MessageFns<CreateStaffMemberRequest> = {
     if (message.phone !== undefined) {
       writer.uint32(50).string(message.phone);
     }
-    if (message.email !== undefined) {
+    if (message.email !== "") {
       writer.uint32(58).string(message.email);
     }
     if (message.specialization !== undefined) {
@@ -874,11 +961,18 @@ export const CreateStaffMemberRequest: MessageFns<CreateStaffMemberRequest> = {
     if (message.avatar !== undefined) {
       writer.uint32(74).string(message.avatar);
     }
+    if (message.password !== "") {
+      writer.uint32(82).string(message.password);
+    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateStaffMemberRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): CreateStaffMemberRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseCreateStaffMemberRequest();
     while (reader.pos < end) {
@@ -890,14 +984,6 @@ export const CreateStaffMemberRequest: MessageFns<CreateStaffMemberRequest> = {
           }
 
           message.clinicId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.userId = reader.string();
           continue;
         }
         case 3: {
@@ -956,6 +1042,14 @@ export const CreateStaffMemberRequest: MessageFns<CreateStaffMemberRequest> = {
           message.avatar = reader.string();
           continue;
         }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.password = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -967,19 +1061,26 @@ export const CreateStaffMemberRequest: MessageFns<CreateStaffMemberRequest> = {
 };
 
 function createBaseListStaffMembersRequest(): ListStaffMembersRequest {
-  return { clinicId: "" };
+  return {clinicId: ""};
 }
 
 export const ListStaffMembersRequest: MessageFns<ListStaffMembersRequest> = {
-  encode(message: ListStaffMembersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: ListStaffMembersRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     if (message.clinicId !== "") {
       writer.uint32(10).string(message.clinicId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListStaffMembersRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): ListStaffMembersRequest {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseListStaffMembersRequest();
     while (reader.pos < end) {
@@ -1004,19 +1105,26 @@ export const ListStaffMembersRequest: MessageFns<ListStaffMembersRequest> = {
 };
 
 function createBaseStaffMembersListReply(): StaffMembersListReply {
-  return { staffMembers: [] };
+  return {staffMembers: []};
 }
 
 export const StaffMembersListReply: MessageFns<StaffMembersListReply> = {
-  encode(message: StaffMembersListReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(
+    message: StaffMembersListReply,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
     for (const v of message.staffMembers) {
       StaffMemberReply.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): StaffMembersListReply {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+  decode(
+    input: BinaryReader | Uint8Array,
+    length?: number,
+  ): StaffMembersListReply {
+    const reader =
+      input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseStaffMembersListReply();
     while (reader.pos < end) {
@@ -1027,7 +1135,9 @@ export const StaffMembersListReply: MessageFns<StaffMembersListReply> = {
             break;
           }
 
-          message.staffMembers.push(StaffMemberReply.decode(reader, reader.uint32()));
+          message.staffMembers.push(
+            StaffMemberReply.decode(reader, reader.uint32()),
+          );
           continue;
         }
       }
@@ -1045,41 +1155,68 @@ export interface ClinicServiceClient {
 
   getStaffMember(request: GetStaffMemberRequest): Observable<StaffMemberReply>;
 
-  getWorkingHours(request: GetWorkingHoursRequest): Observable<WorkingHoursListReply>;
+  getWorkingHours(
+    request: GetWorkingHoursRequest,
+  ): Observable<WorkingHoursListReply>;
 
   createClinic(request: CreateClinicRequest): Observable<ClinicReply>;
 
-  upsertWorkingHours(request: UpsertWorkingHoursRequest): Observable<WorkingHoursListReply>;
-
-  createStaffMember(request: CreateStaffMemberRequest): Observable<StaffMemberReply>;
-
-  listStaffMembers(request: ListStaffMembersRequest): Observable<StaffMembersListReply>;
-}
-
-export interface ClinicServiceController {
-  getClinic(request: GetClinicRequest): Promise<ClinicReply> | Observable<ClinicReply> | ClinicReply;
-
-  getStaffMember(
-    request: GetStaffMemberRequest,
-  ): Promise<StaffMemberReply> | Observable<StaffMemberReply> | StaffMemberReply;
-
-  getWorkingHours(
-    request: GetWorkingHoursRequest,
-  ): Promise<WorkingHoursListReply> | Observable<WorkingHoursListReply> | WorkingHoursListReply;
-
-  createClinic(request: CreateClinicRequest): Promise<ClinicReply> | Observable<ClinicReply> | ClinicReply;
-
   upsertWorkingHours(
     request: UpsertWorkingHoursRequest,
-  ): Promise<WorkingHoursListReply> | Observable<WorkingHoursListReply> | WorkingHoursListReply;
+  ): Observable<WorkingHoursListReply>;
 
   createStaffMember(
     request: CreateStaffMemberRequest,
-  ): Promise<StaffMemberReply> | Observable<StaffMemberReply> | StaffMemberReply;
+  ): Observable<StaffMemberReply>;
 
   listStaffMembers(
     request: ListStaffMembersRequest,
-  ): Promise<StaffMembersListReply> | Observable<StaffMembersListReply> | StaffMembersListReply;
+  ): Observable<StaffMembersListReply>;
+}
+
+export interface ClinicServiceController {
+  getClinic(
+    request: GetClinicRequest,
+  ): Promise<ClinicReply> | Observable<ClinicReply> | ClinicReply;
+
+  getStaffMember(
+    request: GetStaffMemberRequest,
+  ):
+    | Promise<StaffMemberReply>
+    | Observable<StaffMemberReply>
+    | StaffMemberReply;
+
+  getWorkingHours(
+    request: GetWorkingHoursRequest,
+  ):
+    | Promise<WorkingHoursListReply>
+    | Observable<WorkingHoursListReply>
+    | WorkingHoursListReply;
+
+  createClinic(
+    request: CreateClinicRequest,
+  ): Promise<ClinicReply> | Observable<ClinicReply> | ClinicReply;
+
+  upsertWorkingHours(
+    request: UpsertWorkingHoursRequest,
+  ):
+    | Promise<WorkingHoursListReply>
+    | Observable<WorkingHoursListReply>
+    | WorkingHoursListReply;
+
+  createStaffMember(
+    request: CreateStaffMemberRequest,
+  ):
+    | Promise<StaffMemberReply>
+    | Observable<StaffMemberReply>
+    | StaffMemberReply;
+
+  listStaffMembers(
+    request: ListStaffMembersRequest,
+  ):
+    | Promise<StaffMembersListReply>
+    | Observable<StaffMembersListReply>
+    | StaffMembersListReply;
 }
 
 export function ClinicServiceControllerMethods() {
@@ -1094,13 +1231,27 @@ export function ClinicServiceControllerMethods() {
       "listStaffMembers",
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("ClinicService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("ClinicService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("ClinicService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("ClinicService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }
@@ -1113,10 +1264,14 @@ export const ClinicServiceService = {
     path: "/clinic.ClinicService/GetClinic" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: GetClinicRequest): Buffer => Buffer.from(GetClinicRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetClinicRequest => GetClinicRequest.decode(value),
-    responseSerialize: (value: ClinicReply): Buffer => Buffer.from(ClinicReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ClinicReply => ClinicReply.decode(value),
+    requestSerialize: (value: GetClinicRequest): Buffer =>
+      Buffer.from(GetClinicRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetClinicRequest =>
+      GetClinicRequest.decode(value),
+    responseSerialize: (value: ClinicReply): Buffer =>
+      Buffer.from(ClinicReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ClinicReply =>
+      ClinicReply.decode(value),
   },
   getStaffMember: {
     path: "/clinic.ClinicService/GetStaffMember" as const,
@@ -1124,9 +1279,12 @@ export const ClinicServiceService = {
     responseStream: false as const,
     requestSerialize: (value: GetStaffMemberRequest): Buffer =>
       Buffer.from(GetStaffMemberRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetStaffMemberRequest => GetStaffMemberRequest.decode(value),
-    responseSerialize: (value: StaffMemberReply): Buffer => Buffer.from(StaffMemberReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): StaffMemberReply => StaffMemberReply.decode(value),
+    requestDeserialize: (value: Buffer): GetStaffMemberRequest =>
+      GetStaffMemberRequest.decode(value),
+    responseSerialize: (value: StaffMemberReply): Buffer =>
+      Buffer.from(StaffMemberReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): StaffMemberReply =>
+      StaffMemberReply.decode(value),
   },
   getWorkingHours: {
     path: "/clinic.ClinicService/GetWorkingHours" as const,
@@ -1134,19 +1292,25 @@ export const ClinicServiceService = {
     responseStream: false as const,
     requestSerialize: (value: GetWorkingHoursRequest): Buffer =>
       Buffer.from(GetWorkingHoursRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): GetWorkingHoursRequest => GetWorkingHoursRequest.decode(value),
+    requestDeserialize: (value: Buffer): GetWorkingHoursRequest =>
+      GetWorkingHoursRequest.decode(value),
     responseSerialize: (value: WorkingHoursListReply): Buffer =>
       Buffer.from(WorkingHoursListReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): WorkingHoursListReply => WorkingHoursListReply.decode(value),
+    responseDeserialize: (value: Buffer): WorkingHoursListReply =>
+      WorkingHoursListReply.decode(value),
   },
   createClinic: {
     path: "/clinic.ClinicService/CreateClinic" as const,
     requestStream: false as const,
     responseStream: false as const,
-    requestSerialize: (value: CreateClinicRequest): Buffer => Buffer.from(CreateClinicRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): CreateClinicRequest => CreateClinicRequest.decode(value),
-    responseSerialize: (value: ClinicReply): Buffer => Buffer.from(ClinicReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): ClinicReply => ClinicReply.decode(value),
+    requestSerialize: (value: CreateClinicRequest): Buffer =>
+      Buffer.from(CreateClinicRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): CreateClinicRequest =>
+      CreateClinicRequest.decode(value),
+    responseSerialize: (value: ClinicReply): Buffer =>
+      Buffer.from(ClinicReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ClinicReply =>
+      ClinicReply.decode(value),
   },
   upsertWorkingHours: {
     path: "/clinic.ClinicService/UpsertWorkingHours" as const,
@@ -1154,10 +1318,12 @@ export const ClinicServiceService = {
     responseStream: false as const,
     requestSerialize: (value: UpsertWorkingHoursRequest): Buffer =>
       Buffer.from(UpsertWorkingHoursRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): UpsertWorkingHoursRequest => UpsertWorkingHoursRequest.decode(value),
+    requestDeserialize: (value: Buffer): UpsertWorkingHoursRequest =>
+      UpsertWorkingHoursRequest.decode(value),
     responseSerialize: (value: WorkingHoursListReply): Buffer =>
       Buffer.from(WorkingHoursListReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): WorkingHoursListReply => WorkingHoursListReply.decode(value),
+    responseDeserialize: (value: Buffer): WorkingHoursListReply =>
+      WorkingHoursListReply.decode(value),
   },
   createStaffMember: {
     path: "/clinic.ClinicService/CreateStaffMember" as const,
@@ -1165,9 +1331,12 @@ export const ClinicServiceService = {
     responseStream: false as const,
     requestSerialize: (value: CreateStaffMemberRequest): Buffer =>
       Buffer.from(CreateStaffMemberRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): CreateStaffMemberRequest => CreateStaffMemberRequest.decode(value),
-    responseSerialize: (value: StaffMemberReply): Buffer => Buffer.from(StaffMemberReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): StaffMemberReply => StaffMemberReply.decode(value),
+    requestDeserialize: (value: Buffer): CreateStaffMemberRequest =>
+      CreateStaffMemberRequest.decode(value),
+    responseSerialize: (value: StaffMemberReply): Buffer =>
+      Buffer.from(StaffMemberReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): StaffMemberReply =>
+      StaffMemberReply.decode(value),
   },
   listStaffMembers: {
     path: "/clinic.ClinicService/ListStaffMembers" as const,
@@ -1175,21 +1344,35 @@ export const ClinicServiceService = {
     responseStream: false as const,
     requestSerialize: (value: ListStaffMembersRequest): Buffer =>
       Buffer.from(ListStaffMembersRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): ListStaffMembersRequest => ListStaffMembersRequest.decode(value),
+    requestDeserialize: (value: Buffer): ListStaffMembersRequest =>
+      ListStaffMembersRequest.decode(value),
     responseSerialize: (value: StaffMembersListReply): Buffer =>
       Buffer.from(StaffMembersListReply.encode(value).finish()),
-    responseDeserialize: (value: Buffer): StaffMembersListReply => StaffMembersListReply.decode(value),
+    responseDeserialize: (value: Buffer): StaffMembersListReply =>
+      StaffMembersListReply.decode(value),
   },
 } as const;
 
 export interface ClinicServiceServer extends UntypedServiceImplementation {
   getClinic: handleUnaryCall<GetClinicRequest, ClinicReply>;
   getStaffMember: handleUnaryCall<GetStaffMemberRequest, StaffMemberReply>;
-  getWorkingHours: handleUnaryCall<GetWorkingHoursRequest, WorkingHoursListReply>;
+  getWorkingHours: handleUnaryCall<
+    GetWorkingHoursRequest,
+    WorkingHoursListReply
+  >;
   createClinic: handleUnaryCall<CreateClinicRequest, ClinicReply>;
-  upsertWorkingHours: handleUnaryCall<UpsertWorkingHoursRequest, WorkingHoursListReply>;
-  createStaffMember: handleUnaryCall<CreateStaffMemberRequest, StaffMemberReply>;
-  listStaffMembers: handleUnaryCall<ListStaffMembersRequest, StaffMembersListReply>;
+  upsertWorkingHours: handleUnaryCall<
+    UpsertWorkingHoursRequest,
+    WorkingHoursListReply
+  >;
+  createStaffMember: handleUnaryCall<
+    CreateStaffMemberRequest,
+    StaffMemberReply
+  >;
+  listStaffMembers: handleUnaryCall<
+    ListStaffMembersRequest,
+    StaffMembersListReply
+  >;
 }
 
 export interface MessageFns<T> {

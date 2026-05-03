@@ -12,6 +12,7 @@ const clinicEnvSchema = baseSchema.concat(
     DB_USERNAME: Joi.string().required(),
     DB_PASSWORD: Joi.string().required(),
     DB_NAME: Joi.string().required(),
+    AUTH_SERVICE_GRPC_URL: Joi.string().default("localhost:5001"),
   }),
 );
 

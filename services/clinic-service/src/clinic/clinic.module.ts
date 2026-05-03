@@ -14,10 +14,13 @@ import {CreateStaffMemberUseCase} from "../application/use-cases/create-staff-me
 import {GetStaffMemberUseCase} from "../application/use-cases/get-staff-member.use-case";
 import {ListStaffMembersUseCase} from "../application/use-cases/list-staff-members.use-case";
 import {ClinicGrpcController} from "../presentation/grpc/clinic.grpc-controller";
+import {AuthGrpcClientModule} from "../infrastructure/grpc/auth-grpc-client.module";
+import {AuthServiceGrpcAdapter} from "../infrastructure/grpc/auth-service-grpc.adapter";
 import {
   CLINIC_REPOSITORY,
   WORKING_HOURS_REPOSITORY,
   STAFF_MEMBER_REPOSITORY,
+  AUTH_SERVICE_CLIENT,
 } from "../shared/constants/injection-tokens";
 
 @Module({
@@ -27,6 +30,7 @@ import {
       WorkingHoursTypeOrmEntity,
       StaffMemberTypeOrmEntity,
     ]),
+    AuthGrpcClientModule,
   ],
   controllers: [ClinicGrpcController],
   providers: [
@@ -37,9 +41,11 @@ import {
     CreateStaffMemberUseCase,
     GetStaffMemberUseCase,
     ListStaffMembersUseCase,
+    AuthServiceGrpcAdapter,
     {provide: CLINIC_REPOSITORY, useClass: ClinicRepository},
     {provide: WORKING_HOURS_REPOSITORY, useClass: WorkingHoursRepository},
     {provide: STAFF_MEMBER_REPOSITORY, useClass: StaffMemberRepository},
+    {provide: AUTH_SERVICE_CLIENT, useClass: AuthServiceGrpcAdapter},
   ],
 })
 export class ClinicModule {}

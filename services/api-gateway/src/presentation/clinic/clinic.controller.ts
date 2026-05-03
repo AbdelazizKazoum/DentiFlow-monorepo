@@ -61,7 +61,10 @@ export class ClinicController implements OnModuleInit {
   ) {
     try {
       return await lastValueFrom(
-        this.clinicGrpcService.upsertWorkingHours({clinicId: id, entries: dto.entries}),
+        this.clinicGrpcService.upsertWorkingHours({
+          clinicId: id,
+          entries: dto.entries,
+        }),
       );
     } catch (err: unknown) {
       this.handleGrpcError(err);
@@ -127,9 +130,8 @@ export class ClinicController implements OnModuleInit {
     if (grpcErr?.code === GrpcStatus.ALREADY_EXISTS) {
       throw Object.assign(new Error(detail ?? "Already exists"), {status: 409});
     }
-    throw Object.assign(
-      new Error(detail ?? "Clinic service unavailable"),
-      {status: 500},
-    );
+    throw Object.assign(new Error(detail ?? "Clinic service unavailable"), {
+      status: 500,
+    });
   }
 }

@@ -85,14 +85,14 @@ message WorkingHoursEntryInput {
 
 message CreateStaffMemberRequest {
   string clinic_id = 1;
-  string user_id = 2;
   string role = 3;
   string first_name = 4;
   string last_name = 5;
   optional string phone = 6;
-  optional string email = 7;
+  string email = 7;
   optional string specialization = 8;
   optional string avatar = 9;
+  string password = 10;
 }
 
 message ListStaffMembersRequest {
