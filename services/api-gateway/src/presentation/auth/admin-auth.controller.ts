@@ -17,13 +17,13 @@ import {Request, Response} from "express";
 import {lastValueFrom} from "rxjs";
 import {status as GrpcStatus} from "@grpc/grpc-js";
 import {AUTH_GRPC_CLIENT} from "../../infrastructure/grpc/auth-grpc-client.module";
-import {AdminLoginDto} from "./dto/admin-login.dto";
-import {AdminRegisterDto} from "./dto/admin-register.dto";
 import {AuthProto} from "@lib/proto";
 
 type AuthServiceClient = AuthProto.AuthServiceClient;
 type AuthReply = AuthProto.AuthReply;
 type RefreshTokenReply = AuthProto.RefreshTokenReply;
+type LoginRequest = AuthProto.LoginRequest;
+type RegisterRequest = AuthProto.RegisterRequest;
 const AUTH_SERVICE_NAME = AuthProto.AUTH_SERVICE_NAME;
 
 @Controller("auth")
@@ -42,17 +42,13 @@ export class AdminAuthController implements OnModuleInit {
   @Post("login")
   @HttpCode(HttpStatus.OK)
   async login(
-    @Body() dto: AdminLoginDto,
+    @Body() dto: LoginRequest,
     @Res({passthrough: true}) res: Response,
   ) {
     let reply: AuthReply;
     try {
       reply = await lastValueFrom(
-        this.authGrpcService.login({
-          email: dto.email,
-          password: dto.password,
-          clinicId: "",
-        }),
+        this.authGrpcService.login({...dto, clinicId: dto.clinicId ?? ""}),
       );
     } catch (err: unknown) {
       this.handleGrpcError(err);
@@ -83,17 +79,11 @@ export class AdminAuthController implements OnModuleInit {
 
   @Post("register")
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() dto: AdminRegisterDto) {
+  async register(@Body() dto: RegisterRequest) {
     let reply: AuthReply;
     try {
       reply = await lastValueFrom(
-        this.authGrpcService.register({
-          email: dto.email,
-          password: dto.password,
-          fullName: dto.fullName,
-          role: dto.role,
-          clinicId: "",
-        }),
+        this.authGrpcService.register({...dto, clinicId: dto.clinicId ?? ""}),
       );
     } catch (err: unknown) {
       this.handleGrpcError(err);

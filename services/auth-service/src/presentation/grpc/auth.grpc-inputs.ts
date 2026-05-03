@@ -9,7 +9,21 @@ import {
 import {Transform} from "class-transformer";
 import {UserRole} from "../../domain/enums/user-role.enum";
 
-export class RegisterUserDto {
+export class LoginInput {
+  @IsEmail()
+  email!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password!: string;
+
+  @IsOptional()
+  @IsString()
+  @Transform(({value}) => value ?? "")
+  clinicId?: string;
+}
+
+export class RegisterInput {
   @IsEmail()
   email!: string;
 

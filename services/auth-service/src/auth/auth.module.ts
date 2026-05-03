@@ -11,7 +11,6 @@ import {
 import {RegisterUserUseCase} from "../application/use-cases/register-user.use-case";
 import {LoginUserUseCase} from "../application/use-cases/login-user.use-case";
 import {RefreshTokenUseCase} from "../application/use-cases/refresh-token.use-case";
-import {AuthController} from "../presentation/controllers/auth.controller";
 import {AuthGrpcController} from "../presentation/grpc/auth.grpc-controller";
 import {
   USER_REPOSITORY,
@@ -21,7 +20,7 @@ import {
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserTypeOrmEntity])],
-  controllers: [AuthController, AuthGrpcController],
+  controllers: [AuthGrpcController],
   providers: [
     RegisterUserUseCase,
     LoginUserUseCase,

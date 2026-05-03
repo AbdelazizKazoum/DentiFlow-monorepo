@@ -1,4 +1,4 @@
-import {Controller, Inject} from "@nestjs/common";
+import {Controller, Inject, UsePipes, ValidationPipe} from "@nestjs/common";
 import {GrpcMethod, RpcException} from "@nestjs/microservices";
 import {status} from "@grpc/grpc-js";
 import {LoginUserUseCase} from "../../application/use-cases/login-user.use-case";
@@ -7,11 +7,12 @@ import {RefreshTokenUseCase} from "../../application/use-cases/refresh-token.use
 import {REFRESH_TOKEN_USE_CASE} from "../../shared/constants/injection-tokens";
 import {UserRole} from "../../domain/enums/user-role.enum";
 import {AuthProto} from "@lib/proto";
+import {AuthGrpcMapper} from "./auth.grpc-mapper";
+import {LoginInput, RegisterInput} from "./auth.grpc-inputs";
 
-type LoginRequest = AuthProto.LoginRequest;
-type RegisterRequest = AuthProto.RegisterRequest;
 type RefreshTokenRequest = AuthProto.RefreshTokenRequest;
 
+@UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 @Controller()
 export class AuthGrpcController {
   constructor(
@@ -22,50 +23,28 @@ export class AuthGrpcController {
   ) {}
 
   @GrpcMethod("AuthService", "Login")
-  async login(data: LoginRequest) {
+  async login(data: LoginInput) {
     try {
       const result = await this.loginUseCase.execute({
         email: data.email,
         password: data.password,
         clinicId: data.clinicId ?? "",
       });
-      return {
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-        user: {
-          id: result.user.id,
-          email: result.user.email,
-          fullName: result.user.fullName,
-          role: result.user.role,
-          clinicId: result.user.clinicId,
-        },
-      };
+      return AuthGrpcMapper.toAuthReply(result);
     } catch (err: unknown) {
       this.rethrowAsRpc(err);
     }
   }
 
   @GrpcMethod("AuthService", "Register")
-  async register(data: RegisterRequest) {
+  async register(data: RegisterInput) {
     try {
       const result = await this.registerUseCase.execute({
-        email: data.email,
-        password: data.password,
-        fullName: data.fullName,
+        ...data,
         role: data.role as UserRole,
         clinicId: data.clinicId ?? "",
       });
-      return {
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-        user: {
-          id: result.user.id,
-          email: result.user.email,
-          fullName: result.user.fullName,
-          role: result.user.role,
-          clinicId: result.user.clinicId,
-        },
-      };
+      return AuthGrpcMapper.toAuthReply(result);
     } catch (err: unknown) {
       this.rethrowAsRpc(err);
     }
@@ -75,10 +54,7 @@ export class AuthGrpcController {
   async refreshToken(data: RefreshTokenRequest) {
     try {
       const result = await this.refreshUseCase.execute(data.refreshToken);
-      return {
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      };
+      return AuthGrpcMapper.toRefreshTokenReply(result);
     } catch (err: unknown) {
       this.rethrowAsRpc(err);
     }
