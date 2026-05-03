@@ -11,8 +11,10 @@ import {
   FormControl,
   IconButton,
   Typography,
+  InputAdornment,
 } from "@mui/material";
-import {X} from "lucide-react";
+import {X, Eye, EyeOff} from "lucide-react";
+import {useState} from "react";
 import {StaffRole, StaffStatus} from "@/domain/staff/entities/staff";
 import type {StaffFormState} from "../hooks/useStaffPage";
 
@@ -35,6 +37,8 @@ export function StaffFormModal({
   onDelete,
   error,
 }: StaffFormModalProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   return (
     <Dialog
       open={open}
@@ -193,6 +197,74 @@ export function StaffFormModal({
               }
               slotProps={{inputLabel: {shrink: true}}}
             />
+          </div>
+
+          {/* Password */}
+          <div
+            className="border rounded-xl p-4 mt-1 mb-2 space-y-3"
+            style={{borderColor: "var(--border-ui)"}}
+          >
+            <p className="text-xs font-semibold" style={{color: "var(--text-muted)"}}>
+              {form.id
+                ? "Change Password — leave blank to keep existing"
+                : "Account Password"}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TextField
+                label={form.id ? "New Password" : "Password"}
+                fullWidth
+                required={!form.id}
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={(e) =>
+                  onFormChange({...form, password: e.target.value})
+                }
+                placeholder="Min. 8 characters"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={() => setShowPassword((v) => !v)}
+                          edge="end"
+                          sx={{color: "var(--text-muted)"}}
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              <TextField
+                label="Confirm Password"
+                fullWidth
+                required={!form.id || !!form.password}
+                type={showConfirm ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={(e) =>
+                  onFormChange({...form, confirmPassword: e.target.value})
+                }
+                placeholder="Repeat password"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={() => setShowConfirm((v) => !v)}
+                          edge="end"
+                          sx={{color: "var(--text-muted)"}}
+                        >
+                          {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </div>
           </div>
         </div>
       </DialogContent>

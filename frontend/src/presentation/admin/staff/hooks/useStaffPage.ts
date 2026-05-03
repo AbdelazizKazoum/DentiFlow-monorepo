@@ -12,6 +12,8 @@ export interface StaffFormState {
   email: string;
   specialization: string;
   createdAt: string;
+  password: string;
+  confirmPassword: string;
 }
 
 const EMPTY_FORM: StaffFormState = {
@@ -24,6 +26,8 @@ const EMPTY_FORM: StaffFormState = {
   email: "",
   specialization: "",
   createdAt: new Date().toISOString().split("T")[0],
+  password: "",
+  confirmPassword: "",
 };
 
 export function useStaffPage() {
@@ -76,12 +80,13 @@ export function useStaffPage() {
         email: member.email ?? "",
         specialization: member.specialization ?? "",
         createdAt: member.createdAt.toISOString().split("T")[0],
+        password: "",
+        confirmPassword: "",
       });
       setFormError("");
       setModalOpen(true);
       closeMenu();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
@@ -90,7 +95,6 @@ export function useStaffPage() {
     setDeleteTargetId(id);
     setDeleteConfirmOpen(true);
     closeMenu();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const confirmDelete = useCallback(async () => {
@@ -116,6 +120,21 @@ export function useStaffPage() {
       return;
     }
 
+    // Password validation — required on create, optional on edit
+    const isCreate = !form.id;
+    if (isCreate && !form.password.trim()) {
+      setFormError("Password is required.");
+      return;
+    }
+    if (form.password && form.password.length < 8) {
+      setFormError("Password must be at least 8 characters.");
+      return;
+    }
+    if (form.password && form.password !== form.confirmPassword) {
+      setFormError("Passwords do not match.");
+      return;
+    }
+
     if (form.id) {
       await editStaff(form.id, {
         firstName: form.firstName,
@@ -126,6 +145,7 @@ export function useStaffPage() {
         email: form.email || undefined,
         specialization: form.specialization || undefined,
         avatar: `https://i.pravatar.cc/150?u=${form.email}`,
+        password: form.password || undefined,
       });
     } else {
       await addStaff({
@@ -135,6 +155,7 @@ export function useStaffPage() {
         lastName: form.lastName,
         role: form.role,
         status: form.status,
+        password: form.password,
         phone: form.phone || undefined,
         email: form.email || undefined,
         specialization: form.specialization || undefined,

@@ -7,6 +7,7 @@ export interface CreateStaffInput {
   lastName: string;
   role: StaffRole;
   status: StaffStatus;
+  password: string;
   phone?: string;
   email?: string;
   specialization?: string;

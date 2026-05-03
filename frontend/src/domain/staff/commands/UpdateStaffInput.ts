@@ -10,4 +10,5 @@ export interface UpdateStaffInput {
   role?: StaffRole;
   status?: StaffStatus;
   isActive?: boolean;
+  password?: string;
 }
