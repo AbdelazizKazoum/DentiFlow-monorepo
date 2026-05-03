@@ -12,11 +12,12 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-change_this}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE:-dentiflow_db}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      # MYSQL_DATABASE omitted — databases are created by the init script.
       TZ: UTC
     volumes:
       - db_data:/var/lib/mysql
+      - ./services/mysql/init:/docker-entrypoint-initdb.d:ro
     ports:
       - "127.0.0.1:3306:3306"
     networks:
@@ -52,7 +53,8 @@ services:
       DB_PORT: 3306
       DB_USERNAME: "${DB_USERNAME:-root}"
       DB_PASSWORD: "${DB_PASSWORD}"
-      DB_NAME: "${DB_NAME:-dentiflow_db}"
+      # Each service has its own env var to avoid naming conflicts.
+      DB_NAME: "${AUTH_DB_NAME:-auth_db}"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_EXPIRES_IN: 900
     ports:
@@ -63,5 +65,8 @@ services:
       - dentiflow-network
 
 # Notes:
-# - Provide production secrets via environment or an external .env file when running
-# - Example run: `MYSQL_ROOT_PASSWORD=... DB_PASSWORD=... JWT_SECRET=... docker compose -f docker-compose.prod.yml up --build -d`
+# - Provide production secrets via environment or an external .env file when running.
+# - Each service uses its own DB_NAME variable (AUTH_DB_NAME, etc.) — Database-per-Service pattern.
+# - Example run:
+#     MYSQL_ROOT_PASSWORD=... DB_PASSWORD=... JWT_SECRET=... AUTH_DB_NAME=auth_db \
+#     docker compose -f docker-compose.prod.yml up --build -d

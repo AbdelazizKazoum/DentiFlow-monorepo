@@ -177,22 +177,40 @@ CREATE TABLE working_hours (
 --   A doctor who works at two clinics has one users row per clinic in auth_service,
 --   and one staff_members row per clinic here. Keeping them separate means auth
 --   never needs to know about names, and clinic_service never needs to touch passwords.
+--
+-- COLUMN NOTES
+--   status         : operational availability of the staff member. Distinct from
+--                    is_active: is_active=FALSE means the account is fully disabled
+--                    (e.g. staff left the clinic). status tracks day-to-day state
+--                    (ACTIVE, ON_LEAVE, INACTIVE) while the account remains live.
+--   email          : contact/notification address for this staff member.
+--                    NOT the login credential — that lives in auth_service.users.
+--                    A staff member may use a different email for clinic communications.
+--   specialization : free-text clinical specialty shown on the staff card UI
+--                    (e.g. "Orthodontics", "Cosmetic & Restorative Dentistry").
+--   avatar         : URL to the staff member's profile photo (external CDN or
+--                    object-storage URL). NULL means no photo uploaded yet.
 CREATE TABLE staff_members (
-  id         CHAR(36)     NOT NULL DEFAULT (UUID()),
-  clinic_id  CHAR(36)     NOT NULL,
-  user_id    CHAR(36)     NOT NULL COMMENT 'FK to auth_service.users',
-  role       ENUM('SECRETARY','DENTAL_ASSISTANT','DOCTOR','ADMIN') NOT NULL,
-  first_name VARCHAR(100) NOT NULL,
-  last_name  VARCHAR(100) NOT NULL,
-  phone      VARCHAR(30)      NULL,
-  is_active  BOOLEAN      NOT NULL DEFAULT TRUE,
-  created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id             CHAR(36)     NOT NULL DEFAULT (UUID()),
+  clinic_id      CHAR(36)     NOT NULL,
+  user_id        CHAR(36)     NOT NULL COMMENT 'FK to auth_service.users',
+  role           ENUM('SECRETARY','DENTAL_ASSISTANT','DOCTOR','ADMIN') NOT NULL,
+  status         ENUM('active','on-leave','inactive') NOT NULL DEFAULT 'active',
+  first_name     VARCHAR(100) NOT NULL,
+  last_name      VARCHAR(100) NOT NULL,
+  phone          VARCHAR(30)      NULL,
+  email          VARCHAR(255)     NULL   COMMENT 'Contact/notification email — NOT the login credential (that is in auth_service.users)',
+  specialization VARCHAR(255)     NULL   COMMENT 'Clinical specialty shown on staff card e.g. "Orthodontics"',
+  avatar         VARCHAR(500)     NULL   COMMENT 'URL to profile photo (CDN/object-storage). NULL = no photo.',
+  is_active      BOOLEAN      NOT NULL DEFAULT TRUE,
+  created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   PRIMARY KEY (id),
   UNIQUE KEY uq_staff_user_clinic  (user_id, clinic_id),
   INDEX  idx_staff_clinic          (clinic_id),
   INDEX  idx_staff_role            (clinic_id, role),
+  INDEX  idx_staff_status          (clinic_id, status),
   INDEX  idx_staff_name            (clinic_id, last_name, first_name)
 );
 

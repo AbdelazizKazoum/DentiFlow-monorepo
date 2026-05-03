@@ -204,7 +204,10 @@ export function StaffFormModal({
             className="border rounded-xl p-4 mt-1 mb-2 space-y-3"
             style={{borderColor: "var(--border-ui)"}}
           >
-            <p className="text-xs font-semibold" style={{color: "var(--text-muted)"}}>
+            <p
+              className="text-xs font-semibold"
+              style={{color: "var(--text-muted)"}}
+            >
               {form.id
                 ? "Change Password — leave blank to keep existing"
                 : "Account Password"}
@@ -230,7 +233,11 @@ export function StaffFormModal({
                           edge="end"
                           sx={{color: "var(--text-muted)"}}
                         >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          {showPassword ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -257,7 +264,11 @@ export function StaffFormModal({
                           edge="end"
                           sx={{color: "var(--text-muted)"}}
                         >
-                          {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                          {showConfirm ? (
+                            <EyeOff size={16} />
+                          ) : (
+                            <Eye size={16} />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),

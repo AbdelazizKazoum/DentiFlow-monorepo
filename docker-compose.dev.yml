@@ -11,12 +11,16 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: "secret"
-      MYSQL_DATABASE: "dentiflow_db"
+      # MYSQL_DATABASE is intentionally omitted — per-service databases are
+      # created by the init script mounted below (Database-per-Service pattern).
       TZ: UTC
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+      # Init script runs once on first container start (empty volume).
+      # Re-create the volume to re-run: docker compose down -v && docker compose up -d
+      - ./services/mysql/init:/docker-entrypoint-initdb.d:ro
     networks:
       - dentiflow-network
 
@@ -71,7 +75,7 @@ services:
       DB_PORT: 3306
       DB_USERNAME: root
       DB_PASSWORD: secret
-      DB_NAME: dentiflow_db
+      DB_NAME: auth_db
       JWT_SECRET: change-me-to-a-secure-random-string-of-at-least-32-characters
       JWT_EXPIRES_IN: 900
       REFRESH_TOKEN_SECRET: change-me-refresh-secret-at-least-32-characters

@@ -68,27 +68,24 @@ export function useStaffPage() {
     setModalOpen(true);
   }, []);
 
-  const openEdit = useCallback(
-    (member: Staff) => {
-      setForm({
-        id: member.id,
-        firstName: member.firstName,
-        lastName: member.lastName,
-        role: member.role,
-        status: member.status,
-        phone: member.phone ?? "",
-        email: member.email ?? "",
-        specialization: member.specialization ?? "",
-        createdAt: member.createdAt.toISOString().split("T")[0],
-        password: "",
-        confirmPassword: "",
-      });
-      setFormError("");
-      setModalOpen(true);
-      closeMenu();
-    },
-    [],
-  );
+  const openEdit = useCallback((member: Staff) => {
+    setForm({
+      id: member.id,
+      firstName: member.firstName,
+      lastName: member.lastName,
+      role: member.role,
+      status: member.status,
+      phone: member.phone ?? "",
+      email: member.email ?? "",
+      specialization: member.specialization ?? "",
+      createdAt: member.createdAt.toISOString().split("T")[0],
+      password: "",
+      confirmPassword: "",
+    });
+    setFormError("");
+    setModalOpen(true);
+    closeMenu();
+  }, []);
 
   // ── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = useCallback((id: string) => {
