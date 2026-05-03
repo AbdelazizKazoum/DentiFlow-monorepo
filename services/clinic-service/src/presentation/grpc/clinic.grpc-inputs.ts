@@ -1,4 +1,4 @@
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import {
   IsArray,
   IsBoolean,
@@ -36,6 +36,7 @@ export class CreateClinicInput {
   phone?: string;
 
   @IsOptional()
+  @Transform(({value}) => (value === "" ? undefined : value))
   @IsEmail()
   @MaxLength(255)
   email?: string;
@@ -73,7 +74,7 @@ export class WorkingHoursEntryInput {
 }
 
 export class UpsertWorkingHoursInput {
-  @IsUUID()
+  @IsUUID("all")
   clinicId!: string;
 
   @IsArray()
@@ -83,7 +84,7 @@ export class UpsertWorkingHoursInput {
 }
 
 export class CreateStaffMemberInput {
-  @IsUUID()
+  @IsUUID("all")
   clinicId!: string;
 
   @IsEnum(StaffRole)
@@ -119,6 +120,7 @@ export class CreateStaffMemberInput {
   specialization?: string;
 
   @IsOptional()
+  @Transform(({value}) => (value === "" ? undefined : value))
   @IsUrl()
   @MaxLength(500)
   avatar?: string;

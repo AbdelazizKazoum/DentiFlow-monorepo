@@ -23,7 +23,7 @@ export class StaffMemberMapper {
 
   static toEntity(d: StaffMember): Partial<StaffMemberTypeOrmEntity> {
     return {
-      id: d.id,
+      ...(d.id ? {id: d.id} : {}),
       clinic_id: d.clinicId,
       user_id: d.userId,
       role: d.role,

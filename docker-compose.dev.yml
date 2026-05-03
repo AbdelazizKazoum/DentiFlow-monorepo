@@ -44,6 +44,8 @@ services:
       FORCE_POLLING: "true"
       WATCHPACK_POLLING: "true"
       AUTH_SERVICE_URL: http://auth-service:3002
+      AUTH_SERVICE_GRPC_URL: auth-service:5001
+      CLINIC_SERVICE_GRPC_URL: clinic-service:5002
     ports:
       - "127.0.0.1:3001:3001"
     extra_hosts:
@@ -116,6 +118,7 @@ services:
       DB_PASSWORD: secret
       DB_NAME: clinic_db
       GRPC_PORT: 5002
+      AUTH_SERVICE_GRPC_URL: auth-service:5001
       CHOKIDAR_USEPOLLING: "true"
       FORCE_POLLING: "true"
       WATCHPACK_POLLING: "true"
