@@ -46,7 +46,6 @@ async function bootstrap() {
       package: "clinic",
       protoPath: CLINIC_PROTO_PATH,
       url: `0.0.0.0:${grpcPort}`,
-      loader: {keepCase: true},
     },
   });
 

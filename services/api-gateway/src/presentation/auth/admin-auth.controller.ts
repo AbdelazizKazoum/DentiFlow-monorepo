@@ -14,50 +14,21 @@ import {
 } from "@nestjs/common";
 import {ClientGrpc} from "@nestjs/microservices";
 import {Request, Response} from "express";
-import {lastValueFrom, Observable} from "rxjs";
+import {lastValueFrom} from "rxjs";
 import {status as GrpcStatus} from "@grpc/grpc-js";
 import {AUTH_GRPC_CLIENT} from "../../infrastructure/grpc/auth-grpc-client.module";
 import {AdminLoginDto} from "./dto/admin-login.dto";
 import {AdminRegisterDto} from "./dto/admin-register.dto";
+import {AuthProto} from "@lib/proto";
 
-interface UserProfile {
-  id: string;
-  email: string;
-  full_name: string;
-  role: string;
-  clinic_id: string;
-}
-
-interface AuthReply {
-  access_token: string;
-  refresh_token: string;
-  user: UserProfile;
-}
-
-interface RefreshTokenReply {
-  access_token: string;
-  refresh_token: string;
-}
-
-interface AuthGrpcService {
-  login(data: {
-    email: string;
-    password: string;
-    clinic_id: string;
-  }): Observable<AuthReply>;
-  register(data: {
-    email: string;
-    password: string;
-    full_name: string;
-    role: string;
-    clinic_id: string;
-  }): Observable<AuthReply>;
-  refreshToken(data: {refresh_token: string}): Observable<RefreshTokenReply>;
-}
+type AuthServiceClient = AuthProto.AuthServiceClient;
+type AuthReply = AuthProto.AuthReply;
+type RefreshTokenReply = AuthProto.RefreshTokenReply;
+const AUTH_SERVICE_NAME = AuthProto.AUTH_SERVICE_NAME;
 
 @Controller("auth")
 export class AdminAuthController implements OnModuleInit {
-  private authGrpcService!: AuthGrpcService;
+  private authGrpcService!: AuthServiceClient;
 
   constructor(
     @Inject(AUTH_GRPC_CLIENT) private readonly grpcClient: ClientGrpc,
@@ -65,7 +36,7 @@ export class AdminAuthController implements OnModuleInit {
 
   onModuleInit() {
     this.authGrpcService =
-      this.grpcClient.getService<AuthGrpcService>("AuthService");
+      this.grpcClient.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
   }
 
   @Post("login")
@@ -80,7 +51,7 @@ export class AdminAuthController implements OnModuleInit {
         this.authGrpcService.login({
           email: dto.email,
           password: dto.password,
-          clinic_id: "",
+          clinicId: "",
         }),
       );
     } catch (err: unknown) {
@@ -88,14 +59,14 @@ export class AdminAuthController implements OnModuleInit {
     }
 
     const isProd = process.env.NODE_ENV === "production";
-    res.cookie("access_token", reply.access_token, {
+    res.cookie("access_token", reply.accessToken, {
       httpOnly: true,
       secure: isProd,
       sameSite: "strict",
       path: "/",
       maxAge: 15 * 60 * 1000,
     });
-    res.cookie("refresh_token", reply.refresh_token, {
+    res.cookie("refresh_token", reply.refreshToken, {
       httpOnly: true,
       secure: isProd,
       sameSite: "strict",
@@ -104,8 +75,8 @@ export class AdminAuthController implements OnModuleInit {
     });
 
     return {
-      accessToken: reply.access_token,
-      refreshToken: reply.refresh_token,
+      accessToken: reply.accessToken,
+      refreshToken: reply.refreshToken,
       user: reply.user,
     };
   }
@@ -119,9 +90,9 @@ export class AdminAuthController implements OnModuleInit {
         this.authGrpcService.register({
           email: dto.email,
           password: dto.password,
-          full_name: dto.fullName,
+          fullName: dto.fullName,
           role: dto.role,
-          clinic_id: "",
+          clinicId: "",
         }),
       );
     } catch (err: unknown) {
@@ -129,8 +100,8 @@ export class AdminAuthController implements OnModuleInit {
     }
 
     return {
-      accessToken: reply.access_token,
-      refreshToken: reply.refresh_token,
+      accessToken: reply.accessToken,
+      refreshToken: reply.refreshToken,
       user: reply.user,
     };
   }
@@ -149,21 +120,21 @@ export class AdminAuthController implements OnModuleInit {
     let reply: RefreshTokenReply;
     try {
       reply = await lastValueFrom(
-        this.authGrpcService.refreshToken({refresh_token: refreshToken}),
+        this.authGrpcService.refreshToken({refreshToken}),
       );
     } catch (err: unknown) {
       this.handleGrpcError(err);
     }
 
     const isProd = process.env.NODE_ENV === "production";
-    res.cookie("access_token", reply.access_token, {
+    res.cookie("access_token", reply.accessToken, {
       httpOnly: true,
       secure: isProd,
       sameSite: "strict",
       path: "/",
       maxAge: 15 * 60 * 1000,
     });
-    res.cookie("refresh_token", reply.refresh_token, {
+    res.cookie("refresh_token", reply.refreshToken, {
       httpOnly: true,
       secure: isProd,
       sameSite: "strict",
@@ -171,7 +142,7 @@ export class AdminAuthController implements OnModuleInit {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return {accessToken: reply.access_token};
+    return {accessToken: reply.accessToken};
   }
 
   @Post("logout")

@@ -5,6 +5,10 @@ service ClinicService {
   rpc GetClinic (GetClinicRequest) returns (ClinicReply);
   rpc GetStaffMember (GetStaffMemberRequest) returns (StaffMemberReply);
   rpc GetWorkingHours (GetWorkingHoursRequest) returns (WorkingHoursListReply);
+  rpc CreateClinic (CreateClinicRequest) returns (ClinicReply);
+  rpc UpsertWorkingHours (UpsertWorkingHoursRequest) returns (WorkingHoursListReply);
+  rpc CreateStaffMember (CreateStaffMemberRequest) returns (StaffMemberReply);
+  rpc ListStaffMembers (ListStaffMembersRequest) returns (StaffMembersListReply);
 }
 
 message GetClinicRequest {
@@ -55,4 +59,46 @@ message WorkingHoursEntry {
 
 message WorkingHoursListReply {
   repeated WorkingHoursEntry entries = 1;
+}
+
+message CreateClinicRequest {
+  string slug = 1;
+  string name = 2;
+  optional string phone = 3;
+  optional string email = 4;
+  optional string address = 5;
+  optional string timezone = 6;
+  optional string locale = 7;
+}
+
+message UpsertWorkingHoursRequest {
+  string clinic_id = 1;
+  repeated WorkingHoursEntryInput entries = 2;
+}
+
+message WorkingHoursEntryInput {
+  int32 day_of_week = 1;
+  optional string open_time = 2;
+  optional string close_time = 3;
+  bool is_closed = 4;
+}
+
+message CreateStaffMemberRequest {
+  string clinic_id = 1;
+  string user_id = 2;
+  string role = 3;
+  string first_name = 4;
+  string last_name = 5;
+  optional string phone = 6;
+  optional string email = 7;
+  optional string specialization = 8;
+  optional string avatar = 9;
+}
+
+message ListStaffMembersRequest {
+  string clinic_id = 1;
+}
+
+message StaffMembersListReply {
+  repeated StaffMemberReply staff_members = 1;
 }

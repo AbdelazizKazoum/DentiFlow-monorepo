@@ -6,7 +6,9 @@ packages:
 allowBuilds:
   "@parcel/watcher": false
   "@swc/core": false
+  grpc-tools: true
   sharp: false
+  unrs-resolver: false
 
 ignoredBuiltDependencies:
   - sharp

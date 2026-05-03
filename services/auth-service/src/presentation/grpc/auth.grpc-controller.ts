@@ -6,41 +6,11 @@ import {RegisterUserUseCase} from "../../application/use-cases/register-user.use
 import {RefreshTokenUseCase} from "../../application/use-cases/refresh-token.use-case";
 import {REFRESH_TOKEN_USE_CASE} from "../../shared/constants/injection-tokens";
 import {UserRole} from "../../domain/enums/user-role.enum";
+import {AuthProto} from "@lib/proto";
 
-interface LoginRequest {
-  email: string;
-  password: string;
-  clinic_id: string;
-}
-
-interface RegisterRequest {
-  email: string;
-  password: string;
-  full_name: string;
-  role: string;
-  clinic_id: string;
-}
-
-interface AuthReply {
-  access_token: string;
-  refresh_token: string;
-  user: {
-    id: string;
-    email: string;
-    full_name: string;
-    role: string;
-    clinic_id: string;
-  };
-}
-
-interface RefreshTokenRequest {
-  refresh_token: string;
-}
-
-interface RefreshTokenReply {
-  access_token: string;
-  refresh_token: string;
-}
+type LoginRequest = AuthProto.LoginRequest;
+type RegisterRequest = AuthProto.RegisterRequest;
+type RefreshTokenRequest = AuthProto.RefreshTokenRequest;
 
 @Controller()
 export class AuthGrpcController {
@@ -52,22 +22,22 @@ export class AuthGrpcController {
   ) {}
 
   @GrpcMethod("AuthService", "Login")
-  async login(data: LoginRequest): Promise<AuthReply> {
+  async login(data: LoginRequest) {
     try {
       const result = await this.loginUseCase.execute({
         email: data.email,
         password: data.password,
-        clinicId: data.clinic_id ?? "",
+        clinicId: data.clinicId ?? "",
       });
       return {
-        access_token: result.accessToken,
-        refresh_token: result.refreshToken,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
         user: {
           id: result.user.id,
           email: result.user.email,
-          full_name: result.user.fullName,
+          fullName: result.user.fullName,
           role: result.user.role,
-          clinic_id: result.user.clinicId,
+          clinicId: result.user.clinicId,
         },
       };
     } catch (err: unknown) {
@@ -76,24 +46,24 @@ export class AuthGrpcController {
   }
 
   @GrpcMethod("AuthService", "Register")
-  async register(data: RegisterRequest): Promise<AuthReply> {
+  async register(data: RegisterRequest) {
     try {
       const result = await this.registerUseCase.execute({
         email: data.email,
         password: data.password,
-        fullName: data.full_name,
+        fullName: data.fullName,
         role: data.role as UserRole,
-        clinicId: data.clinic_id ?? "",
+        clinicId: data.clinicId ?? "",
       });
       return {
-        access_token: result.accessToken,
-        refresh_token: result.refreshToken,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
         user: {
           id: result.user.id,
           email: result.user.email,
-          full_name: result.user.fullName,
+          fullName: result.user.fullName,
           role: result.user.role,
-          clinic_id: result.user.clinicId,
+          clinicId: result.user.clinicId,
         },
       };
     } catch (err: unknown) {
@@ -102,12 +72,12 @@ export class AuthGrpcController {
   }
 
   @GrpcMethod("AuthService", "RefreshToken")
-  async refreshToken(data: RefreshTokenRequest): Promise<RefreshTokenReply> {
+  async refreshToken(data: RefreshTokenRequest) {
     try {
-      const result = await this.refreshUseCase.execute(data.refresh_token);
+      const result = await this.refreshUseCase.execute(data.refreshToken);
       return {
-        access_token: result.accessToken,
-        refresh_token: result.refreshToken,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       };
     } catch (err: unknown) {
       this.rethrowAsRpc(err);

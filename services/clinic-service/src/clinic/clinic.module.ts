@@ -13,7 +13,6 @@ import {GetWorkingHoursUseCase} from "../application/use-cases/get-working-hours
 import {CreateStaffMemberUseCase} from "../application/use-cases/create-staff-member.use-case";
 import {GetStaffMemberUseCase} from "../application/use-cases/get-staff-member.use-case";
 import {ListStaffMembersUseCase} from "../application/use-cases/list-staff-members.use-case";
-import {ClinicController} from "../presentation/controllers/clinic.controller";
 import {ClinicGrpcController} from "../presentation/grpc/clinic.grpc-controller";
 import {
   CLINIC_REPOSITORY,
@@ -29,7 +28,7 @@ import {
       StaffMemberTypeOrmEntity,
     ]),
   ],
-  controllers: [ClinicController, ClinicGrpcController],
+  controllers: [ClinicGrpcController],
   providers: [
     CreateClinicUseCase,
     GetClinicUseCase,

@@ -1,47 +1,57 @@
-import {Controller} from "@nestjs/common";
+import {Controller, UsePipes, ValidationPipe} from "@nestjs/common";
 import {GrpcMethod, RpcException} from "@nestjs/microservices";
 import {status} from "@grpc/grpc-js";
 import {GetClinicUseCase} from "../../application/use-cases/get-clinic.use-case";
 import {GetStaffMemberUseCase} from "../../application/use-cases/get-staff-member.use-case";
 import {GetWorkingHoursUseCase} from "../../application/use-cases/get-working-hours.use-case";
+import {CreateClinicUseCase} from "../../application/use-cases/create-clinic.use-case";
+import {UpsertWorkingHoursUseCase} from "../../application/use-cases/upsert-working-hours.use-case";
+import {CreateStaffMemberUseCase} from "../../application/use-cases/create-staff-member.use-case";
+import {ListStaffMembersUseCase} from "../../application/use-cases/list-staff-members.use-case";
+import {Locale} from "../../domain/enums/locale.enum";
+import {StaffRole} from "../../domain/enums/staff-role.enum";
+import {ClinicProto} from "@lib/proto";
+import {ClinicGrpcMapper} from "./clinic.grpc-mapper";
+import {
+  CreateClinicInput,
+  CreateStaffMemberInput,
+  UpsertWorkingHoursInput,
+} from "./clinic.grpc-inputs";
 
-interface GetClinicRequest {
-  id: string;
-}
+type GetClinicRequest = ClinicProto.GetClinicRequest;
+type GetStaffMemberRequest = ClinicProto.GetStaffMemberRequest;
+type GetWorkingHoursRequest = ClinicProto.GetWorkingHoursRequest;
+type ListStaffMembersRequest = ClinicProto.ListStaffMembersRequest;
 
-interface GetStaffMemberRequest {
-  user_id: string;
-  clinic_id: string;
-}
-
-interface GetWorkingHoursRequest {
-  clinic_id: string;
-}
-
+@UsePipes(new ValidationPipe({transform: true, whitelist: true}))
 @Controller()
 export class ClinicGrpcController {
   constructor(
-    private readonly getClinic: GetClinicUseCase,
-    private readonly getStaffMember: GetStaffMemberUseCase,
-    private readonly getWorkingHours: GetWorkingHoursUseCase,
+    private readonly getClinicUC: GetClinicUseCase,
+    private readonly getStaffMemberUC: GetStaffMemberUseCase,
+    private readonly getWorkingHoursUC: GetWorkingHoursUseCase,
+    private readonly createClinicUC: CreateClinicUseCase,
+    private readonly upsertWorkingHoursUC: UpsertWorkingHoursUseCase,
+    private readonly createStaffMemberUC: CreateStaffMemberUseCase,
+    private readonly listStaffMembersUC: ListStaffMembersUseCase,
   ) {}
 
   @GrpcMethod("ClinicService", "GetClinic")
   async handleGetClinic(data: GetClinicRequest) {
     try {
-      const clinic = await this.getClinic.execute(data.id);
-      return {
-        id: clinic.id,
-        slug: clinic.slug,
-        name: clinic.name,
-        timezone: clinic.timezone,
-        locale: clinic.locale,
-        is_active: clinic.isActive,
-      };
-    } catch {
+      const clinic = await this.getClinicUC.execute(data.id);
+      return ClinicGrpcMapper.toClinicReply(clinic);
+    } catch (error) {
+      const httpErr = error as {status?: number; message?: string};
+      if (httpErr?.status === 404) {
+        throw new RpcException({
+          code: status.NOT_FOUND,
+          message: `Clinic "${data.id}" not found`,
+        });
+      }
       throw new RpcException({
-        code: status.NOT_FOUND,
-        message: `Clinic "${data.id}" not found`,
+        code: status.INTERNAL,
+        message: httpErr?.message ?? "Internal server error",
       });
     }
   }
@@ -49,44 +59,86 @@ export class ClinicGrpcController {
   @GrpcMethod("ClinicService", "GetStaffMember")
   async handleGetStaffMember(data: GetStaffMemberRequest) {
     try {
-      const sm = await this.getStaffMember.execute(
-        data.user_id,
-        data.clinic_id,
+      const sm = await this.getStaffMemberUC.execute(
+        data.userId,
+        data.clinicId,
       );
-      return {
-        id: sm.id,
-        clinic_id: sm.clinicId,
-        user_id: sm.userId,
-        role: sm.role,
-        status: sm.status,
-        first_name: sm.firstName,
-        last_name: sm.lastName,
-        phone: sm.phone ?? "",
-        email: sm.email ?? "",
-        specialization: sm.specialization ?? "",
-        avatar: sm.avatar ?? "",
-        is_active: sm.isActive,
-      };
-    } catch {
+      return ClinicGrpcMapper.toStaffMemberReply(sm);
+    } catch (error) {
+      const httpErr = error as {status?: number; message?: string};
+      if (httpErr?.status === 404) {
+        throw new RpcException({
+          code: status.NOT_FOUND,
+          message: `Staff member not found for user "${data.userId}" in clinic "${data.clinicId}"`,
+        });
+      }
       throw new RpcException({
-        code: status.NOT_FOUND,
-        message: `Staff member not found for user "${data.user_id}" in clinic "${data.clinic_id}"`,
+        code: status.INTERNAL,
+        message: httpErr?.message ?? "Internal server error",
       });
     }
   }
 
   @GrpcMethod("ClinicService", "GetWorkingHours")
   async handleGetWorkingHours(data: GetWorkingHoursRequest) {
-    const entries = await this.getWorkingHours.execute(data.clinic_id);
+    const entries = await this.getWorkingHoursUC.execute(data.clinicId);
+    return {entries: entries.map(ClinicGrpcMapper.toWorkingHoursEntry)};
+  }
+
+  @GrpcMethod("ClinicService", "CreateClinic")
+  async handleCreateClinic(data: CreateClinicInput) {
+    try {
+      const clinic = await this.createClinicUC.execute({
+        ...data,
+        locale: data.locale as Locale,
+      });
+      return ClinicGrpcMapper.toClinicReply(clinic);
+    } catch (error) {
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  @GrpcMethod("ClinicService", "UpsertWorkingHours")
+  async handleUpsertWorkingHours(data: UpsertWorkingHoursInput) {
+    try {
+      const entries = await this.upsertWorkingHoursUC.execute(
+        data.clinicId,
+        data.entries,
+      );
+      return {entries: entries.map(ClinicGrpcMapper.toWorkingHoursEntry)};
+    } catch (error) {
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  @GrpcMethod("ClinicService", "CreateStaffMember")
+  async handleCreateStaffMember(data: CreateStaffMemberInput) {
+    try {
+      const {clinicId, role, ...staffInput} = data;
+      const sm = await this.createStaffMemberUC.execute(clinicId, {
+        ...staffInput,
+        role: role as StaffRole,
+      });
+      return ClinicGrpcMapper.toStaffMemberReply(sm);
+    } catch (error) {
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  @GrpcMethod("ClinicService", "ListStaffMembers")
+  async handleListStaffMembers(data: ListStaffMembersRequest) {
+    const staffMembers = await this.listStaffMembersUC.execute(data.clinicId);
     return {
-      entries: entries.map((e) => ({
-        id: e.id,
-        clinic_id: e.clinicId,
-        day_of_week: e.dayOfWeek,
-        open_time: e.openTime ?? "",
-        close_time: e.closeTime ?? "",
-        is_closed: e.isClosed,
-      })),
+      staffMembers: staffMembers.map(ClinicGrpcMapper.toStaffMemberReply),
     };
   }
 }
