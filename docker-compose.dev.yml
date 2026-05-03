@@ -95,3 +95,38 @@ services:
       - db
     networks:
       - dentiflow-network
+
+  clinic-service:
+    build:
+      context: .
+      dockerfile: services/clinic-service/Dockerfile
+      target: builder
+      args:
+        PNPM_FLAGS: "--no-frozen-lockfile"
+    image: dentiflow/clinic-service:dev
+    working_dir: /app
+    command: pnpm -C ./services start:dev:clinic-service
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+      DB_NAME: clinic_db
+      GRPC_PORT: 5002
+      CHOKIDAR_USEPOLLING: "true"
+      FORCE_POLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "127.0.0.1:3003:3003"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./services/clinic-service/src:/app/services/clinic-service/src:rw
+      - ./services/lib:/app/services/lib:rw
+    depends_on:
+      - db
+    networks:
+      - dentiflow-network

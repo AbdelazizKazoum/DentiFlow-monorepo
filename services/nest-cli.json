@@ -45,6 +45,24 @@
           "watchAssets": true
         }
       ]
+    },
+    "clinic-service": {
+      "type": "application",
+      "root": "clinic-service",
+      "entryFile": "main",
+      "sourceRoot": "clinic-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "clinic-service/tsconfig.json",
+        "webpack": false,
+        "deleteOutDir": false
+      },
+      "assets": [
+        {
+          "include": "../../lib/proto/*.proto",
+          "outDir": "lib/proto",
+          "watchAssets": true
+        }
+      ]
     }
   }
 }

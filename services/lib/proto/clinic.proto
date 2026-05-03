@@ -1,0 +1,58 @@
+syntax = "proto3";
+package clinic;
+
+service ClinicService {
+  rpc GetClinic (GetClinicRequest) returns (ClinicReply);
+  rpc GetStaffMember (GetStaffMemberRequest) returns (StaffMemberReply);
+  rpc GetWorkingHours (GetWorkingHoursRequest) returns (WorkingHoursListReply);
+}
+
+message GetClinicRequest {
+  string id = 1;
+}
+
+message ClinicReply {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  string timezone = 4;
+  string locale = 5;
+  bool is_active = 6;
+}
+
+message GetStaffMemberRequest {
+  string user_id = 1;
+  string clinic_id = 2;
+}
+
+message StaffMemberReply {
+  string id = 1;
+  string clinic_id = 2;
+  string user_id = 3;
+  string role = 4;
+  string status = 5;
+  string first_name = 6;
+  string last_name = 7;
+  string phone = 8;
+  string email = 9;
+  string specialization = 10;
+  string avatar = 11;
+  bool is_active = 12;
+}
+
+message GetWorkingHoursRequest {
+  string clinic_id = 1;
+}
+
+message WorkingHoursEntry {
+  string id = 1;
+  string clinic_id = 2;
+  int32 day_of_week = 3;
+  string open_time = 4;
+  string close_time = 5;
+  bool is_closed = 6;
+}
+
+message WorkingHoursListReply {
+  repeated WorkingHoursEntry entries = 1;
+}

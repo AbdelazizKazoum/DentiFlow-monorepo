@@ -31,9 +31,9 @@ GRANT ALL PRIVILEGES ON `auth_db`.* TO 'root'@'%';
 -- ---------------------------------------------------------------------------
 -- (Future services — uncomment and extend when the service is added)
 -- ---------------------------------------------------------------------------
--- CREATE DATABASE IF NOT EXISTS `clinic_db`
---   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- GRANT ALL PRIVILEGES ON `clinic_db`.* TO 'root'@'%';
+CREATE DATABASE IF NOT EXISTS `clinic_db`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON `clinic_db`.* TO 'root'@'%';
 
 -- CREATE DATABASE IF NOT EXISTS `appointment_db`
 --   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

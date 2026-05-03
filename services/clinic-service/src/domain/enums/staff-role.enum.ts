@@ -1,0 +1,6 @@
+export enum StaffRole {
+  SECRETARY = "SECRETARY",
+  DENTAL_ASSISTANT = "DENTAL_ASSISTANT",
+  DOCTOR = "DOCTOR",
+  ADMIN = "ADMIN",
+}
