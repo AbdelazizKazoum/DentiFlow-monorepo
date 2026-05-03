@@ -19,8 +19,7 @@ export class ClinicMapper {
   }
 
   static toEntity(d: Clinic): Partial<ClinicTypeOrmEntity> {
-    return {
-      id: d.id,
+    const entity: any = {
       slug: d.slug,
       name: d.name,
       phone: d.phone,
@@ -30,5 +29,9 @@ export class ClinicMapper {
       locale: d.locale,
       is_active: d.isActive,
     };
+    if (d.id) {
+      entity.id = d.id;
+    }
+    return entity;
   }
 }
