@@ -5,21 +5,13 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
 import type {
   DateSelectArg,
   EventClickArg,
   EventChangeArg,
   EventInput,
 } from "@fullcalendar/core";
-import {
-  Calendar,
-  Clock,
-  Mail,
-  MessageSquare,
-  Phone,
-  User,
-  UserPlus,
-} from "lucide-react";
 import {
   Dialog,
   DialogTitle,
@@ -42,11 +34,19 @@ import { X } from "lucide-react";
 
 type AppointmentStatus = "confirmed" | "pending" | "cancelled";
 
+interface Dentist {
+  id: string;
+  name: string;
+  avatar: string;
+  color: string;
+}
+
 interface AppointmentEvent extends EventInput {
   id: string;
-  title: string; // This will be dynamically generated, e.g., "Patient Name — Service"
+  title: string;
   start: string;
   end: string;
+  resourceId: string;
   extendedProps: {
     status: AppointmentStatus;
     patientName: string;
@@ -66,6 +66,7 @@ interface FormState {
   patientName: string;
   service: string;
   provider: string;
+  resourceId: string;
   notes: string;
   patientPhone: string;
   patientEmail: string;
@@ -73,26 +74,47 @@ interface FormState {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
+export const DENTISTS: Dentist[] = [
+  {
+    id: "d1",
+    name: "Dr. Emily Carter",
+    avatar: "https://i.pravatar.cc/150?img=47",
+    color: "#1e56d0",
+  },
+  {
+    id: "d2",
+    name: "Dr. John Harris",
+    avatar: "https://i.pravatar.cc/150?img=12",
+    color: "#0891b2",
+  },
+  {
+    id: "d3",
+    name: "Dr. Sarah Chen",
+    avatar: "https://i.pravatar.cc/150?img=25",
+    color: "#9333ea",
+  },
+];
+
 const STATUS_CONFIG: Record<
   AppointmentStatus,
   { color: string; bg: string; border: string; label: string }
 > = {
   confirmed: {
-    color: "#279C41", // Green for text
-    bg: "#E8F8EC", // Pale green bg
-    border: "#279C41", // Same green for left border
+    color: "#166534", // Deep green text
+    bg: "#dcfce7", // Pale green bg
+    border: "#22c55e", // Green left border
     label: "Confirmed",
   },
   pending: {
-    color: "#2B6CB0", // Blue for text
-    bg: "#E8F4FD", // Pale blue fill
-    border: "#2B6CB0", // Same blue for left border
+    color: "#92400e", // Amber/brown text
+    bg: "#fef3c7", // Pale amber bg
+    border: "#f59e0b", // Amber left border
     label: "Pending",
   },
   cancelled: {
-    color: "#6B46C1", // Purple for text
-    bg: "#F3EBFA", // Pale purple fill
-    border: "#6B46C1", // Same purple for left border
+    color: "#991b1b", // Deep red text
+    bg: "#fee2e2", // Pale red bg
+    border: "#ef4444", // Red left border
     label: "Cancelled",
   },
 };
@@ -101,6 +123,7 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
   {
     id: "1",
     title: "Alice Johnson — Checkup",
+    resourceId: "d1",
     start: (() => {
       const d = new Date();
       d.setHours(10, 0, 0, 0);
@@ -124,6 +147,7 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
   {
     id: "2",
     title: "Bob Smith — Scaling",
+    resourceId: "d2",
     start: (() => {
       const d = new Date();
       d.setHours(14, 0, 0, 0);
@@ -147,6 +171,7 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
   {
     id: "3",
     title: "Diana Lee — Root Canal",
+    resourceId: "d1",
     start: (() => {
       const d = new Date();
       d.setDate(d.getDate() + 1);
@@ -169,6 +194,30 @@ const INITIAL_EVENTS: AppointmentEvent[] = [
       patientEmail: "diana.l@example.com",
     },
   },
+  {
+    id: "4",
+    title: "Mark Davis — Whitening",
+    resourceId: "d3",
+    start: (() => {
+      const d = new Date();
+      d.setHours(9, 0, 0, 0);
+      return d.toISOString();
+    })(),
+    end: (() => {
+      const d = new Date();
+      d.setHours(9, 45, 0, 0);
+      return d.toISOString();
+    })(),
+    extendedProps: {
+      status: "confirmed",
+      patientName: "Mark Davis",
+      service: "Whitening",
+      provider: "Dr. Sarah Chen",
+      notes: "",
+      patientPhone: "555-0104",
+      patientEmail: "mark.d@example.com",
+    },
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -181,6 +230,8 @@ function toDatetimeLocal(date: string | Date): string {
   )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 const EMPTY_FORM: FormState = {
   id: "",
   start: "",
@@ -189,6 +240,7 @@ const EMPTY_FORM: FormState = {
   patientName: "",
   service: "",
   provider: "Dr. Emily Carter",
+  resourceId: "d1",
   notes: "",
   patientPhone: "",
   patientEmail: "",
@@ -201,15 +253,22 @@ export default function AppointmentsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [error, setError] = useState("");
+  const [activeProviders, setActiveProviders] = useState<Set<string>>(
+    () => new Set(DENTISTS.map((d) => d.id)),
+  );
+  const [currentView, setCurrentView] = useState("resourceTimeGridDay");
   const calendarRef = useRef<FullCalendar>(null);
 
-  // Check overlap
+  const isResourceView = currentView === "resourceTimeGridDay";
+
+  // ── Resource-aware overlap check ──────────────────────────────────────────
   const hasOverlap = useCallback(
-    (start: string, end: string, excludeId = "") => {
+    (start: string, end: string, resourceId: string, excludeId = "") => {
       const s = new Date(start).getTime();
       const e = new Date(end).getTime();
       return events.some((evt) => {
         if (evt.id === excludeId) return false;
+        if (evt.resourceId !== resourceId) return false;
         const es = new Date(evt.start as string).getTime();
         const ee = new Date(evt.end as string).getTime();
         return s < ee && e > es;
@@ -218,30 +277,58 @@ export default function AppointmentsPage() {
     [events],
   );
 
-  // Open modal for new appointment
-  const openNew = useCallback((start?: string, end?: string) => {
-    const now = new Date();
-    now.setSeconds(0, 0);
-    const later = new Date(now.getTime() + 30 * 60 * 1000);
-    setForm({
-      ...EMPTY_FORM,
-      start: start ?? toDatetimeLocal(now),
-      end: end ?? toDatetimeLocal(later),
+  // ── Toggle provider visibility ────────────────────────────────────────────
+  const toggleProvider = useCallback((id: string) => {
+    setActiveProviders((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        if (next.size === 1) return prev; // always keep at least one
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
     });
-    setError("");
-    setModalOpen(true);
   }, []);
+
+  // ── Open modal ────────────────────────────────────────────────────────────
+  const openNew = useCallback(
+    (start?: string, end?: string, resourceId?: string) => {
+      const now = new Date();
+      now.setSeconds(0, 0);
+      const later = new Date(now.getTime() + 30 * 60 * 1000);
+      const defaultResource = [...activeProviders][0] ?? "d1";
+      setForm({
+        ...EMPTY_FORM,
+        start: start ?? toDatetimeLocal(now),
+        end: end ?? toDatetimeLocal(later),
+        resourceId: resourceId ?? defaultResource,
+        provider:
+          DENTISTS.find((d) => d.id === (resourceId ?? defaultResource))
+            ?.name ?? EMPTY_FORM.provider,
+      });
+      setError("");
+      setModalOpen(true);
+    },
+    [activeProviders],
+  );
 
   const handleDateSelect = useCallback(
     (info: DateSelectArg) => {
       info.view.calendar.unselect();
-      openNew(toDatetimeLocal(info.start), toDatetimeLocal(info.end));
+      // In resource view, `info.resource` is available
+      const resId = (info as DateSelectArg & { resource?: { id: string } })
+        .resource?.id;
+      openNew(toDatetimeLocal(info.start), toDatetimeLocal(info.end), resId);
     },
     [openNew],
   );
 
   const handleEventClick = useCallback((info: EventClickArg) => {
     const { event } = info;
+    const resId =
+      (event as EventClickArg["event"] & { _def?: { resourceIds?: string[] } })
+        ._def?.resourceIds?.[0] ?? "d1";
     setForm({
       id: event.id,
       start: toDatetimeLocal(event.start!),
@@ -250,6 +337,7 @@ export default function AppointmentsPage() {
       patientName: event.extendedProps.patientName,
       service: event.extendedProps.service,
       provider: event.extendedProps.provider,
+      resourceId: resId,
       notes: event.extendedProps.notes,
       patientPhone: event.extendedProps.patientPhone,
       patientEmail: event.extendedProps.patientEmail,
@@ -259,13 +347,11 @@ export default function AppointmentsPage() {
   }, []);
 
   const handleEventChange = useCallback(
-    (info: any) => {
+    (info: EventChangeArg) => {
       const { event, oldEvent } = info;
-      let startStr = event.start ? event.start.toISOString() : "";
+      const startStr = event.start ? event.start.toISOString() : "";
       let endStr = event.end ? event.end.toISOString() : "";
 
-      // In month view, dropping an event might lose its end time.
-      // If so, we safely preserve its original duration.
       if (!event.end && oldEvent?.start && oldEvent?.end && event.start) {
         const duration = oldEvent.end.getTime() - oldEvent.start.getTime();
         endStr = new Date(event.start.getTime() + duration).toISOString();
@@ -273,23 +359,32 @@ export default function AppointmentsPage() {
         endStr = new Date(event.start.getTime() + 30 * 60 * 1000).toISOString();
       }
 
-      if (startStr && endStr && hasOverlap(startStr, endStr, event.id)) {
+      // Get new resourceId after drag (may have moved columns)
+      const resources = event.getResources();
+      const newResourceId = resources.length > 0 ? resources[0].id : undefined;
+
+      // Find current resourceId from state
+      const currentEvt = events.find((e) => e.id === event.id);
+      const resourceId = newResourceId ?? currentEvt?.resourceId ?? "d1";
+
+      if (
+        startStr &&
+        endStr &&
+        hasOverlap(startStr, endStr, resourceId, event.id)
+      ) {
         info.revert();
         return;
       }
+
       setEvents((prev) =>
         prev.map((e) =>
           e.id === event.id
-            ? {
-                ...e,
-                start: startStr,
-                end: endStr,
-              }
+            ? { ...e, start: startStr, end: endStr, resourceId }
             : e,
         ),
       );
     },
-    [hasOverlap],
+    [hasOverlap, events],
   );
 
   const handleSave = () => {
@@ -301,7 +396,7 @@ export default function AppointmentsPage() {
       setError("End time must be after start time.");
       return;
     }
-    if (hasOverlap(form.start, form.end, form.id)) {
+    if (hasOverlap(form.start, form.end, form.resourceId, form.id)) {
       setError("This time slot overlaps with an existing appointment.");
       return;
     }
@@ -311,6 +406,7 @@ export default function AppointmentsPage() {
       title: `${form.patientName} — ${form.service}`,
       start: new Date(form.start).toISOString(),
       end: new Date(form.end).toISOString(),
+      resourceId: form.resourceId,
       extendedProps: {
         status: form.status,
         patientName: form.patientName,
@@ -335,12 +431,21 @@ export default function AppointmentsPage() {
     setModalOpen(false);
   };
 
-  const calendarEvents = events.map((e) => ({
-    ...e,
-    backgroundColor: STATUS_CONFIG[e.extendedProps.status].bg,
-    borderColor: STATUS_CONFIG[e.extendedProps.status].border,
-    textColor: STATUS_CONFIG[e.extendedProps.status].color,
-  }));
+  // Filtered events & resources based on activeProviders
+  const visibleEvents = events.filter((e) => activeProviders.has(e.resourceId));
+  const visibleResources = DENTISTS.filter((d) =>
+    activeProviders.has(d.id),
+  ).map((d) => ({ id: d.id, title: d.name }));
+
+  const calendarEvents = visibleEvents.map((e) => {
+    const statusCfg = STATUS_CONFIG[e.extendedProps.status];
+    return {
+      ...e,
+      backgroundColor: statusCfg.bg,
+      borderColor: statusCfg.border,
+      textColor: statusCfg.color,
+    };
+  });
 
   return (
     <>
@@ -541,50 +646,62 @@ export default function AppointmentsPage() {
         }
 
         /* ─── Grid & Events ─── */
-          .fc-timegrid-slot { height: 3.5rem !important; }
+        .fc-timegrid-slot { height: 3.5rem !important; }
         .fc-event {
-            border-width: 0 !important; /* wipe out FullCalendar border thickness */
-            border-left-width: 3px !important; /* apply left side */
-            border-style: solid !important;
-          border-radius: 0 !important; /* Sharp corners matching design */
-          /* padding: 4px 6px !important; moved to eventContent */
+          border-width: 0 !important;
+          border-left-width: 3px !important;
+          border-style: solid !important;
+          border-radius: 4px !important;
           font-size: 0.72rem !important;
           font-weight: 600 !important;
           line-height: 1.2 !important;
           box-shadow: none !important;
           cursor: pointer;
           margin-bottom: 2px !important;
-          margin-right: 0 !important; /* Full width up to grid line */
+          /* DO NOT override margin-right — FullCalendar's harness uses right/left/width
+             to distribute concurrent events side-by-side automatically */
           transition: filter 0.15s !important;
         }
-        .fc-event:hover {
-          filter: brightness(0.96) !important;
+        .fc-event:hover { filter: brightness(0.96) !important; }
+        .fc-v-event .fc-event-main { padding: 0 !important; }
+        .fc-event .fc-event-main, .fc-event .fc-event-main-frame { background: transparent !important; }
+        .dark .fc-event { box-shadow: none !important; opacity: 0.9 !important; }
+
+        /* ─── Side-by-side concurrent events: add inset gap between cards ─── */
+        /* FullCalendar sets insetInlineStart/insetInlineEnd on .fc-timegrid-event-harness.
+           We add a small horizontal padding so cards don't touch each other. */
+        .fc-timegrid-event-harness {
+          padding-inline: 1px !important;
         }
-          .fc-v-event .fc-event-main { padding: 0 !important; }
-          .fc-event .fc-event-main, .fc-event .fc-event-main-frame { background: transparent !important; }
-        /* Overwrite dark mode specific event styles to keep legibility */
-        .dark .fc-event {
-          box-shadow: none !important;
-          opacity: 0.9 !important;
+
+        /* ─── Month view: match left-border-only style of week/day cards ─── */
+        .fc-daygrid-event {
+          border-width: 0 !important;
+          border-left-width: 3px !important;
+          border-style: solid !important;
+          border-radius: 4px !important;
         }
-        /* Clean minimal grid */
+
+        /* ─── Resource header ─── */
+        .fc-resource-timegrid-day .fc-col-header-cell { position: sticky; top: 0; z-index: 3; }
+        .fc .fc-resource-timegrid .fc-col-header { position: sticky; top: 0; z-index: 3; }
+        .fc-col-header-cell { background: var(--surface-card, #fff) !important; }
+
+        /* ─── Clean minimal grid ─── */
         .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
           border-color: #e2e8f0 !important;
         }
         .fc-col-header-cell {
           padding: 4px 0 !important;
-          background: transparent !important;
           border-style: solid !important;
           border-color: #e2e8f0 !important;
-          border-width: 0 1px 1px 0 !important; /* T, R, B, L */
+          border-width: 0 1px 1px 0 !important;
         }
-        .fc-col-header-cell:last-child {
-          border-right-width: 0 !important;
-        }
+        .fc-col-header-cell:last-child { border-right-width: 0 !important; }
         .dark .fc-col-header-cell { border-color: rgba(255,255,255,0.08) !important; }
         .fc-col-header-cell-cushion {
-            font-size: 0.75rem !important;
-            font-weight: 500 !important;
+          font-size: 0.75rem !important;
+          font-weight: 500 !important;
           text-transform: uppercase !important;
           color: var(--text-muted) !important;
           text-decoration: none !important;
@@ -592,15 +709,15 @@ export default function AppointmentsPage() {
         }
         .fc-day-today .fc-col-header-cell-cushion { color: #1e56d0 !important; }
         .fc-timegrid-axis-cushion,
-        .fc-timegrid-slot-label-cushion { 
+        .fc-timegrid-slot-label-cushion {
           font-size: 0.8rem !important;
-            color: #64748b !important; 
+          color: #64748b !important;
           font-weight: 400 !important;
         }
         .fc-scrollgrid { border-radius: 0 !important; }
         .fc-scrollgrid-section > td { border: none !important; }
 
-        /* ─── Selection: use FullCalendar CSS variables ─── */
+        /* ─── Selection ─── */
         :root {
           --fc-highlight-color: rgba(30, 86, 208, 0.15);
           --fc-event-bg-color: rgba(30, 86, 208, 0.25);
@@ -645,44 +762,150 @@ export default function AppointmentsPage() {
           className="bg-card border rounded-lg overflow-hidden"
           style={{ borderColor: "var(--border-ui)" }}
         >
-          {/* Legend bar */}
+          {/* ── Provider Filter Bar ── */}
           <div
-            className="px-6 py-3.5 border-b flex flex-wrap items-center gap-5"
+            className="px-6 py-3.5 border-b flex flex-wrap items-center gap-3"
             style={{ borderColor: "var(--border-ui)" }}
           >
-            {(
-              Object.entries(STATUS_CONFIG) as [
-                AppointmentStatus,
-                (typeof STATUS_CONFIG)[AppointmentStatus],
-              ][]
-            ).map(([key, cfg]) => (
-              <div key={key} className="flex items-center gap-2">
-                <span
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: cfg.border }}
-                />
-                <span
-                  className="text-xs font-semibold"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  {cfg.label}
-                </span>
-              </div>
-            ))}
             <span
-              className="ml-auto text-xs hidden sm:inline"
+              className="text-xs font-semibold uppercase tracking-wide mr-1"
               style={{ color: "var(--text-muted)" }}
             >
-              Click a slot to book · Drag to reschedule
+              Providers
             </span>
+            {DENTISTS.map((dentist) => {
+              const active = activeProviders.has(dentist.id);
+              return (
+                <Chip
+                  key={dentist.id}
+                  onClick={() => toggleProvider(dentist.id)}
+                  avatar={
+                    <Avatar
+                      src={dentist.avatar}
+                      alt={dentist.name}
+                      sx={{ width: 22, height: 22, fontSize: "0.6rem" }}
+                    >
+                      {dentist.name
+                        .split(" ")
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((w) => w[0])
+                        .join("")}
+                    </Avatar>
+                  }
+                  label={dentist.name}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.75rem",
+                    height: 30,
+                    border: `1.5px solid ${active ? dentist.color : "#e2e8f0"}`,
+                    backgroundColor: active
+                      ? `${dentist.color}18`
+                      : "transparent",
+                    color: active ? dentist.color : "var(--text-muted)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                    "& .MuiChip-avatar": { width: 22, height: 22 },
+                    "&:hover": {
+                      backgroundColor: `${dentist.color}25`,
+                      borderColor: dentist.color,
+                    },
+                  }}
+                />
+              );
+            })}
+
+            {/* Status legend */}
+            <div className="ml-auto flex flex-wrap items-center gap-4">
+              {(
+                Object.entries(STATUS_CONFIG) as [
+                  AppointmentStatus,
+                  (typeof STATUS_CONFIG)[AppointmentStatus],
+                ][]
+              ).map(([key, cfg]) => (
+                <div key={key} className="flex items-center gap-1.5">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: cfg.border }}
+                  />
+                  <span
+                    className="text-xs font-medium hidden sm:inline"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {cfg.label}
+                  </span>
+                </div>
+              ))}
+              <span
+                className="text-xs hidden lg:inline"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Click to book · Drag to reschedule
+              </span>
+            </div>
           </div>
 
           {/* FullCalendar */}
           <div className="p-4">
             <FullCalendar
               ref={calendarRef}
-              plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
-              initialView="timeGridWeek"
+              plugins={[
+                resourceTimeGridPlugin,
+                timeGridPlugin,
+                dayGridPlugin,
+                interactionPlugin,
+              ]}
+              initialView="resourceTimeGridDay"
+              schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
+              resources={visibleResources}
+              resourceLabelContent={(arg) => {
+                const dentist = DENTISTS.find((d) => d.id === arg.resource.id);
+                if (!dentist) return <span>{arg.resource.title}</span>;
+                return (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "10px 4px",
+                    }}
+                  >
+                    <Avatar
+                      src={dentist.avatar}
+                      alt={dentist.name}
+                      sx={{
+                        width: 38,
+                        height: 38,
+                        border: `2px solid ${dentist.color}`,
+                        fontSize: "0.75rem",
+                        backgroundColor: `${dentist.color}22`,
+                        color: dentist.color,
+                      }}
+                    >
+                      {dentist.name
+                        .split(" ")
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((w) => w[0])
+                        .join("")}
+                    </Avatar>
+                    <span
+                      style={{
+                        fontSize: "0.72rem",
+                        fontWeight: 700,
+                        color: dentist.color,
+                        textAlign: "center",
+                        lineHeight: 1.3,
+                        maxWidth: 90,
+                      }}
+                    >
+                      {dentist.name}
+                    </span>
+                  </div>
+                );
+              }}
               customButtons={{
                 addAppointment: {
                   text: "+ New Appointment",
@@ -692,15 +915,19 @@ export default function AppointmentsPage() {
               headerToolbar={{
                 left: "prev,next today",
                 center: "title",
-                right: "timeGridWeek,timeGridDay,dayGridMonth addAppointment",
+                right:
+                  "resourceTimeGridDay,timeGridWeek,dayGridMonth addAppointment",
               }}
               buttonText={{
                 today: "Today",
                 week: "Week",
                 day: "Day",
                 month: "Month",
+                resourceTimeGridDay: "Day",
               }}
-              editable
+              viewDidMount={(arg) => setCurrentView(arg.view.type)}
+              datesSet={(arg) => setCurrentView(arg.view.type)}
+              editable={currentView !== "dayGridMonth"}
               selectable
               selectMirror
               weekends={false}
@@ -713,22 +940,71 @@ export default function AppointmentsPage() {
               eventContent={(eventInfo) => {
                 const status = eventInfo.event.extendedProps
                   .status as AppointmentStatus;
-                const color = STATUS_CONFIG[status]?.color || "#000";
+                const statusColor = STATUS_CONFIG[status]?.color || "#000";
+                const resId =
+                  (
+                    eventInfo.event as typeof eventInfo.event & {
+                      _def?: { resourceIds?: string[] };
+                    }
+                  )._def?.resourceIds?.[0] ?? "";
+                const dentist = DENTISTS.find((d) => d.id === resId);
+                const showBadge = !isResourceView && dentist;
+
                 return (
                   <div
                     style={{
-                      color: color,
+                      color: statusColor,
                       width: "100%",
                       height: "100%",
                       padding: "4px 6px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
                     }}
                   >
-                    <div className="fc-event-title font-semibold text-sm leading-tight mb-0.5">
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: "0.75rem",
+                        lineHeight: 1.25,
+                      }}
+                    >
                       {eventInfo.event.title}
                     </div>
-                    <div className="fc-event-time font-medium text-xs opacity-90">
+                    <div
+                      style={{
+                        fontSize: "0.68rem",
+                        fontWeight: 500,
+                        opacity: 0.85,
+                      }}
+                    >
                       {eventInfo.timeText}
                     </div>
+                    {showBadge && (
+                      <div
+                        style={{
+                          marginTop: 2,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 3,
+                          fontSize: "0.62rem",
+                          fontWeight: 700,
+                          color: "#fff",
+                          backgroundColor: dentist.color,
+                          borderRadius: 4,
+                          padding: "1px 5px",
+                          alignSelf: "flex-start",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {dentist.name
+                          .split(" ")
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .map((w) => w[0])
+                          .join("")}
+                      </div>
+                    )}
                   </div>
                 );
               }}
@@ -845,14 +1121,91 @@ export default function AppointmentsPage() {
                 <InputLabel>Provider</InputLabel>
                 <Select
                   label="Provider"
-                  value={form.provider}
-                  onChange={(e) =>
-                    setForm({ ...form, provider: e.target.value })
-                  }
+                  value={form.resourceId}
+                  onChange={(e) => {
+                    const dentist = DENTISTS.find(
+                      (d) => d.id === e.target.value,
+                    );
+                    setForm({
+                      ...form,
+                      resourceId: e.target.value,
+                      provider: dentist?.name ?? form.provider,
+                    });
+                  }}
+                  renderValue={(val) => {
+                    const d = DENTISTS.find((x) => x.id === val);
+                    return d ? (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Avatar
+                          src={d.avatar}
+                          sx={{
+                            width: 22,
+                            height: 22,
+                            fontSize: "0.6rem",
+                            border: `1px solid ${d.color}`,
+                          }}
+                        >
+                          {d.name
+                            .split(" ")
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((w) => w[0])
+                            .join("")}
+                        </Avatar>
+                        {d.name}
+                      </div>
+                    ) : (
+                      val
+                    );
+                  }}
                 >
-                  <MenuItem value="Dr. Emily Carter">Dr. Emily Carter</MenuItem>
-                  <MenuItem value="Dr. John Harris">Dr. John Harris</MenuItem>
-                  <MenuItem value="Dr. Sarah Chen">Dr. Sarah Chen</MenuItem>
+                  {DENTISTS.map((d) => (
+                    <MenuItem key={d.id} value={d.id}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <Avatar
+                          src={d.avatar}
+                          sx={{
+                            width: 26,
+                            height: 26,
+                            fontSize: "0.65rem",
+                            border: `1.5px solid ${d.color}`,
+                          }}
+                        >
+                          {d.name
+                            .split(" ")
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((w) => w[0])
+                            .join("")}
+                        </Avatar>
+                        <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                          {d.name}
+                        </span>
+                        <span
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: d.color,
+                            display: "inline-block",
+                            marginLeft: "auto",
+                          }}
+                        />
+                      </div>
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl fullWidth>
