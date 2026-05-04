@@ -37,14 +37,12 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: {label: "Email", type: "email"},
         password: {label: "Password", type: "password"},
+        clinicId: {label: "Clinic ID", type: "text"},
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null;
         try {
-          const user = await adminLoginUseCase.execute({
-            email: credentials.email,
-            password: credentials.password,
-          });
+          const user = await adminLoginUseCase.execute(credentials);
           if (!user) return null;
           return {
             id: user.id,

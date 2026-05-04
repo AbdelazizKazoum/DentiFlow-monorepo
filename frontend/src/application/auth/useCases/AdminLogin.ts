@@ -8,6 +8,10 @@ export class AdminLogin {
   constructor(private readonly authRepository: AdminAuthRepository) {}
 
   async execute(credentials: AdminLoginCredentials): Promise<AdminUser | null> {
-    return this.authRepository.login(credentials);
+    return this.authRepository.login({
+      ...credentials,
+      clinicId:
+        credentials.clinicId ?? process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID,
+    });
   }
 }

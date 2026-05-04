@@ -38,7 +38,6 @@ export class RegisterInput {
   @IsEnum(UserRole)
   role!: UserRole;
 
-  @IsOptional()
   @IsString()
   @Transform(({value}) => value ?? "")
   clinicId?: string;

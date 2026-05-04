@@ -32,10 +32,7 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
       res = await fetch(`${apiUrl}/api/v1/auth/login`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-        }),
+        body: JSON.stringify(credentials),
       });
     } catch {
       throw new Error("AUTH_SERVICE_UNAVAILABLE");
@@ -81,12 +78,7 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
       res = await fetch(`${apiUrl}/api/v1/auth/register`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-          fullName: credentials.fullName,
-          role: credentials.role,
-        }),
+        body: JSON.stringify(credentials),
       });
 
       console.log("Register response status:", res.status);

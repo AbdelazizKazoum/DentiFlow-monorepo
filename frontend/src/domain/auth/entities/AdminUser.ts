@@ -2,7 +2,7 @@
 
 export type UserRole =
   | "patient"
-  | "secretariat"
+  | "secretary"
   | "dental_assistant"
   | "doctor"
   | "admin";
@@ -11,6 +11,7 @@ export interface AdminLoginCredentials {
   email: string;
   password: string;
   rememberMe?: boolean;
+  clinicId?: string;
 }
 
 export interface AdminRegisterCredentials {
@@ -19,6 +20,7 @@ export interface AdminRegisterCredentials {
   password: string;
   confirmPassword: string;
   role: Exclude<UserRole, "patient">;
+  clinicId?: string;
 }
 
 export interface AdminUser {

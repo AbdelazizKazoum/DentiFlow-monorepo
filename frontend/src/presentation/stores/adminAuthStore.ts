@@ -10,8 +10,7 @@ interface AdminAuthStoreState {
 export const useAdminAuthStore = create<AdminAuthStoreState>()(() => ({
   login: async (credentials: AdminLoginCredentials): Promise<boolean> => {
     const result = await signIn("credentials", {
-      email: credentials.email,
-      password: credentials.password,
+      ...credentials,
       redirect: false,
     });
     return !!result?.ok && !result.error;

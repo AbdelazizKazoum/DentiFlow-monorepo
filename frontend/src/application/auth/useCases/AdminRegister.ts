@@ -12,6 +12,10 @@ export class AdminRegister {
   async execute(
     credentials: AdminRegisterCredentials,
   ): Promise<AdminUser | null> {
-    return this.authRepository.register(credentials);
+    return this.authRepository.register({
+      ...credentials,
+      clinicId:
+        credentials.clinicId ?? process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID,
+    });
   }
 }
