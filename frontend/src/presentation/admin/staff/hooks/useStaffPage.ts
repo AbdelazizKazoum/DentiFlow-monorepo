@@ -1,6 +1,6 @@
-import React, {useState, useCallback, useEffect} from "react";
-import {Staff, StaffRole, StaffStatus} from "@/domain/staff/entities/staff";
-import {useStaffStore} from "@/presentation/stores/staffStore";
+import React, { useState, useCallback, useEffect } from "react";
+import { Staff, StaffRole, StaffStatus } from "@/domain/staff/entities/staff";
+import { useStaffStore } from "@/presentation/stores/staffStore";
 
 export interface StaffFormState {
   id: string;
@@ -31,8 +31,16 @@ const EMPTY_FORM: StaffFormState = {
 };
 
 export function useStaffPage() {
-  const {staff, isLoading, loadStaff, addStaff, editStaff, removeStaff} =
-    useStaffStore();
+  const {
+    staff,
+    isLoading,
+    isAdding,
+    isUpdating,
+    loadStaff,
+    addStaff,
+    editStaff,
+    removeStaff,
+  } = useStaffStore();
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -187,6 +195,8 @@ export function useStaffPage() {
     filtered,
     counts,
     isLoading,
+    isAdding,
+    isUpdating,
     search,
     setSearch,
     roleFilter,

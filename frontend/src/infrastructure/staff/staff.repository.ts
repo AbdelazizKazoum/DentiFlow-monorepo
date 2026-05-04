@@ -55,6 +55,8 @@ export class StaffHttpRepository
 
   async create(input: CreateStaffInput): Promise<Staff> {
     const dto = toCreateDTO(input);
+    console.log("🚀 ~ StaffHttpRepository ~ create ~ dto:", dto);
+
     const response = await this.execute(() =>
       axiosClient.post<StaffDTO>(this.base, dto),
     );

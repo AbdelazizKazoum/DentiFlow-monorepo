@@ -13,10 +13,10 @@ import {
   Typography,
   InputAdornment,
 } from "@mui/material";
-import {X, Eye, EyeOff} from "lucide-react";
-import {useState} from "react";
-import {StaffRole, StaffStatus} from "@/domain/staff/entities/staff";
-import type {StaffFormState} from "../hooks/useStaffPage";
+import { X, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { StaffRole, StaffStatus } from "@/domain/staff/entities/staff";
+import type { StaffFormState } from "../hooks/useStaffPage";
 
 interface StaffFormModalProps {
   open: boolean;
@@ -26,6 +26,8 @@ interface StaffFormModalProps {
   onSave: () => void;
   onDelete: (id: string) => void;
   error: string;
+  isAdding: boolean;
+  isUpdating: boolean;
 }
 
 export function StaffFormModal({
@@ -36,6 +38,8 @@ export function StaffFormModal({
   onSave,
   onDelete,
   error,
+  isAdding,
+  isUpdating,
 }: StaffFormModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -69,14 +73,14 @@ export function StaffFormModal({
         <Typography
           variant="h6"
           component="div"
-          sx={{fontWeight: 700, color: "var(--foreground)"}}
+          sx={{ fontWeight: 700, color: "var(--foreground)" }}
         >
           {form.id ? "Edit Staff Member" : "Add Staff Member"}
         </Typography>
         <IconButton
           size="small"
           onClick={onClose}
-          sx={{color: "var(--text-muted)"}}
+          sx={{ color: "var(--text-muted)" }}
         >
           <X size={20} />
         </IconButton>
@@ -85,9 +89,9 @@ export function StaffFormModal({
       <DialogContent
         sx={{
           p: "24px",
-          "& .MuiTextField-root": {mb: "16px"},
-          "& .MuiInputLabel-root": {fontSize: "0.875rem"},
-          "& .MuiInputBase-input": {fontSize: "0.875rem"},
+          "& .MuiTextField-root": { mb: "16px" },
+          "& .MuiInputLabel-root": { fontSize: "0.875rem" },
+          "& .MuiInputBase-input": { fontSize: "0.875rem" },
         }}
       >
         {error && (
@@ -104,20 +108,22 @@ export function StaffFormModal({
               fullWidth
               value={form.firstName}
               onChange={(e) =>
-                onFormChange({...form, firstName: e.target.value})
+                onFormChange({ ...form, firstName: e.target.value })
               }
               placeholder="e.g. Jane"
               required
+              disabled={isAdding || isUpdating}
             />
             <TextField
               label="Last Name"
               fullWidth
               value={form.lastName}
               onChange={(e) =>
-                onFormChange({...form, lastName: e.target.value})
+                onFormChange({ ...form, lastName: e.target.value })
               }
               placeholder="e.g. Doe"
               required
+              disabled={isAdding || isUpdating}
             />
           </div>
 
@@ -129,8 +135,9 @@ export function StaffFormModal({
                 label="Role"
                 value={form.role}
                 onChange={(e) =>
-                  onFormChange({...form, role: e.target.value as StaffRole})
+                  onFormChange({ ...form, role: e.target.value as StaffRole })
                 }
+                disabled={isAdding || isUpdating}
               >
                 <MenuItem value={StaffRole.DOCTOR}>Doctor</MenuItem>
                 <MenuItem value={StaffRole.SECRETARY}>Secretary</MenuItem>
@@ -146,8 +153,12 @@ export function StaffFormModal({
                 label="Status"
                 value={form.status}
                 onChange={(e) =>
-                  onFormChange({...form, status: e.target.value as StaffStatus})
+                  onFormChange({
+                    ...form,
+                    status: e.target.value as StaffStatus,
+                  })
                 }
+                disabled={isAdding || isUpdating}
               >
                 <MenuItem value={StaffStatus.ACTIVE}>✅ Active</MenuItem>
                 <MenuItem value={StaffStatus.ON_LEAVE}>🟡 On Leave</MenuItem>
@@ -163,16 +174,18 @@ export function StaffFormModal({
               type="email"
               fullWidth
               value={form.email}
-              onChange={(e) => onFormChange({...form, email: e.target.value})}
+              onChange={(e) => onFormChange({ ...form, email: e.target.value })}
               placeholder="e.g. jane@dentiflow.com"
               required
+              disabled={isAdding || isUpdating}
             />
             <TextField
               label="Phone"
               fullWidth
               value={form.phone}
-              onChange={(e) => onFormChange({...form, phone: e.target.value})}
+              onChange={(e) => onFormChange({ ...form, phone: e.target.value })}
               placeholder="e.g. 555-0201"
+              disabled={isAdding || isUpdating}
             />
           </div>
 
@@ -183,9 +196,10 @@ export function StaffFormModal({
               fullWidth
               value={form.specialization}
               onChange={(e) =>
-                onFormChange({...form, specialization: e.target.value})
+                onFormChange({ ...form, specialization: e.target.value })
               }
               placeholder="e.g. Orthodontics"
+              disabled={isAdding || isUpdating}
             />
             <TextField
               label="Join Date"
@@ -193,20 +207,21 @@ export function StaffFormModal({
               fullWidth
               value={form.createdAt}
               onChange={(e) =>
-                onFormChange({...form, createdAt: e.target.value})
+                onFormChange({ ...form, createdAt: e.target.value })
               }
-              slotProps={{inputLabel: {shrink: true}}}
+              slotProps={{ inputLabel: { shrink: true } }}
+              disabled={isAdding || isUpdating}
             />
           </div>
 
           {/* Password */}
           <div
             className="border rounded-xl p-4 mt-1 mb-2 space-y-3"
-            style={{borderColor: "var(--border-ui)"}}
+            style={{ borderColor: "var(--border-ui)" }}
           >
             <p
               className="text-xs font-semibold"
-              style={{color: "var(--text-muted)"}}
+              style={{ color: "var(--text-muted)" }}
             >
               {form.id
                 ? "Change Password — leave blank to keep existing"
@@ -220,9 +235,10 @@ export function StaffFormModal({
                 type={showPassword ? "text" : "password"}
                 value={form.password}
                 onChange={(e) =>
-                  onFormChange({...form, password: e.target.value})
+                  onFormChange({ ...form, password: e.target.value })
                 }
                 placeholder="Min. 8 characters"
+                disabled={isAdding || isUpdating}
                 slotProps={{
                   input: {
                     endAdornment: (
@@ -231,7 +247,8 @@ export function StaffFormModal({
                           size="small"
                           onClick={() => setShowPassword((v) => !v)}
                           edge="end"
-                          sx={{color: "var(--text-muted)"}}
+                          sx={{ color: "var(--text-muted)" }}
+                          disabled={isAdding || isUpdating}
                         >
                           {showPassword ? (
                             <EyeOff size={16} />
@@ -251,9 +268,10 @@ export function StaffFormModal({
                 type={showConfirm ? "text" : "password"}
                 value={form.confirmPassword}
                 onChange={(e) =>
-                  onFormChange({...form, confirmPassword: e.target.value})
+                  onFormChange({ ...form, confirmPassword: e.target.value })
                 }
                 placeholder="Repeat password"
+                disabled={isAdding || isUpdating}
                 slotProps={{
                   input: {
                     endAdornment: (
@@ -262,7 +280,8 @@ export function StaffFormModal({
                           size="small"
                           onClick={() => setShowConfirm((v) => !v)}
                           edge="end"
-                          sx={{color: "var(--text-muted)"}}
+                          sx={{ color: "var(--text-muted)" }}
+                          disabled={isAdding || isUpdating}
                         >
                           {showConfirm ? (
                             <EyeOff size={16} />
@@ -293,7 +312,11 @@ export function StaffFormModal({
               color="error"
               variant="text"
               onClick={() => onDelete(form.id)}
-              sx={{textTransform: "none", fontWeight: 600, borderRadius: "8px"}}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: "8px",
+              }}
             >
               Delete
             </Button>
@@ -315,6 +338,7 @@ export function StaffFormModal({
           <Button
             variant="contained"
             onClick={onSave}
+            disabled={isAdding || isUpdating}
             sx={{
               textTransform: "none",
               fontWeight: 600,
@@ -326,9 +350,22 @@ export function StaffFormModal({
                 backgroundColor: "var(--brand-primary-dark)",
                 boxShadow: "0 2px 6px rgba(30,86,208,0.4)",
               },
+              "&.Mui-disabled": {
+                backgroundColor: "var(--brand-primary)",
+                opacity: 0.6,
+              },
             }}
           >
-            {form.id ? "Save Changes" : "Add Member"}
+            {isAdding || isUpdating ? (
+              <>
+                <Loader2 size={16} className="animate-spin mr-2" />
+                {isAdding ? "Adding..." : "Updating..."}
+              </>
+            ) : form.id ? (
+              "Update Member"
+            ) : (
+              "Add Member"
+            )}
           </Button>
         </div>
       </DialogActions>

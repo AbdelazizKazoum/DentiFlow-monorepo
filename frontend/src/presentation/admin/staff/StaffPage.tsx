@@ -16,6 +16,8 @@ export default function StaffPage() {
     filtered,
     counts,
     isLoading,
+    isAdding,
+    isUpdating,
     search,
     setSearch,
     roleFilter,
@@ -83,6 +85,8 @@ export default function StaffPage() {
         onSave={handleSave}
         onDelete={handleDelete}
         error={formError}
+        isAdding={isAdding}
+        isUpdating={isUpdating}
       />
 
       <DeleteConfirmModal
