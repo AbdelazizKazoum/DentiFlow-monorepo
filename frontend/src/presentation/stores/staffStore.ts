@@ -1,13 +1,15 @@
-import {create} from "zustand";
-import {Staff} from "@/domain/staff/entities/staff";
-import type {CreateStaffInput} from "@/domain/staff/commands/CreateStaffInput";
-import type {UpdateStaffInput} from "@/domain/staff/commands/UpdateStaffInput";
+import { create } from "zustand";
+import { toast } from "sonner";
+import { Staff } from "@/domain/staff/entities/staff";
+import type { CreateStaffInput } from "@/domain/staff/commands/CreateStaffInput";
+import type { UpdateStaffInput } from "@/domain/staff/commands/UpdateStaffInput";
 import {
   getAllStaffUseCase,
   createStaffUseCase,
   updateStaffUseCase,
   deleteStaffUseCase,
 } from "@/infrastructure/container";
+import { AppError } from "@/infrastructure/http/httpErrorHandler";
 
 interface StaffStoreState {
   staff: Staff[];
@@ -23,27 +25,64 @@ export const useStaffStore = create<StaffStoreState>((set) => ({
   isLoading: false,
 
   loadStaff: async () => {
-    set({isLoading: true});
-    const staff = await getAllStaffUseCase.execute();
-    set({staff, isLoading: false});
+    set({ isLoading: true });
+    try {
+      const staff = await getAllStaffUseCase.execute();
+      set({ staff, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      const message =
+        error instanceof AppError ? error.message : "Failed to load staff";
+      toast.error(message);
+    }
   },
 
   addStaff: async (input) => {
-    const created = await createStaffUseCase.execute(input);
-    set((state) => ({staff: [...state.staff, created]}));
-    return created;
+    try {
+      const created = await createStaffUseCase.execute(input);
+      set((state) => ({ staff: [...state.staff, created] }));
+      toast.success("Staff member added successfully");
+      return created;
+    } catch (error) {
+      const message =
+        error instanceof AppError
+          ? error.message
+          : "Failed to add staff member";
+      toast.error(message);
+      throw error;
+    }
   },
 
   editStaff: async (id, input) => {
-    const updated = await updateStaffUseCase.execute(id, input);
-    set((state) => ({
-      staff: state.staff.map((s) => (s.id === id ? updated : s)),
-    }));
-    return updated;
+    try {
+      const updated = await updateStaffUseCase.execute(id, input);
+      set((state) => ({
+        staff: state.staff.map((s) => (s.id === id ? updated : s)),
+      }));
+      toast.success("Staff member updated successfully");
+      return updated;
+    } catch (error) {
+      const message =
+        error instanceof AppError
+          ? error.message
+          : "Failed to update staff member";
+      toast.error(message);
+      throw error;
+    }
   },
 
   removeStaff: async (id) => {
-    await deleteStaffUseCase.execute(id);
-    set((state) => ({staff: state.staff.filter((s) => s.id !== id)}));
+    try {
+      await deleteStaffUseCase.execute(id);
+      set((state) => ({ staff: state.staff.filter((s) => s.id !== id) }));
+      toast.success("Staff member removed successfully");
+    } catch (error) {
+      const message =
+        error instanceof AppError
+          ? error.message
+          : "Failed to remove staff member";
+      toast.error(message);
+      throw error;
+    }
   },
 }));
