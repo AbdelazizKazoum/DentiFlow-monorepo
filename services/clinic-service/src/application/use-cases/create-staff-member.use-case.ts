@@ -1,13 +1,13 @@
-import {ConflictException, Inject, Injectable} from "@nestjs/common";
-import {StaffMember} from "../../domain/entities/staff-member";
-import {IStaffMemberRepository} from "../../domain/repositories/staff-member-repository.interface";
-import {StaffRole} from "../../domain/enums/staff-role.enum";
-import {StaffStatus} from "../../domain/enums/staff-status.enum";
+import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import { StaffMember } from "../../domain/entities/staff-member";
+import { IStaffMemberRepository } from "../../domain/repositories/staff-member-repository.interface";
+import { StaffRole } from "../../domain/enums/staff-role.enum";
+import { StaffStatus } from "../../domain/enums/staff-status.enum";
 import {
   STAFF_MEMBER_REPOSITORY,
   AUTH_SERVICE_CLIENT,
 } from "../../shared/constants/injection-tokens";
-import {IAuthServicePort} from "../ports/auth-service.port";
+import { IAuthServicePort } from "../ports/auth-service.port";
 
 export interface CreateStaffMemberInput {
   role: StaffRole;
