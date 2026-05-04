@@ -1,8 +1,13 @@
 import {
+  BadRequestException,
   Body,
+  ConflictException,
   Controller,
+  Delete,
   Get,
   Inject,
+  InternalServerErrorException,
+  NotFoundException,
   OnModuleInit,
   Param,
   ParseUUIDPipe,
@@ -20,6 +25,7 @@ type ClinicServiceClient = ClinicProto.ClinicServiceClient;
 type CreateClinicRequest = ClinicProto.CreateClinicRequest;
 type UpsertWorkingHoursRequest = ClinicProto.UpsertWorkingHoursRequest;
 type CreateStaffMemberRequest = ClinicProto.CreateStaffMemberRequest;
+type UpdateStaffMemberRequest = ClinicProto.UpdateStaffMemberRequest;
 const CLINIC_SERVICE_NAME = ClinicProto.CLINIC_SERVICE_NAME;
 
 @ApiTags("clinics")
@@ -121,17 +127,56 @@ export class ClinicController implements OnModuleInit {
     }
   }
 
+  @Put(":id/staff/:staffId")
+  async updateStaff(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("staffId", ParseUUIDPipe) staffId: string,
+    @Body() dto: Omit<UpdateStaffMemberRequest, "staffMemberId" | "clinicId">,
+  ) {
+    try {
+      return await lastValueFrom(
+        this.clinicGrpcService.updateStaffMember({
+          staffMemberId: staffId,
+          clinicId: id,
+          ...dto,
+        }),
+      );
+    } catch (err: unknown) {
+      this.handleGrpcError(err);
+    }
+  }
+
+  @Delete(":id/staff/:staffId")
+  async deleteStaff(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("staffId", ParseUUIDPipe) staffId: string,
+  ) {
+    try {
+      return await lastValueFrom(
+        this.clinicGrpcService.deleteStaffMember({
+          staffMemberId: staffId,
+          clinicId: id,
+        }),
+      );
+    } catch (err: unknown) {
+      this.handleGrpcError(err);
+    }
+  }
+
   private handleGrpcError(err: unknown): never {
     const grpcErr = err as {code?: number; details?: string; message?: string};
     const detail = grpcErr?.details ?? grpcErr?.message;
     if (grpcErr?.code === GrpcStatus.NOT_FOUND) {
-      throw Object.assign(new Error(detail ?? "Not found"), {status: 404});
+      throw new NotFoundException(detail ?? "Not found");
     }
     if (grpcErr?.code === GrpcStatus.ALREADY_EXISTS) {
-      throw Object.assign(new Error(detail ?? "Already exists"), {status: 409});
+      throw new ConflictException(detail ?? "Already exists");
     }
-    throw Object.assign(new Error(detail ?? "Clinic service unavailable"), {
-      status: 500,
-    });
+    if (grpcErr?.code === GrpcStatus.INVALID_ARGUMENT) {
+      throw new BadRequestException(detail ?? "Invalid argument");
+    }
+    throw new InternalServerErrorException(
+      detail ?? "Clinic service unavailable",
+    );
   }
 }

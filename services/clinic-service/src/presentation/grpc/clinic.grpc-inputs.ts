@@ -18,6 +18,7 @@ import {
 } from "class-validator";
 import {Locale} from "../../domain/enums/locale.enum";
 import {StaffRole} from "../../domain/enums/staff-role.enum";
+import {StaffStatus} from "../../domain/enums/staff-status.enum";
 
 export class CreateClinicInput {
   @IsString()
@@ -124,4 +125,58 @@ export class CreateStaffMemberInput {
   @IsUrl()
   @MaxLength(500)
   avatar?: string;
+}
+
+export class UpdateStaffMemberInput {
+  @IsUUID("all")
+  staffMemberId!: string;
+
+  @IsUUID("all")
+  clinicId!: string;
+
+  @IsOptional()
+  @IsEnum(StaffRole)
+  role?: StaffRole;
+
+  @IsOptional()
+  @IsEnum(StaffStatus)
+  status?: StaffStatus;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  lastName?: string;
+
+  @IsOptional()
+  @Transform(({value}) => (value === "" ? null : value))
+  @IsString()
+  @MaxLength(30)
+  phone?: string | null;
+
+  @IsOptional()
+  @Transform(({value}) => (value === "" ? null : value))
+  @IsString()
+  @MaxLength(255)
+  specialization?: string | null;
+
+  @IsOptional()
+  @Transform(({value}) => (value === "" ? null : value))
+  @IsUrl()
+  @MaxLength(500)
+  avatar?: string | null;
+}
+
+export class DeleteStaffMemberInput {
+  @IsUUID("all")
+  staffMemberId!: string;
+
+  @IsUUID("all")
+  clinicId!: string;
 }

@@ -107,6 +107,27 @@ export interface StaffMembersListReply {
   staffMembers: StaffMemberReply[];
 }
 
+export interface UpdateStaffMemberRequest {
+  staffMemberId: string;
+  clinicId: string;
+  role?: string | undefined;
+  status?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  phone?: string | undefined;
+  specialization?: string | undefined;
+  avatar?: string | undefined;
+}
+
+export interface DeleteStaffMemberRequest {
+  staffMemberId: string;
+  clinicId: string;
+}
+
+export interface DeleteStaffMemberReply {
+  success: boolean;
+}
+
 export const CLINIC_PACKAGE_NAME = "clinic";
 
 function createBaseGetClinicRequest(): GetClinicRequest {
@@ -1172,6 +1193,14 @@ export interface ClinicServiceClient {
   listStaffMembers(
     request: ListStaffMembersRequest,
   ): Observable<StaffMembersListReply>;
+
+  updateStaffMember(
+    request: UpdateStaffMemberRequest,
+  ): Observable<StaffMemberReply>;
+
+  deleteStaffMember(
+    request: DeleteStaffMemberRequest,
+  ): Observable<DeleteStaffMemberReply>;
 }
 
 export interface ClinicServiceController {
@@ -1217,6 +1246,20 @@ export interface ClinicServiceController {
     | Promise<StaffMembersListReply>
     | Observable<StaffMembersListReply>
     | StaffMembersListReply;
+
+  updateStaffMember(
+    request: UpdateStaffMemberRequest,
+  ):
+    | Promise<StaffMemberReply>
+    | Observable<StaffMemberReply>
+    | StaffMemberReply;
+
+  deleteStaffMember(
+    request: DeleteStaffMemberRequest,
+  ):
+    | Promise<DeleteStaffMemberReply>
+    | Observable<DeleteStaffMemberReply>
+    | DeleteStaffMemberReply;
 }
 
 export function ClinicServiceControllerMethods() {
@@ -1229,6 +1272,8 @@ export function ClinicServiceControllerMethods() {
       "upsertWorkingHours",
       "createStaffMember",
       "listStaffMembers",
+      "updateStaffMember",
+      "deleteStaffMember",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(

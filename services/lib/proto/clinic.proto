@@ -9,6 +9,8 @@ service ClinicService {
   rpc UpsertWorkingHours (UpsertWorkingHoursRequest) returns (WorkingHoursListReply);
   rpc CreateStaffMember (CreateStaffMemberRequest) returns (StaffMemberReply);
   rpc ListStaffMembers (ListStaffMembersRequest) returns (StaffMembersListReply);
+  rpc UpdateStaffMember (UpdateStaffMemberRequest) returns (StaffMemberReply);
+  rpc DeleteStaffMember (DeleteStaffMemberRequest) returns (DeleteStaffMemberReply);
 }
 
 message GetClinicRequest {
@@ -101,4 +103,25 @@ message ListStaffMembersRequest {
 
 message StaffMembersListReply {
   repeated StaffMemberReply staff_members = 1;
+}
+
+message UpdateStaffMemberRequest {
+  string staff_member_id = 1;
+  string clinic_id = 2;
+  optional string role = 3;
+  optional string status = 4;
+  optional string first_name = 5;
+  optional string last_name = 6;
+  optional string phone = 7;
+  optional string specialization = 8;
+  optional string avatar = 9;
+}
+
+message DeleteStaffMemberRequest {
+  string staff_member_id = 1;
+  string clinic_id = 2;
+}
+
+message DeleteStaffMemberReply {
+  bool success = 1;
 }

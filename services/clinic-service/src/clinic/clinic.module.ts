@@ -13,6 +13,8 @@ import {GetWorkingHoursUseCase} from "../application/use-cases/get-working-hours
 import {CreateStaffMemberUseCase} from "../application/use-cases/create-staff-member.use-case";
 import {GetStaffMemberUseCase} from "../application/use-cases/get-staff-member.use-case";
 import {ListStaffMembersUseCase} from "../application/use-cases/list-staff-members.use-case";
+import {UpdateStaffMemberUseCase} from "../application/use-cases/update-staff-member.use-case";
+import {DeleteStaffMemberUseCase} from "../application/use-cases/delete-staff-member.use-case";
 import {ClinicGrpcController} from "../presentation/grpc/clinic.grpc-controller";
 import {AuthGrpcClientModule} from "../infrastructure/grpc/auth-grpc-client.module";
 import {AuthServiceGrpcAdapter} from "../infrastructure/grpc/auth-service-grpc.adapter";
@@ -41,6 +43,8 @@ import {
     CreateStaffMemberUseCase,
     GetStaffMemberUseCase,
     ListStaffMembersUseCase,
+    UpdateStaffMemberUseCase,
+    DeleteStaffMemberUseCase,
     AuthServiceGrpcAdapter,
     {provide: CLINIC_REPOSITORY, useClass: ClinicRepository},
     {provide: WORKING_HOURS_REPOSITORY, useClass: WorkingHoursRepository},

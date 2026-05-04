@@ -38,10 +38,20 @@ export class StaffMemberRepository
   }
 
   // @ts-ignore - Intentionally overrides base class to return domain StaffMember
+  async findById(id: string, clinicId: string): Promise<StaffMember | null> {
+    const entity = await this.repo.findOne({where: {id, clinic_id: clinicId}});
+    return entity ? StaffMemberMapper.toDomain(entity) : null;
+  }
+
+  // @ts-ignore - Intentionally overrides base class to return domain StaffMember
   async save(staffMember: StaffMember): Promise<StaffMember> {
     const saved = await this.repo.save(
       StaffMemberMapper.toEntity(staffMember) as StaffMemberTypeOrmEntity,
     );
     return StaffMemberMapper.toDomain(saved);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
   }
 }

@@ -8,14 +8,19 @@ import {CreateClinicUseCase} from "../../application/use-cases/create-clinic.use
 import {UpsertWorkingHoursUseCase} from "../../application/use-cases/upsert-working-hours.use-case";
 import {CreateStaffMemberUseCase} from "../../application/use-cases/create-staff-member.use-case";
 import {ListStaffMembersUseCase} from "../../application/use-cases/list-staff-members.use-case";
+import {UpdateStaffMemberUseCase} from "../../application/use-cases/update-staff-member.use-case";
+import {DeleteStaffMemberUseCase} from "../../application/use-cases/delete-staff-member.use-case";
 import {Locale} from "../../domain/enums/locale.enum";
 import {StaffRole} from "../../domain/enums/staff-role.enum";
+import {StaffStatus} from "../../domain/enums/staff-status.enum";
 import {ClinicProto} from "@lib/proto";
 import {ClinicGrpcMapper} from "./clinic.grpc-mapper";
 import {
   CreateClinicInput,
   CreateStaffMemberInput,
   UpsertWorkingHoursInput,
+  UpdateStaffMemberInput,
+  DeleteStaffMemberInput,
 } from "./clinic.grpc-inputs";
 
 type GetClinicRequest = ClinicProto.GetClinicRequest;
@@ -34,6 +39,8 @@ export class ClinicGrpcController {
     private readonly upsertWorkingHoursUC: UpsertWorkingHoursUseCase,
     private readonly createStaffMemberUC: CreateStaffMemberUseCase,
     private readonly listStaffMembersUC: ListStaffMembersUseCase,
+    private readonly updateStaffMemberUC: UpdateStaffMemberUseCase,
+    private readonly deleteStaffMemberUC: DeleteStaffMemberUseCase,
   ) {}
 
   @GrpcMethod("ClinicService", "GetClinic")
@@ -137,6 +144,35 @@ export class ClinicGrpcController {
     return {
       staffMembers: staffMembers.map(ClinicGrpcMapper.toStaffMemberReply),
     };
+  }
+
+  @GrpcMethod("ClinicService", "UpdateStaffMember")
+  async handleUpdateStaffMember(data: UpdateStaffMemberInput) {
+    try {
+      const {staffMemberId, clinicId, role, status, ...rest} = data;
+      const sm = await this.updateStaffMemberUC.execute(
+        staffMemberId,
+        clinicId,
+        {
+          ...rest,
+          ...(role !== undefined ? {role: role as StaffRole} : {}),
+          ...(status !== undefined ? {status: status as StaffStatus} : {}),
+        },
+      );
+      return ClinicGrpcMapper.toStaffMemberReply(sm);
+    } catch (error) {
+      this.rethrowAsRpc(error);
+    }
+  }
+
+  @GrpcMethod("ClinicService", "DeleteStaffMember")
+  async handleDeleteStaffMember(data: DeleteStaffMemberInput) {
+    try {
+      await this.deleteStaffMemberUC.execute(data.staffMemberId, data.clinicId);
+      return {success: true};
+    } catch (error) {
+      this.rethrowAsRpc(error);
+    }
   }
 
   private rethrowAsRpc(err: unknown): never {
