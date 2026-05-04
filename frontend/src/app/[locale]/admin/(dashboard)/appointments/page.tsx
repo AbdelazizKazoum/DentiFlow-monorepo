@@ -678,6 +678,7 @@ export default function AppointmentsPage() {
         .fc-daygrid-event {
           border-width: 0 !important;
           border-left-width: 3px !important;
+          border-left-color: var(--fc-event-border-color) !important;
           border-style: solid !important;
           border-radius: 4px !important;
         }
