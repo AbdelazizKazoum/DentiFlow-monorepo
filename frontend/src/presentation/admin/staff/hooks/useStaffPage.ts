@@ -146,8 +146,10 @@ export function useStaffPage() {
       });
     } else {
       await addStaff({
-        clinicId: "clinic-1",
-        userId: String(Date.now()),
+        clinicId:
+          process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ??
+          "00000000-0000-4000-8000-000000000001",
+        userId: "",
         firstName: form.firstName,
         lastName: form.lastName,
         role: form.role,

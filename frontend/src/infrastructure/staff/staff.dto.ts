@@ -1,43 +1,39 @@
-import {StaffRole, StaffStatus} from "../../domain/staff/entities/staff";
-
 export interface StaffDTO {
   id: string;
   clinicId: string;
   userId: string;
-  role: StaffRole;
-  status: StaffStatus;
+  role: string;
+  status: string;
   firstName: string;
   lastName: string;
-  phone?: string;
-  email?: string;
-  specialization?: string;
-  avatar?: string;
+  phone: string;
+  email: string;
+  specialization: string;
+  avatar: string;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface StaffListDTO {
+  staffMembers: StaffDTO[];
 }
 
 export interface CreateStaffDTO {
-  clinicId: string;
-  userId: string;
-  role: StaffRole;
-  status: StaffStatus;
+  role: string;
   firstName: string;
   lastName: string;
+  email: string;
+  password: string;
   phone?: string;
-  email?: string;
   specialization?: string;
   avatar?: string;
 }
 
 export interface UpdateStaffDTO {
-  role?: StaffRole;
-  status?: StaffStatus;
+  role?: string;
+  status?: string;
   firstName?: string;
   lastName?: string;
-  phone?: string;
-  email?: string;
-  specialization?: string;
-  avatar?: string;
-  isActive?: boolean;
+  phone?: string | null;
+  specialization?: string | null;
+  avatar?: string | null;
 }

@@ -3,7 +3,7 @@
 
 import {AdminAuthRepositoryImpl} from "@/infrastructure/repositories/AdminAuthRepositoryImpl";
 import {AdminLogin} from "@/application/auth/useCases/AdminLogin";
-import {InMemoryStaffRepository} from "@/infrastructure/staff/InMemoryStaffRepository";
+import {StaffHttpRepository} from "@/infrastructure/staff/staff.repository";
 import {GetAllStaff} from "@/application/staff/useCases/GetAllStaff";
 import {CreateStaff} from "@/application/staff/useCases/CreateStaff";
 import {UpdateStaff} from "@/application/staff/useCases/UpdateStaff";
@@ -14,7 +14,9 @@ const adminAuthRepository = new AdminAuthRepositoryImpl();
 export const adminLoginUseCase = new AdminLogin(adminAuthRepository);
 
 // ─── Staff ────────────────────────────────────────────────────────────────────
-const staffRepository = new InMemoryStaffRepository();
+const clinicId =
+  process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ?? "00000000-0000-4000-8000-000000000001";
+const staffRepository = new StaffHttpRepository(clinicId);
 export const getAllStaffUseCase = new GetAllStaff(staffRepository);
 export const createStaffUseCase = new CreateStaff(staffRepository);
 export const updateStaffUseCase = new UpdateStaff(staffRepository);

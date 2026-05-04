@@ -39,6 +39,13 @@ export const handleHttpError = (error: unknown): never => {
     case 404:
       throw new AppError("NOT_FOUND", "Resource not found", status);
 
+    case 409:
+      throw new AppError(
+        "CONFLICT",
+        serverMessage || "Resource already exists",
+        status,
+      );
+
     case 500:
       throw new AppError("SERVER_ERROR", "Server error occurred", status);
 
