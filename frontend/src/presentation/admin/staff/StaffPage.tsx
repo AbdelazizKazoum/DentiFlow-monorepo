@@ -1,19 +1,21 @@
 "use client";
 
-import {useStaffPage} from "./hooks/useStaffPage";
-import {StaffHeader} from "./components/StaffHeader";
-import {StaffSummaryCards} from "./components/StaffSummaryCards";
-import {StaffFilters} from "./components/StaffFilters";
-import {StaffGrid} from "./components/StaffGrid";
-import {StaffActionMenu} from "./components/StaffActionMenu";
-import {StaffFormModal} from "./components/StaffFormModal";
-import {DeleteConfirmModal} from "./components/DeleteConfirmModal";
+import { useStaffPage } from "./hooks/useStaffPage";
+import { StaffHeader } from "./components/StaffHeader";
+import { StaffSummaryCards } from "./components/StaffSummaryCards";
+import { StaffFilters } from "./components/StaffFilters";
+import { StaffGrid } from "./components/StaffGrid";
+import { StaffActionMenu } from "./components/StaffActionMenu";
+import { StaffFormModal } from "./components/StaffFormModal";
+import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
+import { StaffGridSkeleton } from "./components/StaffGridSkeleton";
 
 export default function StaffPage() {
   const {
     staff,
     filtered,
     counts,
+    isLoading,
     search,
     setSearch,
     roleFilter,
@@ -56,7 +58,11 @@ export default function StaffPage() {
           onRoleFilterChange={setRoleFilter}
         />
 
-        <StaffGrid members={filtered} onOpenMenu={openMenu} />
+        {isLoading ? (
+          <StaffGridSkeleton />
+        ) : (
+          <StaffGrid members={filtered} onOpenMenu={openMenu} />
+        )}
       </div>
 
       <StaffActionMenu

@@ -1,12 +1,12 @@
-import {StaffRepository} from "../../domain/staff/repositories/staffRepository";
-import {Staff} from "../../domain/staff/entities/staff";
-import {axiosClient} from "../http/axiosClient";
-import {BaseRepository} from "../http/BaseRepository";
-import {AppError} from "../http/httpErrorHandler";
-import {toDomain, toCreateDTO, toUpdateDTO} from "./staff.mapper";
-import type {StaffDTO, StaffListDTO} from "./staff.dto";
-import type {CreateStaffInput} from "../../domain/staff/commands/CreateStaffInput";
-import type {UpdateStaffInput} from "../../domain/staff/commands/UpdateStaffInput";
+import { StaffRepository } from "@domain/staff/repositories/staffRepository";
+import { Staff } from "@domain/staff/entities/staff";
+import { axiosClient } from "../http/axiosClient";
+import { BaseRepository } from "../http/BaseRepository";
+import { AppError } from "../http/httpErrorHandler";
+import { toDomain, toCreateDTO, toUpdateDTO } from "./staff.mapper";
+import type { StaffDTO, StaffListDTO } from "./staff.dto";
+import type { CreateStaffInput } from "@domain/staff/commands/CreateStaffInput";
+import type { UpdateStaffInput } from "@domain/staff/commands/UpdateStaffInput";
 
 export class StaffHttpRepository
   extends BaseRepository
