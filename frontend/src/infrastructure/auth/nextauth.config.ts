@@ -3,33 +3,11 @@ import type {NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import {adminLoginUseCase} from "@/infrastructure/container";
 
-async function refreshBackendToken(token: any) {
-  try {
-    // Use the internal server-to-server URL (never public) for the refresh call
-    const apiUrl =
-      process.env.API_GATEWAY_INTERNAL_URL ??
-      process.env.NEXT_PUBLIC_API_URL ??
-      "http://localhost:3001";
-    const res = await fetch(`${apiUrl}/api/v1/auth/refresh`, {
-      method: "POST",
-      headers: {Authorization: `Bearer ${token.backendRefreshToken}`},
-    });
-    if (!res.ok) throw new Error("RefreshFailed");
-    const data = (await res.json()) as {
-      accessToken: string;
-      refreshToken?: string;
-    };
-    return {
-      ...token,
-      backendAccessToken: data.accessToken,
-      backendRefreshToken: data.refreshToken ?? token.backendRefreshToken,
-      backendTokenExpiry: Date.now() + 14 * 60 * 1000,
-      error: undefined,
-    };
-  } catch {
-    return {...token, error: "RefreshAccessTokenError" as const};
-  }
-}
+// NOTE: Token refresh is handled exclusively by the BFF proxy at
+// src/app/api/v1/[...path]/route.ts — NOT here. Doing it in both places
+// caused a race condition where NextAuth's session endpoint overwrote the
+// BFF's freshly-refreshed cookie with the old expiry, triggering an endless
+// refresh loop and eventual 401 → sign-out.
 
 export const authOptions: NextAuthOptions = {
   session: {strategy: "jwt", maxAge: 7 * 24 * 60 * 60}, // session TTL matches refresh token (7 days)
@@ -76,19 +54,16 @@ export const authOptions: NextAuthOptions = {
         token.backendTokenExpiry = Date.now() + 14 * 60 * 1000; // 14 min
         return token;
       }
-      // Subsequent requests: return token if access token still valid
-      if (Date.now() < (token.backendTokenExpiry as number)) return token;
-      // Access token expired — refresh
-      return refreshBackendToken(token);
+      // Pass the token through unchanged.
+      // The BFF proxy (app/api/v1/[...path]/route.ts) handles all backend
+      // token refreshes and updates this cookie itself via Set-Cookie.
+      return token;
     },
     async session({session, token}) {
       if (session.user) {
         session.user.role = token.role;
         session.user.clinic_id = token.clinic_id as string;
         session.user.user_id = token.user_id as string;
-      }
-      if (token.error) {
-        (session as any).error = token.error;
       }
       return session;
     },

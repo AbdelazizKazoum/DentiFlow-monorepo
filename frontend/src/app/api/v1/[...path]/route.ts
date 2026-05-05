@@ -44,33 +44,38 @@ async function refreshBackendToken(token: RawToken): Promise<{
     .backendRefreshToken as string | undefined;
   if (!refreshToken) return null;
 
-  const res = await fetch(`${GATEWAY_URL}/api/v1/auth/refresh`, {
-    method: "POST",
-    headers: {Authorization: `Bearer ${refreshToken}`},
-  });
+  try {
+    const res = await fetch(`${GATEWAY_URL}/api/v1/auth/refresh`, {
+      method: "POST",
+      headers: {Authorization: `Bearer ${refreshToken}`},
+    });
 
-  if (!res.ok) return null;
+    if (!res.ok) return null;
 
-  const data = (await res.json()) as {
-    accessToken: string;
-    refreshToken?: string;
-  };
+    const data = (await res.json()) as {
+      accessToken: string;
+      refreshToken?: string;
+    };
 
-  const updatedToken: JWT = {
-    ...(token as JWT),
-    backendAccessToken: data.accessToken,
-    backendRefreshToken: data.refreshToken ?? refreshToken,
-    backendTokenExpiry: Date.now() + 14 * 60 * 1000,
-    error: undefined,
-  };
+    const updatedToken: JWT = {
+      ...(token as JWT),
+      backendAccessToken: data.accessToken,
+      backendRefreshToken: data.refreshToken ?? refreshToken,
+      backendTokenExpiry: Date.now() + 14 * 60 * 1000,
+      error: undefined,
+    };
 
-  const encodedCookie = await encode({
-    token: updatedToken,
-    secret: SECRET,
-    maxAge: SESSION_MAX_AGE_SECONDS,
-  });
+    const encodedCookie = await encode({
+      token: updatedToken,
+      secret: SECRET,
+      maxAge: SESSION_MAX_AGE_SECONDS,
+    });
 
-  return {freshAccessToken: data.accessToken, encodedCookie};
+    return {freshAccessToken: data.accessToken, encodedCookie};
+  } catch {
+    // Network error or unexpected failure — caller will fall back to the old token
+    return null;
+  }
 }
 
 type RouteContext = {params: Promise<{path: string[]}>};
@@ -100,12 +105,16 @@ async function forward(
 
   if (isExpired) {
     const refreshed = await refreshBackendToken(token);
-    if (!refreshed) {
-      // Refresh token also expired — tell the client to re-authenticate
-      return NextResponse.json({message: "Session expired"}, {status: 401});
+    if (refreshed) {
+      // Refresh succeeded — use the fresh token and queue the updated cookie
+      accessToken = refreshed.freshAccessToken;
+      refreshedCookie = refreshed.encodedCookie;
     }
-    accessToken = refreshed.freshAccessToken;
-    refreshedCookie = refreshed.encodedCookie;
+    // If refresh failed (network error, token truly expired, etc.) fall through
+    // with the existing accessToken. The gateway will return 401 if the token is
+    // truly invalid, and that 401 propagates naturally to the client.
+    // This avoids a false sign-out when the refresh endpoint has a transient hiccup
+    // but the access token itself still has its 1-minute grace window left.
   }
 
   // Forward the request to the API gateway
