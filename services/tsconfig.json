@@ -5,7 +5,7 @@
     "rootDir": ".",
     "baseUrl": ".",
     "types": ["node", "jest"],
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "5.0"
   },
   "include": ["lib/**/*.ts"],
   "exclude": ["node_modules", "dist"]
