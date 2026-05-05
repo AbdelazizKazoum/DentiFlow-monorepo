@@ -5,13 +5,15 @@ import {adminLoginUseCase} from "@/infrastructure/container";
 
 async function refreshBackendToken(token: any) {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
-      {
-        method: "POST",
-        headers: {Authorization: `Bearer ${token.backendRefreshToken}`},
-      },
-    );
+    // Use the internal server-to-server URL (never public) for the refresh call
+    const apiUrl =
+      process.env.API_GATEWAY_INTERNAL_URL ??
+      process.env.NEXT_PUBLIC_API_URL ??
+      "http://localhost:3001";
+    const res = await fetch(`${apiUrl}/api/v1/auth/refresh`, {
+      method: "POST",
+      headers: {Authorization: `Bearer ${token.backendRefreshToken}`},
+    });
     if (!res.ok) throw new Error("RefreshFailed");
     const data = (await res.json()) as {
       accessToken: string;
