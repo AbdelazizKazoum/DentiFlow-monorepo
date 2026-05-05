@@ -1,12 +1,19 @@
-import { PatientInsurance } from "@domain/patient/entities/patientInsurance";
-import { axiosClient } from "@infrastructure/http/axiosClient";
-import { BaseRepository } from "@infrastructure/http/BaseRepository";
-import { AppError } from "@infrastructure/http/httpErrorHandler";
-import { toDomain, toCreateDTO, toUpdateDTO } from "../mappers/patientInsurance.mapper";
-import type { PatientInsuranceDTO, PatientInsuranceListDTO } from "../dtos/patientInsurance.dto";
-import type { IPatientInsuranceRepository } from "@domain/patient/repositories/patientInsuranceRepository";
-import type { CreatePatientInsuranceInput } from "@domain/patient/commands/CreatePatientInsuranceInput";
-import type { UpdatePatientInsuranceInput } from "@domain/patient/commands/UpdatePatientInsuranceInput";
+import {PatientInsurance} from "@domain/patient/entities/patientInsurance";
+import {axiosClient} from "@infrastructure/http/axiosClient";
+import {BaseRepository} from "@infrastructure/http/BaseRepository";
+import {AppError} from "@infrastructure/http/httpErrorHandler";
+import {
+  toDomain,
+  toCreateDTO,
+  toUpdateDTO,
+} from "../mappers/patientInsurance.mapper";
+import type {
+  PatientInsuranceDTO,
+  PatientInsuranceListDTO,
+} from "../dtos/patientInsurance.dto";
+import type {IPatientInsuranceRepository} from "@domain/patient/repositories/patientInsuranceRepository";
+import type {CreatePatientInsuranceInput} from "@domain/patient/commands/CreatePatientInsuranceInput";
+import type {UpdatePatientInsuranceInput} from "@domain/patient/commands/UpdatePatientInsuranceInput";
 
 export class PatientInsuranceHttpRepository
   extends BaseRepository
@@ -38,7 +45,9 @@ export class PatientInsuranceHttpRepository
     }
   }
 
-  async create(insurance: CreatePatientInsuranceInput): Promise<PatientInsurance> {
+  async create(
+    insurance: CreatePatientInsuranceInput,
+  ): Promise<PatientInsurance> {
     const dto = toCreateDTO(insurance);
     const response = await this.execute(() =>
       axiosClient.post<PatientInsuranceDTO>(
@@ -49,7 +58,10 @@ export class PatientInsuranceHttpRepository
     return toDomain(response.data);
   }
 
-  async update(id: string, updates: UpdatePatientInsuranceInput): Promise<PatientInsurance> {
+  async update(
+    id: string,
+    updates: UpdatePatientInsuranceInput,
+  ): Promise<PatientInsurance> {
     const dto = toUpdateDTO(updates);
     const response = await this.execute(() =>
       axiosClient.put<PatientInsuranceDTO>(`${this.clinicBase}/${id}`, dto),
@@ -80,7 +92,7 @@ export class PatientInsuranceHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientInsuranceListDTO>(
         `/api/v1/clinics/${clinicId}/patients/${patientId}/insurance`,
-        { params: { isActive: true } },
+        {params: {isActive: true}},
       ),
     );
     return response.data.insurances.map(toDomain);
@@ -93,7 +105,7 @@ export class PatientInsuranceHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientInsuranceListDTO>(
         `/api/v1/clinics/${clinicId}/patient-insurance`,
-        { params: { insuranceProviderId: providerId } },
+        {params: {insuranceProviderId: providerId}},
       ),
     );
     return response.data.insurances.map(toDomain);
@@ -106,7 +118,7 @@ export class PatientInsuranceHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientInsuranceListDTO>(
         `/api/v1/clinics/${clinicId}/patient-insurance`,
-        { params: { insuranceProviderId: providerId, isActive: true } },
+        {params: {insuranceProviderId: providerId, isActive: true}},
       ),
     );
     return response.data.insurances.map(toDomain);
@@ -125,7 +137,7 @@ export class PatientInsuranceHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientInsuranceListDTO>(
         `/api/v1/clinics/${clinicId}/patient-insurance`,
-        { params: { isActive: true } },
+        {params: {isActive: true}},
       ),
     );
     return response.data.insurances.map(toDomain);
@@ -138,7 +150,7 @@ export class PatientInsuranceHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientInsuranceListDTO>(
         `/api/v1/clinics/${clinicId}/patient-insurance`,
-        { params: { policyNumber } },
+        {params: {policyNumber}},
       ),
     );
     return response.data.insurances.map(toDomain);
@@ -151,7 +163,7 @@ export class PatientInsuranceHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientInsuranceListDTO>(
         `/api/v1/clinics/${clinicId}/patient-insurance`,
-        { params: { memberId } },
+        {params: {memberId}},
       ),
     );
     return response.data.insurances.map(toDomain);
@@ -159,9 +171,7 @@ export class PatientInsuranceHttpRepository
 
   async activate(id: string): Promise<PatientInsurance> {
     const response = await this.execute(() =>
-      axiosClient.put<PatientInsuranceDTO>(
-        `${this.clinicBase}/${id}/activate`,
-      ),
+      axiosClient.put<PatientInsuranceDTO>(`${this.clinicBase}/${id}/activate`),
     );
     return toDomain(response.data);
   }
@@ -175,7 +185,10 @@ export class PatientInsuranceHttpRepository
     return toDomain(response.data);
   }
 
-  async activateAllForPatient(clinicId: string, patientId: string): Promise<void> {
+  async activateAllForPatient(
+    clinicId: string,
+    patientId: string,
+  ): Promise<void> {
     await this.execute(() =>
       axiosClient.put(
         `/api/v1/clinics/${clinicId}/patients/${patientId}/insurance/activate-all`,
@@ -183,7 +196,10 @@ export class PatientInsuranceHttpRepository
     );
   }
 
-  async deactivateAllForPatient(clinicId: string, patientId: string): Promise<void> {
+  async deactivateAllForPatient(
+    clinicId: string,
+    patientId: string,
+  ): Promise<void> {
     await this.execute(() =>
       axiosClient.put(
         `/api/v1/clinics/${clinicId}/patients/${patientId}/insurance/deactivate-all`,

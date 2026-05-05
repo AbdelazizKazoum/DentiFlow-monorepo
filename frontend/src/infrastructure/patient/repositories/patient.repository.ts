@@ -1,15 +1,20 @@
-import { Patient } from "@domain/patient/entities/patient";
-import { axiosClient } from "@infrastructure/http/axiosClient";
-import { BaseRepository } from "@infrastructure/http/BaseRepository";
-import { AppError } from "@infrastructure/http/httpErrorHandler";
-import { toDomain, toListItemDomain, toCreateDTO, toUpdateDTO } from "../mappers/patient.mapper";
-import type { PatientDTO, PatientListResponseDTO } from "../dtos/patient.dto";
-import type { IPatientRepository } from "@domain/patient/repositories/patientRepository";
-import type { CreatePatientInput } from "@domain/patient/commands/CreatePatientInput";
-import type { UpdatePatientInput } from "@domain/patient/commands/UpdatePatientInput";
-import type { GetPatientsQuery } from "@domain/patient/commands/GetPatientsQuery";
-import type { PatientListResponse } from "@domain/patient/queries/patientQueries";
-import type { PatientStatus } from "@domain/patient/entities/patient";
+import {Patient} from "@domain/patient/entities/patient";
+import {axiosClient} from "@infrastructure/http/axiosClient";
+import {BaseRepository} from "@infrastructure/http/BaseRepository";
+import {AppError} from "@infrastructure/http/httpErrorHandler";
+import {
+  toDomain,
+  toListItemDomain,
+  toCreateDTO,
+  toUpdateDTO,
+} from "../mappers/patient.mapper";
+import type {PatientDTO, PatientListResponseDTO} from "../dtos/patient.dto";
+import type {IPatientRepository} from "@domain/patient/repositories/patientRepository";
+import type {CreatePatientInput} from "@domain/patient/commands/CreatePatientInput";
+import type {UpdatePatientInput} from "@domain/patient/commands/UpdatePatientInput";
+import type {GetPatientsQuery} from "@domain/patient/commands/GetPatientsQuery";
+import type {PatientListResponse} from "@domain/patient/queries/patientQueries";
+import type {PatientStatus} from "@domain/patient/entities/patient";
 
 export class PatientHttpRepository
   extends BaseRepository
@@ -73,7 +78,7 @@ export class PatientHttpRepository
     if (query.sortOrder !== undefined) params.sortOrder = query.sortOrder;
 
     const response = await this.execute(() =>
-      axiosClient.get<PatientListResponseDTO>(this.base, { params }),
+      axiosClient.get<PatientListResponseDTO>(this.base, {params}),
     );
     return {
       items: response.data.items.map(toListItemDomain),
@@ -96,7 +101,7 @@ export class PatientHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientListResponseDTO>(
         `/api/v1/clinics/${clinicId}/patients`,
-        { params: { status: "ACTIVE" } },
+        {params: {status: "ACTIVE"}},
       ),
     );
     return response.data.items.map((item) =>
@@ -111,7 +116,7 @@ export class PatientHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientListResponseDTO>(
         `/api/v1/clinics/${clinicId}/patients`,
-        { params: { status } },
+        {params: {status}},
       ),
     );
     return response.data.items.map((item) =>
@@ -144,7 +149,7 @@ export class PatientHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientListResponseDTO>(
         `/api/v1/clinics/${clinicId}/patients/search`,
-        { params },
+        {params},
       ),
     );
     return response.data.items.map((item) =>
@@ -156,7 +161,7 @@ export class PatientHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientListResponseDTO>(
         `/api/v1/clinics/${clinicId}/patients`,
-        { params: { search: phone } },
+        {params: {search: phone}},
       ),
     );
     return response.data.items.map((item) =>
@@ -168,7 +173,7 @@ export class PatientHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientListResponseDTO>(
         `/api/v1/clinics/${clinicId}/patients`,
-        { params: { hasMedicalInfo: true } },
+        {params: {hasMedicalInfo: true}},
       ),
     );
     return response.data.items.map((item) =>
@@ -180,12 +185,12 @@ export class PatientHttpRepository
     clinicId: string,
     daysThreshold?: number,
   ): Promise<Patient[]> {
-    const params: Record<string, string | boolean | number> = { isNew: true };
+    const params: Record<string, string | boolean | number> = {isNew: true};
     if (daysThreshold !== undefined) params.daysThreshold = daysThreshold;
     const response = await this.execute(() =>
       axiosClient.get<PatientListResponseDTO>(
         `/api/v1/clinics/${clinicId}/patients`,
-        { params },
+        {params},
       ),
     );
     return response.data.items.map((item) =>
@@ -194,9 +199,7 @@ export class PatientHttpRepository
   }
 
   async softDelete(id: string): Promise<void> {
-    await this.execute(() =>
-      axiosClient.put(`${this.base}/${id}/soft-delete`),
-    );
+    await this.execute(() => axiosClient.put(`${this.base}/${id}/soft-delete`));
   }
 
   async restore(id: string): Promise<Patient> {

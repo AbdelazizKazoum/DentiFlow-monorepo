@@ -1,4 +1,4 @@
-import { DocumentType } from "@domain/patient/entities/patientDocument";
+import {DocumentType} from "@domain/patient/entities/patientDocument";
 
 export interface PatientDocumentDTO {
   id: string;

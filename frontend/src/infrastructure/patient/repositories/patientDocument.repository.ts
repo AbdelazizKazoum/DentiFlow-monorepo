@@ -1,12 +1,22 @@
-import { PatientDocument, DocumentType } from "@domain/patient/entities/patientDocument";
-import { axiosClient } from "@infrastructure/http/axiosClient";
-import { BaseRepository } from "@infrastructure/http/BaseRepository";
-import { AppError } from "@infrastructure/http/httpErrorHandler";
-import { toDomain, toCreateDTO, toUpdateDTO } from "../mappers/patientDocument.mapper";
-import type { PatientDocumentDTO, PatientDocumentListDTO } from "../dtos/patientDocument.dto";
-import type { IPatientDocumentRepository } from "@domain/patient/repositories/patientDocumentRepository";
-import type { CreatePatientDocumentInput } from "@domain/patient/commands/CreatePatientDocumentInput";
-import type { UpdatePatientDocumentInput } from "@domain/patient/commands/UpdatePatientDocumentInput";
+import {
+  PatientDocument,
+  DocumentType,
+} from "@domain/patient/entities/patientDocument";
+import {axiosClient} from "@infrastructure/http/axiosClient";
+import {BaseRepository} from "@infrastructure/http/BaseRepository";
+import {AppError} from "@infrastructure/http/httpErrorHandler";
+import {
+  toDomain,
+  toCreateDTO,
+  toUpdateDTO,
+} from "../mappers/patientDocument.mapper";
+import type {
+  PatientDocumentDTO,
+  PatientDocumentListDTO,
+} from "../dtos/patientDocument.dto";
+import type {IPatientDocumentRepository} from "@domain/patient/repositories/patientDocumentRepository";
+import type {CreatePatientDocumentInput} from "@domain/patient/commands/CreatePatientDocumentInput";
+import type {UpdatePatientDocumentInput} from "@domain/patient/commands/UpdatePatientDocumentInput";
 
 export class PatientDocumentHttpRepository
   extends BaseRepository
@@ -41,15 +51,15 @@ export class PatientDocumentHttpRepository
   async create(document: CreatePatientDocumentInput): Promise<PatientDocument> {
     const dto = toCreateDTO(document);
     const response = await this.execute(() =>
-      axiosClient.post<PatientDocumentDTO>(
-        this.base(document.patientId),
-        dto,
-      ),
+      axiosClient.post<PatientDocumentDTO>(this.base(document.patientId), dto),
     );
     return toDomain(response.data);
   }
 
-  async update(id: string, updates: UpdatePatientDocumentInput): Promise<PatientDocument> {
+  async update(
+    id: string,
+    updates: UpdatePatientDocumentInput,
+  ): Promise<PatientDocument> {
     const dto = toUpdateDTO(updates);
     const response = await this.execute(() =>
       axiosClient.put<PatientDocumentDTO>(`${this.clinicBase}/${id}`, dto),
@@ -81,7 +91,7 @@ export class PatientDocumentHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(
         `/api/v1/clinics/${clinicId}/patients/${patientId}/documents`,
-        { params: { type } },
+        {params: {type}},
       ),
     );
     return response.data.documents.map(toDomain);
@@ -103,7 +113,7 @@ export class PatientDocumentHttpRepository
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(
         `/api/v1/clinics/${clinicId}/patient-documents`,
-        { params: { type } },
+        {params: {type}},
       ),
     );
     return response.data.documents.map(toDomain);
@@ -113,12 +123,12 @@ export class PatientDocumentHttpRepository
     clinicId: string,
     patientId?: string,
   ): Promise<PatientDocument[]> {
-    const params: Record<string, string> = { type: DocumentType.MEDICAL };
+    const params: Record<string, string> = {type: DocumentType.MEDICAL};
     if (patientId) params.patientId = patientId;
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(
         `/api/v1/clinics/${clinicId}/patient-documents`,
-        { params },
+        {params},
       ),
     );
     return response.data.documents.map(toDomain);
@@ -128,12 +138,12 @@ export class PatientDocumentHttpRepository
     clinicId: string,
     patientId?: string,
   ): Promise<PatientDocument[]> {
-    const params: Record<string, string> = { type: DocumentType.INSURANCE };
+    const params: Record<string, string> = {type: DocumentType.INSURANCE};
     if (patientId) params.patientId = patientId;
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(
         `/api/v1/clinics/${clinicId}/patient-documents`,
-        { params },
+        {params},
       ),
     );
     return response.data.documents.map(toDomain);
@@ -143,12 +153,12 @@ export class PatientDocumentHttpRepository
     clinicId: string,
     patientId?: string,
   ): Promise<PatientDocument[]> {
-    const params: Record<string, string> = { type: DocumentType.GENERAL };
+    const params: Record<string, string> = {type: DocumentType.GENERAL};
     if (patientId) params.patientId = patientId;
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(
         `/api/v1/clinics/${clinicId}/patient-documents`,
-        { params },
+        {params},
       ),
     );
     return response.data.documents.map(toDomain);
@@ -159,12 +169,12 @@ export class PatientDocumentHttpRepository
     searchTerm: string,
     patientId?: string,
   ): Promise<PatientDocument[]> {
-    const params: Record<string, string> = { search: searchTerm };
+    const params: Record<string, string> = {search: searchTerm};
     if (patientId) params.patientId = patientId;
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(
         `/api/v1/clinics/${clinicId}/patient-documents`,
-        { params },
+        {params},
       ),
     );
     return response.data.documents.map(toDomain);
@@ -173,7 +183,7 @@ export class PatientDocumentHttpRepository
   async findMultipleByIds(ids: string[]): Promise<PatientDocument[]> {
     const response = await this.execute(() =>
       axiosClient.get<PatientDocumentListDTO>(`${this.clinicBase}`, {
-        params: { ids: ids.join(",") },
+        params: {ids: ids.join(",")},
       }),
     );
     return response.data.documents.map(toDomain);
@@ -182,7 +192,7 @@ export class PatientDocumentHttpRepository
   async deleteMultiple(ids: string[]): Promise<void> {
     await this.execute(() =>
       axiosClient.delete(`${this.clinicBase}`, {
-        data: { ids },
+        data: {ids},
       }),
     );
   }

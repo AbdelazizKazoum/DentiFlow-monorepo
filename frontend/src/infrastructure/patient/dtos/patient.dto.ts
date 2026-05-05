@@ -1,4 +1,4 @@
-import { PatientGender, PatientStatus } from "@domain/patient/entities/patient";
+import {PatientGender, PatientStatus} from "@domain/patient/entities/patient";
 
 export interface PatientDTO {
   id: string;
