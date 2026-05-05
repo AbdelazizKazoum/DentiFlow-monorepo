@@ -1,5 +1,7 @@
 import { CreatePatientInput } from "../commands/CreatePatientInput";
 import { UpdatePatientInput } from "../commands/UpdatePatientInput";
+import { GetPatientsQuery } from "../commands/GetPatientsQuery";
+import { PatientListResponse } from "../queries/patientQueries";
 import { Patient } from "../entities/patient";
 
 /**
@@ -12,6 +14,9 @@ export interface PatientRepository {
   create(patient: CreatePatientInput): Promise<Patient>;
   update(id: string, updates: UpdatePatientInput): Promise<Patient>;
   delete(id: string): Promise<void>;
+
+  // Paginated & filtered list
+  findMany(query: GetPatientsQuery): Promise<PatientListResponse>;
 
   // Clinic-scoped queries
   findByClinicId(clinicId: string): Promise<Patient[]>;
