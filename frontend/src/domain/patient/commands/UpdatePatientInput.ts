@@ -1,4 +1,4 @@
-import { PatientGender, PatientStatus } from "../entities/patient";
+import {PatientGender, PatientStatus} from "../entities/patient";
 
 /**
  * Input data for updating an existing patient record.
@@ -7,6 +7,7 @@ import { PatientGender, PatientStatus } from "../entities/patient";
 export interface UpdatePatientInput {
   firstName?: string;
   lastName?: string;
+  cnie?: string;
   phone?: string;
   email?: string;
   dateOfBirth?: Date;

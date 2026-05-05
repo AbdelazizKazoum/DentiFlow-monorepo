@@ -1,4 +1,4 @@
-import { PatientGender, PatientStatus } from "../entities/patient";
+import {PatientGender, PatientStatus} from "../entities/patient";
 
 /**
  * Input data for creating a new patient record.
@@ -9,6 +9,7 @@ export interface CreatePatientInput {
   firstName: string;
   lastName: string;
   userId?: string; // Optional for walk-in patients
+  cnie?: string; // Optional Canadian National Identity Number
   phone?: string;
   email?: string;
   dateOfBirth?: Date;

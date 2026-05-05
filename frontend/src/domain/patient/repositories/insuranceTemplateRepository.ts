@@ -1,12 +1,12 @@
-import { CreateInsuranceTemplateInput } from "../commands/CreateInsuranceTemplateInput";
-import { UpdateInsuranceTemplateInput } from "../commands/UpdateInsuranceTemplateInput";
-import { InsuranceTemplate } from "../entities/insuranceTemplate";
+import {CreateInsuranceTemplateInput} from "../commands/CreateInsuranceTemplateInput";
+import {UpdateInsuranceTemplateInput} from "../commands/UpdateInsuranceTemplateInput";
+import {InsuranceTemplate} from "../entities/insuranceTemplate";
 
 /**
  * Repository interface for InsuranceTemplate entity operations.
  * Manages templates/forms provided by insurance providers for claims processing.
  */
-export interface InsuranceTemplateRepository {
+export interface IInsuranceTemplateRepository {
   // Basic CRUD operations
   findById(id: string): Promise<InsuranceTemplate | null>;
   create(template: CreateInsuranceTemplateInput): Promise<InsuranceTemplate>;

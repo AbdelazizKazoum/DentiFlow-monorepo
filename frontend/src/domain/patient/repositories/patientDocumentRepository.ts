@@ -1,12 +1,12 @@
-import { CreatePatientDocumentInput } from "../commands/CreatePatientDocumentInput";
-import { UpdatePatientDocumentInput } from "../commands/UpdatePatientDocumentInput";
-import { PatientDocument, DocumentType } from "../entities/patientDocument";
+import {CreatePatientDocumentInput} from "../commands/CreatePatientDocumentInput";
+import {UpdatePatientDocumentInput} from "../commands/UpdatePatientDocumentInput";
+import {PatientDocument, DocumentType} from "../entities/patientDocument";
 
 /**
  * Repository interface for PatientDocument entity operations.
  * Manages documents associated with patients (medical records, insurance forms, etc.).
  */
-export interface PatientDocumentRepository {
+export interface IPatientDocumentRepository {
   // Basic CRUD operations
   findById(id: string): Promise<PatientDocument | null>;
   create(document: CreatePatientDocumentInput): Promise<PatientDocument>;

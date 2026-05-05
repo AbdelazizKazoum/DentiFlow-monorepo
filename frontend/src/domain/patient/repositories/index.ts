@@ -1,5 +1,5 @@
-export type { PatientRepository } from "./patientRepository";
-export type { InsuranceProviderRepository } from "./insuranceProviderRepository";
-export type { InsuranceTemplateRepository } from "./insuranceTemplateRepository";
-export type { PatientInsuranceRepository } from "./patientInsuranceRepository";
-export type { PatientDocumentRepository } from "./patientDocumentRepository";
+export type {IPatientRepository} from "./patientRepository";
+export type {IInsuranceProviderRepository} from "./insuranceProviderRepository";
+export type {IInsuranceTemplateRepository} from "./insuranceTemplateRepository";
+export type {IPatientInsuranceRepository} from "./patientInsuranceRepository";
+export type {IPatientDocumentRepository} from "./patientDocumentRepository";

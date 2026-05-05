@@ -1,12 +1,12 @@
-import { CreatePatientInsuranceInput } from "../commands/CreatePatientInsuranceInput";
-import { UpdatePatientInsuranceInput } from "../commands/UpdatePatientInsuranceInput";
-import { PatientInsurance } from "../entities/patientInsurance";
+import {CreatePatientInsuranceInput} from "../commands/CreatePatientInsuranceInput";
+import {UpdatePatientInsuranceInput} from "../commands/UpdatePatientInsuranceInput";
+import {PatientInsurance} from "../entities/patientInsurance";
 
 /**
  * Repository interface for PatientInsurance entity operations.
  * Manages the relationship between patients and their insurance coverage.
  */
-export interface PatientInsuranceRepository {
+export interface IPatientInsuranceRepository {
   // Basic CRUD operations
   findById(id: string): Promise<PatientInsurance | null>;
   create(insurance: CreatePatientInsuranceInput): Promise<PatientInsurance>;

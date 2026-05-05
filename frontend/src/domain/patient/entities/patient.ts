@@ -58,6 +58,8 @@ export class Patient {
     public readonly medicalNotes?: string,
     /** Soft delete timestamp (NULL if not deleted) */
     public readonly deletedAt?: Date,
+    /** Canadian National Identity Number (CNIE) */
+    public readonly cnie?: string,
   ) {}
 
   /** Computed property for patient's full name */
