@@ -13,6 +13,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from "@nestjs/common";
 import {ClientGrpc} from "@nestjs/microservices";
 import {lastValueFrom} from "rxjs";
@@ -20,6 +21,11 @@ import {status as GrpcStatus} from "@grpc/grpc-js";
 import {ApiTags} from "@nestjs/swagger";
 import {CLINIC_GRPC_CLIENT} from "../../infrastructure/grpc/clinic-grpc-client.module";
 import {ClinicProto} from "@lib/proto";
+import {JwtAuthGuard} from "../../shared/guards/jwt-auth.guard";
+import {RolesGuard} from "../../shared/guards/roles.guard";
+import {ClinicScopeGuard} from "../../shared/guards/clinic-scope.guard";
+import {Roles} from "../../shared/decorators/roles.decorator";
+import {UserRole} from "../../domain/auth/enums/user-role.enum";
 
 type ClinicServiceClient = ClinicProto.ClinicServiceClient;
 type CreateClinicRequest = ClinicProto.CreateClinicRequest;
@@ -30,6 +36,7 @@ const CLINIC_SERVICE_NAME = ClinicProto.CLINIC_SERVICE_NAME;
 
 @ApiTags("clinics")
 @Controller("clinics")
+@UseGuards(JwtAuthGuard, RolesGuard, ClinicScopeGuard)
 export class ClinicController implements OnModuleInit {
   private clinicGrpcService!: ClinicServiceClient;
 
@@ -43,6 +50,7 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
   async create(@Body() dto: CreateClinicRequest) {
     try {
       return await lastValueFrom(this.clinicGrpcService.createClinic(dto));
@@ -52,6 +60,12 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Get(":id")
+  @Roles(
+    UserRole.ADMIN,
+    UserRole.DOCTOR,
+    UserRole.SECRETARY,
+    UserRole.DENTAL_ASSISTANT,
+  )
   async findOne(@Param("id", ParseUUIDPipe) id: string) {
     try {
       return await lastValueFrom(this.clinicGrpcService.getClinic({id}));
@@ -61,6 +75,7 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Put(":id/working-hours")
+  @Roles(UserRole.ADMIN, UserRole.SECRETARY)
   async upsertHours(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: {entries: UpsertWorkingHoursRequest["entries"]},
@@ -78,6 +93,12 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Get(":id/working-hours")
+  @Roles(
+    UserRole.ADMIN,
+    UserRole.DOCTOR,
+    UserRole.SECRETARY,
+    UserRole.DENTAL_ASSISTANT,
+  )
   async getHours(@Param("id", ParseUUIDPipe) id: string) {
     try {
       return await lastValueFrom(
@@ -89,6 +110,7 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Post(":id/staff")
+  @Roles(UserRole.ADMIN)
   async addStaff(
     @Param("id", ParseUUIDPipe) id: string,
     @Body() dto: Omit<CreateStaffMemberRequest, "clinicId">,
@@ -103,6 +125,12 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Get(":id/staff")
+  @Roles(
+    UserRole.ADMIN,
+    UserRole.DOCTOR,
+    UserRole.SECRETARY,
+    UserRole.DENTAL_ASSISTANT,
+  )
   async listStaff(@Param("id", ParseUUIDPipe) id: string) {
     try {
       return await lastValueFrom(
@@ -114,6 +142,12 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Get(":id/staff/:userId")
+  @Roles(
+    UserRole.ADMIN,
+    UserRole.DOCTOR,
+    UserRole.SECRETARY,
+    UserRole.DENTAL_ASSISTANT,
+  )
   async getStaff(
     @Param("id", ParseUUIDPipe) id: string,
     @Param("userId", ParseUUIDPipe) userId: string,
@@ -128,6 +162,7 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Put(":id/staff/:staffId")
+  @Roles(UserRole.ADMIN)
   async updateStaff(
     @Param("id", ParseUUIDPipe) id: string,
     @Param("staffId", ParseUUIDPipe) staffId: string,
@@ -147,6 +182,7 @@ export class ClinicController implements OnModuleInit {
   }
 
   @Delete(":id/staff/:staffId")
+  @Roles(UserRole.ADMIN)
   async deleteStaff(
     @Param("id", ParseUUIDPipe) id: string,
     @Param("staffId", ParseUUIDPipe) staffId: string,

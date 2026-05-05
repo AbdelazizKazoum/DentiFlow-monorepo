@@ -1,8 +1,10 @@
 // infrastructure/http/axiosClient.ts
+// No baseURL — requests use relative paths (e.g. /api/v1/clinics/...) so they
+// hit the Next.js BFF proxy at the same origin. The proxy adds the Authorization
+// header server-side from the HttpOnly session cookie. The browser never sees the token.
 
 import axios from "axios";
 
 export const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true, // important if using refresh token cookies
+  withCredentials: true,
 });
