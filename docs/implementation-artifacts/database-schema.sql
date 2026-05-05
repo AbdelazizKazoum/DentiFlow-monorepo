@@ -239,22 +239,130 @@ CREATE TABLE patients (
   id            CHAR(36)     NOT NULL DEFAULT (UUID()),
   clinic_id     CHAR(36)     NOT NULL,
   user_id       CHAR(36)         NULL COMMENT 'FK to auth_service.users — NULL for walk-in patients with no login account',
+
+  -- Identity
   first_name    VARCHAR(100) NOT NULL,
   last_name     VARCHAR(100) NOT NULL,
-  phone         VARCHAR(30)      NULL,   -- used for WhatsApp notifications
-  email         VARCHAR(255)     NULL,   -- contact email for notifications — NOT a login credential
+
+  -- Contact
+  phone         VARCHAR(30)      NULL,
+  email         VARCHAR(255)     NULL,
+
+  -- Basic info
   date_of_birth DATE             NULL,
   gender        ENUM('MALE','FEMALE','OTHER') NULL,
   address       TEXT             NULL,
-  notes         TEXT             NULL COMMENT 'Internal clinic notes — never shown to patients',
+
+  -- Admin notes (non-medical)
+  notes         TEXT             NULL COMMENT 'Internal clinic notes — non-medical',
+
+  -- ✅ Medical Info (MVP version)
+  allergies           TEXT NULL COMMENT 'Known allergies (e.g. penicillin)',
+  chronic_conditions  TEXT NULL COMMENT 'Diabetes, hypertension, etc.',
+  current_medications TEXT NULL COMMENT 'Medications patient is currently taking',
+  medical_notes       TEXT NULL COMMENT 'Doctor notes about patient health risks',
+
+  -- Lifecycle
+  status        ENUM('ACTIVE','INACTIVE','ARCHIVED') NOT NULL DEFAULT 'ACTIVE',
+  deleted_at    DATETIME         NULL,
+
+  -- Audit
   created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   PRIMARY KEY (id),
+
   INDEX idx_patients_clinic  (clinic_id),
   INDEX idx_patients_user    (user_id),
-  INDEX idx_patients_phone   (clinic_id, phone),                -- for secretary phone-number lookup
-  INDEX idx_patients_name    (clinic_id, last_name, first_name) -- for secretary name search
+  INDEX idx_patients_phone   (clinic_id, phone),
+  INDEX idx_patients_name    (clinic_id, last_name, first_name),
+  INDEX idx_patients_status  (clinic_id, status)
+);
+
+CREATE TABLE insurance_providers (
+  id          CHAR(36)     NOT NULL DEFAULT (UUID()),
+  clinic_id   CHAR(36)     NOT NULL,
+
+  name        VARCHAR(255) NOT NULL,  -- e.g. CNSS, AXA
+  code        VARCHAR(50)      NULL,
+
+  is_active   BOOLEAN      NOT NULL DEFAULT TRUE,
+
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_insurance_name_clinic (clinic_id, name),
+  INDEX idx_insurance_clinic (clinic_id)
+);
+
+CREATE TABLE insurance_templates (
+  id                     CHAR(36)     NOT NULL DEFAULT (UUID()),
+  insurance_provider_id  CHAR(36)     NOT NULL,
+
+  name        VARCHAR(255) NOT NULL,   -- e.g. "Reimbursement Form"
+  file_url    VARCHAR(500) NOT NULL,   -- stored in S3 or similar
+
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  INDEX idx_templates_provider (insurance_provider_id),
+
+  CONSTRAINT fk_templates_provider
+    FOREIGN KEY (insurance_provider_id)
+    REFERENCES insurance_providers (id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE patient_insurances (
+  id                     CHAR(36)     NOT NULL DEFAULT (UUID()),
+  clinic_id              CHAR(36)     NOT NULL,
+  patient_id             CHAR(36)     NOT NULL,
+  insurance_provider_id  CHAR(36)     NOT NULL,
+
+  policy_number          VARCHAR(100) NULL,
+  member_id              VARCHAR(100) NULL,
+
+  is_active              BOOLEAN      NOT NULL DEFAULT TRUE,
+
+  created_at             DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at             DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+
+  INDEX idx_patient_insurance_patient (clinic_id, patient_id),
+  INDEX idx_patient_insurance_provider (clinic_id, insurance_provider_id),
+
+  CONSTRAINT fk_patient_insurance_patient
+    FOREIGN KEY (patient_id)
+    REFERENCES patients (id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_patient_insurance_provider
+    FOREIGN KEY (insurance_provider_id)
+    REFERENCES insurance_providers (id)
+);
+
+CREATE TABLE patient_documents (
+  id          CHAR(36)     NOT NULL DEFAULT (UUID()),
+  clinic_id   CHAR(36)     NOT NULL,
+  patient_id  CHAR(36)     NOT NULL,
+
+  type        ENUM('GENERAL','INSURANCE','MEDICAL','OTHER') NOT NULL DEFAULT 'GENERAL',
+
+  title       VARCHAR(255)     NULL,
+  file_url    VARCHAR(500) NOT NULL,
+
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+
+  INDEX idx_documents_patient (clinic_id, patient_id),
+
+  CONSTRAINT fk_documents_patient
+    FOREIGN KEY (patient_id)
+    REFERENCES patients (id)
+    ON DELETE CASCADE
 );
 
 
