@@ -1,0 +1,10 @@
+export { CreatePatientInput } from "./CreatePatientInput";
+export { UpdatePatientInput } from "./UpdatePatientInput";
+export { CreateInsuranceProviderInput } from "./CreateInsuranceProviderInput";
+export { UpdateInsuranceProviderInput } from "./UpdateInsuranceProviderInput";
+export { CreateInsuranceTemplateInput } from "./CreateInsuranceTemplateInput";
+export { UpdateInsuranceTemplateInput } from "./UpdateInsuranceTemplateInput";
+export { CreatePatientInsuranceInput } from "./CreatePatientInsuranceInput";
+export { UpdatePatientInsuranceInput } from "./UpdatePatientInsuranceInput";
+export { CreatePatientDocumentInput } from "./CreatePatientDocumentInput";
+export { UpdatePatientDocumentInput } from "./UpdatePatientDocumentInput";
