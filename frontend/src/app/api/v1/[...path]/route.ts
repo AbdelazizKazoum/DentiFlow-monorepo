@@ -11,9 +11,9 @@
  *    writes it back via Set-Cookie in the response so the browser silently gets a
  *    fresh session for future requests — all without any client-side token handling.
  */
-import {NextRequest, NextResponse} from "next/server";
-import {getToken, encode} from "next-auth/jwt";
-import type {JWT} from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
+import { getToken, encode } from "next-auth/jwt";
+import type { JWT } from "next-auth/jwt";
 
 const GATEWAY_URL =
   process.env.API_GATEWAY_INTERNAL_URL ?? "http://localhost:3001";
@@ -47,7 +47,7 @@ async function refreshBackendToken(token: RawToken): Promise<{
   try {
     const res = await fetch(`${GATEWAY_URL}/api/v1/auth/refresh`, {
       method: "POST",
-      headers: {Authorization: `Bearer ${refreshToken}`},
+      headers: { Authorization: `Bearer ${refreshToken}` },
     });
 
     if (!res.ok) return null;
@@ -71,26 +71,33 @@ async function refreshBackendToken(token: RawToken): Promise<{
       maxAge: SESSION_MAX_AGE_SECONDS,
     });
 
-    return {freshAccessToken: data.accessToken, encodedCookie};
+    return { freshAccessToken: data.accessToken, encodedCookie };
   } catch {
     // Network error or unexpected failure — caller will fall back to the old token
     return null;
   }
 }
 
-type RouteContext = {params: Promise<{path: string[]}>};
+type RouteContext = { params: Promise<{ path: string[] }> };
 
 async function forward(
   req: NextRequest,
   ctx: RouteContext,
 ): Promise<NextResponse> {
-  const {path} = await ctx.params;
+  const { path } = await ctx.params;
 
-  const token = await getToken({req, secret: SECRET});
+  const token = await getToken({
+    req,
+    secret: SECRET,
+    cookieName: COOKIE_NAME,
+  });
 
   // No session at all — unauthenticated
   if (!token) {
-    return NextResponse.json({message: "Unauthorized"}, {status: 401});
+    return NextResponse.json(
+      { message: "Unauthorized" },
+      { status: 401, headers: { "X-Auth-Error": "no-session" } },
+    );
   }
 
   // Check if the backend access token needs refreshing
@@ -134,7 +141,7 @@ async function forward(
   const upstream = await fetch(target.toString(), {
     method: req.method,
     headers,
-    ...(body !== undefined && {body}),
+    ...(body !== undefined && { body }),
   });
 
   const responseData = await upstream.arrayBuffer();

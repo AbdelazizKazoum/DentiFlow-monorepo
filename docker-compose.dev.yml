@@ -46,6 +46,7 @@ services:
       AUTH_SERVICE_URL: http://auth-service:3002
       AUTH_SERVICE_GRPC_URL: auth-service:5001
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
+      FRONTEND_URL: http://192.168.130.95:3000
     ports:
       - "127.0.0.1:3001:3001"
     extra_hosts:

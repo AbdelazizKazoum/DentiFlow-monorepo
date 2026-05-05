@@ -8,19 +8,25 @@
 // next-auth.session-token cookie in the response. No client-side refresh logic needed.
 
 import axios from "axios";
-import {signOut} from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 export const axiosClient = axios.create({
   withCredentials: true,
 });
 
-// If the BFF returns 401 it means the refresh token itself has expired and the
-// session is unrecoverable. Sign out and redirect to login.
+// Only sign out when the BFF itself says there is no valid session
+// (X-Auth-Error: no-session). A plain 401 from the backend (e.g. an expired
+// access token on an endpoint that the BFF couldn't refresh) should NOT
+// immediately sign the user out — the next request will trigger a refresh.
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: unknown) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      await signOut({callbackUrl: "/en/admin/login"});
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      error.response.headers["x-auth-error"] === "no-session"
+    ) {
+      await signOut({ callbackUrl: "/en/admin/login" });
     }
     return Promise.reject(error);
   },

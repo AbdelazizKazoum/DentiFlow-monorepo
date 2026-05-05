@@ -1,13 +1,13 @@
 import "reflect-metadata";
-import {NestFactory} from "@nestjs/core";
-import {ValidationPipe} from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
 import cookieParser from "cookie-parser";
-import {AppModule} from "./app.module";
-import {AppLogger, CorrelationInterceptor} from "../../lib";
-import {ConfigService} from "@nestjs/config";
+import { AppModule } from "./app.module";
+import { AppLogger, CorrelationInterceptor } from "../../lib";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {bufferLogs: true});
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   app.useLogger(app.get(AppLogger));
   app.useGlobalInterceptors(app.get(CorrelationInterceptor));
@@ -16,8 +16,8 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const frontendUrl =
-    configService.get<string>("FRONTEND_URL") ?? "http://localhost:3000";
-  // configService.get<string>("FRONTEND_URL") ?? "http://192.168.130.95:3000";
+    // configService.get<string>("FRONTEND_URL") ?? "http://localhost:3000";
+    configService.get<string>("FRONTEND_URL") ?? "http://192.168.130.95:3000";
 
   app.enableCors({
     origin: frontendUrl,
@@ -26,7 +26,7 @@ async function bootstrap() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
-  app.useGlobalPipes(new ValidationPipe({whitelist: true, transform: true}));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   // /health and /events/queue are outside the versioned API prefix
   app.setGlobalPrefix("api/v1", {
