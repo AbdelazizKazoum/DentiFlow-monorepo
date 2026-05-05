@@ -9,12 +9,14 @@ export {
   CorrelationInterceptor,
   correlationStore,
 } from "./logger";
-export type {LogContext, CorrelationContext} from "./logger";
+export type { LogContext, CorrelationContext } from "./logger";
 export {
   ConfigModule,
   baseSchema,
   jwtSchema,
   databaseSchema,
+  refreshTokenSchema,
+  authServiceSchema,
   NodeEnvironment,
 } from "./config";
-export type {ValidatedEnv} from "./config";
+export type { ValidatedEnv } from "./config";

@@ -23,8 +23,31 @@ export const jwtSchema = baseSchema.concat(
   }),
 );
 
-/** Adds DB vars on top of JWT — for services with a database. */
+/** Adds refresh-token vars — auth-service only. Do NOT chain into databaseSchema
+ *  because clinic-service and other DB services don't use refresh tokens.
+ */
+export const refreshTokenSchema = jwtSchema.concat(
+  Joi.object({
+    REFRESH_TOKEN_SECRET: Joi.string().required(),
+    REFRESH_TOKEN_EXPIRES_IN: Joi.number().default(604800), // seconds — 7 days
+  }),
+);
+
+/** Adds DB vars on top of jwtSchema — for services with a database (clinic-service etc.).
+ *  Does NOT include refresh-token vars; auth-service adds those separately.
+ */
 export const databaseSchema = jwtSchema.concat(
+  Joi.object({
+    DB_HOST: Joi.string().required(),
+    DB_PORT: Joi.number().port().default(3306),
+    DB_USERNAME: Joi.string().required(),
+    DB_PASSWORD: Joi.string().required(),
+    DB_NAME: Joi.string().required(),
+  }),
+);
+
+/** Full schema for the auth-service: JWT + refresh tokens + DB. */
+export const authServiceSchema = refreshTokenSchema.concat(
   Joi.object({
     DB_HOST: Joi.string().required(),
     DB_PORT: Joi.number().port().default(3306),
