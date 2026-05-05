@@ -1,7 +1,7 @@
-import {Staff, StaffRole, StaffStatus} from "../../domain/staff/entities/staff";
+import {Staff, StaffRole, StaffStatus} from "@domain/staff/entities/staff";
 import type {StaffDTO, CreateStaffDTO, UpdateStaffDTO} from "./staff.dto";
-import type {CreateStaffInput} from "../../domain/staff/commands/CreateStaffInput";
-import type {UpdateStaffInput} from "../../domain/staff/commands/UpdateStaffInput";
+import type {CreateStaffInput} from "@domain/staff/commands/CreateStaffInput";
+import type {UpdateStaffInput} from "@domain/staff/commands/UpdateStaffInput";
 
 const emptyToUndefined = (v: string): string | undefined =>
   v === "" ? undefined : v;
