@@ -19,9 +19,7 @@ export interface GetPatientsQuery {
 
   // Date range filters
   createdFrom?: Date; // Filter patients created on or after this date
-  createdTo?: Date;   // Filter patients created on or before this date
-  dateOfBirthFrom?: Date; // Filter patients born on or after this date
-  dateOfBirthTo?: Date;   // Filter patients born on or before this date
+  createdTo?: Date; // Filter patients created on or before this date
 
   // Sorting
   sortBy?: "firstName" | "lastName" | "createdAt" | "updatedAt";
