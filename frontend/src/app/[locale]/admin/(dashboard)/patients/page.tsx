@@ -22,6 +22,9 @@ import {
   LayoutGrid,
   RefreshCw,
   PhoneCall,
+  UserPlus,
+  Activity,
+  Heart,
 } from "lucide-react";
 import {
   Dialog,
@@ -1503,14 +1506,119 @@ export default function PatientsPage() {
 
   return (
     <>
-      <div className="p-6 lg:p-8 space-y-4">
+      <div className="p-6 lg:p-8 space-y-5">
+        {/* ── Stats Row ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4,1fr)",
+            gap: 14,
+          }}
+        >
+          {[
+            {
+              label: "Total Patients",
+              value: patients.length,
+              Icon: Users,
+              color: "var(--brand-primary)",
+              bg: "#eff6ff",
+            },
+            {
+              label: "Active Patients",
+              value: patients.filter((p) => p.status === "active").length,
+              Icon: Activity,
+              color: "#279C41",
+              bg: "#E8F8EC",
+            },
+            {
+              label: "New Patients",
+              value: patients.filter((p) => p.status === "new").length,
+              Icon: UserPlus,
+              color: "#7c3aed",
+              bg: "#f5f3ff",
+            },
+            {
+              label: "Inactive",
+              value: patients.filter((p) => p.status === "inactive").length,
+              Icon: Heart,
+              color: "#64748b",
+              bg: "#f1f5f9",
+            },
+          ].map(({label, value, Icon, color, bg}) => (
+            <div
+              key={label}
+              style={{
+                background: "var(--surface-card)",
+                border: "1px solid var(--border-ui)",
+                borderRadius: 14,
+                padding: "18px 20px",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                transition: "transform 0.15s,box-shadow 0.15s",
+                cursor: "default",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.transform =
+                  "translateY(-2px)";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 8px 22px rgba(0,0,0,0.10)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.transform = "none";
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  "0 1px 3px rgba(0,0,0,0.05)";
+              }}
+            >
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 12,
+                  background: bg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon size={22} color={color} />
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 800,
+                    color: "var(--foreground)",
+                    lineHeight: 1,
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  {value}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    marginTop: 3,
+                    fontWeight: 500,
+                  }}
+                >
+                  {label}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* ── Toolbar Card ── */}
         <div
           style={{
             background: "var(--surface-card)",
-            borderRadius: 10,
+            borderRadius: 12,
             border: "1px solid var(--border-ui)",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            boxShadow: "0 1px 6px rgba(0,0,0,0.07)",
             padding: "10px 14px",
             display: "flex",
             flexDirection: "column",
@@ -1735,17 +1843,31 @@ export default function PatientsPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
-                padding: "7px 14px",
-                borderRadius: 7,
+                gap: 6,
+                padding: "8px 16px",
+                borderRadius: 8,
                 border: "none",
                 background: "var(--brand-primary)",
                 color: "#fff",
                 fontSize: 13,
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: "pointer",
                 flexShrink: 0,
                 whiteSpace: "nowrap",
+                boxShadow: "0 2px 6px rgba(30,86,208,0.25)",
+                transition: "background 0.15s,box-shadow 0.15s,transform 0.1s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--brand-primary-dark)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(30,86,208,0.35)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--brand-primary)";
+                e.currentTarget.style.boxShadow =
+                  "0 2px 6px rgba(30,86,208,0.25)";
+                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
               <Plus size={14} /> Add Patient
@@ -1917,20 +2039,42 @@ export default function PatientsPage() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 12,
-              padding: "64px 0",
+              gap: 14,
+              padding: "72px 0",
               background: "var(--surface-card)",
-              borderRadius: 8,
+              borderRadius: 12,
               border: "1px solid var(--border-ui)",
+              boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
             }}
           >
-            <Users size={40} color="var(--text-placeholder)" />
-            <p
-              className="text-text-placeholder"
-              style={{fontSize: 14, margin: 0}}
+            <div
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                background: "#eff6ff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              No patients match your filters
-            </p>
+              <Users size={32} color="var(--brand-primary)" />
+            </div>
+            <div style={{textAlign: "center"}}>
+              <p
+                style={{
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "var(--foreground)",
+                  margin: "0 0 4px",
+                }}
+              >
+                No patients found
+              </p>
+              <p style={{fontSize: 13, color: "var(--text-muted)", margin: 0}}>
+                Try adjusting your search or filter criteria
+              </p>
+            </div>
             <button
               onClick={() => {
                 setSearch("");
@@ -1939,7 +2083,7 @@ export default function PatientsPage() {
                 setDatePreset(null);
               }}
               style={{
-                padding: "7px 18px",
+                padding: "8px 22px",
                 borderRadius: 8,
                 border: "1px solid var(--border-ui)",
                 background: "var(--surface-card)",
@@ -1947,6 +2091,7 @@ export default function PatientsPage() {
                 fontSize: 13,
                 color: "var(--foreground)",
                 fontWeight: 600,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
               }}
             >
               Clear Filters
@@ -1957,9 +2102,10 @@ export default function PatientsPage() {
           <div
             style={{
               background: "var(--surface-card)",
-              borderRadius: 8,
+              borderRadius: 12,
               border: "1px solid var(--border-ui)",
               overflow: "hidden",
+              boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
             }}
           >
             <div style={{overflowX: "auto"}}>
@@ -2024,8 +2170,13 @@ export default function PatientsPage() {
                         key={p.id}
                         style={{
                           borderBottom: "1px solid var(--border-ui)",
-                          background: isChecked ? "#eff6ff" : "transparent",
-                          transition: "background 0.1s",
+                          background: isChecked
+                            ? "rgba(30,86,208,0.05)"
+                            : "transparent",
+                          transition: "background 0.12s",
+                          cursor: "default",
+                          maxWidth: "95%", // Adjusted to ensure rows do not take full width
+                          margin: "0 auto", // Center align rows
                         }}
                         onMouseEnter={(e) => {
                           if (!isChecked)
@@ -2034,7 +2185,7 @@ export default function PatientsPage() {
                         }}
                         onMouseLeave={(e) => {
                           (e.currentTarget as HTMLElement).style.background =
-                            isChecked ? "#eff6ff" : "transparent";
+                            isChecked ? "rgba(30,86,208,0.05)" : "transparent";
                         }}
                       >
                         {/* Checkbox */}
@@ -2061,17 +2212,18 @@ export default function PatientsPage() {
                           >
                             <div
                               style={{
-                                width: 36,
-                                height: 36,
+                                width: 40,
+                                height: 40,
                                 borderRadius: "50%",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 flexShrink: 0,
                                 fontWeight: 700,
-                                fontSize: 13,
+                                fontSize: 14,
                                 color: "#fff",
                                 background: getAvatarColor(p.id),
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                               }}
                             >
                               {getInitials(p.name)}
@@ -2080,8 +2232,9 @@ export default function PatientsPage() {
                               <div
                                 style={{
                                   fontSize: 14,
-                                  fontWeight: 600,
+                                  fontWeight: 700,
                                   color: "var(--foreground)",
+                                  letterSpacing: "-0.01em",
                                 }}
                               >
                                 {p.name}
@@ -2243,7 +2396,8 @@ export default function PatientsPage() {
                               background: cfg.bg,
                               color: cfg.color,
                               fontSize: 12,
-                              fontWeight: 600,
+                              fontWeight: 700,
+                              letterSpacing: "0.01em",
                             }}
                           >
                             <span
@@ -2345,6 +2499,8 @@ export default function PatientsPage() {
                 gap: 4,
                 padding: "14px 20px",
                 borderTop: "1px solid var(--border-ui)",
+                maxWidth: "95%", // Adjusted to match row width
+                margin: "0 auto", // Center align pagination
               }}
             >
               {/* Prev */}
@@ -2478,15 +2634,16 @@ export default function PatientsPage() {
           <div
             style={{
               background: "var(--surface-card)",
-              borderRadius: 8,
+              borderRadius: 12,
               border: "1px solid var(--border-ui)",
               overflow: "hidden",
+              boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
             }}
           >
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill,240px)",
+                gridTemplateColumns: "repeat(auto-fill,260px)",
                 gap: 16,
                 padding: 20,
                 justifyContent: "start",
@@ -2499,13 +2656,29 @@ export default function PatientsPage() {
                     key={p.id}
                     style={{
                       background: "var(--surface-card)",
-                      borderRadius: 8,
-                      border: "1px solid var(--border-ui)",
+                      borderRadius: 12,
+                      borderTop: "3px solid " + getAvatarColor(p.id),
+                      borderRight: "1px solid var(--border-ui)",
+                      borderBottom: "1px solid var(--border-ui)",
+                      borderLeft: "1px solid var(--border-ui)",
                       padding: 16,
                       display: "flex",
                       flexDirection: "column",
                       gap: 12,
                       position: "relative",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                      transition: "transform 0.15s,box-shadow 0.15s",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform =
+                        "translateY(-3px)";
+                      (e.currentTarget as HTMLElement).style.boxShadow =
+                        "0 10px 28px rgba(0,0,0,0.12)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = "none";
+                      (e.currentTarget as HTMLElement).style.boxShadow =
+                        "0 1px 4px rgba(0,0,0,0.06)";
                     }}
                   >
                     <div style={{position: "absolute", top: 12, right: 12}}>
@@ -2527,8 +2700,8 @@ export default function PatientsPage() {
                     >
                       <div
                         style={{
-                          width: 44,
-                          height: 44,
+                          width: 52,
+                          height: 52,
                           borderRadius: "50%",
                           background: getAvatarColor(p.id),
                           display: "flex",
@@ -2536,7 +2709,9 @@ export default function PatientsPage() {
                           justifyContent: "center",
                           color: "#fff",
                           fontWeight: 700,
-                          fontSize: 16,
+                          fontSize: 18,
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+                          flexShrink: 0,
                         }}
                       >
                         {getInitials(p.name)}
@@ -2544,9 +2719,10 @@ export default function PatientsPage() {
                       <div>
                         <div
                           style={{
-                            fontSize: 14,
-                            fontWeight: 600,
+                            fontSize: 15,
+                            fontWeight: 700,
                             color: "var(--foreground)",
+                            lineHeight: 1.2,
                           }}
                         >
                           {p.name}
@@ -2742,6 +2918,8 @@ export default function PatientsPage() {
                 gap: 4,
                 padding: "14px 20px",
                 borderTop: "1px solid var(--border-ui)",
+                maxWidth: "95%", // Adjusted to match row width
+                margin: "0 auto", // Center align pagination
               }}
             >
               {/* Prev */}
