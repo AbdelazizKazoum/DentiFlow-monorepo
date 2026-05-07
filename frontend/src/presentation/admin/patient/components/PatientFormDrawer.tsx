@@ -9,6 +9,12 @@ import {
   Select,
   MenuItem,
   Checkbox,
+  Button,
+  IconButton,
+  Typography,
+  InputAdornment,
+  Chip,
+  Divider,
 } from "@mui/material";
 import {
   X,
@@ -53,57 +59,28 @@ function SectionHeader({
   icon,
   title,
   iconColor,
-  iconBg,
 }: {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   title: string;
-  iconColor: string;
-  iconBg: string;
+  iconColor?: string;
+  iconBg?: string;
 }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        marginBottom: 16,
-      }}
-    >
-      <div
-        style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
-          background: iconBg,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        {React.cloneElement(
-          icon as React.ReactElement<{ size?: number; color?: string }>,
-          { size: 15, color: iconColor },
-        )}
-      </div>
-      <span
-        style={{
-          fontSize: 13,
-          fontWeight: 700,
-          color: "var(--foreground)",
-          letterSpacing: "0.01em",
-        }}
+    <div className="flex items-center gap-2 mb-3">
+      {icon && iconColor && (
+        <span style={{ color: iconColor, display: "flex", alignItems: "center" }}>
+          {React.cloneElement(
+            icon as React.ReactElement<{ size?: number; color?: string }>,
+            { size: 14, color: iconColor },
+          )}
+        </span>
+      )}
+      <p
+        className="text-xs font-semibold uppercase tracking-widest"
+        style={{ color: "var(--text-muted)", margin: 0 }}
       >
         {title}
-      </span>
-      <div
-        style={{
-          flex: 1,
-          height: 1,
-          background: "var(--border-ui)",
-          marginLeft: 2,
-        }}
-      />
+      </p>
     </div>
   );
 }
@@ -136,10 +113,10 @@ function AccordionSection({
     <div
       style={{
         border: "1px solid var(--border-ui)",
-        borderRadius: 12,
+        borderRadius: 14,
         overflow: "hidden",
         boxShadow: open
-          ? "0 4px 20px rgba(0,0,0,0.08)"
+          ? "0 4px 24px rgba(30,86,208,0.09)"
           : "0 1px 3px rgba(0,0,0,0.04)",
         transition: "box-shadow 0.2s",
       }}
@@ -161,9 +138,9 @@ function AccordionSection({
       >
         <div
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
+            width: 38,
+            height: 38,
+            borderRadius: 11,
             background: iconBg,
             display: "flex",
             alignItems: "center",
@@ -173,53 +150,43 @@ function AccordionSection({
         >
           {React.cloneElement(
             icon as React.ReactElement<{ size?: number; color?: string }>,
-            { size: 16, color: iconColor },
+            { size: 17, color: iconColor },
           )}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: "var(--foreground)",
-            }}
-          >
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>
             {title}
-          </div>
+          </Typography>
           {summary && (
-            <div
-              style={{
+            <Typography
+              sx={{
                 fontSize: 11,
-                color: summaryMuted
-                  ? "var(--text-placeholder)"
-                  : "var(--text-muted)",
-                marginTop: 2,
+                color: summaryMuted ? "var(--text-placeholder)" : "var(--text-muted)",
+                mt: "2px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
             >
               {summary}
-            </div>
+            </Typography>
           )}
         </div>
         {savedBadge && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              padding: "3px 9px",
-              borderRadius: 20,
-              background: "#E8F8EC",
-              color: "#279C41",
+          <Chip
+            icon={<Check size={10} />}
+            label="Saved"
+            size="small"
+            sx={{
+              height: 22,
               fontSize: 10,
               fontWeight: 700,
+              background: "#E8F8EC",
+              color: "#279C41",
+              "& .MuiChip-icon": { color: "#279C41", ml: "6px" },
               flexShrink: 0,
             }}
-          >
-            <Check size={10} /> Saved
-          </span>
+          />
         )}
         <ChevronDown
           size={16}
@@ -282,6 +249,43 @@ enum DocumentType {
   OTHER = "OTHER",
 }
 
+// ── Error Banner ────────────────────────────────────────────────────────────
+function ErrorBanner({ message }: { message: string }) {
+  return (
+    <div className="flex items-center gap-3 p-3 mb-5 rounded-xl text-sm text-red-700 bg-red-50 border border-red-200">
+      <AlertCircle size={15} className="shrink-0" />
+      {message}
+    </div>
+  );
+}
+
+// ── Shared button styles ──────────────────────────────────────────────────────
+const primaryBtnSx = {
+  textTransform: "none",
+  fontWeight: 700,
+  borderRadius: "10px",
+  padding: "8px 20px",
+  fontSize: "0.8125rem",
+  backgroundColor: "var(--brand-primary)",
+  boxShadow: "0 2px 8px rgba(30,86,208,0.25)",
+  "&:hover": {
+    backgroundColor: "var(--brand-primary-dark)",
+    boxShadow: "0 4px 14px rgba(30,86,208,0.35)",
+  },
+  "&.Mui-disabled": { backgroundColor: "var(--brand-primary)", opacity: 0.5 },
+} as const;
+
+const outlinedBtnSx = {
+  textTransform: "none",
+  fontWeight: 600,
+  borderRadius: "10px",
+  padding: "8px 18px",
+  fontSize: "0.8125rem",
+  borderColor: "var(--border-ui)",
+  color: "var(--foreground)",
+  "&:hover": { borderColor: "var(--text-muted)", background: "var(--surface-page)" },
+} as const;
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export function PatientFormDrawer({
   open,
@@ -333,20 +337,10 @@ export function PatientFormDrawer({
     if (!open) {
       setCreateStep(1);
       setStepError("");
-      setInsurance({
-        insuranceProviderId: "",
-        isActive: true,
-        policyNumber: "",
-        memberId: "",
-      });
+      setInsurance({ insuranceProviderId: "", isActive: true, policyNumber: "", memberId: "" });
       setInsuranceSaved(false);
       setDocuments([]);
-      setDocForm({
-        type: DocumentType.GENERAL,
-        title: "",
-        fileName: "",
-        fileUrl: "",
-      });
+      setDocForm({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
       setShowDocForm(false);
       setOpenAccordion("patient");
       setSavedSection(null);
@@ -384,12 +378,7 @@ export function PatientFormDrawer({
   };
 
   const handleRemoveInsurance = () => {
-    setInsurance({
-      insuranceProviderId: "",
-      isActive: true,
-      policyNumber: "",
-      memberId: "",
-    });
+    setInsurance({ insuranceProviderId: "", isActive: true, policyNumber: "", memberId: "" });
     setInsuranceSaved(false);
   };
 
@@ -405,12 +394,7 @@ export function PatientFormDrawer({
         createdAt: new Date().toISOString(),
       },
     ]);
-    setDocForm({
-      type: DocumentType.GENERAL,
-      title: "",
-      fileName: "",
-      fileUrl: "",
-    });
+    setDocForm({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
     setShowDocForm(false);
   };
 
@@ -420,38 +404,28 @@ export function PatientFormDrawer({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file)
-      setDocForm((f) => ({
-        ...f,
-        fileName: file.name,
-        fileUrl: URL.createObjectURL(file),
-      }));
+      setDocForm((f) => ({ ...f, fileName: file.name, fileUrl: URL.createObjectURL(file) }));
   };
 
   const providerName = (id: string) =>
     insuranceProviders.find((p) => p.id === id)?.name ?? "";
 
-  // ── Shared JSX ──
+  // ── Patient Form Fields ──
   const patientFormFields = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className="flex flex-col gap-4">
+      {/* Personal Information */}
       <div>
-        <SectionHeader
-          icon={<User />}
-          title="Personal Information"
-          iconColor="#1e56d0"
-          iconBg="#eff6ff"
-        />
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-          >
+        <SectionHeader icon={<User />} title="Personal Information" iconColor="#1e56d0" iconBg="#eff6ff" />
+        <div className="flex flex-col gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
               label="First Name"
               fullWidth
               required
               value={form.firstName}
               onChange={inp("firstName")}
-              size="small"
               sx={TF_SX}
+              placeholder="e.g. Fatima"
             />
             <TextField
               label="Last Name"
@@ -459,36 +433,30 @@ export function PatientFormDrawer({
               required
               value={form.lastName}
               onChange={inp("lastName")}
-              size="small"
               sx={TF_SX}
+              placeholder="e.g. Benali"
             />
           </div>
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
               label="Date of Birth"
               type="date"
               fullWidth
               value={form.dateOfBirth}
               onChange={inp("dateOfBirth")}
-              size="small"
               sx={TF_SX}
               slotProps={{ inputLabel: { shrink: true } }}
             />
-            <FormControl fullWidth size="small" sx={TF_SX}>
+            <FormControl fullWidth sx={TF_SX}>
               <InputLabel>Gender</InputLabel>
               <Select
                 label="Gender"
                 value={form.gender}
                 onChange={(e) =>
-                  onChange({
-                    ...form,
-                    gender: e.target.value as PatientGender | "",
-                  })
+                  onChange({ ...form, gender: e.target.value as PatientGender | "" })
                 }
               >
-                <MenuItem value="">Not specified</MenuItem>
+                <MenuItem value=""><em style={{ fontSize: 14, color: "var(--text-placeholder)" }}>Not specified</em></MenuItem>
                 <MenuItem value={PatientGender.MALE}>Male</MenuItem>
                 <MenuItem value={PatientGender.FEMALE}>Female</MenuItem>
                 <MenuItem value={PatientGender.OTHER}>Other</MenuItem>
@@ -500,23 +468,19 @@ export function PatientFormDrawer({
             fullWidth
             value={form.cnie}
             onChange={inp("cnie")}
-            size="small"
             sx={TF_SX}
             placeholder="e.g. MR-12345"
           />
         </div>
       </div>
+
+      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+
+      {/* Contact Details */}
       <div>
-        <SectionHeader
-          icon={<Phone />}
-          title="Contact Details"
-          iconColor="#0891b2"
-          iconBg="#ecfeff"
-        />
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-          >
+        <SectionHeader icon={<Phone />} title="Contact Details" iconColor="#0891b2" iconBg="#ecfeff" />
+        <div className="flex flex-col gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
               label="Email Address"
               type="email"
@@ -524,15 +488,14 @@ export function PatientFormDrawer({
               required
               value={form.email}
               onChange={inp("email")}
-              size="small"
               sx={TF_SX}
+              placeholder="e.g. fatima@email.com"
             />
             <TextField
               label="Phone Number"
               fullWidth
               value={form.phone}
               onChange={inp("phone")}
-              size="small"
               sx={TF_SX}
               placeholder="+212 6XX-XXXXXX"
             />
@@ -542,148 +505,113 @@ export function PatientFormDrawer({
             fullWidth
             value={form.address}
             onChange={inp("address")}
-            size="small"
             sx={TF_SX}
             placeholder="Street, City, Postal Code"
             slotProps={{
               input: {
                 startAdornment: (
-                  <MapPin
-                    size={14}
-                    color="var(--text-placeholder)"
-                    style={{ marginRight: 6 }}
-                  />
+                  <InputAdornment position="start">
+                    <MapPin size={14} color="var(--text-placeholder)" />
+                  </InputAdornment>
                 ),
               },
             }}
           />
         </div>
       </div>
+
+      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+
+      {/* Patient Status */}
       <div>
-        <SectionHeader
-          icon={<Activity />}
-          title="Patient Status"
-          iconColor="#279C41"
-          iconBg="#E8F8EC"
-        />
-        <FormControl fullWidth size="small" sx={TF_SX}>
+        <SectionHeader icon={<Activity />} title="Patient Status" iconColor="#279C41" iconBg="#E8F8EC" />
+        <FormControl fullWidth sx={TF_SX}>
           <InputLabel>Status</InputLabel>
           <Select
             label="Status"
             value={form.status}
-            onChange={(e) =>
-              onChange({ ...form, status: e.target.value as PatientStatus })
-            }
+            onChange={(e) => onChange({ ...form, status: e.target.value as PatientStatus })}
           >
             <MenuItem value={PatientStatus.ACTIVE}>
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: "#279C41",
-                    display: "inline-block",
-                  }}
-                />
-                Active — Patient is actively receiving care
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                Active — Currently receiving care
               </span>
             </MenuItem>
             <MenuItem value={PatientStatus.INACTIVE}>
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: "#94a3b8",
-                    display: "inline-block",
-                  }}
-                />
-                Inactive — Patient is temporarily inactive
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                Inactive — Temporarily inactive
               </span>
             </MenuItem>
             <MenuItem value={PatientStatus.ARCHIVED}>
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: "#ea580c",
-                    display: "inline-block",
-                  }}
-                />
-                Archived — Record is archived (soft-deleted)
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-500 inline-block" />
+                Archived — Record archived
               </span>
             </MenuItem>
           </Select>
         </FormControl>
       </div>
+
+      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+
+      {/* Medical Information */}
       <div>
-        <SectionHeader
-          icon={<Heart />}
-          title="Medical Information"
-          iconColor="#dc2626"
-          iconBg="#fff5f5"
-        />
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <SectionHeader icon={<Heart />} title="Medical Information" iconColor="#dc2626" iconBg="#fff5f5" />
+        <div className="flex flex-col gap-1">
           <TextField
             label="Known Allergies"
             fullWidth
             value={form.allergies}
             onChange={inp("allergies")}
-            size="small"
-            sx={TF_SX}
+            sx={{ ...TF_SX, mb: 2 }}
             placeholder="e.g. Penicillin, Latex, Aspirin"
             helperText="List all known allergies, separated by commas"
           />
-          <TextField
-            label="Chronic Conditions"
-            fullWidth
-            value={form.chronicConditions}
-            onChange={inp("chronicConditions")}
-            size="small"
-            sx={TF_SX}
-            placeholder="e.g. Diabetes Type 2, Hypertension"
-          />
-          <TextField
-            label="Current Medications"
-            fullWidth
-            value={form.currentMedications}
-            onChange={inp("currentMedications")}
-            size="small"
-            sx={TF_SX}
-            placeholder="e.g. Metformin 500mg, Salbutamol inhaler"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+            <TextField
+              label="Chronic Conditions"
+              fullWidth
+              value={form.chronicConditions}
+              onChange={inp("chronicConditions")}
+              sx={TF_SX}
+              placeholder="e.g. Diabetes Type 2"
+            />
+            <TextField
+              label="Current Medications"
+              fullWidth
+              value={form.currentMedications}
+              onChange={inp("currentMedications")}
+              sx={TF_SX}
+              placeholder="e.g. Metformin 500mg"
+            />
+          </div>
           <TextField
             label="Medical Notes"
             fullWidth
             multiline
-            rows={2}
+            rows={3}
             value={form.medicalNotes}
             onChange={inp("medicalNotes")}
-            size="small"
             sx={TF_SX}
             placeholder="Additional medical notes from doctors..."
           />
         </div>
       </div>
+
+      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+
+      {/* Administrative Notes */}
       <div>
-        <SectionHeader
-          icon={<FileText />}
-          title="Administrative Notes"
-          iconColor="#7c3aed"
-          iconBg="#f5f3ff"
-        />
+        <SectionHeader icon={<FileText />} title="Administrative Notes" iconColor="#7c3aed" iconBg="#f5f3ff" />
         <TextField
           label="Notes"
           fullWidth
           multiline
-          rows={2}
+          rows={3}
           value={form.notes}
           onChange={inp("notes")}
-          size="small"
           sx={TF_SX}
           placeholder="Administrative notes (non-medical)..."
         />
@@ -691,9 +619,10 @@ export function PatientFormDrawer({
     </div>
   );
 
+  // ── Insurance Form Fields ──
   const insuranceFormFields = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <FormControl fullWidth size="small" sx={TF_SX}>
+    <div className="flex flex-col gap-4">
+      <FormControl fullWidth sx={TF_SX}>
         <InputLabel>Insurance Provider *</InputLabel>
         <Select
           label="Insurance Provider *"
@@ -703,9 +632,7 @@ export function PatientFormDrawer({
           }
         >
           <MenuItem value="">
-            <em style={{ fontSize: 13, color: "var(--text-placeholder)" }}>
-              Select a provider
-            </em>
+            <em style={{ fontSize: 13, color: "var(--text-placeholder)" }}>Select a provider</em>
           </MenuItem>
           {insuranceProviders.map((p) => (
             <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.875rem" }}>
@@ -714,15 +641,12 @@ export function PatientFormDrawer({
           ))}
         </Select>
       </FormControl>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextField
           label="Policy Number"
           fullWidth
           value={insurance.policyNumber}
-          onChange={(e) =>
-            setInsurance((s) => ({ ...s, policyNumber: e.target.value }))
-          }
-          size="small"
+          onChange={(e) => setInsurance((s) => ({ ...s, policyNumber: e.target.value }))}
           sx={TF_SX}
           placeholder="e.g. POL-12345"
         />
@@ -730,10 +654,7 @@ export function PatientFormDrawer({
           label="Member ID"
           fullWidth
           value={insurance.memberId}
-          onChange={(e) =>
-            setInsurance((s) => ({ ...s, memberId: e.target.value }))
-          }
-          size="small"
+          onChange={(e) => setInsurance((s) => ({ ...s, memberId: e.target.value }))}
           sx={TF_SX}
           placeholder="e.g. MBR-67890"
         />
@@ -744,55 +665,46 @@ export function PatientFormDrawer({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          padding: "10px 14px",
-          borderRadius: 8,
-          border: `1px solid ${insurance.isActive ? "#86efac" : "var(--border-ui)"}`,
+          gap: 12,
+          padding: "12px 14px",
+          borderRadius: 10,
+          border: `1.5px solid ${insurance.isActive ? "#86efac" : "var(--border-ui)"}`,
           background: insurance.isActive ? "#f0fdf4" : "var(--surface-page)",
           cursor: "pointer",
           textAlign: "left",
           width: "100%",
+          transition: "all 0.15s",
         }}
       >
         <Checkbox
           checked={insurance.isActive}
           size="small"
-          onChange={(e) =>
-            setInsurance((s) => ({ ...s, isActive: e.target.checked }))
-          }
+          onChange={(e) => setInsurance((s) => ({ ...s, isActive: e.target.checked }))}
           onClick={(e) => e.stopPropagation()}
-          sx={{
-            padding: 0,
-            color: "var(--text-placeholder)",
-            "&.Mui-checked": { color: "#279C41" },
-          }}
+          sx={{ padding: 0, color: "var(--text-placeholder)", "&.Mui-checked": { color: "#279C41" } }}
         />
         <div>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: insurance.isActive ? "#279C41" : "var(--foreground)",
-            }}
-          >
+          <Typography sx={{ fontSize: 13, fontWeight: 600, color: insurance.isActive ? "#279C41" : "var(--foreground)" }}>
             Coverage is Active
-          </div>
-          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+          </Typography>
+          <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
             Insurance is currently valid and accepted for billing
-          </div>
+          </Typography>
         </div>
+        {insurance.isActive && (
+          <Chip
+            label="Active"
+            size="small"
+            sx={{ ml: "auto", height: 20, fontSize: 10, fontWeight: 700, background: "#dcfce7", color: "#279C41" }}
+          />
+        )}
       </button>
     </div>
   );
 
+  // ── Insurance Saved Card ──
   const insuranceSavedCard = (
-    <div
-      style={{
-        border: "1px solid var(--border-ui)",
-        borderRadius: 10,
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ border: "1px solid var(--border-ui)", borderRadius: 12, overflow: "hidden" }}>
       <div
         style={{
           background: "linear-gradient(135deg, #ecfeff 0%, #e0f2fe 100%)",
@@ -803,111 +715,53 @@ export function PatientFormDrawer({
           justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Shield size={14} color="#0891b2" />
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#0891b2" }}>
+        <div className="flex items-center gap-2">
+          <Shield size={15} color="#0891b2" />
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#0891b2" }}>
             {providerName(insurance.insuranceProviderId)}
-          </span>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              padding: "2px 8px",
-              borderRadius: 20,
+          </Typography>
+          <Chip
+            label={insurance.isActive ? "Active" : "Inactive"}
+            size="small"
+            sx={{
+              height: 20,
               fontSize: 10,
               fontWeight: 700,
               background: insurance.isActive ? "#E8F8EC" : "#f1f5f9",
               color: insurance.isActive ? "#279C41" : "#64748b",
             }}
-          >
-            <span
-              style={{
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                background: insurance.isActive ? "#279C41" : "#94a3b8",
-              }}
-            />
-            {insurance.isActive ? "Active" : "Inactive"}
-          </span>
+          />
         </div>
-        <button
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<Edit2 size={11} />}
           onClick={handleRemoveInsurance}
-          style={{
-            padding: "4px 10px",
-            borderRadius: 6,
-            border: "1px solid var(--border-ui)",
-            background: "var(--surface-card)",
-            cursor: "pointer",
-            fontSize: 12,
-            fontWeight: 600,
-            color: "var(--foreground)",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-          }}
+          sx={{ ...outlinedBtnSx, padding: "4px 12px", fontSize: "0.75rem" }}
         >
-          <Edit2 size={11} /> Change
-        </button>
+          Change
+        </Button>
       </div>
       {(insurance.policyNumber || insurance.memberId) && (
-        <div
-          style={{
-            padding: "12px 16px",
-            display: "flex",
-            gap: 28,
-            background: "var(--surface-card)",
-          }}
-        >
+        <div className="flex gap-7 p-4" style={{ background: "var(--surface-card)" }}>
           {insurance.policyNumber && (
             <div>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "var(--text-placeholder)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  marginBottom: 3,
-                }}
-              >
+              <Typography sx={{ fontSize: 10, color: "var(--text-placeholder)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", mb: "3px" }}>
                 Policy Number
-              </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "var(--foreground)",
-                }}
-              >
+              </Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
                 {insurance.policyNumber}
-              </div>
+              </Typography>
             </div>
           )}
           {insurance.memberId && (
             <div>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "var(--text-placeholder)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  marginBottom: 3,
-                }}
-              >
+              <Typography sx={{ fontSize: 10, color: "var(--text-placeholder)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", mb: "3px" }}>
                 Member ID
-              </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "var(--foreground)",
-                }}
-              >
+              </Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
                 {insurance.memberId}
-              </div>
+              </Typography>
             </div>
           )}
         </div>
@@ -915,18 +769,11 @@ export function PatientFormDrawer({
     </div>
   );
 
+  // ── Documents Content ──
   const documentsContent = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {/* ── Insurance Templates ── */}
+    <div className="flex flex-col gap-3">
       {insuranceTemplates.length > 0 && (
-        <div
-          style={{
-            borderRadius: 10,
-            border: "1px solid var(--border-ui)",
-            overflow: "hidden",
-            marginBottom: 4,
-          }}
-        >
+        <div style={{ borderRadius: 12, border: "1px solid var(--border-ui)", overflow: "hidden", marginBottom: 4 }}>
           <div
             style={{
               padding: "10px 14px",
@@ -938,41 +785,30 @@ export function PatientFormDrawer({
             }}
           >
             <Shield size={13} color="#0891b2" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#0891b2" }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#0891b2" }}>
               Insurance Templates
-            </span>
-            <span
-              style={{
-                marginLeft: "auto",
-                fontSize: 10,
-                color: "#0891b2",
-                background: "#cffafe",
-                padding: "2px 7px",
-                borderRadius: 20,
-                fontWeight: 700,
-              }}
-            >
-              {insuranceTemplates.length}
-            </span>
+            </Typography>
+            <Chip
+              label={insuranceTemplates.length}
+              size="small"
+              sx={{ ml: "auto", height: 20, fontSize: 10, fontWeight: 700, background: "#cffafe", color: "#0891b2" }}
+            />
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div className="flex flex-col">
             {insuranceTemplates.map((tpl, idx) => (
               <div
                 key={tpl.id}
+                className="flex items-center gap-3 p-3"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "10px 14px",
                   borderTop: idx > 0 ? "1px solid var(--border-ui)" : "none",
                   background: "var(--surface-card)",
                 }}
               >
                 <div
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
+                    width: 34,
+                    height: 34,
+                    borderRadius: 9,
                     background: "#e0f2fe",
                     display: "flex",
                     alignItems: "center",
@@ -982,54 +818,26 @@ export function PatientFormDrawer({
                 >
                   <FileText size={14} color="#0891b2" />
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "var(--foreground)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                <div className="flex-1 min-w-0">
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {tpl.name}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "var(--text-placeholder)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  </Typography>
+                  <Typography sx={{ fontSize: 11, color: "var(--text-placeholder)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {tpl.getFileName()}
-                  </div>
+                  </Typography>
                 </div>
-                <a
+                <Button
+                  component="a"
                   href={tpl.fileUrl || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 4,
-                    padding: "5px 10px",
-                    borderRadius: 7,
-                    border: "1px solid var(--border-ui)",
-                    background: "var(--surface-card)",
-                    color: "var(--foreground)",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    cursor: "pointer",
-                    flexShrink: 0,
-                  }}
+                  size="small"
+                  variant="outlined"
+                  startIcon={<Upload size={11} />}
+                  sx={{ ...outlinedBtnSx, padding: "4px 12px", fontSize: "0.75rem", flexShrink: 0 }}
                 >
-                  <Upload size={11} />
                   Download
-                </a>
+                </Button>
               </div>
             ))}
           </div>
@@ -1040,37 +848,34 @@ export function PatientFormDrawer({
         <div
           style={{
             textAlign: "center",
-            padding: "24px 16px",
-            color: "var(--text-placeholder)",
-            fontSize: 13,
+            padding: "28px 16px",
+            borderRadius: 12,
+            border: "1px dashed var(--border-ui)",
+            background: "var(--surface-page)",
           }}
         >
-          No documents uploaded yet
+          <FolderOpen size={28} color="var(--text-placeholder)" style={{ margin: "0 auto 8px" }} />
+          <Typography sx={{ fontSize: 13, color: "var(--text-placeholder)", fontWeight: 500 }}>
+            No documents uploaded yet
+          </Typography>
         </div>
       )}
+
       {documents.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="flex flex-col gap-2">
           {documents.map((doc) => {
-            const dtCfg =
-              DOC_TYPE_CONFIG[doc.type as keyof typeof DOC_TYPE_CONFIG];
+            const dtCfg = DOC_TYPE_CONFIG[doc.type as keyof typeof DOC_TYPE_CONFIG];
             return (
               <div
                 key={doc.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "10px 14px",
-                  borderRadius: 8,
-                  border: "1px solid var(--border-ui)",
-                  background: "var(--surface-page)",
-                }}
+                className="flex items-center gap-3 p-3"
+                style={{ borderRadius: 10, border: "1px solid var(--border-ui)", background: "var(--surface-page)" }}
               >
                 <div
                   style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: 8,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 9,
                     background: dtCfg?.bg ?? "#f1f5f9",
                     display: "flex",
                     alignItems: "center",
@@ -1080,119 +885,61 @@ export function PatientFormDrawer({
                 >
                   <FileText size={15} color={dtCfg?.color ?? "#64748b"} />
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: "var(--foreground)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                <div className="flex-1 min-w-0">
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {doc.title || doc.fileUrl.split("/").pop() || "Document"}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      marginTop: 3,
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        padding: "1px 7px",
-                        borderRadius: 20,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        background: dtCfg?.bg ?? "#f1f5f9",
-                        color: dtCfg?.color ?? "#64748b",
-                      }}
-                    >
-                      {dtCfg?.label ?? doc.type}
-                    </span>
-                    <span
-                      style={{ fontSize: 10, color: "var(--text-placeholder)" }}
-                    >
+                  </Typography>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <Chip
+                      label={dtCfg?.label ?? doc.type}
+                      size="small"
+                      sx={{ height: 18, fontSize: 10, fontWeight: 700, background: dtCfg?.bg ?? "#f1f5f9", color: dtCfg?.color ?? "#64748b" }}
+                    />
+                    <Typography sx={{ fontSize: 10, color: "var(--text-placeholder)" }}>
                       {new Date(doc.createdAt).toLocaleDateString()}
-                    </span>
+                    </Typography>
                   </div>
                 </div>
-                <button
+                <IconButton
+                  size="small"
                   onClick={() => handleRemoveDocument(doc.id)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 5,
-                    borderRadius: 6,
-                    color: "var(--text-placeholder)",
-                    display: "flex",
-                    alignItems: "center",
-                    flexShrink: 0,
-                  }}
+                  sx={{ color: "var(--text-placeholder)", "&:hover": { color: "#dc2626", background: "#fef2f2" } }}
                 >
                   <X size={14} />
-                </button>
+                </IconButton>
               </div>
             );
           })}
         </div>
       )}
+
       {showDocForm ? (
         <div
-          style={{
-            border: "1px solid var(--border-ui)",
-            borderRadius: 10,
-            padding: 16,
-            background: "var(--surface-page)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
+          style={{ border: "1px solid var(--border-ui)", borderRadius: 12, padding: 16, background: "var(--surface-page)" }}
+          className="flex flex-col gap-4"
         >
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-          >
-            <FormControl fullWidth size="small" sx={TF_SX}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormControl fullWidth sx={TF_SX}>
               <InputLabel>Document Type</InputLabel>
               <Select
                 label="Document Type"
                 value={docForm.type}
-                onChange={(e) =>
-                  setDocForm((f) => ({
-                    ...f,
-                    type: e.target.value as DocumentType,
-                  }))
-                }
+                onChange={(e) => setDocForm((f) => ({ ...f, type: e.target.value as DocumentType }))}
               >
                 {Object.values(DocumentType).map((t) => (
                   <MenuItem key={t} value={t} sx={{ fontSize: "0.875rem" }}>
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 7,
-                      }}
-                    >
+                    <span className="flex items-center gap-2">
                       <span
                         style={{
                           display: "inline-block",
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          background:
-                            DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]
-                              ?.color ?? "#64748b",
+                          background: DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]?.color ?? "#64748b",
                           flexShrink: 0,
                         }}
                       />
-                      {DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]
-                        ?.label ?? t}
+                      {DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]?.label ?? t}
                     </span>
                   </MenuItem>
                 ))}
@@ -1202,10 +949,7 @@ export function PatientFormDrawer({
               label="Title (optional)"
               fullWidth
               value={docForm.title}
-              onChange={(e) =>
-                setDocForm((f) => ({ ...f, title: e.target.value }))
-              }
-              size="small"
+              onChange={(e) => setDocForm((f) => ({ ...f, title: e.target.value }))}
               sx={TF_SX}
               placeholder="e.g. Insurance Card"
             />
@@ -1222,8 +966,8 @@ export function PatientFormDrawer({
             onClick={() => fileInputRef.current?.click()}
             style={{
               width: "100%",
-              padding: "20px 16px",
-              borderRadius: 8,
+              padding: "22px 16px",
+              borderRadius: 10,
               border: `2px dashed ${docForm.fileName ? "var(--brand-primary)" : "var(--border-ui)"}`,
               background: docForm.fileName ? "#eff6ff" : "var(--surface-card)",
               cursor: "pointer",
@@ -1231,131 +975,73 @@ export function PatientFormDrawer({
               flexDirection: "column",
               alignItems: "center",
               gap: 6,
+              transition: "all 0.15s",
             }}
           >
-            <Upload
-              size={20}
-              color={
-                docForm.fileName
-                  ? "var(--brand-primary)"
-                  : "var(--text-placeholder)"
-              }
-            />
+            <Upload size={22} color={docForm.fileName ? "var(--brand-primary)" : "var(--text-placeholder)"} />
             {docForm.fileName ? (
               <>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "var(--brand-primary)",
-                    maxWidth: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--brand-primary)", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {docForm.fileName}
-                </span>
-                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  Click to change file
-                </span>
+                </Typography>
+                <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>Click to change file</Typography>
               </>
             ) : (
               <>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "var(--foreground)",
-                  }}
-                >
+                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
                   Click to upload a file
-                </span>
-                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                </Typography>
+                <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
                   PDF, JPG, PNG, DOC — up to 10 MB
-                </span>
+                </Typography>
               </>
             )}
           </button>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <button
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outlined"
+              size="small"
               onClick={() => {
                 setShowDocForm(false);
-                setDocForm({
-                  type: DocumentType.GENERAL,
-                  title: "",
-                  fileName: "",
-                  fileUrl: "",
-                });
+                setDocForm({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
               }}
-              style={{
-                padding: "7px 16px",
-                borderRadius: 8,
-                border: "1px solid var(--border-ui)",
-                background: "var(--surface-card)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                color: "var(--foreground)",
-              }}
+              sx={outlinedBtnSx}
             >
               Cancel
-            </button>
-            <button
-              onClick={handleAddDocument}
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
               disabled={!docForm.fileName && !docForm.fileUrl}
-              style={{
-                padding: "7px 18px",
-                borderRadius: 8,
-                border: "none",
-                background:
-                  docForm.fileName || docForm.fileUrl
-                    ? "var(--brand-primary)"
-                    : "var(--border-ui)",
-                color:
-                  docForm.fileName || docForm.fileUrl
-                    ? "#fff"
-                    : "var(--text-placeholder)",
-                fontSize: 13,
-                fontWeight: 700,
-                cursor:
-                  docForm.fileName || docForm.fileUrl
-                    ? "pointer"
-                    : "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
+              onClick={handleAddDocument}
+              startIcon={<Upload size={13} />}
+              sx={primaryBtnSx}
             >
-              <Upload size={13} /> Upload Document
-            </button>
+              Upload Document
+            </Button>
           </div>
         </div>
       ) : (
-        <button
+        <Button
+          variant="outlined"
+          fullWidth
           onClick={() => setShowDocForm(true)}
-          style={{
-            width: "100%",
+          startIcon={<Plus size={14} />}
+          sx={{
+            ...outlinedBtnSx,
+            borderStyle: "dashed",
             padding: "10px 14px",
-            borderRadius: 8,
-            border: "1px dashed var(--border-ui)",
-            background: "var(--surface-card)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            fontSize: 13,
-            fontWeight: 600,
             color: "var(--text-muted)",
+            "&:hover": { borderColor: "var(--brand-primary)", color: "var(--brand-primary)", background: "#eff6ff" },
           }}
         >
-          <Plus size={14} /> Add Document
-        </button>
+          Add Document
+        </Button>
       )}
     </div>
   );
 
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
     <Drawer
       anchor="right"
@@ -1364,7 +1050,7 @@ export function PatientFormDrawer({
       slotProps={{
         paper: {
           sx: {
-            width: { xs: "100vw", sm: 620 },
+            width: { xs: "100vw", sm: 640 },
             display: "flex",
             flexDirection: "column",
             fontFamily: "inherit",
@@ -1373,43 +1059,26 @@ export function PatientFormDrawer({
         },
       }}
     >
-      {/* Header */}
+      {/* ── Header ── */}
       <div
         style={{
-          background:
-            "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
+          background: "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
           padding: "22px 24px 18px",
           flexShrink: 0,
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            right: -40,
-            top: -40,
-            width: 160,
-            height: 160,
-            borderRadius: "50%",
-            border: "32px solid rgba(255,255,255,0.07)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 16,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ position: "absolute", right: -40, top: -40, width: 180, height: 180, borderRadius: "50%", border: "36px solid rgba(255,255,255,0.07)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", right: 60, bottom: -20, width: 80, height: 80, borderRadius: "50%", border: "18px solid rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
             <div
               style={{
                 width: 52,
                 height: 52,
-                borderRadius: 14,
+                borderRadius: 15,
                 background: "rgba(255,255,255,0.18)",
                 border: "2px solid rgba(255,255,255,0.28)",
                 display: "flex",
@@ -1420,14 +1089,7 @@ export function PatientFormDrawer({
               }}
             >
               {isEdit && avatarInitials ? (
-                <span
-                  style={{
-                    fontSize: 19,
-                    fontWeight: 800,
-                    color: "#fff",
-                    letterSpacing: "-0.03em",
-                  }}
-                >
+                <span style={{ fontSize: 19, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>
                   {avatarInitials}
                 </span>
               ) : (
@@ -1435,85 +1097,51 @@ export function PatientFormDrawer({
               )}
             </div>
             <div>
-              <div
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: "rgba(255,255,255,0.6)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: 2,
-                }}
+              <Typography
+                sx={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.1em", mb: "2px" }}
               >
                 {isEdit
                   ? "Patient Record"
                   : createStep === 1
-                    ? "Step 1 of 3 — Patient Info"
-                    : createStep === 2
-                      ? "Step 2 of 3 — Insurance"
-                      : "Step 3 of 3 — Documents"}
-              </div>
-              <h2
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: "#fff",
-                  margin: 0,
-                  lineHeight: 1.2,
-                }}
-              >
+                  ? "Step 1 of 3 — Patient Info"
+                  : createStep === 2
+                  ? "Step 2 of 3 — Insurance"
+                  : "Step 3 of 3 — Documents"}
+              </Typography>
+              <Typography component="h2" sx={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>
                 {isEdit && (form.firstName || form.lastName)
                   ? `${form.firstName} ${form.lastName}`.trim()
                   : "New Patient Registration"}
-              </h2>
+              </Typography>
               {isEdit && form.id && (
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.55)",
-                    marginTop: 2,
-                  }}
-                >
+                <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.5)", mt: "2px" }}>
                   ID #{form.id}
-                </div>
+                </Typography>
               )}
             </div>
           </div>
-          <button
+          <IconButton
             onClick={onClose}
-            style={{
+            size="small"
+            sx={{
               background: "rgba(255,255,255,0.15)",
               border: "1px solid rgba(255,255,255,0.22)",
-              borderRadius: 8,
-              padding: "6px 7px",
-              cursor: "pointer",
               color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              flexShrink: 0,
+              "&:hover": { background: "rgba(255,255,255,0.25)" },
             }}
           >
             <X size={17} />
-          </button>
+          </IconButton>
         </div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 3,
-            background:
-              "linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%)",
-          }}
-        />
+
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.05) 100%)" }} />
       </div>
 
-      {/* Step Indicator (create mode) */}
+      {/* ── Step Indicator (create mode) ── */}
       {!isEdit && (
         <div
           style={{
-            padding: "14px 24px 13px",
+            padding: "14px 24px",
             borderBottom: "1px solid var(--border-ui)",
             background: "var(--surface-card)",
             display: "flex",
@@ -1523,11 +1151,11 @@ export function PatientFormDrawer({
         >
           {CREATE_STEPS.map((step, i) => (
             <React.Fragment key={step.id}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="flex items-center gap-2">
                 <div
                   style={{
-                    width: 26,
-                    height: 26,
+                    width: 28,
+                    height: 28,
                     borderRadius: "50%",
                     display: "flex",
                     alignItems: "center",
@@ -1537,27 +1165,25 @@ export function PatientFormDrawer({
                       createStep > step.id
                         ? "#279C41"
                         : createStep === step.id
-                          ? "var(--brand-primary)"
-                          : "var(--surface-page)",
+                        ? "var(--brand-primary)"
+                        : "var(--surface-page)",
                     border:
                       createStep > step.id
                         ? "none"
                         : createStep === step.id
-                          ? "2px solid var(--brand-primary)"
-                          : "2px solid var(--border-ui)",
-                    color:
-                      createStep >= step.id
-                        ? "#fff"
-                        : "var(--text-placeholder)",
+                        ? "2px solid var(--brand-primary)"
+                        : "2px solid var(--border-ui)",
+                    color: createStep >= step.id ? "#fff" : "var(--text-placeholder)",
                     fontSize: 11,
                     fontWeight: 700,
                     transition: "all 0.2s",
+                    boxShadow: createStep === step.id ? "0 0 0 4px rgba(30,86,208,0.12)" : "none",
                   }}
                 >
-                  {createStep > step.id ? <Check size={12} /> : step.id}
+                  {createStep > step.id ? <Check size={13} /> : step.id}
                 </div>
-                <span
-                  style={{
+                <Typography
+                  sx={{
                     fontSize: 12,
                     fontWeight: createStep === step.id ? 700 : 400,
                     whiteSpace: "nowrap",
@@ -1566,12 +1192,12 @@ export function PatientFormDrawer({
                       createStep > step.id
                         ? "#279C41"
                         : createStep === step.id
-                          ? "var(--foreground)"
-                          : "var(--text-placeholder)",
+                        ? "var(--foreground)"
+                        : "var(--text-placeholder)",
                   }}
                 >
                   {step.label}
-                </span>
+                </Typography>
               </div>
               {i < CREATE_STEPS.length - 1 && (
                 <div
@@ -1579,10 +1205,9 @@ export function PatientFormDrawer({
                     flex: 1,
                     height: 2,
                     minWidth: 16,
-                    margin: "0 8px",
+                    margin: "0 10px",
                     borderRadius: 2,
-                    background:
-                      createStep > step.id ? "#279C41" : "var(--border-ui)",
+                    background: createStep > step.id ? "#279C41" : "var(--border-ui)",
                     transition: "background 0.3s",
                   }}
                 />
@@ -1592,158 +1217,82 @@ export function PatientFormDrawer({
         </div>
       )}
 
-      {/* Body */}
+      {/* ── Body ── */}
       <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
         {!isEdit ? (
           <>
             {createStep === 1 && (
               <>
-                {(stepError || formError) && (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      padding: "11px 14px",
-                      background: "#fef2f2",
-                      border: "1px solid #fecaca",
-                      borderRadius: 10,
-                      fontSize: 13,
-                      color: "#dc2626",
-                      marginBottom: 20,
-                    }}
-                  >
-                    <AlertCircle size={15} style={{ flexShrink: 0 }} />
-                    {stepError || formError}
-                  </div>
-                )}
+                {(stepError || formError) && <ErrorBanner message={stepError || formError} />}
                 {patientFormFields}
               </>
             )}
+
             {createStep === 2 && (
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: 20 }}
-              >
+              <div className="flex flex-col gap-5">
                 <div
                   style={{
                     padding: "14px 16px",
-                    borderRadius: 10,
-                    background:
-                      "linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%)",
+                    borderRadius: 12,
+                    background: "linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%)",
                     border: "1px solid #bae6fd",
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      background: "rgba(8,145,178,0.12)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(8,145,178,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Shield size={18} color="#0891b2" />
                   </div>
                   <div>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: "var(--foreground)",
-                        marginBottom: 2,
-                      }}
-                    >
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: "var(--foreground)", mb: "2px" }}>
                       Insurance Coverage
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Optionally link a health insurance provider for billing
-                      and claims processing.
-                    </div>
+                    </Typography>
+                    <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
+                      Optionally link a health insurance provider for billing and claims processing.
+                    </Typography>
                   </div>
                 </div>
                 {insuranceSaved ? insuranceSavedCard : insuranceFormFields}
                 {!insuranceSaved && (
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <button
-                      onClick={handleSaveInsurance}
+                  <div className="flex justify-end">
+                    <Button
+                      variant="contained"
                       disabled={!insurance.insuranceProviderId}
-                      style={{
-                        padding: "7px 18px",
-                        borderRadius: 8,
-                        border: "none",
-                        background: insurance.insuranceProviderId
-                          ? "var(--brand-primary)"
-                          : "var(--border-ui)",
-                        color: insurance.insuranceProviderId
-                          ? "#fff"
-                          : "var(--text-placeholder)",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: insurance.insuranceProviderId
-                          ? "pointer"
-                          : "not-allowed",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
+                      onClick={handleSaveInsurance}
+                      startIcon={<Shield size={13} />}
+                      sx={primaryBtnSx}
                     >
-                      <Shield size={13} /> Save Insurance
-                    </button>
+                      Save Insurance
+                    </Button>
                   </div>
                 )}
               </div>
             )}
+
             {createStep === 3 && (
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: 20 }}
-              >
+              <div className="flex flex-col gap-5">
                 <div
                   style={{
                     padding: "14px 16px",
-                    borderRadius: 10,
-                    background:
-                      "linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)",
+                    borderRadius: 12,
+                    background: "linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)",
                     border: "1px solid #ddd6fe",
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      background: "rgba(124,58,237,0.1)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(124,58,237,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <FolderOpen size={18} color="#7c3aed" />
                   </div>
                   <div>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: "var(--foreground)",
-                        marginBottom: 2,
-                      }}
-                    >
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: "var(--foreground)", mb: "2px" }}>
                       Patient Documents
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Upload ID cards, insurance policies, medical records, or
-                      any relevant documents.
-                    </div>
+                    </Typography>
+                    <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
+                      Upload ID cards, insurance policies, medical records, or any relevant documents.
+                    </Typography>
                   </div>
                 </div>
                 {documentsContent}
@@ -1751,7 +1300,7 @@ export function PatientFormDrawer({
             )}
           </>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="flex flex-col gap-3">
             <AccordionSection
               title="Patient Record"
               icon={<User />}
@@ -1760,65 +1309,20 @@ export function PatientFormDrawer({
               savedBadge={savedSection === "patient"}
               summary={
                 form.firstName || form.lastName
-                  ? `${form.firstName} ${form.lastName}`.trim() +
-                    (form.email ? ` · ${form.email}` : "")
+                  ? `${form.firstName} ${form.lastName}`.trim() + (form.email ? ` · ${form.email}` : "")
                   : "No info recorded"
               }
               summaryMuted={!form.firstName && !form.lastName}
               open={openAccordion === "patient"}
-              onToggle={() =>
-                setOpenAccordion((p) => (p === "patient" ? null : "patient"))
-              }
+              onToggle={() => setOpenAccordion((p) => (p === "patient" ? null : "patient"))}
             >
-              {(stepError || formError) && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "11px 14px",
-                    background: "#fef2f2",
-                    border: "1px solid #fecaca",
-                    borderRadius: 10,
-                    fontSize: 13,
-                    color: "#dc2626",
-                    marginBottom: 20,
-                  }}
-                >
-                  <AlertCircle size={15} style={{ flexShrink: 0 }} />
-                  {stepError || formError}
-                </div>
-              )}
+              {(stepError || formError) && <ErrorBanner message={stepError || formError} />}
               {patientFormFields}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  marginTop: 20,
-                  paddingTop: 16,
-                  borderTop: "1px solid var(--border-ui)",
-                }}
-              >
-                <button
-                  onClick={handleSavePatientSection}
-                  style={{
-                    padding: "8px 22px",
-                    borderRadius: 8,
-                    border: "none",
-                    background:
-                      "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
-                    color: "#fff",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    boxShadow: "0 4px 14px rgba(30,86,208,0.25)",
-                  }}
-                >
-                  <Edit2 size={13} /> Save Patient Record
-                </button>
+              <Divider sx={{ mt: 3, mb: 2, borderColor: "var(--border-ui)" }} />
+              <div className="flex justify-end">
+                <Button variant="contained" onClick={handleSavePatientSection} startIcon={<Edit2 size={13} />} sx={primaryBtnSx}>
+                  Save Patient Record
+                </Button>
               </div>
             </AccordionSection>
 
@@ -1830,76 +1334,29 @@ export function PatientFormDrawer({
               savedBadge={savedSection === "insurance"}
               summary={
                 insuranceSaved
-                  ? (providerName(insurance.insuranceProviderId) ||
-                      "Insurance on file") +
-                    (insurance.isActive ? " · Active" : " · Inactive")
+                  ? (providerName(insurance.insuranceProviderId) || "Insurance on file") + (insurance.isActive ? " · Active" : " · Inactive")
                   : "No insurance on file"
               }
               summaryMuted={!insuranceSaved}
               open={openAccordion === "insurance"}
-              onToggle={() =>
-                setOpenAccordion((p) =>
-                  p === "insurance" ? null : "insurance",
-                )
-              }
+              onToggle={() => setOpenAccordion((p) => (p === "insurance" ? null : "insurance"))}
             >
               {insuranceSaved ? (
-                <div
-                  style={{ display: "flex", flexDirection: "column", gap: 14 }}
-                >
+                <div className="flex flex-col gap-4">
                   {insuranceSavedCard}
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <button
-                      onClick={handleRemoveInsurance}
-                      style={{
-                        padding: "7px 18px",
-                        borderRadius: 8,
-                        border: "none",
-                        background: "var(--brand-primary)",
-                        color: "#fff",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <Edit2 size={13} /> Change Insurance
-                    </button>
+                  <div className="flex justify-end">
+                    <Button variant="contained" onClick={handleRemoveInsurance} startIcon={<Edit2 size={13} />} sx={primaryBtnSx}>
+                      Change Insurance
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <div
-                  style={{ display: "flex", flexDirection: "column", gap: 14 }}
-                >
+                <div className="flex flex-col gap-4">
                   {insuranceFormFields}
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <button
-                      onClick={handleSaveInsurance}
-                      disabled={!insurance.insuranceProviderId}
-                      style={{
-                        padding: "7px 18px",
-                        borderRadius: 8,
-                        border: "none",
-                        background: insurance.insuranceProviderId
-                          ? "var(--brand-primary)"
-                          : "var(--border-ui)",
-                        color: insurance.insuranceProviderId
-                          ? "#fff"
-                          : "var(--text-placeholder)",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: insurance.insuranceProviderId
-                          ? "pointer"
-                          : "not-allowed",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <Shield size={13} /> Save Insurance
-                    </button>
+                  <div className="flex justify-end">
+                    <Button variant="contained" disabled={!insurance.insuranceProviderId} onClick={handleSaveInsurance} startIcon={<Shield size={13} />} sx={primaryBtnSx}>
+                      Save Insurance
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1917,11 +1374,7 @@ export function PatientFormDrawer({
               }
               summaryMuted={documents.length === 0}
               open={openAccordion === "documents"}
-              onToggle={() =>
-                setOpenAccordion((p) =>
-                  p === "documents" ? null : "documents",
-                )
-              }
+              onToggle={() => setOpenAccordion((p) => (p === "documents" ? null : "documents"))}
             >
               {documentsContent}
             </AccordionSection>
@@ -1929,7 +1382,7 @@ export function PatientFormDrawer({
         )}
       </div>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <div
         style={{
           padding: "14px 24px",
@@ -1946,168 +1399,80 @@ export function PatientFormDrawer({
           <>
             <div>
               {createStep === 1 ? (
-                <button
-                  onClick={onClose}
-                  style={{
-                    padding: "8px 18px",
-                    borderRadius: 8,
-                    border: "1px solid var(--border-ui)",
-                    background: "var(--surface-card)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    color: "var(--foreground)",
-                  }}
-                >
+                <Button variant="outlined" onClick={onClose} sx={outlinedBtnSx}>
                   Cancel
-                </button>
+                </Button>
               ) : (
-                <button
-                  onClick={() => setCreateStep((s) => (s - 1) as 1 | 2 | 3)}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: 8,
-                    border: "1px solid var(--border-ui)",
-                    background: "var(--surface-card)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    color: "var(--foreground)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                  }}
-                >
-                  <ChevronLeft size={14} /> Back
-                </button>
+                <Button variant="outlined" onClick={() => setCreateStep((s) => (s - 1) as 1 | 2 | 3)} startIcon={<ChevronLeft size={14} />} sx={outlinedBtnSx}>
+                  Back
+                </Button>
               )}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div className="flex items-center gap-2">
               {createStep === 1 && (
-                <button
-                  onClick={handleRegisterPatient}
-                  style={{
-                    padding: "9px 22px",
-                    borderRadius: 8,
-                    border: "none",
-                    background:
-                      "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
-                    color: "#fff",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    boxShadow: "0 4px 14px rgba(30,86,208,0.3)",
-                  }}
-                >
-                  <Plus size={14} /> Register Patient
-                </button>
+                <Button variant="contained" onClick={handleRegisterPatient} startIcon={<Plus size={14} />} sx={primaryBtnSx}>
+                  Register Patient
+                </Button>
               )}
               {createStep === 2 && (
                 <>
-                  <button
-                    onClick={() => setCreateStep(3)}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 8,
-                      border: "1px solid var(--border-ui)",
-                      background: "var(--surface-card)",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      color: "var(--text-muted)",
-                    }}
-                  >
+                  <Button variant="outlined" onClick={() => setCreateStep(3)} sx={{ ...outlinedBtnSx, color: "var(--text-muted)" }}>
                     Skip
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="contained"
                     onClick={() => {
-                      if (!insuranceSaved && insurance.insuranceProviderId)
-                        handleSaveInsurance();
+                      if (!insuranceSaved && insurance.insuranceProviderId) handleSaveInsurance();
                       setCreateStep(3);
                     }}
-                    style={{
-                      padding: "9px 22px",
-                      borderRadius: 8,
-                      border: "none",
-                      background:
-                        "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
-                      color: "#fff",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      boxShadow: "0 4px 14px rgba(30,86,208,0.3)",
-                    }}
+                    endIcon={<ChevronRight size={14} />}
+                    sx={primaryBtnSx}
                   >
-                    {insuranceSaved ? "Continue" : "Save & Continue"}{" "}
-                    <ChevronRight size={14} />
-                  </button>
+                    {insuranceSaved ? "Continue" : "Save & Continue"}
+                  </Button>
                 </>
               )}
               {createStep === 3 && (
-                <button
+                <Button
+                  variant="contained"
                   onClick={onClose}
-                  style={{
-                    padding: "9px 22px",
-                    borderRadius: 8,
-                    border: "none",
-                    background:
-                      "linear-gradient(135deg, #279C41 0%, #1d7a30 100%)",
-                    color: "#fff",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    boxShadow: "0 4px 14px rgba(39,156,65,0.28)",
+                  startIcon={<Check size={14} />}
+                  sx={{
+                    ...primaryBtnSx,
+                    backgroundColor: "#279C41",
+                    "&:hover": { backgroundColor: "#1d7a30", boxShadow: "0 4px 14px rgba(39,156,65,0.35)" },
+                    boxShadow: "0 2px 8px rgba(39,156,65,0.28)",
                   }}
                 >
-                  <Check size={14} /> Finish
-                </button>
+                  Finish
+                </Button>
               )}
             </div>
           </>
         ) : (
           <>
-            <button
+            <Button
+              variant="outlined"
+              color="error"
               onClick={onDelete}
-              style={{
+              startIcon={<Trash2 size={14} />}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: "10px",
                 padding: "8px 16px",
-                borderRadius: 8,
-                border: "1px solid #fca5a5",
-                background: "#fef2f2",
+                fontSize: "0.8125rem",
+                borderColor: "#fca5a5",
                 color: "#dc2626",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
+                background: "#fef2f2",
+                "&:hover": { borderColor: "#f87171", background: "#fee2e2" },
               }}
             >
-              <Trash2 size={14} /> Delete Patient
-            </button>
-            <button
-              onClick={onClose}
-              style={{
-                padding: "8px 20px",
-                borderRadius: 8,
-                border: "1px solid var(--border-ui)",
-                background: "var(--surface-card)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                color: "var(--foreground)",
-              }}
-            >
+              Delete Patient
+            </Button>
+            <Button variant="outlined" onClick={onClose} sx={outlinedBtnSx}>
               Close
-            </button>
+            </Button>
           </>
         )}
       </div>
