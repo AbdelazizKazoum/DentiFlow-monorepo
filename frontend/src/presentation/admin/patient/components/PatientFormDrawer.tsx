@@ -68,7 +68,9 @@ function SectionHeader({
   return (
     <div className="flex items-center gap-2 mb-3">
       {icon && iconColor && (
-        <span style={{ color: iconColor, display: "flex", alignItems: "center" }}>
+        <span
+          style={{ color: iconColor, display: "flex", alignItems: "center" }}
+        >
           {React.cloneElement(
             icon as React.ReactElement<{ size?: number; color?: string }>,
             { size: 14, color: iconColor },
@@ -154,14 +156,18 @@ function AccordionSection({
           )}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>
+          <Typography
+            sx={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}
+          >
             {title}
           </Typography>
           {summary && (
             <Typography
               sx={{
                 fontSize: 11,
-                color: summaryMuted ? "var(--text-placeholder)" : "var(--text-muted)",
+                color: summaryMuted
+                  ? "var(--text-placeholder)"
+                  : "var(--text-muted)",
                 mt: "2px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -283,7 +289,10 @@ const outlinedBtnSx = {
   fontSize: "0.8125rem",
   borderColor: "var(--border-ui)",
   color: "var(--foreground)",
-  "&:hover": { borderColor: "var(--text-muted)", background: "var(--surface-page)" },
+  "&:hover": {
+    borderColor: "var(--text-muted)",
+    background: "var(--surface-page)",
+  },
 } as const;
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -337,10 +346,20 @@ export function PatientFormDrawer({
     if (!open) {
       setCreateStep(1);
       setStepError("");
-      setInsurance({ insuranceProviderId: "", isActive: true, policyNumber: "", memberId: "" });
+      setInsurance({
+        insuranceProviderId: "",
+        isActive: true,
+        policyNumber: "",
+        memberId: "",
+      });
       setInsuranceSaved(false);
       setDocuments([]);
-      setDocForm({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
+      setDocForm({
+        type: DocumentType.GENERAL,
+        title: "",
+        fileName: "",
+        fileUrl: "",
+      });
       setShowDocForm(false);
       setOpenAccordion("patient");
       setSavedSection(null);
@@ -378,7 +397,12 @@ export function PatientFormDrawer({
   };
 
   const handleRemoveInsurance = () => {
-    setInsurance({ insuranceProviderId: "", isActive: true, policyNumber: "", memberId: "" });
+    setInsurance({
+      insuranceProviderId: "",
+      isActive: true,
+      policyNumber: "",
+      memberId: "",
+    });
     setInsuranceSaved(false);
   };
 
@@ -394,7 +418,12 @@ export function PatientFormDrawer({
         createdAt: new Date().toISOString(),
       },
     ]);
-    setDocForm({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
+    setDocForm({
+      type: DocumentType.GENERAL,
+      title: "",
+      fileName: "",
+      fileUrl: "",
+    });
     setShowDocForm(false);
   };
 
@@ -404,7 +433,11 @@ export function PatientFormDrawer({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file)
-      setDocForm((f) => ({ ...f, fileName: file.name, fileUrl: URL.createObjectURL(file) }));
+      setDocForm((f) => ({
+        ...f,
+        fileName: file.name,
+        fileUrl: URL.createObjectURL(file),
+      }));
   };
 
   const providerName = (id: string) =>
@@ -415,7 +448,12 @@ export function PatientFormDrawer({
     <div className="flex flex-col gap-4">
       {/* Personal Information */}
       <div>
-        <SectionHeader icon={<User />} title="Personal Information" iconColor="#1e56d0" iconBg="#eff6ff" />
+        <SectionHeader
+          icon={<User />}
+          title="Personal Information"
+          iconColor="#1e56d0"
+          iconBg="#eff6ff"
+        />
         <div className="flex flex-col gap-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
@@ -453,10 +491,19 @@ export function PatientFormDrawer({
                 label="Gender"
                 value={form.gender}
                 onChange={(e) =>
-                  onChange({ ...form, gender: e.target.value as PatientGender | "" })
+                  onChange({
+                    ...form,
+                    gender: e.target.value as PatientGender | "",
+                  })
                 }
               >
-                <MenuItem value=""><em style={{ fontSize: 14, color: "var(--text-placeholder)" }}>Not specified</em></MenuItem>
+                <MenuItem value="">
+                  <em
+                    style={{ fontSize: 14, color: "var(--text-placeholder)" }}
+                  >
+                    Not specified
+                  </em>
+                </MenuItem>
                 <MenuItem value={PatientGender.MALE}>Male</MenuItem>
                 <MenuItem value={PatientGender.FEMALE}>Female</MenuItem>
                 <MenuItem value={PatientGender.OTHER}>Other</MenuItem>
@@ -478,7 +525,12 @@ export function PatientFormDrawer({
 
       {/* Contact Details */}
       <div>
-        <SectionHeader icon={<Phone />} title="Contact Details" iconColor="#0891b2" iconBg="#ecfeff" />
+        <SectionHeader
+          icon={<Phone />}
+          title="Contact Details"
+          iconColor="#0891b2"
+          iconBg="#ecfeff"
+        />
         <div className="flex flex-col gap-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
@@ -524,13 +576,20 @@ export function PatientFormDrawer({
 
       {/* Patient Status */}
       <div>
-        <SectionHeader icon={<Activity />} title="Patient Status" iconColor="#279C41" iconBg="#E8F8EC" />
+        <SectionHeader
+          icon={<Activity />}
+          title="Patient Status"
+          iconColor="#279C41"
+          iconBg="#E8F8EC"
+        />
         <FormControl fullWidth sx={TF_SX}>
           <InputLabel>Status</InputLabel>
           <Select
             label="Status"
             value={form.status}
-            onChange={(e) => onChange({ ...form, status: e.target.value as PatientStatus })}
+            onChange={(e) =>
+              onChange({ ...form, status: e.target.value as PatientStatus })
+            }
           >
             <MenuItem value={PatientStatus.ACTIVE}>
               <span className="flex items-center gap-2">
@@ -558,7 +617,12 @@ export function PatientFormDrawer({
 
       {/* Medical Information */}
       <div>
-        <SectionHeader icon={<Heart />} title="Medical Information" iconColor="#dc2626" iconBg="#fff5f5" />
+        <SectionHeader
+          icon={<Heart />}
+          title="Medical Information"
+          iconColor="#dc2626"
+          iconBg="#fff5f5"
+        />
         <div className="flex flex-col gap-1">
           <TextField
             label="Known Allergies"
@@ -604,7 +668,12 @@ export function PatientFormDrawer({
 
       {/* Administrative Notes */}
       <div>
-        <SectionHeader icon={<FileText />} title="Administrative Notes" iconColor="#7c3aed" iconBg="#f5f3ff" />
+        <SectionHeader
+          icon={<FileText />}
+          title="Administrative Notes"
+          iconColor="#7c3aed"
+          iconBg="#f5f3ff"
+        />
         <TextField
           label="Notes"
           fullWidth
@@ -632,7 +701,9 @@ export function PatientFormDrawer({
           }
         >
           <MenuItem value="">
-            <em style={{ fontSize: 13, color: "var(--text-placeholder)" }}>Select a provider</em>
+            <em style={{ fontSize: 13, color: "var(--text-placeholder)" }}>
+              Select a provider
+            </em>
           </MenuItem>
           {insuranceProviders.map((p) => (
             <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.875rem" }}>
@@ -646,7 +717,9 @@ export function PatientFormDrawer({
           label="Policy Number"
           fullWidth
           value={insurance.policyNumber}
-          onChange={(e) => setInsurance((s) => ({ ...s, policyNumber: e.target.value }))}
+          onChange={(e) =>
+            setInsurance((s) => ({ ...s, policyNumber: e.target.value }))
+          }
           sx={TF_SX}
           placeholder="e.g. POL-12345"
         />
@@ -654,7 +727,9 @@ export function PatientFormDrawer({
           label="Member ID"
           fullWidth
           value={insurance.memberId}
-          onChange={(e) => setInsurance((s) => ({ ...s, memberId: e.target.value }))}
+          onChange={(e) =>
+            setInsurance((s) => ({ ...s, memberId: e.target.value }))
+          }
           sx={TF_SX}
           placeholder="e.g. MBR-67890"
         />
@@ -679,12 +754,24 @@ export function PatientFormDrawer({
         <Checkbox
           checked={insurance.isActive}
           size="small"
-          onChange={(e) => setInsurance((s) => ({ ...s, isActive: e.target.checked }))}
+          onChange={(e) =>
+            setInsurance((s) => ({ ...s, isActive: e.target.checked }))
+          }
           onClick={(e) => e.stopPropagation()}
-          sx={{ padding: 0, color: "var(--text-placeholder)", "&.Mui-checked": { color: "#279C41" } }}
+          sx={{
+            padding: 0,
+            color: "var(--text-placeholder)",
+            "&.Mui-checked": { color: "#279C41" },
+          }}
         />
         <div>
-          <Typography sx={{ fontSize: 13, fontWeight: 600, color: insurance.isActive ? "#279C41" : "var(--foreground)" }}>
+          <Typography
+            sx={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: insurance.isActive ? "#279C41" : "var(--foreground)",
+            }}
+          >
             Coverage is Active
           </Typography>
           <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
@@ -695,7 +782,14 @@ export function PatientFormDrawer({
           <Chip
             label="Active"
             size="small"
-            sx={{ ml: "auto", height: 20, fontSize: 10, fontWeight: 700, background: "#dcfce7", color: "#279C41" }}
+            sx={{
+              ml: "auto",
+              height: 20,
+              fontSize: 10,
+              fontWeight: 700,
+              background: "#dcfce7",
+              color: "#279C41",
+            }}
           />
         )}
       </button>
@@ -704,7 +798,13 @@ export function PatientFormDrawer({
 
   // ── Insurance Saved Card ──
   const insuranceSavedCard = (
-    <div style={{ border: "1px solid var(--border-ui)", borderRadius: 12, overflow: "hidden" }}>
+    <div
+      style={{
+        border: "1px solid var(--border-ui)",
+        borderRadius: 12,
+        overflow: "hidden",
+      }}
+    >
       <div
         style={{
           background: "linear-gradient(135deg, #ecfeff 0%, #e0f2fe 100%)",
@@ -743,23 +843,56 @@ export function PatientFormDrawer({
         </Button>
       </div>
       {(insurance.policyNumber || insurance.memberId) && (
-        <div className="flex gap-7 p-4" style={{ background: "var(--surface-card)" }}>
+        <div
+          className="flex gap-7 p-4"
+          style={{ background: "var(--surface-card)" }}
+        >
           {insurance.policyNumber && (
             <div>
-              <Typography sx={{ fontSize: 10, color: "var(--text-placeholder)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", mb: "3px" }}>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  color: "var(--text-placeholder)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  mb: "3px",
+                }}
+              >
                 Policy Number
               </Typography>
-              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--foreground)",
+                }}
+              >
                 {insurance.policyNumber}
               </Typography>
             </div>
           )}
           {insurance.memberId && (
             <div>
-              <Typography sx={{ fontSize: 10, color: "var(--text-placeholder)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", mb: "3px" }}>
+              <Typography
+                sx={{
+                  fontSize: 10,
+                  color: "var(--text-placeholder)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  mb: "3px",
+                }}
+              >
                 Member ID
               </Typography>
-              <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
+              <Typography
+                sx={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--foreground)",
+                }}
+              >
                 {insurance.memberId}
               </Typography>
             </div>
@@ -773,7 +906,14 @@ export function PatientFormDrawer({
   const documentsContent = (
     <div className="flex flex-col gap-3">
       {insuranceTemplates.length > 0 && (
-        <div style={{ borderRadius: 12, border: "1px solid var(--border-ui)", overflow: "hidden", marginBottom: 4 }}>
+        <div
+          style={{
+            borderRadius: 12,
+            border: "1px solid var(--border-ui)",
+            overflow: "hidden",
+            marginBottom: 4,
+          }}
+        >
           <div
             style={{
               padding: "10px 14px",
@@ -785,13 +925,22 @@ export function PatientFormDrawer({
             }}
           >
             <Shield size={13} color="#0891b2" />
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#0891b2" }}>
+            <Typography
+              sx={{ fontSize: 12, fontWeight: 700, color: "#0891b2" }}
+            >
               Insurance Templates
             </Typography>
             <Chip
               label={insuranceTemplates.length}
               size="small"
-              sx={{ ml: "auto", height: 20, fontSize: 10, fontWeight: 700, background: "#cffafe", color: "#0891b2" }}
+              sx={{
+                ml: "auto",
+                height: 20,
+                fontSize: 10,
+                fontWeight: 700,
+                background: "#cffafe",
+                color: "#0891b2",
+              }}
             />
           </div>
           <div className="flex flex-col">
@@ -819,10 +968,27 @@ export function PatientFormDrawer({
                   <FileText size={14} color="#0891b2" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--foreground)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {tpl.name}
                   </Typography>
-                  <Typography sx={{ fontSize: 11, color: "var(--text-placeholder)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <Typography
+                    sx={{
+                      fontSize: 11,
+                      color: "var(--text-placeholder)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {tpl.getFileName()}
                   </Typography>
                 </div>
@@ -834,7 +1000,12 @@ export function PatientFormDrawer({
                   size="small"
                   variant="outlined"
                   startIcon={<Upload size={11} />}
-                  sx={{ ...outlinedBtnSx, padding: "4px 12px", fontSize: "0.75rem", flexShrink: 0 }}
+                  sx={{
+                    ...outlinedBtnSx,
+                    padding: "4px 12px",
+                    fontSize: "0.75rem",
+                    flexShrink: 0,
+                  }}
                 >
                   Download
                 </Button>
@@ -854,8 +1025,18 @@ export function PatientFormDrawer({
             background: "var(--surface-page)",
           }}
         >
-          <FolderOpen size={28} color="var(--text-placeholder)" style={{ margin: "0 auto 8px" }} />
-          <Typography sx={{ fontSize: 13, color: "var(--text-placeholder)", fontWeight: 500 }}>
+          <FolderOpen
+            size={28}
+            color="var(--text-placeholder)"
+            style={{ margin: "0 auto 8px" }}
+          />
+          <Typography
+            sx={{
+              fontSize: 13,
+              color: "var(--text-placeholder)",
+              fontWeight: 500,
+            }}
+          >
             No documents uploaded yet
           </Typography>
         </div>
@@ -864,12 +1045,17 @@ export function PatientFormDrawer({
       {documents.length > 0 && (
         <div className="flex flex-col gap-2">
           {documents.map((doc) => {
-            const dtCfg = DOC_TYPE_CONFIG[doc.type as keyof typeof DOC_TYPE_CONFIG];
+            const dtCfg =
+              DOC_TYPE_CONFIG[doc.type as keyof typeof DOC_TYPE_CONFIG];
             return (
               <div
                 key={doc.id}
                 className="flex items-center gap-3 p-3"
-                style={{ borderRadius: 10, border: "1px solid var(--border-ui)", background: "var(--surface-page)" }}
+                style={{
+                  borderRadius: 10,
+                  border: "1px solid var(--border-ui)",
+                  background: "var(--surface-page)",
+                }}
               >
                 <div
                   style={{
@@ -886,16 +1072,33 @@ export function PatientFormDrawer({
                   <FileText size={15} color={dtCfg?.color ?? "#64748b"} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--foreground)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {doc.title || doc.fileUrl.split("/").pop() || "Document"}
                   </Typography>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Chip
                       label={dtCfg?.label ?? doc.type}
                       size="small"
-                      sx={{ height: 18, fontSize: 10, fontWeight: 700, background: dtCfg?.bg ?? "#f1f5f9", color: dtCfg?.color ?? "#64748b" }}
+                      sx={{
+                        height: 18,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        background: dtCfg?.bg ?? "#f1f5f9",
+                        color: dtCfg?.color ?? "#64748b",
+                      }}
                     />
-                    <Typography sx={{ fontSize: 10, color: "var(--text-placeholder)" }}>
+                    <Typography
+                      sx={{ fontSize: 10, color: "var(--text-placeholder)" }}
+                    >
                       {new Date(doc.createdAt).toLocaleDateString()}
                     </Typography>
                   </div>
@@ -903,7 +1106,10 @@ export function PatientFormDrawer({
                 <IconButton
                   size="small"
                   onClick={() => handleRemoveDocument(doc.id)}
-                  sx={{ color: "var(--text-placeholder)", "&:hover": { color: "#dc2626", background: "#fef2f2" } }}
+                  sx={{
+                    color: "var(--text-placeholder)",
+                    "&:hover": { color: "#dc2626", background: "#fef2f2" },
+                  }}
                 >
                   <X size={14} />
                 </IconButton>
@@ -915,7 +1121,12 @@ export function PatientFormDrawer({
 
       {showDocForm ? (
         <div
-          style={{ border: "1px solid var(--border-ui)", borderRadius: 12, padding: 16, background: "var(--surface-page)" }}
+          style={{
+            border: "1px solid var(--border-ui)",
+            borderRadius: 12,
+            padding: 16,
+            background: "var(--surface-page)",
+          }}
           className="flex flex-col gap-4"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -924,7 +1135,12 @@ export function PatientFormDrawer({
               <Select
                 label="Document Type"
                 value={docForm.type}
-                onChange={(e) => setDocForm((f) => ({ ...f, type: e.target.value as DocumentType }))}
+                onChange={(e) =>
+                  setDocForm((f) => ({
+                    ...f,
+                    type: e.target.value as DocumentType,
+                  }))
+                }
               >
                 {Object.values(DocumentType).map((t) => (
                   <MenuItem key={t} value={t} sx={{ fontSize: "0.875rem" }}>
@@ -935,11 +1151,14 @@ export function PatientFormDrawer({
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          background: DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]?.color ?? "#64748b",
+                          background:
+                            DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]
+                              ?.color ?? "#64748b",
                           flexShrink: 0,
                         }}
                       />
-                      {DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]?.label ?? t}
+                      {DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]
+                        ?.label ?? t}
                     </span>
                   </MenuItem>
                 ))}
@@ -949,7 +1168,9 @@ export function PatientFormDrawer({
               label="Title (optional)"
               fullWidth
               value={docForm.title}
-              onChange={(e) => setDocForm((f) => ({ ...f, title: e.target.value }))}
+              onChange={(e) =>
+                setDocForm((f) => ({ ...f, title: e.target.value }))
+              }
               sx={TF_SX}
               placeholder="e.g. Insurance Card"
             />
@@ -978,17 +1199,42 @@ export function PatientFormDrawer({
               transition: "all 0.15s",
             }}
           >
-            <Upload size={22} color={docForm.fileName ? "var(--brand-primary)" : "var(--text-placeholder)"} />
+            <Upload
+              size={22}
+              color={
+                docForm.fileName
+                  ? "var(--brand-primary)"
+                  : "var(--text-placeholder)"
+              }
+            />
             {docForm.fileName ? (
               <>
-                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--brand-primary)", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--brand-primary)",
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {docForm.fileName}
                 </Typography>
-                <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>Click to change file</Typography>
+                <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  Click to change file
+                </Typography>
               </>
             ) : (
               <>
-                <Typography sx={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--foreground)",
+                  }}
+                >
                   Click to upload a file
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
@@ -1003,7 +1249,12 @@ export function PatientFormDrawer({
               size="small"
               onClick={() => {
                 setShowDocForm(false);
-                setDocForm({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
+                setDocForm({
+                  type: DocumentType.GENERAL,
+                  title: "",
+                  fileName: "",
+                  fileUrl: "",
+                });
               }}
               sx={outlinedBtnSx}
             >
@@ -1032,7 +1283,11 @@ export function PatientFormDrawer({
             borderStyle: "dashed",
             padding: "10px 14px",
             color: "var(--text-muted)",
-            "&:hover": { borderColor: "var(--brand-primary)", color: "var(--brand-primary)", background: "#eff6ff" },
+            "&:hover": {
+              borderColor: "var(--brand-primary)",
+              color: "var(--brand-primary)",
+              background: "#eff6ff",
+            },
           }}
         >
           Add Document
@@ -1050,7 +1305,7 @@ export function PatientFormDrawer({
       slotProps={{
         paper: {
           sx: {
-            width: { xs: "100vw", sm: 640 },
+            width: { xs: "100vw", sm: 800 },
             display: "flex",
             flexDirection: "column",
             fontFamily: "inherit",
@@ -1062,15 +1317,38 @@ export function PatientFormDrawer({
       {/* ── Header ── */}
       <div
         style={{
-          background: "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
+          background:
+            "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
           padding: "22px 24px 18px",
           flexShrink: 0,
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <div style={{ position: "absolute", right: -40, top: -40, width: 180, height: 180, borderRadius: "50%", border: "36px solid rgba(255,255,255,0.07)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", right: 60, bottom: -20, width: 80, height: 80, borderRadius: "50%", border: "18px solid rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: -40,
+            top: -40,
+            width: 180,
+            height: 180,
+            borderRadius: "50%",
+            border: "36px solid rgba(255,255,255,0.07)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            right: 60,
+            bottom: -20,
+            width: 80,
+            height: 80,
+            borderRadius: "50%",
+            border: "18px solid rgba(255,255,255,0.05)",
+            pointerEvents: "none",
+          }}
+        />
 
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -1089,7 +1367,14 @@ export function PatientFormDrawer({
               }}
             >
               {isEdit && avatarInitials ? (
-                <span style={{ fontSize: 19, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em" }}>
+                <span
+                  style={{
+                    fontSize: 19,
+                    fontWeight: 800,
+                    color: "#fff",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
                   {avatarInitials}
                 </span>
               ) : (
@@ -1098,23 +1383,44 @@ export function PatientFormDrawer({
             </div>
             <div>
               <Typography
-                sx={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.1em", mb: "2px" }}
+                sx={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "rgba(255,255,255,0.6)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  mb: "2px",
+                }}
               >
                 {isEdit
                   ? "Patient Record"
                   : createStep === 1
-                  ? "Step 1 of 3 — Patient Info"
-                  : createStep === 2
-                  ? "Step 2 of 3 — Insurance"
-                  : "Step 3 of 3 — Documents"}
+                    ? "Step 1 of 3 — Patient Info"
+                    : createStep === 2
+                      ? "Step 2 of 3 — Insurance"
+                      : "Step 3 of 3 — Documents"}
               </Typography>
-              <Typography component="h2" sx={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>
+              <Typography
+                component="h2"
+                sx={{
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: "#fff",
+                  lineHeight: 1.2,
+                }}
+              >
                 {isEdit && (form.firstName || form.lastName)
                   ? `${form.firstName} ${form.lastName}`.trim()
                   : "New Patient Registration"}
               </Typography>
               {isEdit && form.id && (
-                <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.5)", mt: "2px" }}>
+                <Typography
+                  sx={{
+                    fontSize: 11,
+                    color: "rgba(255,255,255,0.5)",
+                    mt: "2px",
+                  }}
+                >
                   ID #{form.id}
                 </Typography>
               )}
@@ -1134,14 +1440,24 @@ export function PatientFormDrawer({
           </IconButton>
         </div>
 
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.05) 100%)" }} />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.05) 100%)",
+          }}
+        />
       </div>
 
       {/* ── Step Indicator (create mode) ── */}
       {!isEdit && (
         <div
           style={{
-            padding: "14px 24px",
+            padding: "20px 32px",
             borderBottom: "1px solid var(--border-ui)",
             background: "var(--surface-card)",
             display: "flex",
@@ -1151,11 +1467,11 @@ export function PatientFormDrawer({
         >
           {CREATE_STEPS.map((step, i) => (
             <React.Fragment key={step.id}>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 38,
+                    height: 38,
                     borderRadius: "50%",
                     display: "flex",
                     alignItems: "center",
@@ -1165,49 +1481,72 @@ export function PatientFormDrawer({
                       createStep > step.id
                         ? "#279C41"
                         : createStep === step.id
-                        ? "var(--brand-primary)"
-                        : "var(--surface-page)",
+                          ? "var(--brand-primary)"
+                          : "var(--surface-page)",
                     border:
                       createStep > step.id
-                        ? "none"
+                        ? "2px solid #279C41"
                         : createStep === step.id
-                        ? "2px solid var(--brand-primary)"
-                        : "2px solid var(--border-ui)",
-                    color: createStep >= step.id ? "#fff" : "var(--text-placeholder)",
-                    fontSize: 11,
+                          ? "2px solid var(--brand-primary)"
+                          : "2px solid var(--border-ui)",
+                    color:
+                      createStep >= step.id
+                        ? "#fff"
+                        : "var(--text-placeholder)",
+                    fontSize: 13,
                     fontWeight: 700,
                     transition: "all 0.2s",
-                    boxShadow: createStep === step.id ? "0 0 0 4px rgba(30,86,208,0.12)" : "none",
+                    boxShadow:
+                      createStep === step.id
+                        ? "0 0 0 5px rgba(30,86,208,0.14)"
+                        : "none",
                   }}
                 >
-                  {createStep > step.id ? <Check size={13} /> : step.id}
+                  {createStep > step.id ? <Check size={16} /> : step.id}
                 </div>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    fontWeight: createStep === step.id ? 700 : 400,
-                    whiteSpace: "nowrap",
-                    transition: "color 0.2s",
-                    color:
-                      createStep > step.id
-                        ? "#279C41"
-                        : createStep === step.id
-                        ? "var(--foreground)"
-                        : "var(--text-placeholder)",
-                  }}
-                >
-                  {step.label}
-                </Typography>
+                <div>
+                  <Typography
+                    sx={{
+                      fontSize: 13,
+                      fontWeight: createStep === step.id ? 700 : 500,
+                      whiteSpace: "nowrap",
+                      transition: "color 0.2s",
+                      lineHeight: 1.2,
+                      color:
+                        createStep > step.id
+                          ? "#279C41"
+                          : createStep === step.id
+                            ? "var(--foreground)"
+                            : "var(--text-placeholder)",
+                    }}
+                  >
+                    {step.label}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 11,
+                      color: "var(--text-placeholder)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {step.id === 1
+                      ? "Required"
+                      : step.id === 2
+                        ? "Optional"
+                        : "Optional"}
+                  </Typography>
+                </div>
               </div>
               {i < CREATE_STEPS.length - 1 && (
                 <div
                   style={{
                     flex: 1,
                     height: 2,
-                    minWidth: 16,
-                    margin: "0 10px",
+                    minWidth: 24,
+                    margin: "0 16px",
                     borderRadius: 2,
-                    background: createStep > step.id ? "#279C41" : "var(--border-ui)",
+                    background:
+                      createStep > step.id ? "#279C41" : "var(--border-ui)",
                     transition: "background 0.3s",
                   }}
                 />
@@ -1218,12 +1557,14 @@ export function PatientFormDrawer({
       )}
 
       {/* ── Body ── */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
         {!isEdit ? (
           <>
             {createStep === 1 && (
               <>
-                {(stepError || formError) && <ErrorBanner message={stepError || formError} />}
+                {(stepError || formError) && (
+                  <ErrorBanner message={stepError || formError} />
+                )}
                 {patientFormFields}
               </>
             )}
@@ -1234,22 +1575,44 @@ export function PatientFormDrawer({
                   style={{
                     padding: "14px 16px",
                     borderRadius: 12,
-                    background: "linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%)",
+                    background:
+                      "linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%)",
                     border: "1px solid #bae6fd",
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
                   }}
                 >
-                  <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(8,145,178,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 11,
+                      background: "rgba(8,145,178,0.12)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
                     <Shield size={18} color="#0891b2" />
                   </div>
                   <div>
-                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: "var(--foreground)", mb: "2px" }}>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--foreground)",
+                        mb: "2px",
+                      }}
+                    >
                       Insurance Coverage
                     </Typography>
-                    <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Optionally link a health insurance provider for billing and claims processing.
+                    <Typography
+                      sx={{ fontSize: 12, color: "var(--text-muted)" }}
+                    >
+                      Optionally link a health insurance provider for billing
+                      and claims processing.
                     </Typography>
                   </div>
                 </div>
@@ -1276,22 +1639,44 @@ export function PatientFormDrawer({
                   style={{
                     padding: "14px 16px",
                     borderRadius: 12,
-                    background: "linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)",
+                    background:
+                      "linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)",
                     border: "1px solid #ddd6fe",
                     display: "flex",
                     alignItems: "center",
                     gap: 12,
                   }}
                 >
-                  <div style={{ width: 38, height: 38, borderRadius: 11, background: "rgba(124,58,237,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 11,
+                      background: "rgba(124,58,237,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
                     <FolderOpen size={18} color="#7c3aed" />
                   </div>
                   <div>
-                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: "var(--foreground)", mb: "2px" }}>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--foreground)",
+                        mb: "2px",
+                      }}
+                    >
                       Patient Documents
                     </Typography>
-                    <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Upload ID cards, insurance policies, medical records, or any relevant documents.
+                    <Typography
+                      sx={{ fontSize: 12, color: "var(--text-muted)" }}
+                    >
+                      Upload ID cards, insurance policies, medical records, or
+                      any relevant documents.
                     </Typography>
                   </div>
                 </div>
@@ -1309,18 +1694,28 @@ export function PatientFormDrawer({
               savedBadge={savedSection === "patient"}
               summary={
                 form.firstName || form.lastName
-                  ? `${form.firstName} ${form.lastName}`.trim() + (form.email ? ` · ${form.email}` : "")
+                  ? `${form.firstName} ${form.lastName}`.trim() +
+                    (form.email ? ` · ${form.email}` : "")
                   : "No info recorded"
               }
               summaryMuted={!form.firstName && !form.lastName}
               open={openAccordion === "patient"}
-              onToggle={() => setOpenAccordion((p) => (p === "patient" ? null : "patient"))}
+              onToggle={() =>
+                setOpenAccordion((p) => (p === "patient" ? null : "patient"))
+              }
             >
-              {(stepError || formError) && <ErrorBanner message={stepError || formError} />}
+              {(stepError || formError) && (
+                <ErrorBanner message={stepError || formError} />
+              )}
               {patientFormFields}
               <Divider sx={{ mt: 3, mb: 2, borderColor: "var(--border-ui)" }} />
               <div className="flex justify-end">
-                <Button variant="contained" onClick={handleSavePatientSection} startIcon={<Edit2 size={13} />} sx={primaryBtnSx}>
+                <Button
+                  variant="contained"
+                  onClick={handleSavePatientSection}
+                  startIcon={<Edit2 size={13} />}
+                  sx={primaryBtnSx}
+                >
                   Save Patient Record
                 </Button>
               </div>
@@ -1334,18 +1729,29 @@ export function PatientFormDrawer({
               savedBadge={savedSection === "insurance"}
               summary={
                 insuranceSaved
-                  ? (providerName(insurance.insuranceProviderId) || "Insurance on file") + (insurance.isActive ? " · Active" : " · Inactive")
+                  ? (providerName(insurance.insuranceProviderId) ||
+                      "Insurance on file") +
+                    (insurance.isActive ? " · Active" : " · Inactive")
                   : "No insurance on file"
               }
               summaryMuted={!insuranceSaved}
               open={openAccordion === "insurance"}
-              onToggle={() => setOpenAccordion((p) => (p === "insurance" ? null : "insurance"))}
+              onToggle={() =>
+                setOpenAccordion((p) =>
+                  p === "insurance" ? null : "insurance",
+                )
+              }
             >
               {insuranceSaved ? (
                 <div className="flex flex-col gap-4">
                   {insuranceSavedCard}
                   <div className="flex justify-end">
-                    <Button variant="contained" onClick={handleRemoveInsurance} startIcon={<Edit2 size={13} />} sx={primaryBtnSx}>
+                    <Button
+                      variant="contained"
+                      onClick={handleRemoveInsurance}
+                      startIcon={<Edit2 size={13} />}
+                      sx={primaryBtnSx}
+                    >
                       Change Insurance
                     </Button>
                   </div>
@@ -1354,7 +1760,13 @@ export function PatientFormDrawer({
                 <div className="flex flex-col gap-4">
                   {insuranceFormFields}
                   <div className="flex justify-end">
-                    <Button variant="contained" disabled={!insurance.insuranceProviderId} onClick={handleSaveInsurance} startIcon={<Shield size={13} />} sx={primaryBtnSx}>
+                    <Button
+                      variant="contained"
+                      disabled={!insurance.insuranceProviderId}
+                      onClick={handleSaveInsurance}
+                      startIcon={<Shield size={13} />}
+                      sx={primaryBtnSx}
+                    >
                       Save Insurance
                     </Button>
                   </div>
@@ -1374,7 +1786,11 @@ export function PatientFormDrawer({
               }
               summaryMuted={documents.length === 0}
               open={openAccordion === "documents"}
-              onToggle={() => setOpenAccordion((p) => (p === "documents" ? null : "documents"))}
+              onToggle={() =>
+                setOpenAccordion((p) =>
+                  p === "documents" ? null : "documents",
+                )
+              }
             >
               {documentsContent}
             </AccordionSection>
@@ -1403,26 +1819,41 @@ export function PatientFormDrawer({
                   Cancel
                 </Button>
               ) : (
-                <Button variant="outlined" onClick={() => setCreateStep((s) => (s - 1) as 1 | 2 | 3)} startIcon={<ChevronLeft size={14} />} sx={outlinedBtnSx}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setCreateStep((s) => (s - 1) as 1 | 2 | 3)}
+                  startIcon={<ChevronLeft size={14} />}
+                  sx={outlinedBtnSx}
+                >
                   Back
                 </Button>
               )}
             </div>
             <div className="flex items-center gap-2">
               {createStep === 1 && (
-                <Button variant="contained" onClick={handleRegisterPatient} startIcon={<Plus size={14} />} sx={primaryBtnSx}>
+                <Button
+                  variant="contained"
+                  onClick={handleRegisterPatient}
+                  startIcon={<Plus size={14} />}
+                  sx={primaryBtnSx}
+                >
                   Register Patient
                 </Button>
               )}
               {createStep === 2 && (
                 <>
-                  <Button variant="outlined" onClick={() => setCreateStep(3)} sx={{ ...outlinedBtnSx, color: "var(--text-muted)" }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setCreateStep(3)}
+                    sx={{ ...outlinedBtnSx, color: "var(--text-muted)" }}
+                  >
                     Skip
                   </Button>
                   <Button
                     variant="contained"
                     onClick={() => {
-                      if (!insuranceSaved && insurance.insuranceProviderId) handleSaveInsurance();
+                      if (!insuranceSaved && insurance.insuranceProviderId)
+                        handleSaveInsurance();
                       setCreateStep(3);
                     }}
                     endIcon={<ChevronRight size={14} />}
@@ -1440,7 +1871,10 @@ export function PatientFormDrawer({
                   sx={{
                     ...primaryBtnSx,
                     backgroundColor: "#279C41",
-                    "&:hover": { backgroundColor: "#1d7a30", boxShadow: "0 4px 14px rgba(39,156,65,0.35)" },
+                    "&:hover": {
+                      backgroundColor: "#1d7a30",
+                      boxShadow: "0 4px 14px rgba(39,156,65,0.35)",
+                    },
                     boxShadow: "0 2px 8px rgba(39,156,65,0.28)",
                   }}
                 >

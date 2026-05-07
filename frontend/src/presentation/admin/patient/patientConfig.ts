@@ -76,7 +76,6 @@ export const AVATAR_COLORS = [
 export const TF_SX = {
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
-    background: "var(--surface-page)",
     "& fieldset": { borderColor: "var(--border-ui)" },
     "&:hover fieldset": { borderColor: "var(--brand-primary)" },
     "&.Mui-focused fieldset": {
@@ -84,6 +83,9 @@ export const TF_SX = {
       borderWidth: 2,
     },
   },
+  "& .MuiInputLabel-root": { fontSize: "0.875rem" },
   "& .MuiInputLabel-root.Mui-focused": { color: "var(--brand-primary)" },
+  "& .MuiInputBase-input": { fontSize: "0.875rem" },
+  "& .MuiSelect-select": { fontSize: "0.875rem" },
   "& .MuiFormHelperText-root": { marginLeft: 0, fontSize: 11 },
 };
