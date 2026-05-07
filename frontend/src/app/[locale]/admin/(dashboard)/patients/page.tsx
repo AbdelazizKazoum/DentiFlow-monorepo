@@ -1560,13 +1560,10 @@ export default function PatientsPage() {
                 cursor: "default",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.transform =
-                  "translateY(-2px)";
                 (e.currentTarget as HTMLElement).style.boxShadow =
                   "0 8px 22px rgba(0,0,0,0.10)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.transform = "none";
                 (e.currentTarget as HTMLElement).style.boxShadow =
                   "0 1px 3px rgba(0,0,0,0.05)";
               }}
@@ -1861,13 +1858,11 @@ export default function PatientsPage() {
                 e.currentTarget.style.background = "var(--brand-primary-dark)";
                 e.currentTarget.style.boxShadow =
                   "0 4px 12px rgba(30,86,208,0.35)";
-                e.currentTarget.style.transform = "translateY(-1px)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "var(--brand-primary)";
                 e.currentTarget.style.boxShadow =
                   "0 2px 6px rgba(30,86,208,0.25)";
-                e.currentTarget.style.transform = "translateY(0)";
               }}
             >
               <Plus size={14} /> Add Patient
@@ -2498,7 +2493,6 @@ export default function PatientsPage() {
                 justifyContent: "center",
                 gap: 4,
                 padding: "14px 20px",
-                borderTop: "1px solid var(--border-ui)",
                 maxWidth: "95%", // Adjusted to match row width
                 margin: "0 auto", // Center align pagination
               }}
@@ -2508,11 +2502,11 @@ export default function PatientsPage() {
                 onClick={() => setCurrentPage((pp) => Math.max(1, pp - 1))}
                 disabled={currentPage === 1}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1px solid var(--border-ui)",
-                  background: "var(--surface-card)",
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "transparent",
                   cursor: currentPage === 1 ? "not-allowed" : "pointer",
                   color:
                     currentPage === 1
@@ -2524,7 +2518,7 @@ export default function PatientsPage() {
                   opacity: currentPage === 1 ? 0.5 : 1,
                 }}
               >
-                <ChevronLeft size={15} strokeWidth={2} />
+                <ChevronLeft size={20} strokeWidth={2} />
               </button>
 
               {/* Page Numbers */}
@@ -2608,11 +2602,11 @@ export default function PatientsPage() {
                 }
                 disabled={currentPage === totalPages}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1px solid var(--border-ui)",
-                  background: "var(--surface-card)",
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "transparent",
                   cursor:
                     currentPage === totalPages ? "not-allowed" : "pointer",
                   color:
@@ -2625,7 +2619,7 @@ export default function PatientsPage() {
                   opacity: currentPage === totalPages ? 0.5 : 1,
                 }}
               >
-                <ChevronRight size={15} strokeWidth={2} />
+                <ChevronRight size={20} strokeWidth={2} />
               </button>
             </div>
           </div>
@@ -2670,13 +2664,10 @@ export default function PatientsPage() {
                       transition: "transform 0.15s,box-shadow 0.15s",
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform =
-                        "translateY(-3px)";
                       (e.currentTarget as HTMLElement).style.boxShadow =
                         "0 10px 28px rgba(0,0,0,0.12)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.transform = "none";
                       (e.currentTarget as HTMLElement).style.boxShadow =
                         "0 1px 4px rgba(0,0,0,0.06)";
                     }}
@@ -2917,7 +2908,6 @@ export default function PatientsPage() {
                 justifyContent: "center",
                 gap: 4,
                 padding: "14px 20px",
-                borderTop: "1px solid var(--border-ui)",
                 maxWidth: "95%", // Adjusted to match row width
                 margin: "0 auto", // Center align pagination
               }}
@@ -2927,11 +2917,11 @@ export default function PatientsPage() {
                 onClick={() => setCurrentPage((pp) => Math.max(1, pp - 1))}
                 disabled={currentPage === 1}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1px solid var(--border-ui)",
-                  background: "var(--surface-card)",
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "transparent",
                   cursor: currentPage === 1 ? "not-allowed" : "pointer",
                   color:
                     currentPage === 1
@@ -2943,7 +2933,7 @@ export default function PatientsPage() {
                   opacity: currentPage === 1 ? 0.5 : 1,
                 }}
               >
-                <ChevronLeft size={15} strokeWidth={2} />
+                <ChevronLeft size={20} strokeWidth={2} />
               </button>
 
               {/* Page Numbers */}
@@ -3027,11 +3017,11 @@ export default function PatientsPage() {
                 }
                 disabled={currentPage === totalPages}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1px solid var(--border-ui)",
-                  background: "var(--surface-card)",
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "transparent",
                   cursor:
                     currentPage === totalPages ? "not-allowed" : "pointer",
                   color:
@@ -3044,7 +3034,7 @@ export default function PatientsPage() {
                   opacity: currentPage === totalPages ? 0.5 : 1,
                 }}
               >
-                <ChevronRight size={15} strokeWidth={2} />
+                <ChevronRight size={20} strokeWidth={2} />
               </button>
             </div>
           </div>
