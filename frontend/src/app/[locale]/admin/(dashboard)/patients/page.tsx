@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, {useState, useCallback, useMemo} from "react";
+import React, {useState, useCallback, useMemo, useRef} from "react";
 import {
   Users,
   Plus,
@@ -25,6 +25,14 @@ import {
   UserPlus,
   Activity,
   Heart,
+  User,
+  MapPin,
+  FileText,
+  Archive,
+  Shield,
+  FolderOpen,
+  Upload,
+  Check,
 } from "lucide-react";
 import {
   Dialog,
@@ -44,54 +52,95 @@ import {
   Checkbox,
 } from "@mui/material";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Domain Entity Types (aligned to domain/patient/entities/patient.ts) ─────
 
-type PatientStatus = "active" | "inactive" | "new";
-type BloodType = "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
-type SortOption = "lastAdded" | "name" | "lastVisit" | "status";
+enum PatientStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  ARCHIVED = "ARCHIVED",
+}
+
+enum PatientGender {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+  OTHER = "OTHER",
+}
+
+/** Matches domain DocumentType enum */
+enum DocumentType {
+  GENERAL = "GENERAL",
+  INSURANCE = "INSURANCE",
+  MEDICAL = "MEDICAL",
+  OTHER = "OTHER",
+}
+
+interface InsuranceState {
+  insuranceProviderId: string;
+  isActive: boolean;
+  policyNumber: string;
+  memberId: string;
+}
+
+interface DocumentItem {
+  id: string;
+  type: DocumentType;
+  fileUrl: string;
+  title: string;
+  createdAt: string;
+}
+
+type SortOption = "lastAdded" | "name" | "status" | "gender";
 
 interface DateRange {
   from: Date | null;
   to: Date | null;
 }
+
 interface FilterState {
   status: PatientStatus | "all";
-  bloodType: BloodType | "all";
+  gender: PatientGender | "all";
 }
 
+/** Matches domain Patient entity */
 interface Patient {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  bloodType: BloodType;
-  allergies: string;
-  medicalConditions: string;
-  emergencyContact: string;
-  emergencyPhone: string;
-  lastVisit: string;
-  nextAppointment: string;
+  clinicId: string;
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+  updatedAt: string;
   status: PatientStatus;
-  avatar: string;
-  registrationDate: string;
-  balance: number;
+  userId?: string;
+  phone?: string;
+  email?: string;
+  dateOfBirth?: string;
+  gender?: PatientGender;
+  address?: string;
+  notes?: string;
+  allergies?: string;
+  chronicConditions?: string;
+  currentMedications?: string;
+  medicalNotes?: string;
+  cnie?: string;
+  deletedAt?: string;
 }
+
 interface FormState {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   dateOfBirth: string;
-  bloodType: BloodType;
-  allergies: string;
-  medicalConditions: string;
-  emergencyContact: string;
-  emergencyPhone: string;
-  lastVisit: string;
-  nextAppointment: string;
+  gender: PatientGender | "";
+  address: string;
   status: PatientStatus;
-  balance: number;
+  notes: string;
+  allergies: string;
+  chronicConditions: string;
+  currentMedications: string;
+  medicalNotes: string;
+  cnie: string;
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -100,35 +149,30 @@ const STATUS_CONFIG: Record<
   PatientStatus,
   {label: string; color: string; bg: string; dot: string}
 > = {
-  active: {label: "Active", color: "#279C41", bg: "#E8F8EC", dot: "#279C41"},
-  new: {
-    label: "New Patient",
-    color: "var(--brand-primary)",
-    bg: "#e8f0fe",
-    dot: "#1e56d0",
+  [PatientStatus.ACTIVE]: {
+    label: "Active",
+    color: "#279C41",
+    bg: "#E8F8EC",
+    dot: "#279C41",
   },
-  inactive: {
+  [PatientStatus.INACTIVE]: {
     label: "Inactive",
     color: "#64748b",
     bg: "#f1f5f9",
     dot: "#94a3b8",
   },
+  [PatientStatus.ARCHIVED]: {
+    label: "Archived",
+    color: "#9a3412",
+    bg: "#fff7ed",
+    dot: "#ea580c",
+  },
 };
-const BLOOD_TYPES: BloodType[] = [
-  "A+",
-  "A-",
-  "B+",
-  "B-",
-  "AB+",
-  "AB-",
-  "O+",
-  "O-",
-];
 const SORT_OPTIONS: {value: SortOption; label: string}[] = [
   {value: "lastAdded", label: "Last Added"},
   {value: "name", label: "Name (A\u2013Z)"},
-  {value: "lastVisit", label: "Last Visit"},
   {value: "status", label: "Status"},
+  {value: "gender", label: "Gender"},
 ];
 const PAGE_SIZE = 8;
 const AVATAR_COLORS = [
@@ -144,347 +188,324 @@ const AVATAR_COLORS = [
   "#0284c7",
 ];
 
+/** Shared MUI TextField styling */
+const TF_SX = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "8px",
+    background: "var(--surface-page)",
+    "& fieldset": {borderColor: "var(--border-ui)"},
+    "&:hover fieldset": {borderColor: "var(--brand-primary)"},
+    "&.Mui-focused fieldset": {
+      borderColor: "var(--brand-primary)",
+      borderWidth: 2,
+    },
+  },
+  "& .MuiInputLabel-root.Mui-focused": {color: "var(--brand-primary)"},
+  "& .MuiFormHelperText-root": {marginLeft: 0, fontSize: 11},
+};
+
+const MOCK_INSURANCE_PROVIDERS: {id: string; name: string}[] = [
+  {id: "prov-cnops", name: "CNOPS"},
+  {id: "prov-cnss", name: "CNSS"},
+  {id: "prov-rma", name: "RMA Watanya"},
+  {id: "prov-saham", name: "Saham Assurance"},
+  {id: "prov-axa", name: "AXA Assurance"},
+  {id: "prov-allianz", name: "Allianz Maroc"},
+  {id: "prov-wafa", name: "Wafa Assurance"},
+  {id: "prov-atlanta", name: "Atlanta Assurance"},
+];
+
+const DOC_TYPE_CONFIG: Record<
+  DocumentType,
+  {label: string; color: string; bg: string}
+> = {
+  [DocumentType.GENERAL]: {label: "General", color: "#64748b", bg: "#f1f5f9"},
+  [DocumentType.INSURANCE]: {
+    label: "Insurance",
+    color: "#0891b2",
+    bg: "#ecfeff",
+  },
+  [DocumentType.MEDICAL]: {label: "Medical", color: "#dc2626", bg: "#fff5f5"},
+  [DocumentType.OTHER]: {label: "Other", color: "#7c3aed", bg: "#f5f3ff"},
+};
+
 const INITIAL_PATIENTS: Patient[] = [
   {
     id: "1",
-    name: "Alice Johnson",
+    clinicId: "clinic-1",
+    firstName: "Alice",
+    lastName: "Johnson",
+    createdAt: "2026-04-15T10:00:00Z",
+    updatedAt: "2026-04-15T10:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "alice.j@example.com",
     phone: "555-0101",
     dateOfBirth: "1985-06-15",
-    bloodType: "O+",
+    gender: PatientGender.FEMALE,
+    address: "123 Main St, Springfield",
     allergies: "Penicillin",
-    medicalConditions: "Hypertension",
-    emergencyContact: "Bob Johnson",
-    emergencyPhone: "555-0102",
-    lastVisit: "2026-04-15",
-    nextAppointment: "2026-05-10",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-04-15",
-    balance: 120.5,
+    chronicConditions: "Hypertension",
   },
   {
     id: "2",
-    name: "Michael Chen",
+    clinicId: "clinic-1",
+    firstName: "Michael",
+    lastName: "Chen",
+    createdAt: "2026-04-25T09:30:00Z",
+    updatedAt: "2026-04-25T09:30:00Z",
+    status: PatientStatus.ACTIVE,
     email: "m.chen@example.com",
     phone: "555-0203",
     dateOfBirth: "1992-11-22",
-    bloodType: "A+",
-    allergies: "None",
-    medicalConditions: "None",
-    emergencyContact: "Lisa Chen",
-    emergencyPhone: "555-0204",
-    lastVisit: "2026-04-25",
-    nextAppointment: "",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-04-25",
-    balance: 0,
+    gender: PatientGender.MALE,
   },
   {
     id: "3",
-    name: "Sarah Williams",
+    clinicId: "clinic-1",
+    firstName: "Sarah",
+    lastName: "Williams",
+    createdAt: "2025-12-20T14:00:00Z",
+    updatedAt: "2025-12-20T14:00:00Z",
+    status: PatientStatus.INACTIVE,
     email: "sarah.w@example.com",
     phone: "555-0305",
     dateOfBirth: "1978-03-08",
-    bloodType: "B-",
+    gender: PatientGender.FEMALE,
     allergies: "Latex",
-    medicalConditions: "Diabetes Type 2",
-    emergencyContact: "John Williams",
-    emergencyPhone: "555-0306",
-    lastVisit: "2025-12-20",
-    nextAppointment: "",
-    status: "inactive",
-    avatar: "",
-    registrationDate: "2025-12-20",
-    balance: 45.75,
+    chronicConditions: "Diabetes Type 2",
   },
   {
     id: "4",
-    name: "David Martinez",
+    clinicId: "clinic-1",
+    firstName: "David",
+    lastName: "Martinez",
+    createdAt: "2026-04-28T11:00:00Z",
+    updatedAt: "2026-04-28T11:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "d.martinez@example.com",
     phone: "555-0407",
     dateOfBirth: "2000-09-30",
-    bloodType: "AB+",
-    allergies: "None",
-    medicalConditions: "None",
-    emergencyContact: "Maria Martinez",
-    emergencyPhone: "555-0408",
-    lastVisit: "",
-    nextAppointment: "2026-05-05",
-    status: "new",
-    avatar: "",
-    registrationDate: "2026-04-28",
-    balance: 0,
+    gender: PatientGender.MALE,
   },
   {
     id: "5",
-    name: "Emma Thompson",
+    clinicId: "clinic-1",
+    firstName: "Emma",
+    lastName: "Thompson",
+    createdAt: "2026-04-20T10:30:00Z",
+    updatedAt: "2026-04-20T10:30:00Z",
+    status: PatientStatus.ACTIVE,
     email: "emma.t@example.com",
     phone: "555-0509",
     dateOfBirth: "1995-12-12",
-    bloodType: "O-",
+    gender: PatientGender.FEMALE,
     allergies: "Aspirin",
-    medicalConditions: "Asthma",
-    emergencyContact: "James Thompson",
-    emergencyPhone: "555-0510",
-    lastVisit: "2026-04-20",
-    nextAppointment: "2026-06-01",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-04-20",
-    balance: 300.0,
+    chronicConditions: "Asthma",
+    currentMedications: "Salbutamol inhaler",
   },
   {
     id: "6",
-    name: "Omar Al-Rashid",
+    clinicId: "clinic-1",
+    firstName: "Omar",
+    lastName: "Al-Rashid",
+    createdAt: "2026-05-01T08:00:00Z",
+    updatedAt: "2026-05-01T08:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "omar.r@example.com",
     phone: "555-0611",
     dateOfBirth: "1988-07-03",
-    bloodType: "B+",
-    allergies: "None",
-    medicalConditions: "None",
-    emergencyContact: "Fatima Al-Rashid",
-    emergencyPhone: "555-0612",
-    lastVisit: "2026-05-01",
-    nextAppointment: "2026-06-15",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-05-01",
-    balance: 75.0,
+    gender: PatientGender.MALE,
+    cnie: "MR-11234",
   },
   {
     id: "7",
-    name: "Priya Sharma",
+    clinicId: "clinic-1",
+    firstName: "Priya",
+    lastName: "Sharma",
+    createdAt: "2026-04-10T13:00:00Z",
+    updatedAt: "2026-04-10T13:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "priya.s@example.com",
     phone: "555-0713",
     dateOfBirth: "1997-02-18",
-    bloodType: "A-",
+    gender: PatientGender.FEMALE,
     allergies: "Sulfa drugs",
-    medicalConditions: "Anxiety",
-    emergencyContact: "Raj Sharma",
-    emergencyPhone: "555-0714",
-    lastVisit: "2026-04-10",
-    nextAppointment: "2026-05-20",
-    status: "new",
-    avatar: "",
-    registrationDate: "2026-04-10",
-    balance: 0,
   },
   {
     id: "8",
-    name: "James Carter",
+    clinicId: "clinic-1",
+    firstName: "James",
+    lastName: "Carter",
+    createdAt: "2026-03-12T09:00:00Z",
+    updatedAt: "2026-03-12T09:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "j.carter@example.com",
     phone: "555-0815",
     dateOfBirth: "1983-04-22",
-    bloodType: "A+",
-    allergies: "None",
-    medicalConditions: "None",
-    emergencyContact: "Linda Carter",
-    emergencyPhone: "555-0816",
-    lastVisit: "2026-03-12",
-    nextAppointment: "2026-06-20",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-03-12",
-    balance: 55.0,
+    gender: PatientGender.MALE,
   },
   {
     id: "9",
-    name: "Aisha Patel",
+    clinicId: "clinic-1",
+    firstName: "Aisha",
+    lastName: "Patel",
+    createdAt: "2026-04-05T10:00:00Z",
+    updatedAt: "2026-04-05T10:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "aisha.p@example.com",
     phone: "555-0917",
     dateOfBirth: "2001-08-14",
-    bloodType: "B+",
+    gender: PatientGender.FEMALE,
     allergies: "Penicillin",
-    medicalConditions: "None",
-    emergencyContact: "Ravi Patel",
-    emergencyPhone: "555-0918",
-    lastVisit: "2026-04-05",
-    nextAppointment: "2026-05-25",
-    status: "new",
-    avatar: "",
-    registrationDate: "2026-04-05",
-    balance: 0,
   },
   {
     id: "10",
-    name: "Lucas Fernandez",
+    clinicId: "clinic-1",
+    firstName: "Lucas",
+    lastName: "Fernandez",
+    createdAt: "2026-02-28T11:00:00Z",
+    updatedAt: "2026-02-28T11:00:00Z",
+    status: PatientStatus.INACTIVE,
     email: "l.fernandez@example.com",
     phone: "555-1019",
     dateOfBirth: "1990-12-03",
-    bloodType: "O+",
-    allergies: "None",
-    medicalConditions: "High cholesterol",
-    emergencyContact: "Ana Fernandez",
-    emergencyPhone: "555-1020",
-    lastVisit: "2026-02-28",
-    nextAppointment: "",
-    status: "inactive",
-    avatar: "",
-    registrationDate: "2026-02-28",
-    balance: 210.0,
+    gender: PatientGender.MALE,
+    chronicConditions: "High cholesterol",
+    currentMedications: "Atorvastatin 20mg",
   },
   {
     id: "11",
-    name: "Yuki Tanaka",
+    clinicId: "clinic-1",
+    firstName: "Yuki",
+    lastName: "Tanaka",
+    createdAt: "2026-05-02T09:00:00Z",
+    updatedAt: "2026-05-02T09:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "yuki.t@example.com",
     phone: "555-1121",
     dateOfBirth: "1996-06-18",
-    bloodType: "AB-",
-    allergies: "None",
-    medicalConditions: "None",
-    emergencyContact: "Hiro Tanaka",
-    emergencyPhone: "555-1122",
-    lastVisit: "2026-05-02",
-    nextAppointment: "2026-06-10",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-05-02",
-    balance: 0,
+    gender: PatientGender.FEMALE,
   },
   {
     id: "12",
-    name: "Fatima Nour",
+    clinicId: "clinic-1",
+    firstName: "Fatima",
+    lastName: "Nour",
+    createdAt: "2026-04-18T10:00:00Z",
+    updatedAt: "2026-04-18T10:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "fatima.n@example.com",
     phone: "555-1223",
     dateOfBirth: "1987-09-29",
-    bloodType: "A-",
+    gender: PatientGender.FEMALE,
     allergies: "Ibuprofen",
-    medicalConditions: "Migraine",
-    emergencyContact: "Hassan Nour",
-    emergencyPhone: "555-1224",
-    lastVisit: "2026-04-18",
-    nextAppointment: "2026-07-01",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-04-18",
-    balance: 90.25,
+    chronicConditions: "Migraine",
+    currentMedications: "Sumatriptan",
   },
   {
     id: "13",
-    name: "Ethan Brooks",
+    clinicId: "clinic-1",
+    firstName: "Ethan",
+    lastName: "Brooks",
+    createdAt: "2026-04-30T10:00:00Z",
+    updatedAt: "2026-04-30T10:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "e.brooks@example.com",
     phone: "555-1325",
     dateOfBirth: "1994-01-07",
-    bloodType: "O-",
-    allergies: "None",
-    medicalConditions: "None",
-    emergencyContact: "Carol Brooks",
-    emergencyPhone: "555-1326",
-    lastVisit: "",
-    nextAppointment: "2026-05-15",
-    status: "new",
-    avatar: "",
-    registrationDate: "2026-04-30",
-    balance: 0,
+    gender: PatientGender.MALE,
   },
   {
     id: "14",
-    name: "Nina Kowalski",
+    clinicId: "clinic-1",
+    firstName: "Nina",
+    lastName: "Kowalski",
+    createdAt: "2026-01-15T09:30:00Z",
+    updatedAt: "2026-01-15T09:30:00Z",
+    status: PatientStatus.INACTIVE,
     email: "nina.k@example.com",
     phone: "555-1427",
     dateOfBirth: "1980-11-25",
-    bloodType: "B-",
+    gender: PatientGender.FEMALE,
     allergies: "Sulfa drugs",
-    medicalConditions: "Arthritis",
-    emergencyContact: "Piotr Kowalski",
-    emergencyPhone: "555-1428",
-    lastVisit: "2026-01-15",
-    nextAppointment: "",
-    status: "inactive",
-    avatar: "",
-    registrationDate: "2026-01-15",
-    balance: 175.5,
+    chronicConditions: "Arthritis",
   },
   {
     id: "15",
-    name: "Carlos Mendez",
+    clinicId: "clinic-1",
+    firstName: "Carlos",
+    lastName: "Mendez",
+    createdAt: "2026-04-22T10:00:00Z",
+    updatedAt: "2026-04-22T10:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "c.mendez@example.com",
     phone: "555-1529",
     dateOfBirth: "1975-05-11",
-    bloodType: "AB+",
-    allergies: "None",
-    medicalConditions: "Type 1 Diabetes",
-    emergencyContact: "Rosa Mendez",
-    emergencyPhone: "555-1530",
-    lastVisit: "2026-04-22",
-    nextAppointment: "2026-05-30",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-04-22",
-    balance: 0,
+    gender: PatientGender.MALE,
+    chronicConditions: "Type 1 Diabetes",
+    currentMedications: "Insulin",
   },
   {
     id: "16",
-    name: "Sophie Laurent",
+    clinicId: "clinic-1",
+    firstName: "Sophie",
+    lastName: "Laurent",
+    createdAt: "2026-04-29T11:00:00Z",
+    updatedAt: "2026-04-29T11:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "sophie.l@example.com",
     phone: "555-1631",
     dateOfBirth: "1999-03-16",
-    bloodType: "A+",
+    gender: PatientGender.FEMALE,
     allergies: "Latex",
-    medicalConditions: "None",
-    emergencyContact: "Marc Laurent",
-    emergencyPhone: "555-1632",
-    lastVisit: "2026-04-29",
-    nextAppointment: "2026-06-05",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-04-29",
-    balance: 40.0,
   },
   {
     id: "17",
-    name: "Amir Hassan",
+    clinicId: "clinic-1",
+    firstName: "Amir",
+    lastName: "Hassan",
+    createdAt: "2026-03-25T09:00:00Z",
+    updatedAt: "2026-03-25T09:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "amir.h@example.com",
     phone: "555-1733",
     dateOfBirth: "1986-10-08",
-    bloodType: "O+",
-    allergies: "None",
-    medicalConditions: "Hypertension",
-    emergencyContact: "Layla Hassan",
-    emergencyPhone: "555-1734",
-    lastVisit: "2026-03-25",
-    nextAppointment: "2026-05-18",
-    status: "active",
-    avatar: "",
-    registrationDate: "2026-03-25",
-    balance: 130.0,
+    gender: PatientGender.MALE,
+    chronicConditions: "Hypertension",
+    currentMedications: "Lisinopril 10mg",
+    cnie: "MR-98765",
   },
   {
     id: "18",
-    name: "Mia Johansson",
+    clinicId: "clinic-1",
+    firstName: "Mia",
+    lastName: "Johansson",
+    createdAt: "2026-04-12T10:00:00Z",
+    updatedAt: "2026-04-12T10:00:00Z",
+    status: PatientStatus.ACTIVE,
     email: "mia.j@example.com",
     phone: "555-1835",
     dateOfBirth: "2003-07-20",
-    bloodType: "B+",
+    gender: PatientGender.FEMALE,
     allergies: "Aspirin",
-    medicalConditions: "None",
-    emergencyContact: "Erik Johansson",
-    emergencyPhone: "555-1836",
-    lastVisit: "2026-04-12",
-    nextAppointment: "2026-06-22",
-    status: "new",
-    avatar: "",
-    registrationDate: "2026-04-12",
-    balance: 0,
   },
 ];
 const EMPTY_FORM: FormState = {
   id: "",
-  name: "",
+  firstName: "",
+  lastName: "",
   email: "",
   phone: "",
   dateOfBirth: "",
-  bloodType: "O+",
+  gender: "",
+  address: "",
+  status: PatientStatus.ACTIVE,
+  notes: "",
   allergies: "",
-  medicalConditions: "",
-  emergencyContact: "",
-  emergencyPhone: "",
-  lastVisit: "",
-  nextAppointment: "",
-  status: "new",
-  balance: 0,
+  chronicConditions: "",
+  currentMedications: "",
+  medicalNotes: "",
+  cnie: "",
 };
 // ─── Calendar Helpers ─────────────────────────────────────────────────────────
 
@@ -1096,9 +1117,9 @@ function FilterDrawer({open, filters, onApply, onClose}: FilterDrawerProps) {
               style={selSty}
             >
               <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="new">New Patient</option>
-              <option value="inactive">Inactive</option>
+              <option value={PatientStatus.ACTIVE}>Active</option>
+              <option value={PatientStatus.INACTIVE}>Inactive</option>
+              <option value={PatientStatus.ARCHIVED}>Archived</option>
             </select>
             <ChevronDown
               size={14}
@@ -1114,19 +1135,17 @@ function FilterDrawer({open, filters, onApply, onClose}: FilterDrawerProps) {
           </div>
         </div>
         <div>
-          <label style={labelSty}>Blood Type</label>
+          <label style={labelSty}>Gender</label>
           <div style={{position: "relative"}}>
             <select
-              value={local.bloodType}
-              onChange={sel("bloodType")}
+              value={local.gender}
+              onChange={sel("gender")}
               style={selSty}
             >
-              <option value="all">All Blood Types</option>
-              {BLOOD_TYPES.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
+              <option value="all">All Genders</option>
+              <option value={PatientGender.MALE}>Male</option>
+              <option value={PatientGender.FEMALE}>Female</option>
+              <option value={PatientGender.OTHER}>Other</option>
             </select>
             <ChevronDown
               size={14}
@@ -1163,12 +1182,12 @@ function FilterDrawer({open, filters, onApply, onClose}: FilterDrawerProps) {
           </div>
         </div>
         <div>
-          <label style={labelSty}>Balance</label>
+          <label style={labelSty}>Has Chronic Conditions</label>
           <div style={{position: "relative"}}>
             <select style={selSty} defaultValue="all">
               <option value="all">Any</option>
-              <option value="owed">Has balance owed</option>
-              <option value="clear">No balance</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
             </select>
             <ChevronDown
               size={14}
@@ -1194,7 +1213,7 @@ function FilterDrawer({open, filters, onApply, onClose}: FilterDrawerProps) {
       >
         <button
           onClick={() => {
-            setLocal({status: "all", bloodType: "all"});
+            setLocal({status: "all", gender: "all"});
           }}
           style={{
             flex: 1,
@@ -1236,7 +1255,15 @@ function FilterDrawer({open, filters, onApply, onClose}: FilterDrawerProps) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function calculateAge(dob: string): string | number {
+function getFullName(p: Patient): string {
+  return `${p.firstName} ${p.lastName}`.trim();
+}
+function isNewPatient(createdAt: string): boolean {
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return new Date(createdAt) >= thirtyDaysAgo;
+}
+function calculateAge(dob?: string): string | number {
   if (!dob) return "—";
   const today = new Date();
   const bd = new Date(dob);
@@ -1245,11 +1272,10 @@ function calculateAge(dob: string): string | number {
   if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) age--;
   return age;
 }
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
+function getInitials(firstName: string, lastName: string): string {
   return (
-    (parts[0]?.charAt(0) || "").toUpperCase() +
-    (parts.length > 1 ? parts[parts.length - 1].charAt(0).toUpperCase() : "")
+    (firstName.charAt(0) || "").toUpperCase() +
+    (lastName.charAt(0) || "").toUpperCase()
   );
 }
 function formatRelativeDate(dateStr: string): string {
@@ -1279,18 +1305,2085 @@ function getActiveFilterCount(
 ): number {
   let n = 0;
   if (filters.status !== "all") n++;
-  if (filters.bloodType !== "all") n++;
+  if (filters.gender !== "all") n++;
   if (dateRange.from || dateRange.to) n++;
   return n;
 }
+
+// ─── PatientFormDrawer ────────────────────────────────────────────────────────
+
+interface PatientFormDrawerProps {
+  open: boolean;
+  form: FormState;
+  formError: string;
+  isEdit: boolean;
+  onClose: () => void;
+  onSave: () => void;
+  onDelete: () => void;
+  onChange: (form: FormState) => void;
+}
+
+function SectionHeader({
+  icon,
+  title,
+  iconColor,
+  iconBg,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  iconColor: string;
+  iconBg: string;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        marginBottom: 16,
+      }}
+    >
+      <div
+        style={{
+          width: 30,
+          height: 30,
+          borderRadius: 8,
+          background: iconBg,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        {React.cloneElement(
+          icon as React.ReactElement<{size?: number; color?: string}>,
+          {
+            size: 15,
+            color: iconColor,
+          },
+        )}
+      </div>
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: "var(--foreground)",
+          letterSpacing: "0.01em",
+        }}
+      >
+        {title}
+      </span>
+      <div
+        style={{
+          flex: 1,
+          height: 1,
+          background: "var(--border-ui)",
+          marginLeft: 2,
+        }}
+      />
+    </div>
+  );
+}
+
+// ─── Accordion Section (Edit Mode) ───────────────────────────────────────────
+function AccordionSection({
+  title,
+  icon,
+  iconColor,
+  iconBg,
+  summary,
+  summaryMuted = false,
+  savedBadge = false,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  iconColor: string;
+  iconBg: string;
+  summary?: string;
+  summaryMuted?: boolean;
+  savedBadge?: boolean;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        border: "1px solid var(--border-ui)",
+        borderRadius: 12,
+        overflow: "hidden",
+        boxShadow: open
+          ? "0 4px 20px rgba(0,0,0,0.08)"
+          : "0 1px 3px rgba(0,0,0,0.04)",
+        transition: "box-shadow 0.2s",
+      }}
+    >
+      <button
+        onClick={onToggle}
+        style={{
+          width: "100%",
+          padding: "14px 16px",
+          background: open ? "var(--surface-page)" : "var(--surface-card)",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          textAlign: "left",
+          transition: "background 0.15s",
+        }}
+      >
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          {React.cloneElement(
+            icon as React.ReactElement<{size?: number; color?: string}>,
+            {size: 16, color: iconColor},
+          )}
+        </div>
+        <div style={{flex: 1, minWidth: 0}}>
+          <div
+            style={{fontSize: 13, fontWeight: 700, color: "var(--foreground)"}}
+          >
+            {title}
+          </div>
+          {summary && (
+            <div
+              style={{
+                fontSize: 11,
+                color: summaryMuted
+                  ? "var(--text-placeholder)"
+                  : "var(--text-muted)",
+                marginTop: 2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {summary}
+            </div>
+          )}
+        </div>
+        {savedBadge && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "3px 9px",
+              borderRadius: 20,
+              background: "#E8F8EC",
+              color: "#279C41",
+              fontSize: 10,
+              fontWeight: 700,
+              flexShrink: 0,
+            }}
+          >
+            <Check size={10} /> Saved
+          </span>
+        )}
+        <ChevronDown
+          size={16}
+          color="var(--text-placeholder)"
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+            flexShrink: 0,
+          }}
+        />
+      </button>
+      <div
+        style={{
+          maxHeight: open ? "3000px" : 0,
+          overflow: "hidden",
+          transition: open
+            ? "max-height 0.4s cubic-bezier(0.0, 0, 0.2, 1)"
+            : "max-height 0.25s cubic-bezier(0.4, 0, 1, 1)",
+        }}
+      >
+        <div
+          style={{
+            padding: "20px",
+            borderTop: "1px solid var(--border-ui)",
+            background: "var(--surface-card)",
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PatientFormDrawer({
+  open,
+  form,
+  formError,
+  isEdit,
+  onClose,
+  onSave,
+  onDelete,
+  onChange,
+}: PatientFormDrawerProps) {
+  const inp =
+    (field: keyof FormState) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      onChange({...form, [field]: e.target.value});
+
+  const avatarInitials = isEdit
+    ? getInitials(form.firstName, form.lastName)
+    : "";
+
+  // ── Create wizard step ──
+  const [createStep, setCreateStep] = useState<1 | 2 | 3>(1);
+  const [stepError, setStepError] = useState("");
+
+  // ── Insurance state ──
+  const [insurance, setInsurance] = useState<InsuranceState>({
+    insuranceProviderId: "",
+    isActive: true,
+    policyNumber: "",
+    memberId: "",
+  });
+  const [insuranceSaved, setInsuranceSaved] = useState(false);
+
+  // ── Documents state ──
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [docForm, setDocForm] = useState<{
+    type: DocumentType;
+    title: string;
+    fileName: string;
+    fileUrl: string;
+  }>({type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: ""});
+  const [showDocForm, setShowDocForm] = useState(false);
+
+  // ── Edit mode accordion ──
+  const [openAccordion, setOpenAccordion] = useState<string | null>("patient");
+  const [savedSection, setSavedSection] = useState<string | null>(null);
+
+  // Reset on close
+  React.useEffect(() => {
+    if (!open) {
+      setCreateStep(1);
+      setStepError("");
+      setInsurance({
+        insuranceProviderId: "",
+        isActive: true,
+        policyNumber: "",
+        memberId: "",
+      });
+      setInsuranceSaved(false);
+      setDocuments([]);
+      setDocForm({
+        type: DocumentType.GENERAL,
+        title: "",
+        fileName: "",
+        fileUrl: "",
+      });
+      setShowDocForm(false);
+      setOpenAccordion("patient");
+      setSavedSection(null);
+    }
+  }, [open]);
+
+  const handleRegisterPatient = () => {
+    setStepError("");
+    if (!form.firstName.trim() || !form.lastName.trim()) {
+      setStepError("First and last name are required.");
+      return;
+    }
+    if (!form.email.trim()) {
+      setStepError("Email address is required.");
+      return;
+    }
+    onSave();
+    setCreateStep(2);
+  };
+
+  const handleSavePatientSection = () => {
+    onSave();
+    setOpenAccordion(null);
+    setSavedSection("patient");
+    setTimeout(() => setSavedSection(null), 3000);
+  };
+
+  const handleSaveInsurance = () => {
+    if (!insurance.insuranceProviderId) return;
+    setInsuranceSaved(true);
+    if (isEdit) {
+      setSavedSection("insurance");
+      setTimeout(() => setSavedSection(null), 3000);
+    }
+  };
+
+  const handleRemoveInsurance = () => {
+    setInsurance({
+      insuranceProviderId: "",
+      isActive: true,
+      policyNumber: "",
+      memberId: "",
+    });
+    setInsuranceSaved(false);
+  };
+
+  const handleAddDocument = () => {
+    if (!docForm.fileName && !docForm.fileUrl) return;
+    setDocuments((prev) => [
+      ...prev,
+      {
+        id: String(Date.now()),
+        type: docForm.type,
+        fileUrl: docForm.fileUrl || docForm.fileName,
+        title: docForm.title,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
+    setDocForm({
+      type: DocumentType.GENERAL,
+      title: "",
+      fileName: "",
+      fileUrl: "",
+    });
+    setShowDocForm(false);
+  };
+
+  const handleRemoveDocument = (id: string) =>
+    setDocuments((prev) => prev.filter((d) => d.id !== id));
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file)
+      setDocForm((f) => ({
+        ...f,
+        fileName: file.name,
+        fileUrl: URL.createObjectURL(file),
+      }));
+  };
+
+  const CREATE_STEPS = [
+    {id: 1 as const, label: "Patient Record"},
+    {id: 2 as const, label: "Insurance"},
+    {id: 3 as const, label: "Documents"},
+  ];
+
+  // Shared JSX fragments
+  const patientFormFields = (
+    <div style={{display: "flex", flexDirection: "column", gap: 20}}>
+      <div>
+        <SectionHeader
+          icon={<User />}
+          title="Personal Information"
+          iconColor="#1e56d0"
+          iconBg="#eff6ff"
+        />
+        <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+          <div
+            style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14}}
+          >
+            <TextField
+              label="First Name"
+              fullWidth
+              required
+              value={form.firstName}
+              onChange={inp("firstName")}
+              size="small"
+              sx={TF_SX}
+            />
+            <TextField
+              label="Last Name"
+              fullWidth
+              required
+              value={form.lastName}
+              onChange={inp("lastName")}
+              size="small"
+              sx={TF_SX}
+            />
+          </div>
+          <div
+            style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14}}
+          >
+            <TextField
+              label="Date of Birth"
+              type="date"
+              fullWidth
+              value={form.dateOfBirth}
+              onChange={inp("dateOfBirth")}
+              size="small"
+              sx={TF_SX}
+              slotProps={{inputLabel: {shrink: true}}}
+            />
+            <FormControl fullWidth size="small" sx={TF_SX}>
+              <InputLabel>Gender</InputLabel>
+              <Select
+                label="Gender"
+                value={form.gender}
+                onChange={(e) =>
+                  onChange({
+                    ...form,
+                    gender: e.target.value as PatientGender | "",
+                  })
+                }
+              >
+                <MenuItem value="">Not specified</MenuItem>
+                <MenuItem value={PatientGender.MALE}>Male</MenuItem>
+                <MenuItem value={PatientGender.FEMALE}>Female</MenuItem>
+                <MenuItem value={PatientGender.OTHER}>Other</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <TextField
+            label="CNIE (National Identity Number)"
+            fullWidth
+            value={form.cnie}
+            onChange={inp("cnie")}
+            size="small"
+            sx={TF_SX}
+            placeholder="e.g. MR-12345"
+          />
+        </div>
+      </div>
+      <div>
+        <SectionHeader
+          icon={<Phone />}
+          title="Contact Details"
+          iconColor="#0891b2"
+          iconBg="#ecfeff"
+        />
+        <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+          <div
+            style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14}}
+          >
+            <TextField
+              label="Email Address"
+              type="email"
+              fullWidth
+              required
+              value={form.email}
+              onChange={inp("email")}
+              size="small"
+              sx={TF_SX}
+            />
+            <TextField
+              label="Phone Number"
+              fullWidth
+              value={form.phone}
+              onChange={inp("phone")}
+              size="small"
+              sx={TF_SX}
+              placeholder="+212 6XX-XXXXXX"
+            />
+          </div>
+          <TextField
+            label="Address"
+            fullWidth
+            value={form.address}
+            onChange={inp("address")}
+            size="small"
+            sx={TF_SX}
+            placeholder="Street, City, Postal Code"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <MapPin
+                    size={14}
+                    color="var(--text-placeholder)"
+                    style={{marginRight: 6}}
+                  />
+                ),
+              },
+            }}
+          />
+        </div>
+      </div>
+      <div>
+        <SectionHeader
+          icon={<Activity />}
+          title="Patient Status"
+          iconColor="#279C41"
+          iconBg="#E8F8EC"
+        />
+        <FormControl fullWidth size="small" sx={TF_SX}>
+          <InputLabel>Status</InputLabel>
+          <Select
+            label="Status"
+            value={form.status}
+            onChange={(e) =>
+              onChange({...form, status: e.target.value as PatientStatus})
+            }
+          >
+            <MenuItem value={PatientStatus.ACTIVE}>
+              <span style={{display: "flex", alignItems: "center", gap: 8}}>
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: "#279C41",
+                    display: "inline-block",
+                  }}
+                />
+                Active — Patient is actively receiving care
+              </span>
+            </MenuItem>
+            <MenuItem value={PatientStatus.INACTIVE}>
+              <span style={{display: "flex", alignItems: "center", gap: 8}}>
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: "#94a3b8",
+                    display: "inline-block",
+                  }}
+                />
+                Inactive — Patient is temporarily inactive
+              </span>
+            </MenuItem>
+            <MenuItem value={PatientStatus.ARCHIVED}>
+              <span style={{display: "flex", alignItems: "center", gap: 8}}>
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: "#ea580c",
+                    display: "inline-block",
+                  }}
+                />
+                Archived — Record is archived (soft-deleted)
+              </span>
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <div>
+        <SectionHeader
+          icon={<Heart />}
+          title="Medical Information"
+          iconColor="#dc2626"
+          iconBg="#fff5f5"
+        />
+        <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+          <TextField
+            label="Known Allergies"
+            fullWidth
+            value={form.allergies}
+            onChange={inp("allergies")}
+            size="small"
+            sx={TF_SX}
+            placeholder="e.g. Penicillin, Latex, Aspirin"
+            helperText="List all known allergies, separated by commas"
+          />
+          <TextField
+            label="Chronic Conditions"
+            fullWidth
+            value={form.chronicConditions}
+            onChange={inp("chronicConditions")}
+            size="small"
+            sx={TF_SX}
+            placeholder="e.g. Diabetes Type 2, Hypertension"
+          />
+          <TextField
+            label="Current Medications"
+            fullWidth
+            value={form.currentMedications}
+            onChange={inp("currentMedications")}
+            size="small"
+            sx={TF_SX}
+            placeholder="e.g. Metformin 500mg, Salbutamol inhaler"
+          />
+          <TextField
+            label="Medical Notes"
+            fullWidth
+            multiline
+            rows={2}
+            value={form.medicalNotes}
+            onChange={inp("medicalNotes")}
+            size="small"
+            sx={TF_SX}
+            placeholder="Additional medical notes from doctors..."
+          />
+        </div>
+      </div>
+      <div>
+        <SectionHeader
+          icon={<FileText />}
+          title="Administrative Notes"
+          iconColor="#7c3aed"
+          iconBg="#f5f3ff"
+        />
+        <TextField
+          label="Notes"
+          fullWidth
+          multiline
+          rows={2}
+          value={form.notes}
+          onChange={inp("notes")}
+          size="small"
+          sx={TF_SX}
+          placeholder="Administrative notes (non-medical)..."
+        />
+      </div>
+    </div>
+  );
+
+  const insuranceFormFields = (
+    <div style={{display: "flex", flexDirection: "column", gap: 14}}>
+      <FormControl fullWidth size="small" sx={TF_SX}>
+        <InputLabel>Insurance Provider *</InputLabel>
+        <Select
+          label="Insurance Provider *"
+          value={insurance.insuranceProviderId}
+          onChange={(e) =>
+            setInsurance((s) => ({...s, insuranceProviderId: e.target.value}))
+          }
+        >
+          <MenuItem value="">
+            <em style={{fontSize: 13, color: "var(--text-placeholder)"}}>
+              Select a provider
+            </em>
+          </MenuItem>
+          {MOCK_INSURANCE_PROVIDERS.map((p) => (
+            <MenuItem key={p.id} value={p.id} sx={{fontSize: "0.875rem"}}>
+              {p.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14}}>
+        <TextField
+          label="Policy Number"
+          fullWidth
+          value={insurance.policyNumber}
+          onChange={(e) =>
+            setInsurance((s) => ({...s, policyNumber: e.target.value}))
+          }
+          size="small"
+          sx={TF_SX}
+          placeholder="e.g. POL-12345"
+        />
+        <TextField
+          label="Member ID"
+          fullWidth
+          value={insurance.memberId}
+          onChange={(e) =>
+            setInsurance((s) => ({...s, memberId: e.target.value}))
+          }
+          size="small"
+          sx={TF_SX}
+          placeholder="e.g. MBR-67890"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => setInsurance((s) => ({...s, isActive: !s.isActive}))}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "10px 14px",
+          borderRadius: 8,
+          border: `1px solid ${insurance.isActive ? "#86efac" : "var(--border-ui)"}`,
+          background: insurance.isActive ? "#f0fdf4" : "var(--surface-page)",
+          cursor: "pointer",
+          textAlign: "left",
+          width: "100%",
+        }}
+      >
+        <Checkbox
+          checked={insurance.isActive}
+          size="small"
+          onChange={(e) =>
+            setInsurance((s) => ({...s, isActive: e.target.checked}))
+          }
+          onClick={(e) => e.stopPropagation()}
+          sx={{
+            padding: 0,
+            color: "var(--text-placeholder)",
+            "&.Mui-checked": {color: "#279C41"},
+          }}
+        />
+        <div>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: insurance.isActive ? "#279C41" : "var(--foreground)",
+            }}
+          >
+            Coverage is Active
+          </div>
+          <div style={{fontSize: 11, color: "var(--text-muted)"}}>
+            Insurance is currently valid and accepted for billing
+          </div>
+        </div>
+      </button>
+    </div>
+  );
+
+  const insuranceSavedCard = (
+    <div
+      style={{
+        border: "1px solid var(--border-ui)",
+        borderRadius: 10,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          background: "linear-gradient(135deg, #ecfeff 0%, #e0f2fe 100%)",
+          borderBottom: "1px solid var(--border-ui)",
+          padding: "12px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{display: "flex", alignItems: "center", gap: 8}}>
+          <Shield size={14} color="#0891b2" />
+          <span style={{fontSize: 13, fontWeight: 700, color: "#0891b2"}}>
+            {
+              MOCK_INSURANCE_PROVIDERS.find(
+                (p) => p.id === insurance.insuranceProviderId,
+              )?.name
+            }
+          </span>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 8px",
+              borderRadius: 20,
+              fontSize: 10,
+              fontWeight: 700,
+              background: insurance.isActive ? "#E8F8EC" : "#f1f5f9",
+              color: insurance.isActive ? "#279C41" : "#64748b",
+            }}
+          >
+            <span
+              style={{
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                background: insurance.isActive ? "#279C41" : "#94a3b8",
+              }}
+            />
+            {insurance.isActive ? "Active" : "Inactive"}
+          </span>
+        </div>
+        <button
+          onClick={handleRemoveInsurance}
+          style={{
+            padding: "4px 10px",
+            borderRadius: 6,
+            border: "1px solid var(--border-ui)",
+            background: "var(--surface-card)",
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 600,
+            color: "var(--foreground)",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <Edit2 size={11} /> Change
+        </button>
+      </div>
+      {(insurance.policyNumber || insurance.memberId) && (
+        <div
+          style={{
+            padding: "12px 16px",
+            display: "flex",
+            gap: 28,
+            background: "var(--surface-card)",
+          }}
+        >
+          {insurance.policyNumber && (
+            <div>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "var(--text-placeholder)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: 3,
+                }}
+              >
+                Policy Number
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--foreground)",
+                }}
+              >
+                {insurance.policyNumber}
+              </div>
+            </div>
+          )}
+          {insurance.memberId && (
+            <div>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "var(--text-placeholder)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: 3,
+                }}
+              >
+                Member ID
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "var(--foreground)",
+                }}
+              >
+                {insurance.memberId}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  const documentsContent = (
+    <div style={{display: "flex", flexDirection: "column", gap: 10}}>
+      {documents.length === 0 && !showDocForm && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "24px 16px",
+            color: "var(--text-placeholder)",
+            fontSize: 13,
+          }}
+        >
+          No documents uploaded yet
+        </div>
+      )}
+      {documents.length > 0 && (
+        <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+          {documents.map((doc) => {
+            const dtCfg = DOC_TYPE_CONFIG[doc.type];
+            return (
+              <div
+                key={doc.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  border: "1px solid var(--border-ui)",
+                  background: "var(--surface-page)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    background: dtCfg.bg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <FileText size={15} color={dtCfg.color} />
+                </div>
+                <div style={{flex: 1, minWidth: 0}}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--foreground)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {doc.title || doc.fileUrl.split("/").pop() || "Document"}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginTop: 3,
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "1px 7px",
+                        borderRadius: 20,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        background: dtCfg.bg,
+                        color: dtCfg.color,
+                      }}
+                    >
+                      {dtCfg.label}
+                    </span>
+                    <span
+                      style={{fontSize: 10, color: "var(--text-placeholder)"}}
+                    >
+                      {new Date(doc.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRemoveDocument(doc.id)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 5,
+                    borderRadius: 6,
+                    color: "var(--text-placeholder)",
+                    display: "flex",
+                    alignItems: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {showDocForm ? (
+        <div
+          style={{
+            border: "1px solid var(--border-ui)",
+            borderRadius: 10,
+            padding: 16,
+            background: "var(--surface-page)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+          }}
+        >
+          <div
+            style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14}}
+          >
+            <FormControl fullWidth size="small" sx={TF_SX}>
+              <InputLabel>Document Type</InputLabel>
+              <Select
+                label="Document Type"
+                value={docForm.type}
+                onChange={(e) =>
+                  setDocForm((f) => ({
+                    ...f,
+                    type: e.target.value as DocumentType,
+                  }))
+                }
+              >
+                {Object.values(DocumentType).map((t) => (
+                  <MenuItem key={t} value={t} sx={{fontSize: "0.875rem"}}>
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 7,
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: DOC_TYPE_CONFIG[t].color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      {DOC_TYPE_CONFIG[t].label}
+                    </span>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="Title (optional)"
+              fullWidth
+              value={docForm.title}
+              onChange={(e) =>
+                setDocForm((f) => ({...f, title: e.target.value}))
+              }
+              size="small"
+              sx={TF_SX}
+              placeholder="e.g. Insurance Card"
+            />
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            style={{display: "none"}}
+            onChange={handleFileChange}
+            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              width: "100%",
+              padding: "20px 16px",
+              borderRadius: 8,
+              border: `2px dashed ${docForm.fileName ? "var(--brand-primary)" : "var(--border-ui)"}`,
+              background: docForm.fileName ? "#eff6ff" : "var(--surface-card)",
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Upload
+              size={20}
+              color={
+                docForm.fileName
+                  ? "var(--brand-primary)"
+                  : "var(--text-placeholder)"
+              }
+            />
+            {docForm.fileName ? (
+              <>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--brand-primary)",
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {docForm.fileName}
+                </span>
+                <span style={{fontSize: 11, color: "var(--text-muted)"}}>
+                  Click to change file
+                </span>
+              </>
+            ) : (
+              <>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "var(--foreground)",
+                  }}
+                >
+                  Click to upload a file
+                </span>
+                <span style={{fontSize: 11, color: "var(--text-muted)"}}>
+                  PDF, JPG, PNG, DOC — up to 10 MB
+                </span>
+              </>
+            )}
+          </button>
+          <div style={{display: "flex", justifyContent: "flex-end", gap: 8}}>
+            <button
+              onClick={() => {
+                setShowDocForm(false);
+                setDocForm({
+                  type: DocumentType.GENERAL,
+                  title: "",
+                  fileName: "",
+                  fileUrl: "",
+                });
+              }}
+              style={{
+                padding: "7px 16px",
+                borderRadius: 8,
+                border: "1px solid var(--border-ui)",
+                background: "var(--surface-card)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "var(--foreground)",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddDocument}
+              disabled={!docForm.fileName && !docForm.fileUrl}
+              style={{
+                padding: "7px 18px",
+                borderRadius: 8,
+                border: "none",
+                background:
+                  docForm.fileName || docForm.fileUrl
+                    ? "var(--brand-primary)"
+                    : "var(--border-ui)",
+                color:
+                  docForm.fileName || docForm.fileUrl
+                    ? "#fff"
+                    : "var(--text-placeholder)",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor:
+                  docForm.fileName || docForm.fileUrl
+                    ? "pointer"
+                    : "not-allowed",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Upload size={13} /> Upload Document
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowDocForm(true)}
+          style={{
+            width: "100%",
+            padding: "10px 14px",
+            borderRadius: 8,
+            border: "1px dashed var(--border-ui)",
+            background: "var(--surface-card)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            fontSize: 13,
+            fontWeight: 600,
+            color: "var(--text-muted)",
+          }}
+        >
+          <Plus size={14} /> Add Document
+        </button>
+      )}
+    </div>
+  );
+
+  return (
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: {
+            width: {xs: "100vw", sm: 620},
+            display: "flex",
+            flexDirection: "column",
+            fontFamily: "inherit",
+            backgroundColor: "var(--surface-card)",
+          },
+        },
+      }}
+    >
+      {/* ── Header ── */}
+      <div
+        style={{
+          background:
+            "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
+          padding: "22px 24px 18px",
+          flexShrink: 0,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            right: -40,
+            top: -40,
+            width: 160,
+            height: 160,
+            borderRadius: "50%",
+            border: "32px solid rgba(255,255,255,0.07)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
+          <div style={{display: "flex", alignItems: "center", gap: 14}}>
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 14,
+                background: "rgba(255,255,255,0.18)",
+                border: "2px solid rgba(255,255,255,0.28)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                backdropFilter: "blur(4px)",
+              }}
+            >
+              {isEdit && avatarInitials ? (
+                <span
+                  style={{
+                    fontSize: 19,
+                    fontWeight: 800,
+                    color: "#fff",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  {avatarInitials}
+                </span>
+              ) : (
+                <UserPlus size={24} color="#fff" />
+              )}
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "rgba(255,255,255,0.6)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  marginBottom: 2,
+                }}
+              >
+                {isEdit
+                  ? "Patient Record"
+                  : createStep === 1
+                    ? "Step 1 of 3 — Patient Info"
+                    : createStep === 2
+                      ? "Step 2 of 3 — Insurance"
+                      : "Step 3 of 3 — Documents"}
+              </div>
+              <h2
+                style={{
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: "#fff",
+                  margin: 0,
+                  lineHeight: 1.2,
+                }}
+              >
+                {isEdit && (form.firstName || form.lastName)
+                  ? `${form.firstName} ${form.lastName}`.trim()
+                  : "New Patient Registration"}
+              </h2>
+              {isEdit && form.id && (
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "rgba(255,255,255,0.55)",
+                    marginTop: 2,
+                  }}
+                >
+                  ID #{form.id}
+                </div>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.22)",
+              borderRadius: 8,
+              padding: "6px 7px",
+              cursor: "pointer",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+            }}
+          >
+            <X size={17} />
+          </button>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%)",
+          }}
+        />
+      </div>
+
+      {/* ── Step Indicator (create mode only) ── */}
+      {!isEdit && (
+        <div
+          style={{
+            padding: "14px 24px 13px",
+            borderBottom: "1px solid var(--border-ui)",
+            background: "var(--surface-card)",
+            display: "flex",
+            alignItems: "center",
+            flexShrink: 0,
+          }}
+        >
+          {CREATE_STEPS.map((step, i) => (
+            <React.Fragment key={step.id}>
+              <div style={{display: "flex", alignItems: "center", gap: 8}}>
+                <div
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    background:
+                      createStep > step.id
+                        ? "#279C41"
+                        : createStep === step.id
+                          ? "var(--brand-primary)"
+                          : "var(--surface-page)",
+                    border:
+                      createStep > step.id
+                        ? "none"
+                        : createStep === step.id
+                          ? "2px solid var(--brand-primary)"
+                          : "2px solid var(--border-ui)",
+                    color:
+                      createStep >= step.id
+                        ? "#fff"
+                        : "var(--text-placeholder)",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {createStep > step.id ? <Check size={12} /> : step.id}
+                </div>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: createStep === step.id ? 700 : 400,
+                    whiteSpace: "nowrap",
+                    transition: "color 0.2s",
+                    color:
+                      createStep > step.id
+                        ? "#279C41"
+                        : createStep === step.id
+                          ? "var(--foreground)"
+                          : "var(--text-placeholder)",
+                  }}
+                >
+                  {step.label}
+                </span>
+              </div>
+              {i < CREATE_STEPS.length - 1 && (
+                <div
+                  style={{
+                    flex: 1,
+                    height: 2,
+                    minWidth: 16,
+                    margin: "0 8px",
+                    borderRadius: 2,
+                    background:
+                      createStep > step.id ? "#279C41" : "var(--border-ui)",
+                    transition: "background 0.3s",
+                  }}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+
+      {/* ── Scrollable Body ── */}
+      <div style={{flex: 1, overflowY: "auto", padding: "24px"}}>
+        {!isEdit ? (
+          // ── Create Wizard ──
+          <>
+            {createStep === 1 && (
+              <>
+                {(stepError || formError) && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "11px 14px",
+                      background: "#fef2f2",
+                      border: "1px solid #fecaca",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      color: "#dc2626",
+                      marginBottom: 20,
+                    }}
+                  >
+                    <AlertCircle size={15} style={{flexShrink: 0}} />
+                    {stepError || formError}
+                  </div>
+                )}
+                {patientFormFields}
+              </>
+            )}
+            {createStep === 2 && (
+              <div style={{display: "flex", flexDirection: "column", gap: 20}}>
+                <div
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: 10,
+                    background:
+                      "linear-gradient(135deg, #ecfeff 0%, #eff6ff 100%)",
+                    border: "1px solid #bae6fd",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: "rgba(8,145,178,0.12)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Shield size={18} color="#0891b2" />
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--foreground)",
+                        marginBottom: 2,
+                      }}
+                    >
+                      Insurance Coverage
+                    </div>
+                    <div style={{fontSize: 12, color: "var(--text-muted)"}}>
+                      Optionally link a health insurance provider for billing
+                      and claims processing.
+                    </div>
+                  </div>
+                </div>
+                {insuranceSaved ? insuranceSavedCard : insuranceFormFields}
+                {!insuranceSaved && (
+                  <div style={{display: "flex", justifyContent: "flex-end"}}>
+                    <button
+                      onClick={handleSaveInsurance}
+                      disabled={!insurance.insuranceProviderId}
+                      style={{
+                        padding: "7px 18px",
+                        borderRadius: 8,
+                        border: "none",
+                        background: insurance.insuranceProviderId
+                          ? "var(--brand-primary)"
+                          : "var(--border-ui)",
+                        color: insurance.insuranceProviderId
+                          ? "#fff"
+                          : "var(--text-placeholder)",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: insurance.insuranceProviderId
+                          ? "pointer"
+                          : "not-allowed",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Shield size={13} /> Save Insurance
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {createStep === 3 && (
+              <div style={{display: "flex", flexDirection: "column", gap: 20}}>
+                <div
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: 10,
+                    background:
+                      "linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%)",
+                    border: "1px solid #ddd6fe",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: "rgba(124,58,237,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <FolderOpen size={18} color="#7c3aed" />
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--foreground)",
+                        marginBottom: 2,
+                      }}
+                    >
+                      Patient Documents
+                    </div>
+                    <div style={{fontSize: 12, color: "var(--text-muted)"}}>
+                      Upload ID cards, insurance policies, medical records, or
+                      any relevant documents.
+                    </div>
+                  </div>
+                </div>
+                {documentsContent}
+              </div>
+            )}
+          </>
+        ) : (
+          // ── Edit Mode Accordions ──
+          <div style={{display: "flex", flexDirection: "column", gap: 10}}>
+            <AccordionSection
+              title="Patient Record"
+              icon={<User />}
+              iconColor="#1e56d0"
+              iconBg="#eff6ff"
+              savedBadge={savedSection === "patient"}
+              summary={
+                form.firstName || form.lastName
+                  ? `${form.firstName} ${form.lastName}`.trim() +
+                    (form.email ? ` · ${form.email}` : "")
+                  : "No info recorded"
+              }
+              summaryMuted={!form.firstName && !form.lastName}
+              open={openAccordion === "patient"}
+              onToggle={() =>
+                setOpenAccordion((p) => (p === "patient" ? null : "patient"))
+              }
+            >
+              {(stepError || formError) && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "11px 14px",
+                    background: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    borderRadius: 10,
+                    fontSize: 13,
+                    color: "#dc2626",
+                    marginBottom: 20,
+                  }}
+                >
+                  <AlertCircle size={15} style={{flexShrink: 0}} />
+                  {stepError || formError}
+                </div>
+              )}
+              {patientFormFields}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 20,
+                  paddingTop: 16,
+                  borderTop: "1px solid var(--border-ui)",
+                }}
+              >
+                <button
+                  onClick={handleSavePatientSection}
+                  style={{
+                    padding: "8px 22px",
+                    borderRadius: 8,
+                    border: "none",
+                    background:
+                      "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
+                    color: "#fff",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    boxShadow: "0 4px 14px rgba(30,86,208,0.25)",
+                  }}
+                >
+                  <Edit2 size={13} /> Save Patient Record
+                </button>
+              </div>
+            </AccordionSection>
+
+            <AccordionSection
+              title="Insurance Coverage"
+              icon={<Shield />}
+              iconColor="#0891b2"
+              iconBg="#ecfeff"
+              savedBadge={savedSection === "insurance"}
+              summary={
+                insuranceSaved
+                  ? (MOCK_INSURANCE_PROVIDERS.find(
+                      (p) => p.id === insurance.insuranceProviderId,
+                    )?.name ?? "Insurance on file") +
+                    (insurance.isActive ? " · Active" : " · Inactive")
+                  : "No insurance on file"
+              }
+              summaryMuted={!insuranceSaved}
+              open={openAccordion === "insurance"}
+              onToggle={() =>
+                setOpenAccordion((p) =>
+                  p === "insurance" ? null : "insurance",
+                )
+              }
+            >
+              {insuranceSaved ? (
+                <div
+                  style={{display: "flex", flexDirection: "column", gap: 14}}
+                >
+                  {insuranceSavedCard}
+                  <div style={{display: "flex", justifyContent: "flex-end"}}>
+                    <button
+                      onClick={handleRemoveInsurance}
+                      style={{
+                        padding: "7px 18px",
+                        borderRadius: 8,
+                        border: "none",
+                        background: "var(--brand-primary)",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Edit2 size={13} /> Change Insurance
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{display: "flex", flexDirection: "column", gap: 14}}
+                >
+                  {insuranceFormFields}
+                  <div style={{display: "flex", justifyContent: "flex-end"}}>
+                    <button
+                      onClick={handleSaveInsurance}
+                      disabled={!insurance.insuranceProviderId}
+                      style={{
+                        padding: "7px 18px",
+                        borderRadius: 8,
+                        border: "none",
+                        background: insurance.insuranceProviderId
+                          ? "var(--brand-primary)"
+                          : "var(--border-ui)",
+                        color: insurance.insuranceProviderId
+                          ? "#fff"
+                          : "var(--text-placeholder)",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: insurance.insuranceProviderId
+                          ? "pointer"
+                          : "not-allowed",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Shield size={13} /> Save Insurance
+                    </button>
+                  </div>
+                </div>
+              )}
+            </AccordionSection>
+
+            <AccordionSection
+              title="Documents"
+              icon={<FolderOpen />}
+              iconColor="#7c3aed"
+              iconBg="#f5f3ff"
+              summary={
+                documents.length > 0
+                  ? `${documents.length} document${documents.length > 1 ? "s" : ""} on file`
+                  : "No documents uploaded"
+              }
+              summaryMuted={documents.length === 0}
+              open={openAccordion === "documents"}
+              onToggle={() =>
+                setOpenAccordion((p) =>
+                  p === "documents" ? null : "documents",
+                )
+              }
+            >
+              {documentsContent}
+            </AccordionSection>
+          </div>
+        )}
+      </div>
+
+      {/* ── Sticky Footer ── */}
+      <div
+        style={{
+          padding: "14px 24px",
+          borderTop: "1px solid var(--border-ui)",
+          background: "var(--surface-card)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 10,
+          flexShrink: 0,
+        }}
+      >
+        {!isEdit ? (
+          <>
+            <div>
+              {createStep === 1 ? (
+                <button
+                  onClick={onClose}
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: 8,
+                    border: "1px solid var(--border-ui)",
+                    background: "var(--surface-card)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    color: "var(--foreground)",
+                  }}
+                >
+                  Cancel
+                </button>
+              ) : (
+                <button
+                  onClick={() => setCreateStep((s) => (s - 1) as 1 | 2 | 3)}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 8,
+                    border: "1px solid var(--border-ui)",
+                    background: "var(--surface-card)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    color: "var(--foreground)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                  }}
+                >
+                  <ChevronLeft size={14} /> Back
+                </button>
+              )}
+            </div>
+            <div style={{display: "flex", alignItems: "center", gap: 8}}>
+              {createStep === 1 && (
+                <button
+                  onClick={handleRegisterPatient}
+                  style={{
+                    padding: "9px 22px",
+                    borderRadius: 8,
+                    border: "none",
+                    background:
+                      "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
+                    color: "#fff",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    boxShadow: "0 4px 14px rgba(30,86,208,0.3)",
+                  }}
+                >
+                  <Plus size={14} /> Register Patient
+                </button>
+              )}
+              {createStep === 2 && (
+                <>
+                  <button
+                    onClick={() => setCreateStep(3)}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      border: "1px solid var(--border-ui)",
+                      background: "var(--surface-card)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    Skip
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!insuranceSaved && insurance.insuranceProviderId)
+                        handleSaveInsurance();
+                      setCreateStep(3);
+                    }}
+                    style={{
+                      padding: "9px 22px",
+                      borderRadius: 8,
+                      border: "none",
+                      background:
+                        "linear-gradient(135deg, var(--brand-primary) 0%, #1338a0 100%)",
+                      color: "#fff",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      boxShadow: "0 4px 14px rgba(30,86,208,0.3)",
+                    }}
+                  >
+                    {insuranceSaved ? "Continue" : "Save & Continue"}{" "}
+                    <ChevronRight size={14} />
+                  </button>
+                </>
+              )}
+              {createStep === 3 && (
+                <button
+                  onClick={onClose}
+                  style={{
+                    padding: "9px 22px",
+                    borderRadius: 8,
+                    border: "none",
+                    background:
+                      "linear-gradient(135deg, #279C41 0%, #1d7a30 100%)",
+                    color: "#fff",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    boxShadow: "0 4px 14px rgba(39,156,65,0.28)",
+                  }}
+                >
+                  <Check size={14} /> Finish
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={onDelete}
+              style={{
+                padding: "8px 16px",
+                borderRadius: 8,
+                border: "1px solid #fca5a5",
+                background: "#fef2f2",
+                color: "#dc2626",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Trash2 size={14} /> Delete Patient
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                padding: "8px 20px",
+                borderRadius: 8,
+                border: "1px solid var(--border-ui)",
+                background: "var(--surface-card)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "var(--foreground)",
+              }}
+            >
+              Close
+            </button>
+          </>
+        )}
+      </div>
+    </Drawer>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
+
+function PaginationBar({
+  totalPages,
+  currentPage,
+  setCurrentPage,
+  className,
+}: {
+  totalPages: number;
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  className?: string;
+}) {
+  const pages: (number | "...")[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (currentPage > 3) pages.push("...");
+    const st = Math.max(2, currentPage - 1);
+    const en = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = st; i <= en; i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+  }
+  return (
+    <div
+      className={className}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 4,
+        padding: "14px 20px",
+      }}
+    >
+      <button
+        onClick={() => setCurrentPage((pp) => Math.max(1, pp - 1))}
+        disabled={currentPage === 1}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          border: "none",
+          background: "transparent",
+          cursor: currentPage === 1 ? "not-allowed" : "pointer",
+          color:
+            currentPage === 1 ? "var(--text-placeholder)" : "var(--foreground)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: currentPage === 1 ? 0.4 : 1,
+        }}
+      >
+        <ChevronLeft size={18} strokeWidth={2} />
+      </button>
+      {pages.map((pg, idx) =>
+        pg === "..." ? (
+          <span
+            key={`el-${idx}`}
+            style={{
+              width: 30,
+              height: 30,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 13,
+              color: "var(--text-placeholder)",
+              userSelect: "none",
+            }}
+          >
+            ···
+          </span>
+        ) : (
+          <button
+            key={pg}
+            onClick={() => setCurrentPage(pg as number)}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              border: "none",
+              background:
+                pg === currentPage ? "var(--brand-primary)" : "transparent",
+              color: pg === currentPage ? "#fff" : "var(--foreground)",
+              fontSize: 13,
+              fontWeight: pg === currentPage ? 700 : 400,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background 0.15s, color 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              if (pg !== currentPage)
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  "var(--surface-page)";
+            }}
+            onMouseLeave={(e) => {
+              if (pg !== currentPage)
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  "transparent";
+            }}
+          >
+            {pg}
+          </button>
+        ),
+      )}
+      <button
+        onClick={() => setCurrentPage((pp) => Math.min(totalPages, pp + 1))}
+        disabled={currentPage === totalPages}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          border: "none",
+          background: "transparent",
+          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+          color:
+            currentPage === totalPages
+              ? "var(--text-placeholder)"
+              : "var(--foreground)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: currentPage === totalPages ? 0.4 : 1,
+        }}
+      >
+        <ChevronRight size={18} strokeWidth={2} />
+      </button>
+    </div>
+  );
+}
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>(INITIAL_PATIENTS);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<FilterState>({
     status: "all",
-    bloodType: "all",
+    gender: "all",
   });
   const [dateRange, setDateRange] = useState<DateRange>({from: null, to: null});
   const [datePreset, setDatePreset] = useState<string | null>(null);
@@ -1303,8 +3396,7 @@ export default function PatientsPage() {
   const [sortMenuAnchor, setSortMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
-
-  const [modalOpen, setModalOpen] = useState(false);
+  const [formDrawerOpen, setFormDrawerOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [formError, setFormError] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -1315,41 +3407,41 @@ export default function PatientsPage() {
 
   const activeFilterCount = getActiveFilterCount(filters, dateRange);
 
-  // Reset to page 1 whenever filters/search/sort change
   React.useEffect(() => {
     setCurrentPage(1);
   }, [search, filters, dateRange, sort]);
 
   const filtered = useMemo(() => {
     let list = patients.filter((p) => {
+      const fullName = getFullName(p).toLowerCase();
       if (
         search &&
-        !p.name.toLowerCase().includes(search.toLowerCase()) &&
-        !p.email.toLowerCase().includes(search.toLowerCase()) &&
-        !p.phone.toLowerCase().includes(search.toLowerCase())
+        !fullName.includes(search.toLowerCase()) &&
+        !(p.email || "").toLowerCase().includes(search.toLowerCase()) &&
+        !(p.phone || "").toLowerCase().includes(search.toLowerCase()) &&
+        !(p.cnie || "").toLowerCase().includes(search.toLowerCase())
       )
         return false;
       if (filters.status !== "all" && p.status !== filters.status) return false;
-      if (filters.bloodType !== "all" && p.bloodType !== filters.bloodType)
-        return false;
-      if (dateRange.from && p.registrationDate) {
-        const d = new Date(p.registrationDate);
+      if (filters.gender !== "all" && p.gender !== filters.gender) return false;
+      if (dateRange.from && p.createdAt) {
+        const d = new Date(p.createdAt);
         d.setHours(0, 0, 0, 0);
         if (d < dateRange.from) return false;
       }
-      if (dateRange.to && p.registrationDate) {
-        const d = new Date(p.registrationDate);
+      if (dateRange.to && p.createdAt) {
+        const d = new Date(p.createdAt);
         d.setHours(0, 0, 0, 0);
         if (d > dateRange.to) return false;
       }
       return true;
     });
     list = [...list].sort((a, b) => {
-      if (sort === "name") return a.name.localeCompare(b.name);
-      if (sort === "lastVisit")
-        return (b.lastVisit || "").localeCompare(a.lastVisit || "");
+      if (sort === "name") return a.firstName.localeCompare(b.firstName);
       if (sort === "status") return a.status.localeCompare(b.status);
-      return b.registrationDate.localeCompare(a.registrationDate);
+      if (sort === "gender")
+        return (a.gender || "").localeCompare(b.gender || "");
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
     return list;
   }, [patients, search, filters, dateRange, sort]);
@@ -1371,24 +3463,28 @@ export default function PatientsPage() {
   const toggleOne = (id: string) => {
     setSelectedIds((prev) => {
       const s = new Set(prev);
-      if (s.has(id)) {
-        s.delete(id);
-      } else {
-        s.add(id);
-      }
+      if (s.has(id)) s.delete(id);
+      else s.add(id);
       return s;
     });
   };
 
   const handleExport = () => {
     const rows = filtered.map((p) =>
-      [p.name, p.email, p.phone, p.status, p.bloodType, p.lastVisit || ""].join(
-        ",",
-      ),
+      [
+        getFullName(p),
+        p.email || "",
+        p.phone || "",
+        p.status,
+        p.gender || "",
+        p.dateOfBirth || "",
+        p.createdAt.split("T")[0],
+      ].join(","),
     );
-    const csv = ["Name,Email,Phone,Status,Blood Type,Last Visit", ...rows].join(
-      "\n",
-    );
+    const csv = [
+      "Full Name,Email,Phone,Status,Gender,Date of Birth,Registered",
+      ...rows,
+    ].join("\n");
     const a = document.createElement("a");
     a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
     a.download = "patients.csv";
@@ -1398,30 +3494,33 @@ export default function PatientsPage() {
   const openNew = useCallback(() => {
     setForm(EMPTY_FORM);
     setFormError("");
-    setModalOpen(true);
+    setFormDrawerOpen(true);
   }, []);
+
   const openEdit = useCallback((p: Patient) => {
     setForm({
       id: p.id,
-      name: p.name,
-      email: p.email,
-      phone: p.phone,
-      dateOfBirth: p.dateOfBirth,
-      bloodType: p.bloodType,
-      allergies: p.allergies,
-      medicalConditions: p.medicalConditions,
-      emergencyContact: p.emergencyContact,
-      emergencyPhone: p.emergencyPhone,
-      lastVisit: p.lastVisit,
-      nextAppointment: p.nextAppointment,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      email: p.email || "",
+      phone: p.phone || "",
+      dateOfBirth: p.dateOfBirth || "",
+      gender: p.gender || "",
+      address: p.address || "",
       status: p.status,
-      balance: p.balance ?? 0,
+      notes: p.notes || "",
+      allergies: p.allergies || "",
+      chronicConditions: p.chronicConditions || "",
+      currentMedications: p.currentMedications || "",
+      medicalNotes: p.medicalNotes || "",
+      cnie: p.cnie || "",
     });
     setFormError("");
-    setModalOpen(true);
+    setFormDrawerOpen(true);
     setMenuAnchor(null);
     setMenuTarget(null);
   }, []);
+
   const openMenu = (e: React.MouseEvent<HTMLButtonElement>, id: string) => {
     e.stopPropagation();
     setMenuAnchor(e.currentTarget);
@@ -1431,11 +3530,13 @@ export default function PatientsPage() {
     setMenuAnchor(null);
     setMenuTarget(null);
   };
+
   const handleDelete = useCallback((id: string) => {
     setDeleteTargetId(id);
     setDeleteConfirmOpen(true);
     closeMenu();
   }, []);
+
   const confirmDelete = useCallback(() => {
     if (deleteTargetId) {
       setPatients((prev) => prev.filter((p) => p.id !== deleteTargetId));
@@ -1446,48 +3547,54 @@ export default function PatientsPage() {
       });
       setDeleteConfirmOpen(false);
       setDeleteTargetId(null);
-      setModalOpen(false);
+      setFormDrawerOpen(false);
     }
   }, [deleteTargetId]);
+
   const bulkDelete = () => {
     setPatients((prev) => prev.filter((p) => !selectedIds.has(p.id)));
     setSelectedIds(new Set());
   };
+
   const handleSave = () => {
-    if (!form.name.trim() || !form.email.trim()) {
-      setFormError("Name and email are required.");
+    if (!form.firstName.trim() || !form.lastName.trim()) {
+      setFormError("First name and last name are required.");
+      return;
+    }
+    if (!form.email.trim()) {
+      setFormError("Email address is required.");
       return;
     }
     if (patients.some((p) => p.email === form.email && p.id !== form.id)) {
-      setFormError("Email already exists.");
+      setFormError("A patient with this email already exists.");
       return;
     }
+    const now = new Date().toISOString();
     const updated: Patient = {
       id: form.id || String(Date.now()),
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      dateOfBirth: form.dateOfBirth,
-      bloodType: form.bloodType,
-      allergies: form.allergies,
-      medicalConditions: form.medicalConditions,
-      emergencyContact: form.emergencyContact,
-      emergencyPhone: form.emergencyPhone,
-      lastVisit: form.lastVisit,
-      nextAppointment: form.nextAppointment,
+      clinicId: "clinic-1",
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      createdAt: patients.find((p) => p.id === form.id)?.createdAt || now,
+      updatedAt: now,
       status: form.status,
-      balance: form.balance || 0,
-      avatar: "",
-      registrationDate:
-        patients.find((p) => p.id === form.id)?.registrationDate ||
-        new Date().toISOString().split("T")[0],
+      email: form.email.trim() || undefined,
+      phone: form.phone.trim() || undefined,
+      dateOfBirth: form.dateOfBirth || undefined,
+      gender: (form.gender as PatientGender) || undefined,
+      address: form.address.trim() || undefined,
+      notes: form.notes.trim() || undefined,
+      allergies: form.allergies.trim() || undefined,
+      chronicConditions: form.chronicConditions.trim() || undefined,
+      currentMedications: form.currentMedications.trim() || undefined,
+      medicalNotes: form.medicalNotes.trim() || undefined,
+      cnie: form.cnie.trim() || undefined,
     };
     setPatients((prev) =>
       form.id
         ? prev.map((p) => (p.id === form.id ? updated : p))
         : [...prev, updated],
     );
-    setModalOpen(false);
   };
 
   const removeDateFilter = () => {
@@ -1495,7 +3602,7 @@ export default function PatientsPage() {
     setDatePreset(null);
   };
   const removeStatusFilter = () => setFilters((f) => ({...f, status: "all"}));
-  const removeBloodFilter = () => setFilters((f) => ({...f, bloodType: "all"}));
+  const removeGenderFilter = () => setFilters((f) => ({...f, gender: "all"}));
 
   const dateLabel =
     datePreset ||
@@ -1525,22 +3632,27 @@ export default function PatientsPage() {
             },
             {
               label: "Active Patients",
-              value: patients.filter((p) => p.status === "active").length,
+              value: patients.filter((p) => p.status === PatientStatus.ACTIVE)
+                .length,
               Icon: Activity,
               color: "#279C41",
               bg: "#E8F8EC",
             },
             {
-              label: "New Patients",
-              value: patients.filter((p) => p.status === "new").length,
+              label: "New This Month",
+              value: patients.filter((p) => isNewPatient(p.createdAt)).length,
               Icon: UserPlus,
               color: "#7c3aed",
               bg: "#f5f3ff",
             },
             {
-              label: "Inactive",
-              value: patients.filter((p) => p.status === "inactive").length,
-              Icon: Heart,
+              label: "Inactive / Archived",
+              value: patients.filter(
+                (p) =>
+                  p.status === PatientStatus.INACTIVE ||
+                  p.status === PatientStatus.ARCHIVED,
+              ).length,
+              Icon: Archive,
               color: "#64748b",
               bg: "#f1f5f9",
             },
@@ -1556,16 +3668,7 @@ export default function PatientsPage() {
                 alignItems: "center",
                 gap: 14,
                 boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                transition: "transform 0.15s,box-shadow 0.15s",
                 cursor: "default",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow =
-                  "0 8px 22px rgba(0,0,0,0.10)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow =
-                  "0 1px 3px rgba(0,0,0,0.05)";
               }}
             >
               <div
@@ -1689,7 +3792,7 @@ export default function PatientsPage() {
               />
               <input
                 type="text"
-                placeholder="Search patients..."
+                placeholder="Search by name, email, phone, CNIE..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 style={{
@@ -1705,7 +3808,6 @@ export default function PatientsPage() {
                 }}
               />
             </div>
-            {/* spacer pushes actions right */}
             <div style={{flex: 1}} />
             {/* Date */}
             <button
@@ -1756,7 +3858,6 @@ export default function PatientsPage() {
             >
               <RefreshCw size={14} /> {sortLabel} <ChevronDown size={12} />
             </button>
-            {/* Divider */}
             <div
               style={{
                 width: 1,
@@ -1805,7 +3906,6 @@ export default function PatientsPage() {
                 </span>
               )}
             </button>
-            {/* Divider */}
             <div
               style={{
                 width: 1,
@@ -1852,7 +3952,7 @@ export default function PatientsPage() {
                 flexShrink: 0,
                 whiteSpace: "nowrap",
                 boxShadow: "0 2px 6px rgba(30,86,208,0.25)",
-                transition: "background 0.15s,box-shadow 0.15s,transform 0.1s",
+                transition: "background 0.15s,box-shadow 0.15s",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "var(--brand-primary-dark)";
@@ -1933,7 +4033,7 @@ export default function PatientsPage() {
                 </button>
               </span>
             )}
-            {filters.bloodType !== "all" && (
+            {filters.gender !== "all" && (
               <span
                 style={{
                   display: "inline-flex",
@@ -1947,9 +4047,9 @@ export default function PatientsPage() {
                   fontWeight: 600,
                 }}
               >
-                {filters.bloodType}
+                {filters.gender}
                 <button
-                  onClick={removeBloodFilter}
+                  onClick={removeGenderFilter}
                   style={{
                     background: "none",
                     border: "none",
@@ -1998,13 +4098,13 @@ export default function PatientsPage() {
             <div style={{flex: 1}} />
             {(search ||
               filters.status !== "all" ||
-              filters.bloodType !== "all" ||
+              filters.gender !== "all" ||
               dateRange.from ||
               dateRange.to) && (
               <button
                 onClick={() => {
                   setSearch("");
-                  setFilters({status: "all", bloodType: "all"});
+                  setFilters({status: "all", gender: "all"});
                   setDateRange({from: null, to: null});
                   setDatePreset(null);
                 }}
@@ -2073,7 +4173,7 @@ export default function PatientsPage() {
             <button
               onClick={() => {
                 setSearch("");
-                setFilters({status: "all", bloodType: "all"});
+                setFilters({status: "all", gender: "all"});
                 setDateRange({from: null, to: null});
                 setDatePreset(null);
               }}
@@ -2131,9 +4231,8 @@ export default function PatientsPage() {
                     {[
                       "Patient",
                       "Contact",
-                      "Age / Blood",
-                      "Medical Info",
-                      "Last Visit",
+                      "Personal",
+                      "Medical",
                       "Status",
                       "Actions",
                     ].map((h) => (
@@ -2158,7 +4257,7 @@ export default function PatientsPage() {
                 <tbody>
                   {paginated.map((p) => {
                     const cfg = STATUS_CONFIG[p.status];
-                    const hasAllergy = p.allergies && p.allergies !== "None";
+                    const isNew = isNewPatient(p.createdAt);
                     const isChecked = selectedIds.has(p.id);
                     return (
                       <tr
@@ -2170,8 +4269,6 @@ export default function PatientsPage() {
                             : "transparent",
                           transition: "background 0.12s",
                           cursor: "default",
-                          maxWidth: "95%", // Adjusted to ensure rows do not take full width
-                          margin: "0 auto", // Center align rows
                         }}
                         onMouseEnter={(e) => {
                           if (!isChecked)
@@ -2192,7 +4289,9 @@ export default function PatientsPage() {
                             sx={{
                               padding: 0,
                               color: "var(--text-placeholder)",
-                              "&.Mui-checked": {color: "var(--brand-primary)"},
+                              "&.Mui-checked": {
+                                color: "var(--brand-primary)",
+                              },
                             }}
                           />
                         </td>
@@ -2207,21 +4306,21 @@ export default function PatientsPage() {
                           >
                             <div
                               style={{
-                                width: 40,
-                                height: 40,
+                                width: 38,
+                                height: 38,
                                 borderRadius: "50%",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 flexShrink: 0,
                                 fontWeight: 700,
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: "#fff",
                                 background: getAvatarColor(p.id),
                                 boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                               }}
                             >
-                              {getInitials(p.name)}
+                              {getInitials(p.firstName, p.lastName)}
                             </div>
                             <div>
                               <div
@@ -2230,15 +4329,35 @@ export default function PatientsPage() {
                                   fontWeight: 700,
                                   color: "var(--foreground)",
                                   letterSpacing: "-0.01em",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
                                 }}
                               >
-                                {p.name}
+                                {getFullName(p)}
+                                {isNew && (
+                                  <span
+                                    style={{
+                                      fontSize: 9,
+                                      fontWeight: 700,
+                                      color: "#0891b2",
+                                      background: "#ecfeff",
+                                      border: "1px solid #a5f3fc",
+                                      borderRadius: 4,
+                                      padding: "1px 5px",
+                                      textTransform: "uppercase",
+                                      letterSpacing: "0.06em",
+                                    }}
+                                  >
+                                    New
+                                  </span>
+                                )}
                               </div>
                               <div
                                 className="text-text-placeholder"
-                                style={{fontSize: 12}}
+                                style={{fontSize: 11}}
                               >
-                                {formatRelativeDate(p.registrationDate)}
+                                Registered {formatRelativeDate(p.createdAt)}
                               </div>
                             </div>
                           </div>
@@ -2252,27 +4371,29 @@ export default function PatientsPage() {
                               gap: 3,
                             }}
                           >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 5,
-                                fontSize: 12,
-                                color: "var(--text-muted)",
-                              }}
-                            >
-                              <Mail size={11} />{" "}
-                              <span
+                            {p.email && (
+                              <div
                                 style={{
-                                  maxWidth: 170,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 5,
+                                  fontSize: 12,
+                                  color: "var(--text-muted)",
                                 }}
                               >
-                                {p.email}
-                              </span>
-                            </div>
+                                <Mail size={11} />
+                                <span
+                                  style={{
+                                    maxWidth: 160,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {p.email}
+                                </span>
+                              </div>
+                            )}
                             {p.phone && (
                               <div
                                 style={{
@@ -2288,27 +4409,32 @@ export default function PatientsPage() {
                             )}
                           </div>
                         </td>
-                        {/* Age / Blood */}
+                        {/* Personal */}
                         <td style={{padding: "12px 14px"}}>
                           <div
                             style={{
-                              fontSize: 14,
+                              fontSize: 13,
                               fontWeight: 600,
                               color: "var(--foreground)",
                             }}
                           >
-                            {calculateAge(p.dateOfBirth)} yr
+                            {p.dateOfBirth
+                              ? `${calculateAge(p.dateOfBirth)} yr`
+                              : "—"}
                           </div>
                           <div
                             className="text-text-placeholder"
                             style={{fontSize: 12}}
                           >
-                            {p.bloodType}
+                            {p.gender
+                              ? p.gender.charAt(0) +
+                                p.gender.slice(1).toLowerCase()
+                              : "—"}
                           </div>
                         </td>
-                        {/* Medical Info */}
+                        {/* Medical */}
                         <td style={{padding: "12px 14px"}}>
-                          {hasAllergy ? (
+                          {p.allergies ? (
                             <span
                               style={{
                                 display: "inline-flex",
@@ -2329,83 +4455,62 @@ export default function PatientsPage() {
                               className="text-text-placeholder"
                               style={{fontSize: 12}}
                             >
-                              None
+                              No allergies
                             </span>
                           )}
-                          {p.medicalConditions &&
-                            p.medicalConditions !== "None" && (
-                              <div
-                                style={{
-                                  fontSize: 12,
-                                  color: "var(--text-muted)",
-                                  maxWidth: 140,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  marginTop: 2,
-                                }}
-                                title={p.medicalConditions}
-                              >
-                                {p.medicalConditions}
-                              </div>
-                            )}
-                        </td>
-                        {/* Last Visit */}
-                        <td style={{padding: "12px 14px"}}>
-                          {p.lastVisit ? (
-                            <>
-                              <div
-                                className="text-foreground"
-                                style={{fontSize: 13}}
-                              >
-                                {new Date(p.lastVisit).toLocaleDateString(
-                                  "en-US",
-                                  {month: "short", day: "numeric"},
-                                )}
-                              </div>
-                              <div
-                                className="text-text-placeholder"
-                                style={{fontSize: 11}}
-                              >
-                                {new Date(p.lastVisit).getFullYear()}
-                              </div>
-                            </>
-                          ) : (
-                            <span
-                              className="text-text-placeholder"
-                              style={{fontSize: 12}}
+                          {p.chronicConditions && (
+                            <div
+                              style={{
+                                fontSize: 11,
+                                color: "var(--text-muted)",
+                                maxWidth: 130,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                marginTop: 2,
+                              }}
+                              title={p.chronicConditions}
                             >
-                              —
-                            </span>
+                              {p.chronicConditions}
+                            </div>
                           )}
                         </td>
                         {/* Status */}
                         <td style={{padding: "12px 14px"}}>
-                          <span
+                          <div
                             style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 5,
-                              padding: "4px 10px",
-                              borderRadius: 20,
-                              background: cfg.bg,
-                              color: cfg.color,
-                              fontSize: 12,
-                              fontWeight: 700,
-                              letterSpacing: "0.01em",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 4,
+                              alignItems: "flex-start",
                             }}
                           >
                             <span
                               style={{
-                                width: 6,
-                                height: 6,
-                                borderRadius: "50%",
-                                background: cfg.dot,
-                                flexShrink: 0,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 5,
+                                padding: "4px 10px",
+                                borderRadius: 20,
+                                background: cfg.bg,
+                                color: cfg.color,
+                                fontSize: 12,
+                                fontWeight: 700,
+                                letterSpacing: "0.01em",
                               }}
-                            />
-                            {cfg.label}
-                          </span>
+                            >
+                              <span
+                                style={{
+                                  width: 6,
+                                  height: 6,
+                                  borderRadius: "50%",
+                                  background: cfg.dot,
+                                  flexShrink: 0,
+                                }}
+                              />
+                              {cfg.label}
+                            </span>
+                          </div>
                         </td>
                         {/* Actions */}
                         <td style={{padding: "12px 14px"}}>
@@ -2484,144 +4589,11 @@ export default function PatientsPage() {
                 </tbody>
               </table>
             </div>
-
-            {/* ── Pagination ── */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 4,
-                padding: "14px 20px",
-                maxWidth: "95%", // Adjusted to match row width
-                margin: "0 auto", // Center align pagination
-              }}
-            >
-              {/* Prev */}
-              <button
-                onClick={() => setCurrentPage((pp) => Math.max(1, pp - 1))}
-                disabled={currentPage === 1}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "transparent",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                  color:
-                    currentPage === 1
-                      ? "var(--text-placeholder)"
-                      : "var(--foreground)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                }}
-              >
-                <ChevronLeft size={20} strokeWidth={2} />
-              </button>
-
-              {/* Page Numbers */}
-              {(() => {
-                const pages: (number | "...")[] = [];
-                if (totalPages <= 7) {
-                  for (let i = 1; i <= totalPages; i++) pages.push(i);
-                } else {
-                  pages.push(1);
-                  if (currentPage > 3) pages.push("...");
-                  const st = Math.max(2, currentPage - 1);
-                  const en = Math.min(totalPages - 1, currentPage + 1);
-                  for (let i = st; i <= en; i++) pages.push(i);
-                  if (currentPage < totalPages - 2) pages.push("...");
-                  pages.push(totalPages);
-                }
-                return pages.map((pg, idx) =>
-                  pg === "..." ? (
-                    <span
-                      key={`el-${idx}`}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 13,
-                        color: "var(--text-placeholder)",
-                        letterSpacing: 1,
-                        userSelect: "none",
-                      }}
-                    >
-                      ···
-                    </span>
-                  ) : (
-                    <button
-                      key={pg}
-                      onClick={() => setCurrentPage(pg as number)}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
-                        border: "none",
-                        background:
-                          pg === currentPage
-                            ? "var(--brand-primary)"
-                            : "transparent",
-                        color:
-                          pg === currentPage ? "#fff" : "var(--foreground)",
-                        fontSize: 13,
-                        fontWeight: pg === currentPage ? 700 : 400,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "background 0.15s, color 0.15s",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (pg !== currentPage)
-                          (
-                            e.currentTarget as HTMLButtonElement
-                          ).style.background = "var(--surface-page)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (pg !== currentPage)
-                          (
-                            e.currentTarget as HTMLButtonElement
-                          ).style.background = "transparent";
-                      }}
-                    >
-                      {pg}
-                    </button>
-                  ),
-                );
-              })()}
-
-              {/* Next */}
-              <button
-                onClick={() =>
-                  setCurrentPage((pp) => Math.min(totalPages, pp + 1))
-                }
-                disabled={currentPage === totalPages}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "transparent",
-                  cursor:
-                    currentPage === totalPages ? "not-allowed" : "pointer",
-                  color:
-                    currentPage === totalPages
-                      ? "var(--text-placeholder)"
-                      : "var(--foreground)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                }}
-              >
-                <ChevronRight size={20} strokeWidth={2} />
-              </button>
-            </div>
+            <PaginationBar
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
           </div>
         ) : (
           /* ── Grid View ── */
@@ -2637,14 +4609,14 @@ export default function PatientsPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill,260px)",
+                gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
                 gap: 16,
                 padding: 20,
-                justifyContent: "start",
               }}
             >
               {paginated.map((p) => {
                 const cfg = STATUS_CONFIG[p.status];
+                const isNew = isNewPatient(p.createdAt);
                 return (
                   <div
                     key={p.id}
@@ -2658,21 +4630,22 @@ export default function PatientsPage() {
                       padding: 16,
                       display: "flex",
                       flexDirection: "column",
-                      gap: 12,
+                      gap: 10,
                       position: "relative",
                       boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                      transition: "transform 0.15s,box-shadow 0.15s",
+                      transition: "box-shadow 0.15s",
                     }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLElement).style.boxShadow =
-                        "0 10px 28px rgba(0,0,0,0.12)";
+                        "0 8px 24px rgba(0,0,0,0.10)";
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLElement).style.boxShadow =
                         "0 1px 4px rgba(0,0,0,0.06)";
                     }}
                   >
-                    <div style={{position: "absolute", top: 12, right: 12}}>
+                    {/* Menu btn */}
+                    <div style={{position: "absolute", top: 10, right: 10}}>
                       <button
                         onClick={(e) => openMenu(e, p.id)}
                         style={{
@@ -2681,18 +4654,21 @@ export default function PatientsPage() {
                           cursor: "pointer",
                           padding: 4,
                           color: "var(--text-placeholder)",
+                          borderRadius: 6,
                         }}
                       >
-                        <MoreVertical size={16} />
+                        <MoreVertical size={15} />
                       </button>
                     </div>
+
+                    {/* Avatar + Name + Status */}
                     <div
                       style={{display: "flex", alignItems: "center", gap: 12}}
                     >
                       <div
                         style={{
-                          width: 52,
-                          height: 52,
+                          width: 46,
+                          height: 46,
                           borderRadius: "50%",
                           background: getAvatarColor(p.id),
                           display: "flex",
@@ -2700,110 +4676,171 @@ export default function PatientsPage() {
                           justifyContent: "center",
                           color: "#fff",
                           fontWeight: 700,
-                          fontSize: 18,
+                          fontSize: 16,
                           boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
                           flexShrink: 0,
                         }}
                       >
-                        {getInitials(p.name)}
+                        {getInitials(p.firstName, p.lastName)}
                       </div>
-                      <div>
+                      <div style={{minWidth: 0}}>
                         <div
                           style={{
-                            fontSize: 15,
+                            fontSize: 14,
                             fontWeight: 700,
                             color: "var(--foreground)",
                             lineHeight: 1.2,
-                          }}
-                        >
-                          {p.name}
-                        </div>
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4,
-                            padding: "2px 8px",
-                            borderRadius: 20,
-                            background: cfg.bg,
-                            color: cfg.color,
-                            fontSize: 11,
-                            fontWeight: 600,
-                            marginTop: 2,
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: 5,
-                              height: 5,
-                              borderRadius: "50%",
-                              background: cfg.dot,
-                            }}
-                          />
-                          {cfg.label}
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        marginTop: 2,
-                        marginBottom: 4,
-                      }}
-                    >
-                      <span className="text-text-muted" style={{fontSize: 11}}>
-                        Age{" "}
-                        <strong className="text-text-muted font-semibold">
-                          {calculateAge(p.dateOfBirth)}
-                        </strong>
-                      </span>
-                      <span
-                        style={{
-                          width: 3,
-                          height: 3,
-                          borderRadius: "50%",
-                          background: "var(--border-ui)",
-                          display: "inline-block",
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: "var(--brand-primary)",
-                          background: "#eff6ff",
-                          padding: "1px 7px",
-                          borderRadius: 20,
-                        }}
-                      >
-                        {p.bloodType}
-                      </span>
-                    </div>
-                    <div
-                      style={{display: "flex", flexDirection: "column", gap: 5}}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6,
-                          fontSize: 12,
-                          color: "var(--text-muted)",
-                        }}
-                      >
-                        <Mail size={11} />{" "}
-                        <span
-                          style={{
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
                           }}
                         >
-                          {p.email}
-                        </span>
+                          {getFullName(p)}
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                            marginTop: 4,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              padding: "2px 7px",
+                              borderRadius: 20,
+                              background: cfg.bg,
+                              color: cfg.color,
+                              fontSize: 10,
+                              fontWeight: 700,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 5,
+                                height: 5,
+                                borderRadius: "50%",
+                                background: cfg.dot,
+                                flexShrink: 0,
+                              }}
+                            />
+                            {cfg.label}
+                          </span>
+                          {isNew && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                fontWeight: 700,
+                                color: "#0891b2",
+                                background: "#ecfeff",
+                                border: "1px solid #a5f3fc",
+                                borderRadius: 4,
+                                padding: "2px 5px",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.06em",
+                              }}
+                            >
+                              New
+                            </span>
+                          )}
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Personal info row */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      {p.dateOfBirth && (
+                        <>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: "var(--foreground)",
+                            }}
+                          >
+                            {calculateAge(p.dateOfBirth)} yr
+                          </span>
+                          <span
+                            style={{
+                              width: 3,
+                              height: 3,
+                              borderRadius: "50%",
+                              background: "var(--border-ui)",
+                              display: "inline-block",
+                            }}
+                          />
+                        </>
+                      )}
+                      {p.gender && (
+                        <span>
+                          {p.gender.charAt(0) + p.gender.slice(1).toLowerCase()}
+                        </span>
+                      )}
+                      {p.cnie && (
+                        <>
+                          <span
+                            style={{
+                              width: 3,
+                              height: 3,
+                              borderRadius: "50%",
+                              background: "var(--border-ui)",
+                              display: "inline-block",
+                            }}
+                          />
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 600,
+                              color: "var(--text-placeholder)",
+                            }}
+                          >
+                            {p.cnie}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Contact */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
+                      {p.email && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            fontSize: 12,
+                            color: "var(--text-muted)",
+                          }}
+                        >
+                          <Mail size={11} style={{flexShrink: 0}} />
+                          <span
+                            style={{
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {p.email}
+                          </span>
+                        </div>
+                      )}
                       {p.phone && (
                         <div
                           style={{
@@ -2817,39 +4854,57 @@ export default function PatientsPage() {
                           <Phone size={11} /> {p.phone}
                         </div>
                       )}
+                    </div>
+
+                    {/* Medical alert */}
+                    {p.allergies && (
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 6,
-                          fontSize: 12,
-                          color: "var(--text-muted)",
+                          gap: 5,
+                          padding: "5px 8px",
+                          borderRadius: 7,
+                          background: "#fff7ed",
+                          border: "1px solid #fed7aa",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: "#c2410c",
                         }}
                       >
-                        <CalendarDays size={11} />{" "}
-                        {p.lastVisit
-                          ? new Date(p.lastVisit).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })
-                          : "No visits"}
+                        <AlertCircle size={11} style={{flexShrink: 0}} />
+                        <span
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Allergy: {p.allergies}
+                        </span>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Registered date */}
                     <div
                       style={{
-                        display: "flex",
-                        gap: 6,
+                        fontSize: 11,
+                        color: "var(--text-placeholder)",
+                        paddingTop: 4,
                         borderTop: "1px solid var(--border-ui)",
-                        paddingTop: 10,
                       }}
                     >
+                      Registered {formatRelativeDate(p.createdAt)}
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{display: "flex", gap: 6}}>
                       <button
                         title="Call"
                         style={{
                           flex: 1,
-                          padding: "6px 0",
-                          borderRadius: 6,
+                          padding: "7px 0",
+                          borderRadius: 7,
                           border: "1px solid var(--border-ui)",
                           background: "var(--surface-card)",
                           cursor: "pointer",
@@ -2859,14 +4914,14 @@ export default function PatientsPage() {
                           justifyContent: "center",
                         }}
                       >
-                        <PhoneCall size={14} />
+                        <PhoneCall size={13} />
                       </button>
                       <button
                         title="Schedule"
                         style={{
                           flex: 1,
-                          padding: "6px 0",
-                          borderRadius: 6,
+                          padding: "7px 0",
+                          borderRadius: 7,
                           border: "1px solid var(--border-ui)",
                           background: "var(--surface-card)",
                           cursor: "pointer",
@@ -2876,167 +4931,38 @@ export default function PatientsPage() {
                           justifyContent: "center",
                         }}
                       >
-                        <CalendarDays size={14} />
+                        <CalendarDays size={13} />
                       </button>
                       <button
                         onClick={() => openEdit(p)}
                         style={{
                           flex: 2,
-                          padding: "6px 10px",
-                          borderRadius: 6,
+                          padding: "7px 10px",
+                          borderRadius: 7,
                           border: "none",
                           background: "var(--brand-primary)",
                           color: "#fff",
                           cursor: "pointer",
                           fontSize: 12,
                           fontWeight: 600,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 4,
                         }}
                       >
-                        Edit
+                        <Edit2 size={12} /> Edit
                       </button>
                     </div>
                   </div>
                 );
               })}
             </div>
-
-            {/* ── Pagination ── */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 4,
-                padding: "14px 20px",
-                maxWidth: "95%", // Adjusted to match row width
-                margin: "0 auto", // Center align pagination
-              }}
-            >
-              {/* Prev */}
-              <button
-                onClick={() => setCurrentPage((pp) => Math.max(1, pp - 1))}
-                disabled={currentPage === 1}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "transparent",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                  color:
-                    currentPage === 1
-                      ? "var(--text-placeholder)"
-                      : "var(--foreground)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: currentPage === 1 ? 0.5 : 1,
-                }}
-              >
-                <ChevronLeft size={20} strokeWidth={2} />
-              </button>
-
-              {/* Page Numbers */}
-              {(() => {
-                const pages: (number | "...")[] = [];
-                if (totalPages <= 7) {
-                  for (let i = 1; i <= totalPages; i++) pages.push(i);
-                } else {
-                  pages.push(1);
-                  if (currentPage > 3) pages.push("...");
-                  const st = Math.max(2, currentPage - 1);
-                  const en = Math.min(totalPages - 1, currentPage + 1);
-                  for (let i = st; i <= en; i++) pages.push(i);
-                  if (currentPage < totalPages - 2) pages.push("...");
-                  pages.push(totalPages);
-                }
-                return pages.map((pg, idx) =>
-                  pg === "..." ? (
-                    <span
-                      key={`el-${idx}`}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 13,
-                        color: "var(--text-placeholder)",
-                        letterSpacing: 1,
-                        userSelect: "none",
-                      }}
-                    >
-                      ···
-                    </span>
-                  ) : (
-                    <button
-                      key={pg}
-                      onClick={() => setCurrentPage(pg as number)}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: "50%",
-                        border: "none",
-                        background:
-                          pg === currentPage
-                            ? "var(--brand-primary)"
-                            : "transparent",
-                        color:
-                          pg === currentPage ? "#fff" : "var(--foreground)",
-                        fontSize: 13,
-                        fontWeight: pg === currentPage ? 700 : 400,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "background 0.15s, color 0.15s",
-                      }}
-                      onMouseEnter={(e) => {
-                        if (pg !== currentPage)
-                          (
-                            e.currentTarget as HTMLButtonElement
-                          ).style.background = "var(--surface-page)";
-                      }}
-                      onMouseLeave={(e) => {
-                        if (pg !== currentPage)
-                          (
-                            e.currentTarget as HTMLButtonElement
-                          ).style.background = "transparent";
-                      }}
-                    >
-                      {pg}
-                    </button>
-                  ),
-                );
-              })()}
-
-              {/* Next */}
-              <button
-                onClick={() =>
-                  setCurrentPage((pp) => Math.min(totalPages, pp + 1))
-                }
-                disabled={currentPage === totalPages}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "transparent",
-                  cursor:
-                    currentPage === totalPages ? "not-allowed" : "pointer",
-                  color:
-                    currentPage === totalPages
-                      ? "var(--text-placeholder)"
-                      : "var(--foreground)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: currentPage === totalPages ? 0.5 : 1,
-                }}
-              >
-                <ChevronRight size={20} strokeWidth={2} />
-              </button>
-            </div>
+            <PaginationBar
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
           </div>
         )}
       </div>
@@ -3128,313 +5054,17 @@ export default function PatientsPage() {
         onClose={() => setFilterDrawerOpen(false)}
       />
 
-      {/* ── Add / Edit Modal ── */}
-      <Dialog
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        maxWidth="md"
-        fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: "16px",
-              boxShadow: "0 20px 40px -10px rgba(0,0,0,0.15)",
-              border: "1px solid var(--border-ui)",
-              backgroundColor: "var(--surface-card)",
-            },
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            p: "20px 24px",
-            borderBottom: "1px solid var(--border-ui)",
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{fontWeight: 700, color: "var(--foreground)"}}
-          >
-            {form.id ? "Edit Patient" : "Add New Patient"}
-          </Typography>
-          <IconButton
-            size="small"
-            onClick={() => setModalOpen(false)}
-            sx={{color: "var(--text-muted)"}}
-          >
-            <X size={20} />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{p: "24px"}}>
-          {formError && (
-            <div
-              style={{
-                marginBottom: 16,
-                padding: "10px 14px",
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
-                borderRadius: 8,
-                fontSize: 13,
-                color: "#dc2626",
-              }}
-            >
-              {formError}
-            </div>
-          )}
-          <div style={{display: "flex", flexDirection: "column", gap: 4}}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "var(--text-placeholder)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                marginBottom: 4,
-              }}
-            >
-              Basic Information
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                marginBottom: 8,
-              }}
-            >
-              <TextField
-                label="Full Name"
-                fullWidth
-                value={form.name}
-                onChange={(e) => setForm({...form, name: e.target.value})}
-                required
-              />
-              <TextField
-                label="Email"
-                type="email"
-                fullWidth
-                value={form.email}
-                onChange={(e) => setForm({...form, email: e.target.value})}
-                required
-              />
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                marginBottom: 8,
-              }}
-            >
-              <TextField
-                label="Phone"
-                fullWidth
-                value={form.phone}
-                onChange={(e) => setForm({...form, phone: e.target.value})}
-              />
-              <TextField
-                label="Date of Birth"
-                type="date"
-                fullWidth
-                value={form.dateOfBirth}
-                onChange={(e) =>
-                  setForm({...form, dateOfBirth: e.target.value})
-                }
-                slotProps={{inputLabel: {shrink: true}}}
-              />
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                marginBottom: 16,
-              }}
-            >
-              <FormControl fullWidth>
-                <InputLabel>Blood Type</InputLabel>
-                <Select
-                  label="Blood Type"
-                  value={form.bloodType}
-                  onChange={(e) =>
-                    setForm({...form, bloodType: e.target.value as BloodType})
-                  }
-                >
-                  {BLOOD_TYPES.map((b) => (
-                    <MenuItem key={b} value={b}>
-                      {b}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  label="Status"
-                  value={form.status}
-                  onChange={(e) =>
-                    setForm({...form, status: e.target.value as PatientStatus})
-                  }
-                >
-                  <MenuItem value="new">New Patient</MenuItem>
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="inactive">Inactive</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "var(--text-placeholder)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                marginBottom: 4,
-              }}
-            >
-              Medical Information
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                marginBottom: 16,
-              }}
-            >
-              <TextField
-                label="Allergies"
-                fullWidth
-                value={form.allergies}
-                onChange={(e) => setForm({...form, allergies: e.target.value})}
-              />
-              <TextField
-                label="Medical Conditions"
-                fullWidth
-                value={form.medicalConditions}
-                onChange={(e) =>
-                  setForm({...form, medicalConditions: e.target.value})
-                }
-              />
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "var(--text-placeholder)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                marginBottom: 4,
-              }}
-            >
-              Emergency Contact
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                marginBottom: 16,
-              }}
-            >
-              <TextField
-                label="Contact Name"
-                fullWidth
-                value={form.emergencyContact}
-                onChange={(e) =>
-                  setForm({...form, emergencyContact: e.target.value})
-                }
-              />
-              <TextField
-                label="Contact Phone"
-                fullWidth
-                value={form.emergencyPhone}
-                onChange={(e) =>
-                  setForm({...form, emergencyPhone: e.target.value})
-                }
-              />
-            </div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "var(--text-placeholder)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                marginBottom: 4,
-              }}
-            >
-              Appointments
-            </div>
-            <div
-              style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16}}
-            >
-              <TextField
-                label="Last Visit"
-                type="date"
-                fullWidth
-                value={form.lastVisit}
-                onChange={(e) => setForm({...form, lastVisit: e.target.value})}
-                slotProps={{inputLabel: {shrink: true}}}
-              />
-              <TextField
-                label="Next Appointment"
-                type="date"
-                fullWidth
-                value={form.nextAppointment}
-                onChange={(e) =>
-                  setForm({...form, nextAppointment: e.target.value})
-                }
-                slotProps={{inputLabel: {shrink: true}}}
-              />
-            </div>
-          </div>
-        </DialogContent>
-        <DialogActions
-          sx={{
-            p: "16px 24px",
-            borderTop: "1px solid var(--border-ui)",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            {form.id && (
-              <Button
-                color="error"
-                variant="text"
-                onClick={() => handleDelete(form.id)}
-                sx={{textTransform: "none", fontWeight: 600}}
-              >
-                Delete Patient
-              </Button>
-            )}
-          </div>
-          <div style={{display: "flex", gap: 8}}>
-            <Button
-              variant="outlined"
-              onClick={() => setModalOpen(false)}
-              sx={{textTransform: "none", fontWeight: 600}}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleSave}
-              sx={{
-                textTransform: "none",
-                fontWeight: 600,
-                background: "var(--brand-primary)",
-                "&:hover": {background: "var(--brand-primary-dark)"},
-              }}
-            >
-              {form.id ? "Save Changes" : "Add Patient"}
-            </Button>
-          </div>
-        </DialogActions>
-      </Dialog>
+      {/* ── Patient Form Drawer (Add / Edit) ── */}
+      <PatientFormDrawer
+        open={formDrawerOpen}
+        form={form}
+        formError={formError}
+        isEdit={!!form.id}
+        onClose={() => setFormDrawerOpen(false)}
+        onSave={handleSave}
+        onDelete={() => form.id && handleDelete(form.id)}
+        onChange={setForm}
+      />
 
       {/* ── Delete Confirmation ── */}
       <Dialog
@@ -3481,13 +5111,20 @@ export default function PatientsPage() {
           >
             Are you sure you want to delete{" "}
             <strong className="text-primary">
-              {patients.find((p) => p.id === deleteTargetId)?.name}
+              {(() => {
+                const p = patients.find((x) => x.id === deleteTargetId);
+                return p ? getFullName(p) : "this patient";
+              })()}
             </strong>
             ? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions
-          sx={{p: "16px 24px", borderTop: "1px solid var(--border-ui)", gap: 2}}
+          sx={{
+            p: "16px 24px",
+            borderTop: "1px solid var(--border-ui)",
+            gap: 2,
+          }}
         >
           <Button
             variant="outlined"
