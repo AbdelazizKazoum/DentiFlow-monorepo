@@ -7,12 +7,14 @@ import {
 import {status as GrpcStatus} from "@grpc/grpc-js";
 import {PatientProto} from "@lib/proto";
 import {ClientGrpc} from "@nestjs/microservices";
-import {PATIENT_GRPC_CLIENT} from "../../../infrastructure/grpc/patient-grpc-client.module";
+import {PATIENT_GRPC_CLIENT} from "../../infrastructure/grpc/patient-grpc-client.module";
 
 export const PATIENT_SERVICE_NAME = PatientProto.PATIENT_SERVICE_NAME;
 export type PatientServiceClient = PatientProto.PatientServiceClient;
 
-export function initPatientGrpcService(grpcClient: ClientGrpc): PatientServiceClient {
+export function initPatientGrpcService(
+  grpcClient: ClientGrpc,
+): PatientServiceClient {
   return grpcClient.getService<PatientServiceClient>(PATIENT_SERVICE_NAME);
 }
 
