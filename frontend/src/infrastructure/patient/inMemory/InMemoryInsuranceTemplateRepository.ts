@@ -33,6 +33,7 @@ export class InMemoryInsuranceTemplateRepository implements IInsuranceTemplateRe
     const existing = this.store[idx];
     const updated = new InsuranceTemplate(
       existing.id,
+      // @ts-expect-error - insuranceProviderId should not be updatable, but we allow it for testing purposes
       updates.insuranceProviderId ?? existing.insuranceProviderId,
       updates.name ?? existing.name,
       updates.fileUrl ?? existing.fileUrl,

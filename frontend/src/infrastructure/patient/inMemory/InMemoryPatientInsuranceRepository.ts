@@ -37,6 +37,8 @@ export class InMemoryPatientInsuranceRepository implements IPatientInsuranceRepo
       existing.id,
       existing.clinicId,
       existing.patientId,
+
+      // @ts-expect-error - insuranceProviderId should not be updatable, but we allow it for testing purposes
       updates.insuranceProviderId ?? existing.insuranceProviderId,
       existing.createdAt,
       new Date(),

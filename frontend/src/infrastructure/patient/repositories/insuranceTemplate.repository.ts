@@ -1,7 +1,7 @@
-import {InsuranceTemplate} from "@domain/patient/entities/insuranceTemplate";
-import {axiosClient} from "@infrastructure/http/axiosClient";
-import {BaseRepository} from "@infrastructure/http/BaseRepository";
-import {AppError} from "@infrastructure/http/httpErrorHandler";
+import { InsuranceTemplate } from "@domain/patient/entities/insuranceTemplate";
+import { axiosClient } from "@infrastructure/http/axiosClient";
+import { BaseRepository } from "@infrastructure/http/BaseRepository";
+import { AppError } from "@infrastructure/http/httpErrorHandler";
 import {
   toDomain,
   toCreateDTO,
@@ -11,9 +11,9 @@ import type {
   InsuranceTemplateDTO,
   InsuranceTemplateListDTO,
 } from "../dtos/insuranceTemplate.dto";
-import type {IInsuranceTemplateRepository} from "@domain/patient/repositories/insuranceTemplateRepository";
-import type {CreateInsuranceTemplateInput} from "@domain/patient/commands/CreateInsuranceTemplateInput";
-import type {UpdateInsuranceTemplateInput} from "@domain/patient/commands/UpdateInsuranceTemplateInput";
+import type { IInsuranceTemplateRepository } from "@domain/patient/repositories/insuranceTemplateRepository";
+import type { CreateInsuranceTemplateInput } from "@domain/patient/commands/CreateInsuranceTemplateInput";
+import type { UpdateInsuranceTemplateInput } from "@domain/patient/commands/UpdateInsuranceTemplateInput";
 
 export class InsuranceTemplateHttpRepository
   extends BaseRepository
@@ -69,7 +69,7 @@ export class InsuranceTemplateHttpRepository
   async findByProviderId(providerId: string): Promise<InsuranceTemplate[]> {
     const response = await this.execute(() =>
       axiosClient.get<InsuranceTemplateListDTO>(this.base, {
-        params: {insuranceProviderId: providerId},
+        params: { insuranceProviderId: providerId },
       }),
     );
     return response.data.templates.map(toDomain);
@@ -78,10 +78,10 @@ export class InsuranceTemplateHttpRepository
   async findByProviderIds(providerIds: string[]): Promise<InsuranceTemplate[]> {
     const response = await this.execute(() =>
       axiosClient.get<InsuranceTemplateListDTO>(this.base, {
-        params: {insuranceProviderIds: providerIds.join(",")},
+        params: { insuranceProviderIds: providerIds.join(",") },
       }),
     );
-    return response.data.templates.map(toDomain);
+    return response.data.templates?.map(toDomain) || [];
   }
 
   async findByName(
@@ -91,7 +91,7 @@ export class InsuranceTemplateHttpRepository
     try {
       const response = await this.execute(() =>
         axiosClient.get<InsuranceTemplateListDTO>(this.base, {
-          params: {insuranceProviderId: providerId, name},
+          params: { insuranceProviderId: providerId, name },
         }),
       );
       return response.data.templates[0]
@@ -108,7 +108,7 @@ export class InsuranceTemplateHttpRepository
   async searchByName(searchTerm: string): Promise<InsuranceTemplate[]> {
     const response = await this.execute(() =>
       axiosClient.get<InsuranceTemplateListDTO>(this.base, {
-        params: {search: searchTerm},
+        params: { search: searchTerm },
       }),
     );
     return response.data.templates.map(toDomain);

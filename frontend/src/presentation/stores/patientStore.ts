@@ -154,6 +154,8 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
       const templates = await getInsuranceTemplatesUseCase.execute(providerIds);
       set({ insuranceTemplates: templates, isLoadingTemplates: false });
     } catch (error) {
+      console.error(error);
+      
       set({ isLoadingTemplates: false });
       const message =
         error instanceof AppError
