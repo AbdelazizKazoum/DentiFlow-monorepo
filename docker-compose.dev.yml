@@ -46,6 +46,7 @@ services:
       AUTH_SERVICE_URL: http://auth-service:3002
       AUTH_SERVICE_GRPC_URL: auth-service:5001
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
+      PATIENT_SERVICE_GRPC_URL: patient-service:5003
       FRONTEND_URL: http://localhost:3000
     ports:
       - "127.0.0.1:3001:3001"
@@ -57,6 +58,8 @@ services:
     depends_on:
       - db
       - auth-service
+      - clinic-service
+      - patient-service
     networks:
       - dentiflow-network
 
@@ -129,6 +132,41 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./services/clinic-service/src:/app/services/clinic-service/src:rw
+      - ./services/lib:/app/services/lib:rw
+    depends_on:
+      - db
+    networks:
+      - dentiflow-network
+
+  patient-service:
+    build:
+      context: .
+      dockerfile: services/patient-service/Dockerfile
+      target: builder
+      args:
+        PNPM_FLAGS: "--no-frozen-lockfile"
+    image: dentiflow/patient-service:dev
+    working_dir: /app
+    command: pnpm -C ./services start:dev:patient-service
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+      DB_NAME: patient_db
+      GRPC_PORT: 5003
+      CHOKIDAR_USEPOLLING: "true"
+      FORCE_POLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "127.0.0.1:3004:3004"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./services/patient-service/src:/app/services/patient-service/src:rw
       - ./services/lib:/app/services/lib:rw
     depends_on:
       - db

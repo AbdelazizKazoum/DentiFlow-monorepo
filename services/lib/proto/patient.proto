@@ -1,0 +1,326 @@
+syntax = "proto3";
+package patient;
+
+service PatientService {
+  rpc GetPatient (GetByIdRequest) returns (PatientReply);
+  rpc ListPatients (ListPatientsRequest) returns (PatientsListReply);
+  rpc CreatePatient (CreatePatientRequest) returns (PatientReply);
+  rpc UpdatePatient (UpdatePatientRequest) returns (PatientReply);
+  rpc DeletePatient (GetByIdRequest) returns (SuccessReply);
+  rpc SoftDeletePatient (GetByIdRequest) returns (SuccessReply);
+  rpc RestorePatient (GetByIdRequest) returns (PatientReply);
+  rpc GetPatientByUserId (GetByUserIdRequest) returns (PatientReply);
+  rpc SearchPatientsByName (SearchPatientsByNameRequest) returns (PatientsReply);
+
+  rpc GetInsuranceProvider (GetByIdRequest) returns (InsuranceProviderReply);
+  rpc ListInsuranceProviders (ListInsuranceProvidersRequest) returns (InsuranceProvidersReply);
+  rpc CreateInsuranceProvider (CreateInsuranceProviderRequest) returns (InsuranceProviderReply);
+  rpc UpdateInsuranceProvider (UpdateInsuranceProviderRequest) returns (InsuranceProviderReply);
+  rpc DeleteInsuranceProvider (GetByIdRequest) returns (SuccessReply);
+  rpc ActivateInsuranceProvider (GetByIdRequest) returns (InsuranceProviderReply);
+  rpc DeactivateInsuranceProvider (GetByIdRequest) returns (InsuranceProviderReply);
+
+  rpc GetInsuranceTemplate (GetByIdRequest) returns (InsuranceTemplateReply);
+  rpc ListInsuranceTemplates (ListInsuranceTemplatesRequest) returns (InsuranceTemplatesReply);
+  rpc CreateInsuranceTemplate (CreateInsuranceTemplateRequest) returns (InsuranceTemplateReply);
+  rpc UpdateInsuranceTemplate (UpdateInsuranceTemplateRequest) returns (InsuranceTemplateReply);
+  rpc DeleteInsuranceTemplate (GetByIdRequest) returns (SuccessReply);
+
+  rpc GetPatientInsurance (GetByIdRequest) returns (PatientInsuranceReply);
+  rpc ListPatientInsurances (ListPatientInsurancesRequest) returns (PatientInsurancesReply);
+  rpc ListClinicPatientInsurances (ListClinicPatientInsurancesRequest) returns (PatientInsurancesReply);
+  rpc CreatePatientInsurance (CreatePatientInsuranceRequest) returns (PatientInsuranceReply);
+  rpc UpdatePatientInsurance (UpdatePatientInsuranceRequest) returns (PatientInsuranceReply);
+  rpc DeletePatientInsurance (GetByIdRequest) returns (SuccessReply);
+  rpc ActivatePatientInsurance (GetByIdRequest) returns (PatientInsuranceReply);
+  rpc DeactivatePatientInsurance (GetByIdRequest) returns (PatientInsuranceReply);
+  rpc ActivateAllPatientInsurances (ActivateAllPatientInsurancesRequest) returns (SuccessReply);
+  rpc DeactivateAllPatientInsurances (ActivateAllPatientInsurancesRequest) returns (SuccessReply);
+
+  rpc GetPatientDocument (GetByIdRequest) returns (PatientDocumentReply);
+  rpc ListPatientDocuments (ListPatientDocumentsRequest) returns (PatientDocumentsReply);
+  rpc ListClinicPatientDocuments (ListClinicPatientDocumentsRequest) returns (PatientDocumentsReply);
+  rpc CreatePatientDocument (CreatePatientDocumentRequest) returns (PatientDocumentReply);
+  rpc UpdatePatientDocument (UpdatePatientDocumentRequest) returns (PatientDocumentReply);
+  rpc DeletePatientDocument (GetByIdRequest) returns (SuccessReply);
+  rpc DeleteManyPatientDocuments (DeleteManyPatientDocumentsRequest) returns (SuccessReply);
+}
+
+message SuccessReply {
+  bool success = 1;
+}
+
+message GetByIdRequest {
+  string id = 1;
+}
+
+message GetByUserIdRequest {
+  string user_id = 1;
+}
+
+message MetaReply {
+  int32 page = 1;
+  int32 limit = 2;
+  int32 total = 3;
+  int32 total_pages = 4;
+}
+
+message PatientReply {
+  string id = 1;
+  string clinic_id = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string status = 5;
+  string user_id = 6;
+  string phone = 7;
+  string email = 8;
+  string date_of_birth = 9;
+  string gender = 10;
+  string address = 11;
+  string notes = 12;
+  string allergies = 13;
+  string chronic_conditions = 14;
+  string current_medications = 15;
+  string medical_notes = 16;
+  string deleted_at = 17;
+  string created_at = 18;
+  string updated_at = 19;
+}
+
+message PatientListItem {
+  string id = 1;
+  string clinic_id = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string full_name = 5;
+  string status = 6;
+  string phone = 7;
+  string email = 8;
+  string date_of_birth = 9;
+  string gender = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message PatientsReply {
+  repeated PatientReply items = 1;
+}
+
+message PatientsListReply {
+  repeated PatientListItem items = 1;
+  MetaReply meta = 2;
+}
+
+message CreatePatientRequest {
+  string clinic_id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  optional string user_id = 4;
+  optional string phone = 5;
+  optional string email = 6;
+  optional string date_of_birth = 7;
+  optional string gender = 8;
+  optional string address = 9;
+  optional string notes = 10;
+  optional string allergies = 11;
+  optional string chronic_conditions = 12;
+  optional string current_medications = 13;
+  optional string medical_notes = 14;
+  optional string status = 15;
+}
+
+message UpdatePatientRequest {
+  string patient_id = 1;
+  optional string first_name = 2;
+  optional string last_name = 3;
+  optional string phone = 4;
+  optional string email = 5;
+  optional string date_of_birth = 6;
+  optional string gender = 7;
+  optional string address = 8;
+  optional string notes = 9;
+  optional string allergies = 10;
+  optional string chronic_conditions = 11;
+  optional string current_medications = 12;
+  optional string medical_notes = 13;
+  optional string status = 14;
+}
+
+message ListPatientsRequest {
+  string clinic_id = 1;
+  optional int32 page = 2;
+  optional int32 limit = 3;
+  optional string status = 4;
+  optional string gender = 5;
+  optional string search = 6;
+  optional bool is_new = 7;
+  optional string created_from = 8;
+  optional string created_to = 9;
+  optional string sort_by = 10;
+  optional string sort_order = 11;
+}
+
+message SearchPatientsByNameRequest {
+  string clinic_id = 1;
+  optional string first_name = 2;
+  optional string last_name = 3;
+}
+
+message InsuranceProviderReply {
+  string id = 1;
+  string clinic_id = 2;
+  string name = 3;
+  string code = 4;
+  bool is_active = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message InsuranceProvidersReply {
+  repeated InsuranceProviderReply providers = 1;
+}
+
+message ListInsuranceProvidersRequest {
+  string clinic_id = 1;
+  optional bool is_active = 2;
+  optional string search = 3;
+}
+
+message CreateInsuranceProviderRequest {
+  string clinic_id = 1;
+  string name = 2;
+  optional string code = 3;
+  optional bool is_active = 4;
+}
+
+message UpdateInsuranceProviderRequest {
+  string provider_id = 1;
+  optional string name = 2;
+  optional string code = 3;
+  optional bool is_active = 4;
+}
+
+message InsuranceTemplateReply {
+  string id = 1;
+  string insurance_provider_id = 2;
+  string name = 3;
+  string file_url = 4;
+  string created_at = 5;
+}
+
+message InsuranceTemplatesReply {
+  repeated InsuranceTemplateReply templates = 1;
+}
+
+message ListInsuranceTemplatesRequest {
+  optional string provider_id = 1;
+  optional string provider_ids = 2;
+  optional string search = 3;
+}
+
+message CreateInsuranceTemplateRequest {
+  string insurance_provider_id = 1;
+  string name = 2;
+  string file_url = 3;
+}
+
+message UpdateInsuranceTemplateRequest {
+  string template_id = 1;
+  optional string name = 2;
+  optional string file_url = 3;
+}
+
+message PatientInsuranceReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string insurance_provider_id = 4;
+  string policy_number = 5;
+  string member_id = 6;
+  bool is_active = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message PatientInsurancesReply {
+  repeated PatientInsuranceReply insurances = 1;
+}
+
+message ListPatientInsurancesRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  optional bool is_active = 3;
+}
+
+message ListClinicPatientInsurancesRequest {
+  string clinic_id = 1;
+  optional bool is_active = 2;
+  optional string insurance_provider_id = 3;
+}
+
+message ActivateAllPatientInsurancesRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+}
+
+message CreatePatientInsuranceRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string insurance_provider_id = 3;
+  optional string policy_number = 4;
+  optional string member_id = 5;
+  optional bool is_active = 6;
+}
+
+message UpdatePatientInsuranceRequest {
+  string insurance_id = 1;
+  optional string policy_number = 2;
+  optional string member_id = 3;
+  optional bool is_active = 4;
+}
+
+message PatientDocumentReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string type = 4;
+  string title = 5;
+  string file_url = 6;
+  string created_at = 7;
+}
+
+message PatientDocumentsReply {
+  repeated PatientDocumentReply documents = 1;
+}
+
+message ListPatientDocumentsRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  optional string type = 3;
+}
+
+message ListClinicPatientDocumentsRequest {
+  string clinic_id = 1;
+  optional string type = 2;
+  optional string patient_id = 3;
+  optional string search = 4;
+}
+
+message CreatePatientDocumentRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string type = 3;
+  optional string title = 4;
+  string file_url = 5;
+}
+
+message UpdatePatientDocumentRequest {
+  string document_id = 1;
+  optional string type = 2;
+  optional string title = 3;
+  optional string file_url = 4;
+}
+
+message DeleteManyPatientDocumentsRequest {
+  repeated string ids = 1;
+}

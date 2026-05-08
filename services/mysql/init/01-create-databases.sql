@@ -35,6 +35,10 @@ CREATE DATABASE IF NOT EXISTS `clinic_db`
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 GRANT ALL PRIVILEGES ON `clinic_db`.* TO 'root'@'%';
 
+CREATE DATABASE IF NOT EXISTS `patient_db`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON `patient_db`.* TO 'root'@'%';
+
 -- CREATE DATABASE IF NOT EXISTS `appointment_db`
 --   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- GRANT ALL PRIVILEGES ON `appointment_db`.* TO 'root'@'%';

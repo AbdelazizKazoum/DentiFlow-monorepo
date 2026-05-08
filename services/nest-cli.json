@@ -63,6 +63,24 @@
           "watchAssets": true
         }
       ]
+    },
+    "patient-service": {
+      "type": "application",
+      "root": "patient-service",
+      "entryFile": "main",
+      "sourceRoot": "patient-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "patient-service/tsconfig.json",
+        "webpack": false,
+        "deleteOutDir": false
+      },
+      "assets": [
+        {
+          "include": "../../lib/proto/*.proto",
+          "outDir": "lib/proto",
+          "watchAssets": true
+        }
+      ]
     }
   }
 }
