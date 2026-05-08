@@ -81,7 +81,7 @@ export class PatientHttpRepository
       axiosClient.get<PatientListResponseDTO>(this.base, {params}),
     );
     return {
-      items: response.data.items.map(toListItemDomain),
+      items: response.data.items?.map(toListItemDomain) || [],
       meta: response.data.meta,
     };
   }
@@ -92,8 +92,10 @@ export class PatientHttpRepository
         `/api/v1/clinics/${clinicId}/patients`,
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 
@@ -104,8 +106,10 @@ export class PatientHttpRepository
         {params: {status: "ACTIVE"}},
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 
@@ -119,8 +123,10 @@ export class PatientHttpRepository
         {params: {status}},
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 
@@ -152,8 +158,10 @@ export class PatientHttpRepository
         {params},
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 
@@ -164,8 +172,10 @@ export class PatientHttpRepository
         {params: {search: phone}},
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 
@@ -176,8 +186,10 @@ export class PatientHttpRepository
         {params: {hasMedicalInfo: true}},
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 
@@ -193,8 +205,10 @@ export class PatientHttpRepository
         {params},
       ),
     );
-    return response.data.items.map((item) =>
-      toDomain(item as unknown as PatientDTO),
+    return (
+      response.data.items?.map((item) =>
+        toDomain(item as unknown as PatientDTO),
+      ) || []
     );
   }
 

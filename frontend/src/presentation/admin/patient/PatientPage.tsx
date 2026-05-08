@@ -1,18 +1,18 @@
 "use client";
 
 import React from "react";
-import { Users } from "lucide-react";
-import { usePatientPage } from "./hooks/usePatientPage";
-import { PatientSummaryCards } from "./components/PatientSummaryCards";
-import { PatientToolbar } from "./components/PatientToolbar";
-import { PatientTable } from "./components/PatientTable";
-import { PatientGrid } from "./components/PatientGrid";
-import { PatientActionMenu } from "./components/PatientActionMenu";
-import { PatientFormDrawer } from "./components/PatientFormDrawer";
-import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
-import { DateRangeModal } from "./components/DateRangeModal";
-import { FilterDrawer } from "./components/FilterDrawer";
-import type { SortOption } from "./types";
+import {Users} from "lucide-react";
+import {usePatientPage} from "./hooks/usePatientPage";
+import {PatientSummaryCards} from "./components/PatientSummaryCards";
+import {PatientToolbar} from "./components/PatientToolbar";
+import {PatientTable} from "./components/PatientTable";
+import {PatientGrid} from "./components/PatientGrid";
+import {PatientActionMenu} from "./components/PatientActionMenu";
+import {PatientFormDrawer} from "./components/PatientFormDrawer";
+import {DeleteConfirmModal} from "./components/DeleteConfirmModal";
+import {DateRangeModal} from "./components/DateRangeModal";
+import {FilterDrawer} from "./components/FilterDrawer";
+import type {SortOption} from "./types";
 
 export default function PatientPage() {
   const hook = usePatientPage();
@@ -37,7 +37,7 @@ export default function PatientPage() {
           datePreset={hook.datePreset}
           someSelected={hook.someSelected}
           selectedCount={hook.selectedIds.size}
-          filteredCount={hook.filtered.length}
+          filteredCount={hook.totalCount}
           onDateOpen={() => hook.setDateModalOpen(true)}
           onSortOpen={(e) => hook.setSortMenuAnchor(e.currentTarget)}
           onFilterOpen={() => hook.setFilterDrawerOpen(true)}
@@ -159,7 +159,7 @@ export default function PatientPage() {
             >
               <Users size={32} color="var(--brand-primary)" />
             </div>
-            <div style={{ textAlign: "center" }}>
+            <div style={{textAlign: "center"}}>
               <p
                 style={{
                   fontSize: 15,
@@ -170,9 +170,7 @@ export default function PatientPage() {
               >
                 No patients found
               </p>
-              <p
-                style={{ fontSize: 13, color: "var(--text-muted)", margin: 0 }}
-              >
+              <p style={{fontSize: 13, color: "var(--text-muted)", margin: 0}}>
                 Try adjusting your search or filter criteria
               </p>
             </div>

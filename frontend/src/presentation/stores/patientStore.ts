@@ -1,11 +1,11 @@
-import { create } from "zustand";
-import { toast } from "sonner";
-import { Patient } from "@/domain/patient/entities/patient";
-import { InsuranceProvider } from "@/domain/patient/entities/insuranceProvider";
-import { InsuranceTemplate } from "@/domain/patient/entities/insuranceTemplate";
-import type { CreatePatientInput } from "@/domain/patient/commands/CreatePatientInput";
-import type { UpdatePatientInput } from "@/domain/patient/commands/UpdatePatientInput";
-import type { CreateInsuranceProviderInput } from "@/domain/patient/commands/CreateInsuranceProviderInput";
+import {create} from "zustand";
+import {toast} from "sonner";
+import {Patient} from "@/domain/patient/entities/patient";
+import {InsuranceProvider} from "@/domain/patient/entities/insuranceProvider";
+import {InsuranceTemplate} from "@/domain/patient/entities/insuranceTemplate";
+import type {CreatePatientInput} from "@/domain/patient/commands/CreatePatientInput";
+import type {UpdatePatientInput} from "@/domain/patient/commands/UpdatePatientInput";
+import type {CreateInsuranceProviderInput} from "@/domain/patient/commands/CreateInsuranceProviderInput";
 import {
   getPatientsByClinicUseCase,
   createPatientUseCase,
@@ -15,11 +15,19 @@ import {
   createInsuranceProviderUseCase,
   getInsuranceTemplatesUseCase,
 } from "@/infrastructure/container";
-import { AppError } from "@/infrastructure/http/httpErrorHandler";
+import {AppError} from "@/infrastructure/http/httpErrorHandler";
+import type {GetPatientsQuery} from "@/domain/patient/commands/GetPatientsQuery";
+import type {PatientListItem} from "@/domain/patient/queries/patientQueries";
 
 interface PatientStoreState {
   // ── Patient state ──────────────────────────────────────────────────────────
   patients: Patient[];
+  patientsMeta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
   isLoading: boolean;
   isAdding: boolean;
   isUpdating: boolean;
@@ -30,7 +38,7 @@ interface PatientStoreState {
   insuranceTemplates: InsuranceTemplate[];
   isLoadingTemplates: boolean;
   // ── Actions ────────────────────────────────────────────────────────────────
-  loadPatients: (clinicId: string) => Promise<void>;
+  loadPatients: (query: GetPatientsQuery) => Promise<void>;
   addPatient: (input: CreatePatientInput) => Promise<Patient>;
   editPatient: (id: string, input: UpdatePatientInput) => Promise<Patient>;
   removePatient: (id: string) => Promise<void>;
@@ -43,6 +51,7 @@ interface PatientStoreState {
 
 export const usePatientStore = create<PatientStoreState>((set) => ({
   patients: [],
+  patientsMeta: {page: 1, limit: 8, total: 0, totalPages: 1},
   isLoading: false,
   isAdding: false,
   isUpdating: false,
@@ -51,13 +60,17 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
   insuranceTemplates: [],
   isLoadingTemplates: false,
 
-  loadPatients: async (clinicId) => {
-    set({ isLoading: true });
+  loadPatients: async (query) => {
+    set({isLoading: true});
     try {
-      const patients = await getPatientsByClinicUseCase.execute(clinicId);
-      set({ patients, isLoading: false });
+      const response = await getPatientsByClinicUseCase.execute(query);
+      set({
+        patients: response.items.map(toPatientFromListItem),
+        patientsMeta: response.meta,
+        isLoading: false,
+      });
     } catch (error) {
-      set({ isLoading: false });
+      set({isLoading: false});
       const message =
         error instanceof AppError ? error.message : "Failed to load patients";
       toast.error(message);
@@ -65,7 +78,7 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
   },
 
   addPatient: async (input) => {
-    set({ isAdding: true });
+    set({isAdding: true});
     try {
       const created = await createPatientUseCase.execute(input);
       set((state) => ({
@@ -75,7 +88,7 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
       toast.success("Patient added successfully");
       return created;
     } catch (error) {
-      set({ isAdding: false });
+      set({isAdding: false});
       const message =
         error instanceof AppError ? error.message : "Failed to add patient";
       toast.error(message);
@@ -84,7 +97,7 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
   },
 
   editPatient: async (id, input) => {
-    set({ isUpdating: true });
+    set({isUpdating: true});
     try {
       const updated = await updatePatientUseCase.execute(id, input);
       set((state) => ({
@@ -94,7 +107,7 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
       toast.success("Patient updated successfully");
       return updated;
     } catch (error) {
-      set({ isUpdating: false });
+      set({isUpdating: false});
       const message =
         error instanceof AppError ? error.message : "Failed to update patient";
       toast.error(message);
@@ -105,7 +118,7 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
   removePatient: async (id) => {
     try {
       await deletePatientUseCase.execute(id);
-      set((state) => ({ patients: state.patients.filter((p) => p.id !== id) }));
+      set((state) => ({patients: state.patients.filter((p) => p.id !== id)}));
       toast.success("Patient removed successfully");
     } catch (error) {
       const message =
@@ -116,12 +129,12 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
   },
 
   loadInsuranceProviders: async (clinicId) => {
-    set({ isLoadingProviders: true });
+    set({isLoadingProviders: true});
     try {
       const providers = await getInsuranceProvidersUseCase.execute(clinicId);
-      set({ insuranceProviders: providers, isLoadingProviders: false });
+      set({insuranceProviders: providers, isLoadingProviders: false});
     } catch (error) {
-      set({ isLoadingProviders: false });
+      set({isLoadingProviders: false});
       const message =
         error instanceof AppError
           ? error.message
@@ -149,14 +162,14 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
   },
 
   loadInsuranceTemplates: async (providerIds: string[]) => {
-    set({ isLoadingTemplates: true });
+    set({isLoadingTemplates: true});
     try {
       const templates = await getInsuranceTemplatesUseCase.execute(providerIds);
-      set({ insuranceTemplates: templates, isLoadingTemplates: false });
+      set({insuranceTemplates: templates, isLoadingTemplates: false});
     } catch (error) {
       console.error(error);
-      
-      set({ isLoadingTemplates: false });
+
+      set({isLoadingTemplates: false});
       const message =
         error instanceof AppError
           ? error.message
@@ -165,3 +178,20 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
     }
   },
 }));
+
+function toPatientFromListItem(item: PatientListItem): Patient {
+  return new Patient(
+    item.id,
+    item.clinicId,
+    item.firstName,
+    item.lastName,
+    item.createdAt,
+    item.updatedAt,
+    item.status,
+    undefined,
+    undefined,
+    item.email,
+    item.dateOfBirth,
+    item.gender,
+  );
+}

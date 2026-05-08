@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { Patient, PatientGender } from "@/domain/patient/entities/patient";
-import { usePatientStore } from "@/presentation/stores/patientStore";
-import { SORT_OPTIONS, PAGE_SIZE } from "../patientConfig";
+import React, {useState, useCallback, useEffect, useMemo} from "react";
+import {Patient, PatientGender} from "@/domain/patient/entities/patient";
+import {usePatientStore} from "@/presentation/stores/patientStore";
+import type {GetPatientsQuery} from "@/domain/patient/commands/GetPatientsQuery";
+import {SORT_OPTIONS, PAGE_SIZE} from "../patientConfig";
 import type {
   PatientFormState,
   FilterState,
   DateRange,
   SortOption,
 } from "../types";
-import { EMPTY_FORM } from "../types";
+import {EMPTY_FORM} from "../types";
 import {
   getFullName,
   getActiveFilterCount,
@@ -22,6 +23,7 @@ const CLINIC_ID = process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ?? "clinic-1";
 export function usePatientPage() {
   const {
     patients,
+    patientsMeta,
     isLoading,
     isAdding,
     isUpdating,
@@ -66,9 +68,8 @@ export function usePatientPage() {
   const [menuTarget, setMenuTarget] = useState<string | null>(null);
 
   useEffect(() => {
-    loadPatients(CLINIC_ID);
     loadInsuranceProviders(CLINIC_ID);
-  }, [loadPatients, loadInsuranceProviders]);
+  }, [loadInsuranceProviders]);
 
   // Load insurance templates whenever providers list changes
   useEffect(() => {
@@ -97,59 +98,67 @@ export function usePatientPage() {
     setCurrentPage(1);
   };
 
-  // ── Derived: filtered + sorted list ──────────────────────────────────────
-  const filtered = useMemo(() => {
-    let list = patients.filter((p) => {
-      const name = getFullName(p.firstName, p.lastName).toLowerCase();
-      if (
-        search &&
-        !name.includes(search.toLowerCase()) &&
-        !(p.email ?? "").toLowerCase().includes(search.toLowerCase()) &&
-        !(p.phone ?? "").toLowerCase().includes(search.toLowerCase()) &&
-        !(p.cnie ?? "").toLowerCase().includes(search.toLowerCase())
-      )
-        return false;
-      if (filters.status !== "all" && p.status !== filters.status) return false;
-      if (filters.gender !== "all" && p.gender !== filters.gender) return false;
-      if (dateRange.from) {
-        const d = new Date(p.createdAt);
-        d.setHours(0, 0, 0, 0);
-        if (d < dateRange.from) return false;
-      }
-      if (dateRange.to) {
-        const d = new Date(p.createdAt);
-        d.setHours(0, 0, 0, 0);
-        if (d > dateRange.to) return false;
-      }
-      return true;
-    });
+  // ── Derived: server query + current page selection ───────────────────────
+  const serverQuery = useMemo<GetPatientsQuery>(() => {
+    const sortMap: Partial<
+      Record<
+        SortOption,
+        {
+          sortBy: "firstName" | "lastName" | "createdAt" | "updatedAt";
+          sortOrder: "asc" | "desc";
+        }
+      >
+    > = {
+      lastAdded: {sortBy: "createdAt", sortOrder: "desc"},
+      name: {sortBy: "firstName", sortOrder: "asc"},
+    };
 
-    list = [...list].sort((a, b) => {
-      if (sort === "name") return a.firstName.localeCompare(b.firstName);
-      if (sort === "status") return a.status.localeCompare(b.status);
-      if (sort === "gender")
-        return (a.gender || "").localeCompare(b.gender || "");
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-    return list;
-  }, [patients, search, filters, dateRange, sort]);
+    const mappedSort = sortMap[sort];
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
+    return {
+      clinicId: CLINIC_ID,
+      page: currentPage,
+      limit: PAGE_SIZE,
+      ...(filters.status !== "all" ? {status: filters.status} : {}),
+      ...(filters.gender !== "all" ? {gender: filters.gender} : {}),
+      ...(search.trim() ? {search: search.trim()} : {}),
+      ...(dateRange.from ? {createdFrom: dateRange.from} : {}),
+      ...(dateRange.to ? {createdTo: dateRange.to} : {}),
+      ...(mappedSort ?? {}),
+    };
+  }, [
+    currentPage,
+    filters.status,
+    filters.gender,
+    search,
+    dateRange.from,
+    dateRange.to,
+    sort,
+  ]);
+
+  useEffect(() => {
+    loadPatients(serverQuery);
+  }, [loadPatients, serverQuery]);
+
+  const handleSetCurrentPage = (page: number) => {
+    setCurrentPage(page);
+    setSelectedIds(new Set());
+  };
+
+  const filtered = patients;
+  const paginated = patients;
+  const totalPages = Math.max(1, patientsMeta.totalPages || 1);
 
   const allSelected =
-    filtered.length > 0 && filtered.every((p) => selectedIds.has(p.id));
-  const someSelected = filtered.some((p) => selectedIds.has(p.id));
+    patients.length > 0 && patients.every((p) => selectedIds.has(p.id));
+  const someSelected = patients.some((p) => selectedIds.has(p.id));
 
   const activeFilterCount = getActiveFilterCount(filters, dateRange);
 
   // ── Selection ─────────────────────────────────────────────────────────────
   const toggleAll = () => {
     if (allSelected) setSelectedIds(new Set());
-    else setSelectedIds(new Set(filtered.map((p) => p.id)));
+    else setSelectedIds(new Set(patients.map((p) => p.id)));
   };
 
   const toggleOne = (id: string) => {
@@ -248,10 +257,12 @@ export function usePatientPage() {
       } else {
         await addPatient(input);
       }
+      await loadPatients(serverQuery);
+      setFormDrawerOpen(false);
     } catch {
       // Errors handled in store
     }
-  }, [form, patients, editPatient, addPatient]);
+  }, [form, patients, editPatient, addPatient, loadPatients, serverQuery]);
 
   // ── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = useCallback((id: string) => {
@@ -272,10 +283,11 @@ export function usePatientPage() {
       setDeleteConfirmOpen(false);
       setDeleteTargetId(null);
       setFormDrawerOpen(false);
+      await loadPatients(serverQuery);
     } catch {
       // Errors handled in store
     }
-  }, [deleteTargetId, removePatient]);
+  }, [deleteTargetId, removePatient, loadPatients, serverQuery]);
 
   const bulkDelete = async () => {
     const ids = [...selectedIds];
@@ -283,25 +295,26 @@ export function usePatientPage() {
       await removePatient(id).catch(() => null);
     }
     setSelectedIds(new Set());
+    await loadPatients(serverQuery);
   };
 
   // ── Filters ───────────────────────────────────────────────────────────────
   const removeDateFilter = () => {
-    setDateRange({ from: null, to: null });
+    setDateRange({from: null, to: null});
     setDatePreset(null);
   };
-  const removeStatusFilter = () => setFilters((f) => ({ ...f, status: "all" }));
-  const removeGenderFilter = () => setFilters((f) => ({ ...f, gender: "all" }));
+  const removeStatusFilter = () => setFilters((f) => ({...f, status: "all"}));
+  const removeGenderFilter = () => setFilters((f) => ({...f, gender: "all"}));
   const resetAllFilters = () => {
     setSearch("");
-    setFilters({ status: "all", gender: "all" });
-    setDateRange({ from: null, to: null });
+    setFilters({status: "all", gender: "all"});
+    setDateRange({from: null, to: null});
     setDatePreset(null);
   };
 
   // ── Export ────────────────────────────────────────────────────────────────
   const handleExport = () => {
-    const rows = filtered.map((p) =>
+    const rows = patients.map((p) =>
       [
         getFullName(p.firstName, p.lastName),
         p.email || "",
@@ -345,8 +358,9 @@ export function usePatientPage() {
     isUpdating,
     // Pagination
     currentPage,
-    setCurrentPage,
+    setCurrentPage: handleSetCurrentPage,
     totalPages,
+    totalCount: patientsMeta.total,
     // Search & filters
     search,
     setSearch: handleSetSearch,
