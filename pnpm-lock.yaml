@@ -198,6 +198,9 @@ importers:
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       joi:
         specifier: ^18.1.2
         version: 18.1.2
@@ -262,9 +265,6 @@ importers:
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
-      dotenv:
-        specifier: ^17.4.2
-        version: 17.4.2
       grpc-tools:
         specifier: ^1.13.1
         version: 1.13.1
