@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, {useState, useRef} from "react";
 import {
   Drawer,
   TextField,
@@ -37,14 +37,11 @@ import {
   Trash2,
   UserPlus,
 } from "lucide-react";
-import {
-  PatientStatus,
-  PatientGender,
-} from "@/domain/patient/entities/patient";
-import { InsuranceProvider } from "@/domain/patient/entities/insuranceProvider";
-import { InsuranceTemplate } from "@/domain/patient/entities/insuranceTemplate";
-import { TF_SX, DOC_TYPE_CONFIG } from "../patientConfig";
-import type { PatientFormState, DocumentItemState } from "../types";
+import {PatientStatus, PatientGender} from "@/domain/patient/entities/patient";
+import {InsuranceProvider} from "@/domain/patient/entities/insuranceProvider";
+import {InsuranceTemplate} from "@/domain/patient/entities/insuranceTemplate";
+import {TF_SX, DOC_TYPE_CONFIG} from "../patientConfig";
+import type {PatientFormState, DocumentItemState} from "../types";
 
 // ── Local types ───────────────────────────────────────────────────────────────
 interface InsuranceState {
@@ -68,18 +65,16 @@ function SectionHeader({
   return (
     <div className="flex items-center gap-2 mb-3">
       {icon && iconColor && (
-        <span
-          style={{ color: iconColor, display: "flex", alignItems: "center" }}
-        >
+        <span style={{color: iconColor, display: "flex", alignItems: "center"}}>
           {React.cloneElement(
-            icon as React.ReactElement<{ size?: number; color?: string }>,
-            { size: 14, color: iconColor },
+            icon as React.ReactElement<{size?: number; color?: string}>,
+            {size: 14, color: iconColor},
           )}
         </span>
       )}
       <p
         className="text-xs font-semibold uppercase tracking-widest"
-        style={{ color: "var(--text-muted)", margin: 0 }}
+        style={{color: "var(--text-muted)", margin: 0}}
       >
         {title}
       </p>
@@ -114,35 +109,38 @@ function AccordionSection({
   return (
     <div
       style={{
-        border: "1px solid var(--border-ui)",
-        borderRadius: 14,
+        border: open
+          ? "1px solid var(--brand-primary)"
+          : "1px solid var(--border-ui)",
+        borderRadius: 12,
         overflow: "hidden",
         boxShadow: open
-          ? "0 4px 24px rgba(30,86,208,0.09)"
-          : "0 1px 3px rgba(0,0,0,0.04)",
-        transition: "box-shadow 0.2s",
+          ? "0 4px 20px rgba(30,86,208,0.06)"
+          : "0 2px 6px rgba(0,0,0,0.02)",
+        transition: "all 0.3s ease",
+        marginBottom: "12px",
       }}
     >
       <button
         onClick={onToggle}
         style={{
           width: "100%",
-          padding: "14px 16px",
+          padding: "16px 20px",
           background: open ? "var(--surface-page)" : "var(--surface-card)",
           border: "none",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 16,
           textAlign: "left",
-          transition: "background 0.15s",
+          transition: "background 0.2s",
         }}
       >
         <div
           style={{
-            width: 38,
-            height: 38,
-            borderRadius: 11,
+            width: 42,
+            height: 42,
+            borderRadius: 10,
             background: iconBg,
             display: "flex",
             alignItems: "center",
@@ -151,20 +149,20 @@ function AccordionSection({
           }}
         >
           {React.cloneElement(
-            icon as React.ReactElement<{ size?: number; color?: string }>,
-            { size: 17, color: iconColor },
+            icon as React.ReactElement<{size?: number; color?: string}>,
+            {size: 20, color: iconColor},
           )}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{flex: 1, minWidth: 0}}>
           <Typography
-            sx={{ fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}
+            sx={{fontSize: 15, fontWeight: 600, color: "var(--foreground)"}}
           >
             {title}
           </Typography>
           {summary && (
             <Typography
               sx={{
-                fontSize: 11,
+                fontSize: 13,
                 color: summaryMuted
                   ? "var(--text-placeholder)"
                   : "var(--text-muted)",
@@ -172,6 +170,7 @@ function AccordionSection({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
+                fontWeight: 400,
               }}
             >
               {summary}
@@ -180,26 +179,26 @@ function AccordionSection({
         </div>
         {savedBadge && (
           <Chip
-            icon={<Check size={10} />}
+            icon={<Check size={12} />}
             label="Saved"
             size="small"
             sx={{
-              height: 22,
-              fontSize: 10,
-              fontWeight: 700,
-              background: "#E8F8EC",
-              color: "#279C41",
-              "& .MuiChip-icon": { color: "#279C41", ml: "6px" },
+              height: 24,
+              fontSize: 11,
+              fontWeight: 600,
+              background: "#dcfce7",
+              color: "#166534",
+              "& .MuiChip-icon": {color: "#166534", ml: "6px"},
               flexShrink: 0,
             }}
           />
         )}
         <ChevronDown
-          size={16}
-          color="var(--text-placeholder)"
+          size={20}
+          color={open ? "var(--brand-primary)" : "var(--text-placeholder)"}
           style={{
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             flexShrink: 0,
           }}
         />
@@ -215,7 +214,7 @@ function AccordionSection({
       >
         <div
           style={{
-            padding: "20px",
+            padding: "24px 20px",
             borderTop: "1px solid var(--border-ui)",
             background: "var(--surface-card)",
           }}
@@ -242,9 +241,9 @@ interface PatientFormDrawerProps {
 }
 
 const CREATE_STEPS = [
-  { id: 1 as const, label: "Patient Record" },
-  { id: 2 as const, label: "Insurance" },
-  { id: 3 as const, label: "Documents" },
+  {id: 1 as const, label: "Patient Record"},
+  {id: 2 as const, label: "Insurance"},
+  {id: 3 as const, label: "Documents"},
 ];
 
 // ── DocumentType enum (local mirror) ─────────────────────────────────────────
@@ -256,7 +255,7 @@ enum DocumentType {
 }
 
 // ── Error Banner ────────────────────────────────────────────────────────────
-function ErrorBanner({ message }: { message: string }) {
+function ErrorBanner({message}: {message: string}) {
   return (
     <div className="flex items-center gap-3 p-3 mb-5 rounded-xl text-sm text-red-700 bg-red-50 border border-red-200">
       <AlertCircle size={15} className="shrink-0" />
@@ -278,7 +277,7 @@ const primaryBtnSx = {
     backgroundColor: "var(--brand-primary-dark)",
     boxShadow: "0 4px 14px rgba(30,86,208,0.35)",
   },
-  "&.Mui-disabled": { backgroundColor: "var(--brand-primary)", opacity: 0.5 },
+  "&.Mui-disabled": {backgroundColor: "var(--brand-primary)", opacity: 0.5},
 } as const;
 
 const outlinedBtnSx = {
@@ -311,7 +310,7 @@ export function PatientFormDrawer({
   const inp =
     (field: keyof PatientFormState) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      onChange({ ...form, [field]: e.target.value });
+      onChange({...form, [field]: e.target.value});
 
   const avatarInitials = isEdit
     ? (form.firstName.charAt(0) || "").toUpperCase() +
@@ -336,7 +335,7 @@ export function PatientFormDrawer({
     title: string;
     fileName: string;
     fileUrl: string;
-  }>({ type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: "" });
+  }>({type: DocumentType.GENERAL, title: "", fileName: "", fileUrl: ""});
   const [showDocForm, setShowDocForm] = useState(false);
 
   const [openAccordion, setOpenAccordion] = useState<string | null>("patient");
@@ -483,7 +482,7 @@ export function PatientFormDrawer({
               value={form.dateOfBirth}
               onChange={inp("dateOfBirth")}
               sx={TF_SX}
-              slotProps={{ inputLabel: { shrink: true } }}
+              slotProps={{inputLabel: {shrink: true}}}
             />
             <FormControl fullWidth sx={TF_SX}>
               <InputLabel>Gender</InputLabel>
@@ -498,9 +497,7 @@ export function PatientFormDrawer({
                 }
               >
                 <MenuItem value="">
-                  <em
-                    style={{ fontSize: 14, color: "var(--text-placeholder)" }}
-                  >
+                  <em style={{fontSize: 14, color: "var(--text-placeholder)"}}>
                     Not specified
                   </em>
                 </MenuItem>
@@ -521,7 +518,7 @@ export function PatientFormDrawer({
         </div>
       </div>
 
-      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+      <Divider sx={{borderColor: "var(--border-ui)"}} />
 
       {/* Contact Details */}
       <div>
@@ -572,7 +569,7 @@ export function PatientFormDrawer({
         </div>
       </div>
 
-      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+      <Divider sx={{borderColor: "var(--border-ui)"}} />
 
       {/* Patient Status */}
       <div>
@@ -588,7 +585,7 @@ export function PatientFormDrawer({
             label="Status"
             value={form.status}
             onChange={(e) =>
-              onChange({ ...form, status: e.target.value as PatientStatus })
+              onChange({...form, status: e.target.value as PatientStatus})
             }
           >
             <MenuItem value={PatientStatus.ACTIVE}>
@@ -613,7 +610,7 @@ export function PatientFormDrawer({
         </FormControl>
       </div>
 
-      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+      <Divider sx={{borderColor: "var(--border-ui)"}} />
 
       {/* Medical Information */}
       <div>
@@ -629,7 +626,7 @@ export function PatientFormDrawer({
             fullWidth
             value={form.allergies}
             onChange={inp("allergies")}
-            sx={{ ...TF_SX, mb: 2 }}
+            sx={{...TF_SX, mb: 2}}
             placeholder="e.g. Penicillin, Latex, Aspirin"
             helperText="List all known allergies, separated by commas"
           />
@@ -664,7 +661,7 @@ export function PatientFormDrawer({
         </div>
       </div>
 
-      <Divider sx={{ borderColor: "var(--border-ui)" }} />
+      <Divider sx={{borderColor: "var(--border-ui)"}} />
 
       {/* Administrative Notes */}
       <div>
@@ -697,16 +694,16 @@ export function PatientFormDrawer({
           label="Insurance Provider *"
           value={insurance.insuranceProviderId}
           onChange={(e) =>
-            setInsurance((s) => ({ ...s, insuranceProviderId: e.target.value }))
+            setInsurance((s) => ({...s, insuranceProviderId: e.target.value}))
           }
         >
           <MenuItem value="">
-            <em style={{ fontSize: 13, color: "var(--text-placeholder)" }}>
+            <em style={{fontSize: 13, color: "var(--text-placeholder)"}}>
               Select a provider
             </em>
           </MenuItem>
           {insuranceProviders.map((p) => (
-            <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.875rem" }}>
+            <MenuItem key={p.id} value={p.id} sx={{fontSize: "0.875rem"}}>
               {p.name}
             </MenuItem>
           ))}
@@ -718,7 +715,7 @@ export function PatientFormDrawer({
           fullWidth
           value={insurance.policyNumber}
           onChange={(e) =>
-            setInsurance((s) => ({ ...s, policyNumber: e.target.value }))
+            setInsurance((s) => ({...s, policyNumber: e.target.value}))
           }
           sx={TF_SX}
           placeholder="e.g. POL-12345"
@@ -728,7 +725,7 @@ export function PatientFormDrawer({
           fullWidth
           value={insurance.memberId}
           onChange={(e) =>
-            setInsurance((s) => ({ ...s, memberId: e.target.value }))
+            setInsurance((s) => ({...s, memberId: e.target.value}))
           }
           sx={TF_SX}
           placeholder="e.g. MBR-67890"
@@ -736,7 +733,7 @@ export function PatientFormDrawer({
       </div>
       <button
         type="button"
-        onClick={() => setInsurance((s) => ({ ...s, isActive: !s.isActive }))}
+        onClick={() => setInsurance((s) => ({...s, isActive: !s.isActive}))}
         style={{
           display: "flex",
           alignItems: "center",
@@ -755,13 +752,13 @@ export function PatientFormDrawer({
           checked={insurance.isActive}
           size="small"
           onChange={(e) =>
-            setInsurance((s) => ({ ...s, isActive: e.target.checked }))
+            setInsurance((s) => ({...s, isActive: e.target.checked}))
           }
           onClick={(e) => e.stopPropagation()}
           sx={{
             padding: 0,
             color: "var(--text-placeholder)",
-            "&.Mui-checked": { color: "#279C41" },
+            "&.Mui-checked": {color: "#279C41"},
           }}
         />
         <div>
@@ -774,7 +771,7 @@ export function PatientFormDrawer({
           >
             Coverage is Active
           </Typography>
-          <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
+          <Typography sx={{fontSize: 11, color: "var(--text-muted)"}}>
             Insurance is currently valid and accepted for billing
           </Typography>
         </div>
@@ -817,7 +814,7 @@ export function PatientFormDrawer({
       >
         <div className="flex items-center gap-2">
           <Shield size={15} color="#0891b2" />
-          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#0891b2" }}>
+          <Typography sx={{fontSize: 13, fontWeight: 700, color: "#0891b2"}}>
             {providerName(insurance.insuranceProviderId)}
           </Typography>
           <Chip
@@ -837,7 +834,7 @@ export function PatientFormDrawer({
           variant="outlined"
           startIcon={<Edit2 size={11} />}
           onClick={handleRemoveInsurance}
-          sx={{ ...outlinedBtnSx, padding: "4px 12px", fontSize: "0.75rem" }}
+          sx={{...outlinedBtnSx, padding: "4px 12px", fontSize: "0.75rem"}}
         >
           Change
         </Button>
@@ -845,7 +842,7 @@ export function PatientFormDrawer({
       {(insurance.policyNumber || insurance.memberId) && (
         <div
           className="flex gap-7 p-4"
-          style={{ background: "var(--surface-card)" }}
+          style={{background: "var(--surface-card)"}}
         >
           {insurance.policyNumber && (
             <div>
@@ -925,9 +922,7 @@ export function PatientFormDrawer({
             }}
           >
             <Shield size={13} color="#0891b2" />
-            <Typography
-              sx={{ fontSize: 12, fontWeight: 700, color: "#0891b2" }}
-            >
+            <Typography sx={{fontSize: 12, fontWeight: 700, color: "#0891b2"}}>
               Insurance Templates
             </Typography>
             <Chip
@@ -1028,7 +1023,7 @@ export function PatientFormDrawer({
           <FolderOpen
             size={28}
             color="var(--text-placeholder)"
-            style={{ margin: "0 auto 8px" }}
+            style={{margin: "0 auto 8px"}}
           />
           <Typography
             sx={{
@@ -1097,7 +1092,7 @@ export function PatientFormDrawer({
                       }}
                     />
                     <Typography
-                      sx={{ fontSize: 10, color: "var(--text-placeholder)" }}
+                      sx={{fontSize: 10, color: "var(--text-placeholder)"}}
                     >
                       {new Date(doc.createdAt).toLocaleDateString()}
                     </Typography>
@@ -1108,7 +1103,7 @@ export function PatientFormDrawer({
                   onClick={() => handleRemoveDocument(doc.id)}
                   sx={{
                     color: "var(--text-placeholder)",
-                    "&:hover": { color: "#dc2626", background: "#fef2f2" },
+                    "&:hover": {color: "#dc2626", background: "#fef2f2"},
                   }}
                 >
                   <X size={14} />
@@ -1143,7 +1138,7 @@ export function PatientFormDrawer({
                 }
               >
                 {Object.values(DocumentType).map((t) => (
-                  <MenuItem key={t} value={t} sx={{ fontSize: "0.875rem" }}>
+                  <MenuItem key={t} value={t} sx={{fontSize: "0.875rem"}}>
                     <span className="flex items-center gap-2">
                       <span
                         style={{
@@ -1169,7 +1164,7 @@ export function PatientFormDrawer({
               fullWidth
               value={docForm.title}
               onChange={(e) =>
-                setDocForm((f) => ({ ...f, title: e.target.value }))
+                setDocForm((f) => ({...f, title: e.target.value}))
               }
               sx={TF_SX}
               placeholder="e.g. Insurance Card"
@@ -1178,7 +1173,7 @@ export function PatientFormDrawer({
           <input
             ref={fileInputRef}
             type="file"
-            style={{ display: "none" }}
+            style={{display: "none"}}
             onChange={handleFileChange}
             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
           />
@@ -1222,7 +1217,7 @@ export function PatientFormDrawer({
                 >
                   {docForm.fileName}
                 </Typography>
-                <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
+                <Typography sx={{fontSize: 11, color: "var(--text-muted)"}}>
                   Click to change file
                 </Typography>
               </>
@@ -1237,7 +1232,7 @@ export function PatientFormDrawer({
                 >
                   Click to upload a file
                 </Typography>
-                <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
+                <Typography sx={{fontSize: 11, color: "var(--text-muted)"}}>
                   PDF, JPG, PNG, DOC — up to 10 MB
                 </Typography>
               </>
@@ -1305,7 +1300,7 @@ export function PatientFormDrawer({
       slotProps={{
         paper: {
           sx: {
-            width: { xs: "100vw", sm: 800 },
+            width: {xs: "100vw", sm: 800},
             display: "flex",
             flexDirection: "column",
             fontFamily: "inherit",
@@ -1433,7 +1428,7 @@ export function PatientFormDrawer({
               background: "rgba(255,255,255,0.15)",
               border: "1px solid rgba(255,255,255,0.22)",
               color: "#fff",
-              "&:hover": { background: "rgba(255,255,255,0.25)" },
+              "&:hover": {background: "rgba(255,255,255,0.25)"},
             }}
           >
             <X size={17} />
@@ -1557,7 +1552,7 @@ export function PatientFormDrawer({
       )}
 
       {/* ── Body ── */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
+      <div style={{flex: 1, overflowY: "auto", padding: "28px 32px"}}>
         {!isEdit ? (
           <>
             {createStep === 1 && (
@@ -1608,9 +1603,7 @@ export function PatientFormDrawer({
                     >
                       Insurance Coverage
                     </Typography>
-                    <Typography
-                      sx={{ fontSize: 12, color: "var(--text-muted)" }}
-                    >
+                    <Typography sx={{fontSize: 12, color: "var(--text-muted)"}}>
                       Optionally link a health insurance provider for billing
                       and claims processing.
                     </Typography>
@@ -1672,9 +1665,7 @@ export function PatientFormDrawer({
                     >
                       Patient Documents
                     </Typography>
-                    <Typography
-                      sx={{ fontSize: 12, color: "var(--text-muted)" }}
-                    >
+                    <Typography sx={{fontSize: 12, color: "var(--text-muted)"}}>
                       Upload ID cards, insurance policies, medical records, or
                       any relevant documents.
                     </Typography>
@@ -1708,7 +1699,7 @@ export function PatientFormDrawer({
                 <ErrorBanner message={stepError || formError} />
               )}
               {patientFormFields}
-              <Divider sx={{ mt: 3, mb: 2, borderColor: "var(--border-ui)" }} />
+              <Divider sx={{mt: 3, mb: 2, borderColor: "var(--border-ui)"}} />
               <div className="flex justify-end">
                 <Button
                   variant="contained"
@@ -1845,7 +1836,7 @@ export function PatientFormDrawer({
                   <Button
                     variant="outlined"
                     onClick={() => setCreateStep(3)}
-                    sx={{ ...outlinedBtnSx, color: "var(--text-muted)" }}
+                    sx={{...outlinedBtnSx, color: "var(--text-muted)"}}
                   >
                     Skip
                   </Button>
@@ -1899,7 +1890,7 @@ export function PatientFormDrawer({
                 borderColor: "#fca5a5",
                 color: "#dc2626",
                 background: "#fef2f2",
-                "&:hover": { borderColor: "#f87171", background: "#fee2e2" },
+                "&:hover": {borderColor: "#f87171", background: "#fee2e2"},
               }}
             >
               Delete Patient
