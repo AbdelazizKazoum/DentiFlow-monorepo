@@ -1,15 +1,15 @@
 import "reflect-metadata";
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { DataSource } from "typeorm";
+import {DataSource} from "typeorm";
 
-dotenv.config({ path: path.join(__dirname, "../../../.env") });
+dotenv.config({path: path.join(__dirname, "../../../.env")});
 
-import { PatientTypeOrmEntity } from "./entities/patient.typeorm-entity";
-import { InsuranceProviderTypeOrmEntity } from "./entities/insurance-provider.typeorm-entity";
-import { InsuranceTemplateTypeOrmEntity } from "./entities/insurance-template.typeorm-entity";
-import { PatientInsuranceTypeOrmEntity } from "./entities/patient-insurance.typeorm-entity";
-import { PatientDocumentTypeOrmEntity } from "./entities/patient-document.typeorm-entity";
+import {PatientTypeOrmEntity} from "./entities/patient.typeorm-entity";
+import {InsuranceProviderTypeOrmEntity} from "./entities/insurance-provider.typeorm-entity";
+import {InsuranceTemplateTypeOrmEntity} from "./entities/insurance-template.typeorm-entity";
+import {PatientInsuranceTypeOrmEntity} from "./entities/patient-insurance.typeorm-entity";
+import {PatientDocumentTypeOrmEntity} from "./entities/patient-document.typeorm-entity";
 
 export const AppDataSource = new DataSource({
   type: "mysql",
