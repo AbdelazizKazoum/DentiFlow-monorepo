@@ -10,12 +10,12 @@
 import "reflect-metadata";
 import * as dotenv from "dotenv";
 import * as path from "path";
-import {DataSource} from "typeorm";
+import { DataSource } from "typeorm";
 
-dotenv.config({ path: path.join(__dirname, '../../../.env') });
-import {ClinicTypeOrmEntity} from "./entities/clinic.typeorm-entity";
-import {WorkingHoursTypeOrmEntity} from "./entities/working-hours.typeorm-entity";
-import {StaffMemberTypeOrmEntity} from "./entities/staff-member.typeorm-entity";
+dotenv.config({ path: path.join(__dirname, "../../../.env") });
+import { ClinicTypeOrmEntity } from "./entities/clinic.typeorm-entity";
+import { WorkingHoursTypeOrmEntity } from "./entities/working-hours.typeorm-entity";
+import { StaffMemberTypeOrmEntity } from "./entities/staff-member.typeorm-entity";
 
 export const AppDataSource = new DataSource({
   type: "mysql",
