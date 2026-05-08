@@ -1,9 +1,6 @@
 import "reflect-metadata";
-import * as dotenv from "dotenv";
-import * as path from "path";
 import { DataSource } from "typeorm";
 
-dotenv.config({ path: path.join(__dirname, "../../../.env") });
 import { PatientTypeOrmEntity } from "./entities/patient.typeorm-entity";
 import { InsuranceProviderTypeOrmEntity } from "./entities/insurance-provider.typeorm-entity";
 import { InsuranceTemplateTypeOrmEntity } from "./entities/insurance-template.typeorm-entity";

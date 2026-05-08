@@ -1,0 +1,266 @@
+@baseUrl = http://localhost:3001/api/v1
+@clinicId = 00000000-0000-4000-8000-000000000001
+@patientId = 03845e82-36a5-4fda-b321-c28b5e09e789
+@userId = f55dd5de-6e4e-423d-9779-514df1793dc5
+@providerId = 00000000-0000-0000-0000-000000000000
+@templateId = 00000000-0000-0000-0000-000000000000
+@insuranceId = 00000000-0000-0000-0000-000000000000
+@documentId = 00000000-0000-0000-0000-000000000000
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "azizkazoum@gmail.com",
+  "password": "05168800",
+  "clinicId": "{{clinicId}}"
+}
+
+###
+@accessToken = {{login.response.body.$.accessToken}}
+
+### Create patient
+# @name createPatient
+POST {{baseUrl}}/clinics/{{clinicId}}/patients
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Sara",
+  "lastName": "Bennani",
+  "phone": "+212600000000",
+  "email": "sara.bennani@example.com",
+  "dateOfBirth": "1994-04-12",
+  "gender": "female",
+  "address": "Casablanca",
+  "notes": "Prefers morning appointments",
+  "allergies": "Penicillin",
+  "chronicConditions": "None",
+  "currentMedications": "None",
+  "medicalNotes": "Initial intake",
+  "status": "active"
+}
+
+### List patients
+GET {{baseUrl}}/clinics/{{clinicId}}/patients?page=1&limit=20&status=active&search=Sara&sortBy=createdAt&sortOrder=desc
+Authorization: Bearer {{accessToken}}
+
+### Search patients by name
+GET {{baseUrl}}/clinics/{{clinicId}}/patients/search?firstName=Sara&lastName=Bennani
+Authorization: Bearer {{accessToken}}
+
+### Get patient by user id
+GET {{baseUrl}}/clinics/{{clinicId}}/patients/by-user/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### Get patient
+GET {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}
+Authorization: Bearer {{accessToken}}
+
+### Update patient
+PUT {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "phone": "+212611111111",
+  "notes": "Updated test notes",
+  "status": "active"
+}
+
+### Soft delete patient
+PUT {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/soft-delete
+Authorization: Bearer {{accessToken}}
+
+### Restore patient
+PUT {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/restore
+Authorization: Bearer {{accessToken}}
+
+### Delete patient
+DELETE {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}
+Authorization: Bearer {{accessToken}}
+
+### Create insurance provider
+# @name createInsuranceProvider
+POST {{baseUrl}}/clinics/{{clinicId}}/insurance-providers
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "CNSS",
+  "code": "CNSS",
+  "isActive": true
+}
+
+### List insurance providers
+GET {{baseUrl}}/clinics/{{clinicId}}/insurance-providers?isActive=true&search=CNSS
+Authorization: Bearer {{accessToken}}
+
+### Get insurance provider
+GET {{baseUrl}}/clinics/{{clinicId}}/insurance-providers/{{providerId}}
+Authorization: Bearer {{accessToken}}
+
+### Update insurance provider
+PUT {{baseUrl}}/clinics/{{clinicId}}/insurance-providers/{{providerId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "CNSS Updated",
+  "code": "CNSS-UPD",
+  "isActive": true
+}
+
+### Activate insurance provider
+PUT {{baseUrl}}/clinics/{{clinicId}}/insurance-providers/{{providerId}}/activate
+Authorization: Bearer {{accessToken}}
+
+### Deactivate insurance provider
+PUT {{baseUrl}}/clinics/{{clinicId}}/insurance-providers/{{providerId}}/deactivate
+Authorization: Bearer {{accessToken}}
+
+### Delete insurance provider
+DELETE {{baseUrl}}/clinics/{{clinicId}}/insurance-providers/{{providerId}}
+Authorization: Bearer {{accessToken}}
+
+### Create insurance template
+# @name createInsuranceTemplate
+POST {{baseUrl}}/clinics/{{clinicId}}/insurance-templates
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "insuranceProviderId": "{{providerId}}",
+  "name": "Standard Claim Form",
+  "fileUrl": "https://example.com/templates/standard-claim-form.pdf"
+}
+
+### List insurance templates
+GET {{baseUrl}}/clinics/{{clinicId}}/insurance-templates?insuranceProviderId={{providerId}}&search=Claim
+Authorization: Bearer {{accessToken}}
+
+### Get insurance template
+GET {{baseUrl}}/clinics/{{clinicId}}/insurance-templates/{{templateId}}
+Authorization: Bearer {{accessToken}}
+
+### Update insurance template
+PUT {{baseUrl}}/clinics/{{clinicId}}/insurance-templates/{{templateId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated Claim Form",
+  "fileUrl": "https://example.com/templates/updated-claim-form.pdf"
+}
+
+### Delete insurance template
+DELETE {{baseUrl}}/clinics/{{clinicId}}/insurance-templates/{{templateId}}
+Authorization: Bearer {{accessToken}}
+
+### Create patient insurance
+# @name createPatientInsurance
+POST {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/insurance
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "insuranceProviderId": "{{providerId}}",
+  "policyNumber": "POL-2026-0001",
+  "memberId": "MEM-0001",
+  "isActive": true
+}
+
+### List patient insurances
+GET {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/insurance?isActive=true
+Authorization: Bearer {{accessToken}}
+
+### Activate all patient insurances
+PUT {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/insurance/activate-all
+Authorization: Bearer {{accessToken}}
+
+### Deactivate all patient insurances
+PUT {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/insurance/deactivate-all
+Authorization: Bearer {{accessToken}}
+
+### List clinic patient insurances
+GET {{baseUrl}}/clinics/{{clinicId}}/patient-insurance?insuranceProviderId={{providerId}}&isActive=true&policyNumber=POL-2026-0001
+Authorization: Bearer {{accessToken}}
+
+### Get patient insurance
+GET {{baseUrl}}/clinics/{{clinicId}}/patient-insurance/{{insuranceId}}
+Authorization: Bearer {{accessToken}}
+
+### Update patient insurance
+PUT {{baseUrl}}/clinics/{{clinicId}}/patient-insurance/{{insuranceId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "policyNumber": "POL-2026-0002",
+  "memberId": "MEM-0002",
+  "isActive": true
+}
+
+### Activate patient insurance
+PUT {{baseUrl}}/clinics/{{clinicId}}/patient-insurance/{{insuranceId}}/activate
+Authorization: Bearer {{accessToken}}
+
+### Deactivate patient insurance
+PUT {{baseUrl}}/clinics/{{clinicId}}/patient-insurance/{{insuranceId}}/deactivate
+Authorization: Bearer {{accessToken}}
+
+### Delete patient insurance
+DELETE {{baseUrl}}/clinics/{{clinicId}}/patient-insurance/{{insuranceId}}
+Authorization: Bearer {{accessToken}}
+
+### Create patient document
+# @name createPatientDocument
+POST {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/documents
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "INSURANCE",
+  "title": "Insurance Card",
+  "fileUrl": "https://example.com/documents/insurance-card.pdf"
+}
+
+### List patient documents
+GET {{baseUrl}}/clinics/{{clinicId}}/patients/{{patientId}}/documents?type=INSURANCE
+Authorization: Bearer {{accessToken}}
+
+### List clinic patient documents
+GET {{baseUrl}}/clinics/{{clinicId}}/patient-documents?type=INSURANCE&patientId={{patientId}}&search=card
+Authorization: Bearer {{accessToken}}
+
+### Get patient document
+GET {{baseUrl}}/clinics/{{clinicId}}/patient-documents/{{documentId}}
+Authorization: Bearer {{accessToken}}
+
+### Update patient document
+PUT {{baseUrl}}/clinics/{{clinicId}}/patient-documents/{{documentId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "INSURANCE",
+  "title": "Updated Insurance Card",
+  "fileUrl": "https://example.com/documents/updated-insurance-card.pdf"
+}
+
+### Delete patient document
+DELETE {{baseUrl}}/clinics/{{clinicId}}/patient-documents/{{documentId}}
+Authorization: Bearer {{accessToken}}
+
+### Delete many patient documents
+DELETE {{baseUrl}}/clinics/{{clinicId}}/patient-documents
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "ids": [
+    "{{documentId}}"
+  ]
+}

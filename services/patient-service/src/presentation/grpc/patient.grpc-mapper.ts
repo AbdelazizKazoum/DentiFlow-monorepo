@@ -6,6 +6,11 @@ import {PatientInsurance} from "../../domain/entities/patient-insurance";
 import {PatientDocument} from "../../domain/entities/patient-document";
 import {PatientListItem} from "../../domain/repositories/patient-repository.interface";
 
+const toIsoString = (value: Date | string | null | undefined): string => {
+  if (!value) return "";
+  return value instanceof Date ? value.toISOString() : value;
+};
+
 export class PatientGrpcMapper {
   static toPatientReply(p: Patient): PatientProto.PatientReply {
     return {
@@ -17,7 +22,7 @@ export class PatientGrpcMapper {
       userId: p.userId ?? "",
       phone: p.phone ?? "",
       email: p.email ?? "",
-      dateOfBirth: p.dateOfBirth?.toISOString() ?? "",
+      dateOfBirth: toIsoString(p.dateOfBirth),
       gender: p.gender ?? "",
       address: p.address ?? "",
       notes: p.notes ?? "",
@@ -25,9 +30,9 @@ export class PatientGrpcMapper {
       chronicConditions: p.chronicConditions ?? "",
       currentMedications: p.currentMedications ?? "",
       medicalNotes: p.medicalNotes ?? "",
-      deletedAt: p.deletedAt?.toISOString() ?? "",
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
+      deletedAt: toIsoString(p.deletedAt),
+      createdAt: toIsoString(p.createdAt),
+      updatedAt: toIsoString(p.updatedAt),
     };
   }
 
@@ -43,10 +48,10 @@ export class PatientGrpcMapper {
       status: p.status,
       phone: p.phone ?? "",
       email: p.email ?? "",
-      dateOfBirth: p.dateOfBirth?.toISOString() ?? "",
+      dateOfBirth: toIsoString(p.dateOfBirth),
       gender: p.gender ?? "",
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
+      createdAt: toIsoString(p.createdAt),
+      updatedAt: toIsoString(p.updatedAt),
     };
   }
 
