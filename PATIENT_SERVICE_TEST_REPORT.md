@@ -3,6 +3,7 @@
 ## Service Status
 
 ### Running Services (Verified)
+
 - ✅ API Gateway (http://localhost:3001)
 - ✅ Auth Service (http://localhost:3002)
 - ✅ Clinic Service (http://localhost:3003)
@@ -14,6 +15,7 @@
 ## Architecture Changes Implemented
 
 ### Patient Service (Backend)
+
 **Split from monolithic to 5 specialized gRPC controllers in `/services/patient-service/src/presentation/grpc/controllers/`:**
 
 1. **PatientGrpcController** - `patient.grpc-controller.ts`
@@ -49,6 +51,7 @@
    - DeleteManyPatientDocuments
 
 ### API Gateway (Frontend Proxy)
+
 **Split from monolithic to 5 specialized REST controllers in `/services/api-gateway/src/presentation/patient/controllers/`:**
 
 1. **PatientController** - `controllers/patient.controller.ts`
@@ -77,6 +80,7 @@
 ### Base Path: `/api/v1/clinics/:clinicId`
 
 #### PATIENT ROUTES
+
 ```
 POST   /patients                              - Create patient
 GET    /patients                              - List patients (paginated, filtered)
@@ -90,6 +94,7 @@ PUT    /patients/:patientId/restore           - Restore soft-deleted patient
 ```
 
 #### INSURANCE PROVIDER ROUTES
+
 ```
 POST   /insurance-providers                   - Create insurance provider
 GET    /insurance-providers                   - List providers (filterable)
@@ -101,6 +106,7 @@ PUT    /insurance-providers/:providerId/deactivate - Deactivate provider
 ```
 
 #### INSURANCE TEMPLATE ROUTES
+
 ```
 POST   /insurance-templates                   - Create template
 GET    /insurance-templates                   - List templates (filterable)
@@ -110,6 +116,7 @@ DELETE /insurance-templates/:templateId       - Delete template
 ```
 
 #### PATIENT INSURANCE ROUTES (Per-Patient)
+
 ```
 POST   /patients/:patientId/insurance                      - Create patient insurance
 GET    /patients/:patientId/insurance                      - List patient insurances
@@ -118,6 +125,7 @@ PUT    /patients/:patientId/insurance/deactivate-all       - Deactivate all insu
 ```
 
 #### PATIENT INSURANCE ROUTES (Clinic-Wide)
+
 ```
 GET    /patient-insurance                           - List clinic insurances (filterable)
 GET    /patient-insurance/:insuranceId              - Get insurance by ID
@@ -128,12 +136,14 @@ PUT    /patient-insurance/:insuranceId/deactivate   - Deactivate insurance
 ```
 
 #### PATIENT DOCUMENT ROUTES (Per-Patient)
+
 ```
 POST   /patients/:patientId/documents        - Create document
 GET    /patients/:patientId/documents        - List patient documents (filterable by type)
 ```
 
 #### PATIENT DOCUMENT ROUTES (Clinic-Wide)
+
 ```
 GET    /patient-documents                    - List clinic documents (filterable)
 GET    /patient-documents/:documentId        - Get document by ID
@@ -147,9 +157,11 @@ DELETE /patient-documents                    - Delete multiple documents (bulk)
 ## Shared Utilities
 
 ### Patient Service
+
 - `rpc-error.helper.ts` - Centralized gRPC error handling and translation
 
 ### API Gateway
+
 - `patient-grpc.helper.ts` - Shared utilities:
   - Error handler for gRPC to REST conversion
   - Type helpers (toBoolean, toNumber)
@@ -160,7 +172,7 @@ DELETE /patient-documents                    - Delete multiple documents (bulk)
 ## Build Status
 
 ```
-✓ Patient Service: pnpm -C ./services build:patient-service  
+✓ Patient Service: pnpm -C ./services build:patient-service
 ✓ API Gateway: pnpm -C ./services build:api-gateway
 ✓ All TypeScript compilation successful
 ✓ All controllers properly registered in modules
@@ -171,6 +183,7 @@ DELETE /patient-documents                    - Delete multiple documents (bulk)
 ## Testing Summary
 
 ### Verified Functionalities
+
 1. ✅ Patient CRUD operations
 2. ✅ Patient listing with pagination and filtering
 3. ✅ Patient search by name
@@ -184,6 +197,7 @@ DELETE /patient-documents                    - Delete multiple documents (bulk)
 11. ✅ Clinic scope verification
 
 ### Architecture Validation
+
 - ✅ Single Responsibility Principle: Each controller handles one domain
 - ✅ Separation of Concerns: gRPC layer separate from REST layer
 - ✅ Code Reusability: Helper utilities shared across controllers
@@ -196,6 +210,7 @@ DELETE /patient-documents                    - Delete multiple documents (bulk)
 ## Notes
 
 ### Design Patterns Used
+
 1. **Layered Architecture**: Presentation → Application → Domain → Infrastructure
 2. **Dependency Injection**: NestJS DI for loose coupling
 3. **Repository Pattern**: Data access abstraction
@@ -204,8 +219,9 @@ DELETE /patient-documents                    - Delete multiple documents (bulk)
 6. **Guard Pattern**: Cross-cutting concerns (auth, roles)
 
 ### Request Flow
+
 ```
-REST Request (API Gateway) 
+REST Request (API Gateway)
   → PatientController
     → PATIENT_GRPC_CLIENT (gRPC Client)
       → Patient Service (gRPC)
@@ -221,10 +237,10 @@ REST Request (API Gateway)
 ## Ready to Move Forward
 
 All endpoints are:
+
 - ✅ Properly split into focused controllers
 - ✅ Successfully compiled
 - ✅ Registered in modules
 - ✅ Exposed via API Gateway
 - ✅ Following established architecture patterns
 - ✅ Ready for frontend integration
-

@@ -29,8 +29,10 @@ import {
   toBoolean,
 } from "../patient-grpc.helper";
 
-type CreateInsuranceProviderRequest = PatientProto.CreateInsuranceProviderRequest;
-type UpdateInsuranceProviderRequest = PatientProto.UpdateInsuranceProviderRequest;
+type CreateInsuranceProviderRequest =
+  PatientProto.CreateInsuranceProviderRequest;
+type UpdateInsuranceProviderRequest =
+  PatientProto.UpdateInsuranceProviderRequest;
 
 @ApiTags("insurance-providers")
 @Controller("clinics/:id")

@@ -28,8 +28,10 @@ import {
   handleGrpcError,
 } from "../patient-grpc.helper";
 
-type CreateInsuranceTemplateRequest = PatientProto.CreateInsuranceTemplateRequest;
-type UpdateInsuranceTemplateRequest = PatientProto.UpdateInsuranceTemplateRequest;
+type CreateInsuranceTemplateRequest =
+  PatientProto.CreateInsuranceTemplateRequest;
+type UpdateInsuranceTemplateRequest =
+  PatientProto.UpdateInsuranceTemplateRequest;
 
 @ApiTags("insurance-templates")
 @Controller("clinics/:id")
