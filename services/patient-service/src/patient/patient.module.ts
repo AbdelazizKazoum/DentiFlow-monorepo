@@ -1,6 +1,10 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {PatientGrpcController} from "../presentation/grpc/patient.grpc-controller";
+import {PatientGrpcController} from "../presentation/grpc/controllers/patient.grpc-controller";
+import {InsuranceProviderGrpcController} from "../presentation/grpc/controllers/insurance-provider.grpc-controller";
+import {InsuranceTemplateGrpcController} from "../presentation/grpc/controllers/insurance-template.grpc-controller";
+import {PatientInsuranceGrpcController} from "../presentation/grpc/controllers/patient-insurance.grpc-controller";
+import {PatientDocumentGrpcController} from "../presentation/grpc/controllers/patient-document.grpc-controller";
 import {ManagePatientsUseCase} from "../application/use-cases/manage-patients.use-case";
 import {ManageInsuranceProvidersUseCase} from "../application/use-cases/manage-insurance-providers.use-case";
 import {ManageInsuranceTemplatesUseCase} from "../application/use-cases/manage-insurance-templates.use-case";
@@ -34,7 +38,13 @@ import {
       PatientDocumentTypeOrmEntity,
     ]),
   ],
-  controllers: [PatientGrpcController],
+  controllers: [
+    PatientGrpcController,
+    InsuranceProviderGrpcController,
+    InsuranceTemplateGrpcController,
+    PatientInsuranceGrpcController,
+    PatientDocumentGrpcController,
+  ],
   providers: [
     ManagePatientsUseCase,
     ManageInsuranceProvidersUseCase,

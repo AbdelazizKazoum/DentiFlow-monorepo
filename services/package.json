@@ -9,7 +9,7 @@
     "build:auth-service": "nest build auth-service",
     "build:clinic-service": "nest build clinic-service",
     "build:patient-service": "nest build patient-service",
-    "copy-proto:api-gateway": "node -e \"const f=require('fs');f.mkdirSync('api-gateway/dist/lib/proto',{recursive:true});f.copyFileSync('lib/proto/auth.proto','api-gateway/dist/lib/proto/auth.proto');f.copyFileSync('lib/proto/clinic.proto','api-gateway/dist/lib/proto/clinic.proto')\"",
+    "copy-proto:api-gateway": "node -e \"const f=require('fs');f.mkdirSync('api-gateway/dist/lib/proto',{recursive:true});f.copyFileSync('lib/proto/auth.proto','api-gateway/dist/lib/proto/auth.proto');f.copyFileSync('lib/proto/clinic.proto','api-gateway/dist/lib/proto/clinic.proto');f.copyFileSync('lib/proto/patient.proto','api-gateway/dist/lib/proto/patient.proto')\"",
     "copy-proto:auth-service": "node -e \"const f=require('fs');f.mkdirSync('auth-service/dist/lib/proto',{recursive:true});f.copyFileSync('lib/proto/auth.proto','auth-service/dist/lib/proto/auth.proto')\"",
     "copy-proto:clinic-service": "node -e \"const f=require('fs');f.mkdirSync('clinic-service/dist/lib/proto',{recursive:true});f.copyFileSync('lib/proto/auth.proto','clinic-service/dist/lib/proto/auth.proto');f.copyFileSync('lib/proto/clinic.proto','clinic-service/dist/lib/proto/clinic.proto')\"",
     "copy-proto:patient-service": "node -e \"const f=require('fs');f.mkdirSync('patient-service/dist/lib/proto',{recursive:true});f.copyFileSync('lib/proto/patient.proto','patient-service/dist/lib/proto/patient.proto')\"",
