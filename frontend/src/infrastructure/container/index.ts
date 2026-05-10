@@ -30,3 +30,11 @@ export {
   createInsuranceTemplateUseCase,
   deleteInsuranceTemplateUseCase,
 } from "@/infrastructure/patient/container";
+
+export {
+  createAppointmentUseCase,
+  getCalendarViewUseCase,
+  getPaginatedAppointmentsUseCase,
+  moveAppointmentUseCase,
+  updateAppointmentUseCase,
+} from "@/infrastructure/appointment/container";
