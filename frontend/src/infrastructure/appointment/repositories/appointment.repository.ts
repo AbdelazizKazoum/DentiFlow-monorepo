@@ -102,6 +102,7 @@ export class AppointmentHttpRepository
             doctor_id: doctorId,
             start_at: start.toISOString(),
             end_at: end.toISOString(),
+            exclude_status: "CANCELLED",
           },
         },
       ),

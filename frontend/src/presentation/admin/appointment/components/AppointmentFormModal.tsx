@@ -1,11 +1,13 @@
 import {
   Avatar,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   IconButton,
   InputLabel,
   MenuItem,
@@ -243,6 +245,30 @@ export function AppointmentFormModal({
               placeholder="e.g. jane.d@example.com"
             />
           </div>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={form.isEmergency}
+                onChange={(e) =>
+                  onChange({...form, isEmergency: e.target.checked})
+                }
+                sx={{
+                  color: "var(--text-muted)",
+                  "&.Mui-checked": {color: "var(--brand-primary)"},
+                }}
+              />
+            }
+            label="Emergency override"
+            sx={{
+              mb: "12px",
+              "& .MuiFormControlLabel-label": {
+                fontSize: "0.875rem",
+                color: "var(--foreground)",
+                fontWeight: 600,
+              },
+            }}
+          />
 
           <TextField
             label="Notes / Comments"

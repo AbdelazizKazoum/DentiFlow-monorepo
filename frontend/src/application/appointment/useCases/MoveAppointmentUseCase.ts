@@ -1,5 +1,6 @@
 import type {MoveAppointmentCommand} from "@/domain/appointment/commands/MoveAppointmentCommand";
 import type {AppointmentRepository} from "@/domain/appointment/repositories/AppointmentRepository";
+import {isBlockingOverlap} from "@/domain/appointment/services/appointmentConflictPolicy";
 
 export class MoveAppointmentUseCase {
   constructor(private readonly repository: AppointmentRepository) {}
@@ -19,9 +20,7 @@ export class MoveAppointmentUseCase {
     const hasConflict = visibleAppointments.some(
       (item) =>
         item.id !== command.appointmentId &&
-        item.status !== "CANCELLED" &&
-        command.newStartAt < item.endAt &&
-        command.newEndAt > item.startAt,
+        isBlockingOverlap(item, command.newStartAt, command.newEndAt),
     );
 
     if (hasConflict && !appointment.isEmergency) {

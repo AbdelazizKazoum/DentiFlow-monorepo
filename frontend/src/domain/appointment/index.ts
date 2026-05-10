@@ -10,3 +10,8 @@ export type {
   AppointmentRepository,
   PaginatedAppointments,
 } from "./repositories/AppointmentRepository";
+export {
+  appointmentsOverlap,
+  isBlockingAppointment,
+  isBlockingOverlap,
+} from "./services/appointmentConflictPolicy";

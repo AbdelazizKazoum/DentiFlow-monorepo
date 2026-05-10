@@ -11,6 +11,7 @@ import {
   makeEmptyAppointmentForm,
   toDatetimeLocal,
 } from "../utils";
+import {AppError} from "@/infrastructure/http/httpErrorHandler";
 
 const firstProvider = APPOINTMENT_PROVIDERS[0];
 
@@ -125,12 +126,15 @@ export function useAppointmentPage() {
       notes: form.notes || undefined,
     };
 
-    const result = form.id
-      ? await editAppointment(payload)
-      : await addAppointment(payload);
-
-    if (result) {
+    try {
+      await (form.id ? editAppointment(payload) : addAppointment(payload));
       setModalOpen(false);
+    } catch (error) {
+      const message =
+        error instanceof AppError || error instanceof Error
+          ? error.message
+          : "Failed to save appointment.";
+      setFormError(message);
     }
   }, [addAppointment, editAppointment, form]);
 

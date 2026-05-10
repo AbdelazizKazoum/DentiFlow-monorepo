@@ -5,6 +5,7 @@ import type {
   AppointmentRepository,
   PaginatedAppointments,
 } from "@/domain/appointment/repositories/AppointmentRepository";
+import {isBlockingOverlap} from "@/domain/appointment/services/appointmentConflictPolicy";
 
 const clinicId =
   process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ??
@@ -208,9 +209,7 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
     return this.store.some(
       (item) =>
         item.doctorId === doctorId &&
-        item.status !== "CANCELLED" &&
-        start < item.endAt &&
-        end > item.startAt,
+        isBlockingOverlap(item, start, end),
     );
   }
 }

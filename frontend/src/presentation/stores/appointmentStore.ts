@@ -18,8 +18,8 @@ interface AppointmentStoreState {
   loadCalendar: (clinicId: string, start: Date, end: Date) => Promise<void>;
   addAppointment: (
     command: CreateAppointmentCommand,
-  ) => Promise<Appointment | null>;
-  editAppointment: (appointment: Appointment) => Promise<Appointment | null>;
+  ) => Promise<Appointment>;
+  editAppointment: (appointment: Appointment) => Promise<Appointment>;
   removeAppointment: (id: string) => Promise<void>;
   moveAppointment: (command: MoveAppointmentCommand) => Promise<boolean>;
 }
@@ -64,7 +64,7 @@ export const useAppointmentStore = create<AppointmentStoreState>((set) => ({
     } catch (error) {
       set({isSaving: false});
       toast.error(getMessage(error, "Failed to book appointment"));
-      return null;
+      throw error;
     }
   },
 
@@ -84,7 +84,7 @@ export const useAppointmentStore = create<AppointmentStoreState>((set) => ({
     } catch (error) {
       set({isSaving: false});
       toast.error(getMessage(error, "Failed to update appointment"));
-      return null;
+      throw error;
     }
   },
 
