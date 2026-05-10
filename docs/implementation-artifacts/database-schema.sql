@@ -404,8 +404,10 @@ CREATE TABLE appointments (
   doctor_id        CHAR(36)     NOT NULL COMMENT 'FK to auth_service.users (role=DOCTOR)',
   -- SNAPSHOT: copied from clinic_service.staff_members at booking time. Write once, never update.
   doctor_name      VARCHAR(255) NOT NULL COMMENT 'Snapshot — write once at booking, never update',
-  scheduled_at     DATETIME     NOT NULL,
-  duration_minutes SMALLINT     NOT NULL DEFAULT 30,
+  start_at         DATETIME     NOT NULL,
+  end_at           DATETIME     NOT NULL,
+  is_emergency     BOOLEAN      NOT NULL DEFAULT FALSE COMMENT 'If TRUE, this appointment is allowed to overlap others for clinical urgency',
+  appointment_type VARCHAR(100)     NULL COMMENT 'e.g., Checkup, Cleaning, Surgery',
   channel          ENUM('ONLINE','WALK_IN','PHONE') NOT NULL,
   status           ENUM(
                      'PENDING',    -- booked, awaiting confirmation
@@ -415,6 +417,8 @@ CREATE TABLE appointments (
                      'COMPLETED'   -- visit finished
                    )          NOT NULL DEFAULT 'PENDING',
   notes            TEXT           NULL,
+  cancelled_at     DATETIME       NULL,
+  cancellation_reason TEXT        NULL,
   created_by       CHAR(36)       NULL COMMENT 'FK to auth_service.users — NULL = patient self-booked online',
   created_at       DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at       DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -422,8 +426,11 @@ CREATE TABLE appointments (
   PRIMARY KEY (id),
   INDEX idx_appointments_clinic      (clinic_id),
   INDEX idx_appointments_patient     (clinic_id, patient_id),
-  INDEX idx_appointments_doctor_date (clinic_id, doctor_id, scheduled_at),
-  INDEX idx_appointments_status_date (clinic_id, status, scheduled_at)
+  INDEX idx_appointments_doctor_date (clinic_id, doctor_id, start_at, end_at),
+  INDEX idx_appointments_status_date (clinic_id, status, start_at),
+  -- Optimized index for conflict checking: find overlapping slots for a doctor
+  INDEX idx_appointments_conflict_check (clinic_id, doctor_id, status, start_at, end_at),
+  INDEX idx_appointments_emergency      (clinic_id, is_emergency)
 );
 
 -- Each row = one patient's journey through the waiting room on one visit day.
@@ -447,6 +454,8 @@ CREATE TABLE queue_entries (
   doctor_id        CHAR(36)     NOT NULL COMMENT 'FK to auth_service.users (role=DOCTOR)',
   -- SNAPSHOT: copied from the appointment record when the queue entry is created. Write once, never update.
   doctor_name      VARCHAR(255) NOT NULL COMMENT 'Snapshot — write once at arrival, never update',
+  -- SNAPSHOT: helps the doctor see the "plan" without leaving the queue view
+  appointment_type VARCHAR(100)      NULL COMMENT 'Snapshot — e.g., "Root Canal", "Cleaning"',
   -- State machine: one direction only — you cannot go backwards.
   status           ENUM(
                      'ARRIVED',   -- patient checked in at reception
@@ -454,6 +463,8 @@ CREATE TABLE queue_entries (
                      'IN_CHAIR',  -- currently being treated
                      'DONE'       -- treatment finished, ready for checkout
                    )          NOT NULL DEFAULT 'ARRIVED',
+  priority         ENUM('NORMAL', 'URGENT', 'EMERGENCY') NOT NULL DEFAULT 'NORMAL',
+  queue_notes      TEXT             NULL COMMENT 'Receptionist notes specific to this waiting session',
   -- Each timestamp is set once when the status transitions to that state, then never changed.
   arrived_at       DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   called_at        DATETIME      NULL COMMENT 'Set when status → WAITING',
@@ -463,8 +474,9 @@ CREATE TABLE queue_entries (
 
   PRIMARY KEY (id),
   UNIQUE KEY uq_queue_appointment   (appointment_id),         -- one queue entry per appointment
-  INDEX idx_queue_clinic_status     (clinic_id, status),      -- main waiting room query
-  INDEX idx_queue_clinic_doctor     (clinic_id, doctor_id, status),  -- doctor's own queue view
+  -- Optimized for sorting: Priority first, then arrival time for the waiting room view
+  INDEX idx_queue_clinic_waiting_room (clinic_id, status, priority, arrived_at),
+  INDEX idx_queue_clinic_doctor     (clinic_id, doctor_id, status, priority),  -- doctor's own queue view
   INDEX idx_queue_clinic_date       (clinic_id, arrived_at),  -- daily queue history
   -- Real FK within the same service schema — enforced at DB level.
   CONSTRAINT fk_queue_entries_appointment FOREIGN KEY (appointment_id) REFERENCES appointments (id) ON DELETE CASCADE
