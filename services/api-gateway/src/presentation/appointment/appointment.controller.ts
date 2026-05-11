@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Inject,
   OnModuleInit,
@@ -137,10 +138,12 @@ export class AppointmentController implements OnModuleInit {
   @Put("clinics/:id/appointments/:appointmentId")
   @Roles(UserRole.ADMIN, UserRole.SECRETARY, UserRole.DOCTOR)
   async updateAppointment(
+    @Param("id", ParseUUIDPipe) clinicId: string,
     @Param("appointmentId", ParseUUIDPipe) appointmentId: string,
     @Body() body: AppointmentBody,
   ) {
     try {
+      await this.assertAppointmentInClinic(appointmentId, clinicId);
       const appointment = await lastValueFrom(
         this.appointmentGrpcService.updateAppointment({
           appointmentId,
@@ -158,54 +161,6 @@ export class AppointmentController implements OnModuleInit {
           notes: body.notes,
           cancelledAt: body.cancelled_at,
           cancellationReason: body.cancellation_reason,
-        }),
-      );
-      return appointmentToHttp(appointment);
-    } catch (err: unknown) {
-      handleGrpcError(err);
-    }
-  }
-
-  @Get("appointments/:appointmentId")
-  @Roles(
-    UserRole.ADMIN,
-    UserRole.DOCTOR,
-    UserRole.SECRETARY,
-    UserRole.DENTAL_ASSISTANT,
-  )
-  async getAppointment(
-    @Param("appointmentId", ParseUUIDPipe) appointmentId: string,
-  ) {
-    try {
-      const appointment = await lastValueFrom(
-        this.appointmentGrpcService.getAppointment({id: appointmentId}),
-      );
-      return appointmentToHttp(appointment);
-    } catch (err: unknown) {
-      handleGrpcError(err);
-    }
-  }
-
-  @Patch("appointments/:appointmentId/timing")
-  @Roles(UserRole.ADMIN, UserRole.SECRETARY, UserRole.DOCTOR)
-  async updateAppointmentTiming(
-    @Param("appointmentId", ParseUUIDPipe) appointmentId: string,
-    @Body()
-    body: {
-      doctor_id?: string;
-      doctor_name?: string;
-      new_start_at?: string;
-      new_end_at?: string;
-    },
-  ) {
-    try {
-      const appointment = await lastValueFrom(
-        this.appointmentGrpcService.updateAppointmentTiming({
-          appointmentId,
-          doctorId: body.doctor_id ?? "",
-          doctorName: body.doctor_name,
-          newStartAt: body.new_start_at ?? "",
-          newEndAt: body.new_end_at ?? "",
         }),
       );
       return appointmentToHttp(appointment);
@@ -242,6 +197,77 @@ export class AppointmentController implements OnModuleInit {
       return {has_conflict: result.hasConflict};
     } catch (err: unknown) {
       handleGrpcError(err);
+    }
+  }
+
+  @Get("appointments/:appointmentId")
+  @Roles(
+    UserRole.ADMIN,
+    UserRole.DOCTOR,
+    UserRole.SECRETARY,
+    UserRole.DENTAL_ASSISTANT,
+  )
+  async getAppointment(
+    @Param("appointmentId", ParseUUIDPipe) appointmentId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    try {
+      const appointment = await lastValueFrom(
+        this.appointmentGrpcService.getAppointment({id: appointmentId}),
+      );
+      const httpAppointment = appointmentToHttp(appointment);
+      this.assertClinicAccess(httpAppointment.clinic_id, user.clinic_id);
+      return httpAppointment;
+    } catch (err: unknown) {
+      handleGrpcError(err);
+    }
+  }
+
+  @Patch("appointments/:appointmentId/timing")
+  @Roles(UserRole.ADMIN, UserRole.SECRETARY, UserRole.DOCTOR)
+  async updateAppointmentTiming(
+    @Param("appointmentId", ParseUUIDPipe) appointmentId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body()
+    body: {
+      doctor_id?: string;
+      doctor_name?: string;
+      new_start_at?: string;
+      new_end_at?: string;
+    },
+  ) {
+    try {
+      await this.assertAppointmentInClinic(appointmentId, user.clinic_id);
+      const appointment = await lastValueFrom(
+        this.appointmentGrpcService.updateAppointmentTiming({
+          appointmentId,
+          doctorId: body.doctor_id ?? "",
+          doctorName: body.doctor_name,
+          newStartAt: body.new_start_at ?? "",
+          newEndAt: body.new_end_at ?? "",
+        }),
+      );
+      return appointmentToHttp(appointment);
+    } catch (err: unknown) {
+      handleGrpcError(err);
+    }
+  }
+
+  private async assertAppointmentInClinic(
+    appointmentId: string,
+    clinicId: string,
+  ): Promise<void> {
+    const appointment = await lastValueFrom(
+      this.appointmentGrpcService.getAppointment({id: appointmentId}),
+    );
+    this.assertClinicAccess(appointment.clinicId, clinicId);
+  }
+
+  private assertClinicAccess(entityClinicId: string, userClinicId: string): void {
+    if (entityClinicId !== userClinicId) {
+      throw new ForbiddenException(
+        "You do not have access to this clinic's resources",
+      );
     }
   }
 }

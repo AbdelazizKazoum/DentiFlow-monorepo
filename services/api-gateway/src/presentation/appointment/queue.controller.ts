@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Inject,
   OnModuleInit,
@@ -17,6 +18,8 @@ import {JwtAuthGuard} from "../../shared/guards/jwt-auth.guard";
 import {RolesGuard} from "../../shared/guards/roles.guard";
 import {ClinicScopeGuard} from "../../shared/guards/clinic-scope.guard";
 import {Roles} from "../../shared/decorators/roles.decorator";
+import {CurrentUser} from "../../shared/decorators/current-user.decorator";
+import {JwtPayload} from "../../domain/auth/entities/jwt-payload.entity";
 import {UserRole} from "../../domain/auth/enums/user-role.enum";
 import {
   APPOINTMENT_GRPC_CLIENT,
@@ -107,12 +110,15 @@ export class QueueController implements OnModuleInit {
   )
   async getQueueEntry(
     @Param("queueEntryId", ParseUUIDPipe) queueEntryId: string,
+    @CurrentUser() user: JwtPayload,
   ) {
     try {
       const entry = await lastValueFrom(
         this.appointmentGrpcService.getQueueEntry({id: queueEntryId}),
       );
-      return queueEntryToHttp(entry);
+      const httpEntry = queueEntryToHttp(entry);
+      this.assertClinicAccess(httpEntry.clinic_id, user.clinic_id);
+      return httpEntry;
     } catch (err: unknown) {
       handleGrpcError(err);
     }
@@ -122,9 +128,11 @@ export class QueueController implements OnModuleInit {
   @Roles(UserRole.ADMIN, UserRole.SECRETARY, UserRole.DENTAL_ASSISTANT)
   async updateStatus(
     @Param("queueEntryId", ParseUUIDPipe) queueEntryId: string,
+    @CurrentUser() user: JwtPayload,
     @Body() body: {status?: string; correction_reason?: string},
   ) {
     try {
+      await this.assertQueueEntryInClinic(queueEntryId, user.clinic_id);
       const entry = await lastValueFrom(
         this.appointmentGrpcService.updateQueueStatus({
           queueEntryId,
@@ -142,9 +150,11 @@ export class QueueController implements OnModuleInit {
   @Roles(UserRole.ADMIN, UserRole.SECRETARY, UserRole.DENTAL_ASSISTANT)
   async updateNotes(
     @Param("queueEntryId", ParseUUIDPipe) queueEntryId: string,
+    @CurrentUser() user: JwtPayload,
     @Body() body: {queue_notes?: string},
   ) {
     try {
+      await this.assertQueueEntryInClinic(queueEntryId, user.clinic_id);
       const entry = await lastValueFrom(
         this.appointmentGrpcService.updateQueueNotes({
           queueEntryId,
@@ -154,6 +164,24 @@ export class QueueController implements OnModuleInit {
       return queueEntryToHttp(entry);
     } catch (err: unknown) {
       handleGrpcError(err);
+    }
+  }
+
+  private async assertQueueEntryInClinic(
+    queueEntryId: string,
+    clinicId: string,
+  ): Promise<void> {
+    const entry = await lastValueFrom(
+      this.appointmentGrpcService.getQueueEntry({id: queueEntryId}),
+    );
+    this.assertClinicAccess(entry.clinicId, clinicId);
+  }
+
+  private assertClinicAccess(entityClinicId: string, userClinicId: string): void {
+    if (entityClinicId !== userClinicId) {
+      throw new ForbiddenException(
+        "You do not have access to this clinic's resources",
+      );
     }
   }
 }
