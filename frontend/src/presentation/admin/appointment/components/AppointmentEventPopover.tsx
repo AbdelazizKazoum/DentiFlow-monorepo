@@ -37,12 +37,7 @@ function formatDate(date: Date): string {
 }
 
 function isEligibleForCheckIn(appointment: Appointment): boolean {
-  if (
-    appointment.status === "CANCELLED" ||
-    appointment.status === "NO_SHOW" ||
-    appointment.status === "COMPLETED"
-  )
-    return false;
+  if (appointment.status !== "CONFIRMED") return false;
 
   const today = new Date();
   const apptDate = new Date(appointment.startAt);
