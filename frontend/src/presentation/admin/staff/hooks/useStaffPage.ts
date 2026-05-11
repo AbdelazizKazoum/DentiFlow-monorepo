@@ -117,7 +117,7 @@ export function useStaffPage() {
       setFormError("First name, last name and email are required.");
       return;
     }
-    const emailExists = staff.some(
+    const emailExists = (staff || []).some(
       (s) => s.email === form.email && s.id !== form.id,
     );
     if (emailExists) {
@@ -174,7 +174,7 @@ export function useStaffPage() {
   };
 
   // ── Derived state ─────────────────────────────────────────────────────────
-  const filtered = staff.filter((s) => {
+  const filtered = (staff || []).filter((s) => {
     const matchesSearch =
       s.fullName.toLowerCase().includes(search.toLowerCase()) ||
       (s.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
@@ -184,10 +184,12 @@ export function useStaffPage() {
   });
 
   const counts = {
-    total: staff.length,
-    active: staff.filter((s) => s.isActiveStaff()).length,
-    onLeave: staff.filter((s) => s.status === StaffStatus.ON_LEAVE).length,
-    inactive: staff.filter((s) => s.status === StaffStatus.INACTIVE).length,
+    total: (staff || []).length,
+    active: (staff || []).filter((s) => s.isActiveStaff()).length,
+    onLeave: (staff || []).filter((s) => s.status === StaffStatus.ON_LEAVE)
+      .length,
+    inactive: (staff || []).filter((s) => s.status === StaffStatus.INACTIVE)
+      .length,
   };
 
   return {

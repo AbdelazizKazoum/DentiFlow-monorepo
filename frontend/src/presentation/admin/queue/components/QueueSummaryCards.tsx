@@ -1,4 +1,4 @@
-import {CheckCircle2, Clock, ClipboardList, UserCheck} from "lucide-react";
+import { CheckCircle2, Clock, ClipboardList, UserCheck } from "lucide-react";
 
 interface QueueSummaryCardsProps {
   active: number;
@@ -17,60 +17,87 @@ export function QueueSummaryCards({
     {
       label: "Active Queue",
       value: active,
-      icon: <ClipboardList size={18} />,
+      Icon: ClipboardList,
       color: "#1e56d0",
+      bg: "#eff6ff",
     },
     {
       label: "Waiting",
       value: waiting,
-      icon: <Clock size={18} />,
+      Icon: Clock,
       color: "#f59e0b",
+      bg: "#fef3c7",
     },
     {
       label: "In Chair",
       value: inChair,
-      icon: <UserCheck size={18} />,
+      Icon: UserCheck,
       color: "#7c3aed",
+      bg: "#f5f3ff",
     },
     {
       label: "Completed",
       value: completed,
-      icon: <CheckCircle2 size={18} />,
+      Icon: CheckCircle2,
       color: "#279C41",
+      bg: "#E8F8EC",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-      {cards.map((card) => (
+    <div
+      style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}
+    >
+      {cards.map(({ label, value, Icon, color, bg }) => (
         <div
-          key={card.label}
-          className="rounded-lg border px-4 py-3 shadow-sm"
+          key={label}
           style={{
-            borderColor: "var(--border-ui)",
-            backgroundColor: "var(--surface-card)",
+            background: "var(--surface-card)",
+            border: "1px solid var(--border-ui)",
+            borderRadius: 14,
+            padding: "18px 20px",
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            cursor: "default",
           }}
         >
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-wide"
-                style={{color: "var(--text-muted)"}}
-              >
-                {card.label}
-              </p>
-              <p className="mt-1 text-2xl font-bold text-foreground">
-                {card.value}
-              </p>
-            </div>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: bg,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Icon size={22} color={color} />
+          </div>
+          <div>
             <div
-              className="h-10 w-10 rounded-lg flex items-center justify-center"
               style={{
-                color: card.color,
-                backgroundColor: `${card.color}18`,
+                fontSize: 28,
+                fontWeight: 800,
+                color: "var(--foreground)",
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
               }}
             >
-              {card.icon}
+              {value}
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--text-muted)",
+                marginTop: 3,
+                fontWeight: 500,
+              }}
+            >
+              {label}
             </div>
           </div>
         </div>
