@@ -6,6 +6,16 @@ volumes:
   db_data:
 
 services:
+  nats:
+    image: nats:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
+    command: ["-m", "8222"]
+    networks:
+      - dentiflow-network
+
   db:
     image: mysql:8.0
     restart: unless-stopped
@@ -47,6 +57,7 @@ services:
       AUTH_SERVICE_GRPC_URL: auth-service:5001
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
+      APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
       FRONTEND_URL: http://localhost:3000
     ports:
       - "127.0.0.1:3001:3001"
@@ -60,6 +71,7 @@ services:
       - auth-service
       - clinic-service
       - patient-service
+      - appointment-service
     networks:
       - dentiflow-network
 
@@ -170,5 +182,46 @@ services:
       - ./services/lib:/app/services/lib:rw
     depends_on:
       - db
+    networks:
+      - dentiflow-network
+
+  appointment-service:
+    build:
+      context: .
+      dockerfile: services/appointment-service/Dockerfile
+      target: builder
+      args:
+        PNPM_FLAGS: "--no-frozen-lockfile"
+    image: dentiflow/appointment-service:dev
+    working_dir: /app
+    command: pnpm -C ./services start:dev:appointment-service
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+      DB_NAME: appointment_db
+      GRPC_PORT: 5004
+      PATIENT_SERVICE_GRPC_URL: patient-service:5003
+      CLINIC_SERVICE_GRPC_URL: clinic-service:5002
+      NATS_URL: nats://nats:4222
+      CHOKIDAR_USEPOLLING: "true"
+      FORCE_POLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "127.0.0.1:3005:3005"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./services/appointment-service/src:/app/services/appointment-service/src:rw
+      - ./services/lib:/app/services/lib:rw
+    depends_on:
+      - db
+      - nats
+      - patient-service
+      - clinic-service
     networks:
       - dentiflow-network

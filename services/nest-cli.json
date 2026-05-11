@@ -81,6 +81,24 @@
           "watchAssets": true
         }
       ]
+    },
+    "appointment-service": {
+      "type": "application",
+      "root": "appointment-service",
+      "entryFile": "main",
+      "sourceRoot": "appointment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "appointment-service/tsconfig.json",
+        "webpack": false,
+        "deleteOutDir": false
+      },
+      "assets": [
+        {
+          "include": "../../lib/proto/*.proto",
+          "outDir": "lib/proto",
+          "watchAssets": true
+        }
+      ]
     }
   }
 }

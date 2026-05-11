@@ -19,6 +19,10 @@ export const gatewaySchema = jwtSchema.concat(
     CLINIC_SERVICE_GRPC_URL: Joi.string().default("clinic-service:5002"),
     // gRPC URL for patient-service
     PATIENT_SERVICE_GRPC_URL: Joi.string().default("patient-service:5003"),
+    // gRPC URL for appointment-service
+    APPOINTMENT_SERVICE_GRPC_URL: Joi.string().default(
+      "appointment-service:5004",
+    ),
   }),
 );
 
@@ -34,4 +38,5 @@ export type GatewayEnv = {
   AUTH_SERVICE_GRPC_URL: string;
   CLINIC_SERVICE_GRPC_URL: string;
   PATIENT_SERVICE_GRPC_URL: string;
+  APPOINTMENT_SERVICE_GRPC_URL: string;
 };

@@ -8,6 +8,13 @@ volumes:
   db_data:
 
 services:
+  nats:
+    image: nats:2.10-alpine
+    restart: unless-stopped
+    command: ["-m", "8222"]
+    networks:
+      - dentiflow-network
+
   db:
     image: mysql:8.0
     restart: unless-stopped
@@ -34,10 +41,15 @@ services:
       JWT_SECRET: "${JWT_SECRET}"
       JWT_EXPIRES_IN: 900
       AUTH_SERVICE_URL: http://auth-service:3002
+      AUTH_SERVICE_GRPC_URL: auth-service:5001
+      CLINIC_SERVICE_GRPC_URL: clinic-service:5002
+      PATIENT_SERVICE_GRPC_URL: patient-service:5003
+      APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
     ports:
       - "127.0.0.1:3001:3001"
     depends_on:
       - auth-service
+      - appointment-service
     networks:
       - dentiflow-network
 
@@ -61,6 +73,31 @@ services:
       - "127.0.0.1:3002:3002"
     depends_on:
       - db
+    networks:
+      - dentiflow-network
+
+  appointment-service:
+    build:
+      context: .
+      dockerfile: services/appointment-service/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: "${DB_USERNAME:-root}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${APPOINTMENT_DB_NAME:-appointment_db}"
+      GRPC_PORT: 5004
+      PATIENT_SERVICE_GRPC_URL: patient-service:5003
+      CLINIC_SERVICE_GRPC_URL: clinic-service:5002
+      NATS_URL: nats://nats:4222
+    ports:
+      - "127.0.0.1:3005:3005"
+    depends_on:
+      - db
+      - nats
     networks:
       - dentiflow-network
 

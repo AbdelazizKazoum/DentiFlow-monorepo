@@ -12,6 +12,7 @@ import {ProxyModule} from "./presentation/proxy/proxy.module";
 import {AuthModule} from "./presentation/auth/auth.module";
 import {ClinicModule} from "./presentation/clinic/clinic.module";
 import {PatientModule} from "./presentation/patient/patient.module";
+import {AppointmentModule} from "./presentation/appointment/appointment.module";
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import {PatientModule} from "./presentation/patient/patient.module";
     AuthModule,
     ClinicModule,
     PatientModule,
+    AppointmentModule,
   ],
   providers: [JwtStrategy],
 })
