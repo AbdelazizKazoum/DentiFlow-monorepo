@@ -8,7 +8,6 @@ import {
   DialogTitle,
   FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
   Select,
   TextField,
@@ -17,6 +16,7 @@ import {
 import { LogIn, X } from "lucide-react";
 import type { Appointment } from "@/domain/appointment/entities/appointment";
 import type { QueuePriority } from "@/domain/queue/entities/queueEntry";
+import { TF_SX } from "../../patient/patientConfig";
 
 export interface CheckInFormState {
   priority: QueuePriority;
@@ -118,7 +118,7 @@ export function CheckInDialog({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: "8px 24px 20px" }}>
+      <DialogContent sx={{ p: "20px 24px 24px" }}>
         {error && (
           <div
             style={{
@@ -136,56 +136,75 @@ export function CheckInDialog({
         )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <FormControl fullWidth size="small">
-            <InputLabel sx={{ fontSize: "0.875rem" }}>Priority</InputLabel>
-            <Select
-              label="Priority"
-              value={form.priority}
-              onChange={(e) =>
-                onChange({ ...form, priority: e.target.value as QueuePriority })
-              }
-              sx={{ fontSize: "0.875rem", borderRadius: "10px" }}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                color: "var(--text-muted)",
+                letterSpacing: "0.02em",
+              }}
             >
-              {PRIORITY_CONFIG.map(({ value, label, color }) => (
-                <MenuItem key={value} value={value}>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <span
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: "50%",
-                        backgroundColor: color,
-                        display: "inline-block",
-                        flexShrink: 0,
-                      }}
-                    />
-                    <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
-                      {label}
-                    </span>
-                  </div>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              Priority
+            </label>
+            <FormControl fullWidth>
+              <Select
+                value={form.priority}
+                onChange={(e) =>
+                  onChange({
+                    ...form,
+                    priority: e.target.value as QueuePriority,
+                  })
+                }
+                sx={{
+                  borderRadius: "8px",
+                  fontSize: "0.875rem",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--text-placeholder)",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--brand-primary)",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--brand-primary)",
+                    borderWidth: 2,
+                  },
+                }}
+              >
+                {PRIORITY_CONFIG.map(({ value, label, color }) => (
+                  <MenuItem key={value} value={value}>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <span
+                        style={{
+                          width: 9,
+                          height: 9,
+                          borderRadius: "50%",
+                          backgroundColor: color,
+                          display: "inline-block",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                        {label}
+                      </span>
+                    </div>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
 
           <TextField
             label="Arrival Notes (optional)"
             placeholder="e.g. Patient mentions sensitivity, came early..."
             fullWidth
-            size="small"
             multiline
             rows={3}
             value={form.notes}
             onChange={(e) => onChange({ ...form, notes: e.target.value })}
-            sx={{
-              "& .MuiInputBase-root": {
-                borderRadius: "10px",
-                fontSize: "0.875rem",
-              },
-              "& .MuiInputLabel-root": { fontSize: "0.875rem" },
-            }}
+            sx={TF_SX}
           />
         </div>
       </DialogContent>

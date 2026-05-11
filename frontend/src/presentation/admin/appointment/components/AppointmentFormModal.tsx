@@ -15,10 +15,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {X} from "lucide-react";
-import type {AppointmentStatus} from "@/domain/appointment/entities/appointment";
-import type {AppointmentProvider} from "../appointmentConfig";
-import type {AppointmentFormState} from "../types";
+import { X } from "lucide-react";
+import type { AppointmentStatus } from "@/domain/appointment/entities/appointment";
+import type { AppointmentProvider } from "../appointmentConfig";
+import type { AppointmentFormState } from "../types";
+import { TF_SX } from "../../patient/patientConfig";
 
 interface AppointmentFormModalProps {
   open: boolean;
@@ -82,68 +83,87 @@ export function AppointmentFormModal({
         <Typography
           variant="h6"
           component="div"
-          sx={{fontWeight: 700, color: "var(--foreground)"}}
+          sx={{ fontWeight: 700, color: "var(--foreground)" }}
         >
           {form.id ? "Edit Appointment" : "Book New Appointment"}
         </Typography>
-        <IconButton size="small" onClick={onClose} sx={{color: "var(--text-muted)"}}>
+        <IconButton
+          size="small"
+          onClick={onClose}
+          sx={{ color: "var(--text-muted)" }}
+        >
           <X size={20} />
         </IconButton>
       </DialogTitle>
 
       <DialogContent
         sx={{
-          p: "24px",
-          "& .MuiTextField-root": {mb: "16px"},
-          "& .MuiInputLabel-root": {fontSize: "0.875rem"},
-          "& .MuiInputBase-input": {fontSize: "0.875rem"},
+          p: "28px 24px 24px",
         }}
       >
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div
+            style={{
+              marginBottom: 16,
+              padding: "10px 14px",
+              background: "#fee2e2",
+              border: "1px solid #fca5a5",
+              borderRadius: 8,
+              fontSize: "0.82rem",
+              color: "#991b1b",
+            }}
+          >
             {error}
           </div>
         )}
 
-        <div className="flex flex-col gap-1 pt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+        <div className="flex flex-col gap-4 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
               label="Patient Name"
               fullWidth
               value={form.patientName}
-              onChange={(e) => onChange({...form, patientName: e.target.value})}
+              onChange={(e) =>
+                onChange({ ...form, patientName: e.target.value })
+              }
               placeholder="e.g. Jane Doe"
               required
+              sx={TF_SX}
             />
             <TextField
               label="Service / Procedure"
               fullWidth
               value={form.type}
-              onChange={(e) => onChange({...form, type: e.target.value})}
+              onChange={(e) => onChange({ ...form, type: e.target.value })}
               placeholder="e.g. Annual Checkup"
               required
+              sx={TF_SX}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
               label="Start Time"
               type="datetime-local"
               fullWidth
               value={form.startAt}
-              onChange={(e) => onChange({...form, startAt: e.target.value})}
+              onChange={(e) => onChange({ ...form, startAt: e.target.value })}
+              slotProps={{ inputLabel: { shrink: true } }}
+              sx={TF_SX}
             />
             <TextField
               label="End Time"
               type="datetime-local"
               fullWidth
               value={form.endAt}
-              onChange={(e) => onChange({...form, endAt: e.target.value})}
+              onChange={(e) => onChange({ ...form, endAt: e.target.value })}
+              slotProps={{ inputLabel: { shrink: true } }}
+              sx={TF_SX}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-            <FormControl fullWidth>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormControl fullWidth sx={TF_SX}>
               <InputLabel>Provider</InputLabel>
               <Select
                 label="Provider"
@@ -161,7 +181,9 @@ export function AppointmentFormModal({
                 renderValue={(value) => {
                   const provider = providers.find((item) => item.id === value);
                   return provider ? (
-                    <div style={{display: "flex", alignItems: "center", gap: 8}}>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
                       <Avatar
                         src={provider.avatar}
                         sx={{
@@ -182,7 +204,9 @@ export function AppointmentFormModal({
               >
                 {providers.map((provider) => (
                   <MenuItem key={provider.id} value={provider.id}>
-                    <div style={{display: "flex", alignItems: "center", gap: 10}}>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
                       <Avatar
                         src={provider.avatar}
                         sx={{
@@ -194,7 +218,7 @@ export function AppointmentFormModal({
                       >
                         {initials(provider.name)}
                       </Avatar>
-                      <span style={{fontSize: "0.875rem", fontWeight: 500}}>
+                      <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
                         {provider.name}
                       </span>
                       <span
@@ -212,13 +236,16 @@ export function AppointmentFormModal({
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth>
+            <FormControl fullWidth sx={TF_SX}>
               <InputLabel>Status</InputLabel>
               <Select
                 label="Status"
                 value={form.status}
                 onChange={(e) =>
-                  onChange({...form, status: e.target.value as AppointmentStatus})
+                  onChange({
+                    ...form,
+                    status: e.target.value as AppointmentStatus,
+                  })
                 }
               >
                 <MenuItem value="PENDING">Pending Confirmation</MenuItem>
@@ -228,21 +255,27 @@ export function AppointmentFormModal({
             </FormControl>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
               label="Patient Phone"
               fullWidth
               value={form.patientPhone}
-              onChange={(e) => onChange({...form, patientPhone: e.target.value})}
+              onChange={(e) =>
+                onChange({ ...form, patientPhone: e.target.value })
+              }
               placeholder="e.g. 555-0101"
+              sx={TF_SX}
             />
             <TextField
               label="Patient Email"
               type="email"
               fullWidth
               value={form.patientEmail}
-              onChange={(e) => onChange({...form, patientEmail: e.target.value})}
+              onChange={(e) =>
+                onChange({ ...form, patientEmail: e.target.value })
+              }
               placeholder="e.g. jane.d@example.com"
+              sx={TF_SX}
             />
           </div>
 
@@ -251,17 +284,16 @@ export function AppointmentFormModal({
               <Checkbox
                 checked={form.isEmergency}
                 onChange={(e) =>
-                  onChange({...form, isEmergency: e.target.checked})
+                  onChange({ ...form, isEmergency: e.target.checked })
                 }
                 sx={{
                   color: "var(--text-muted)",
-                  "&.Mui-checked": {color: "var(--brand-primary)"},
+                  "&.Mui-checked": { color: "var(--brand-primary)" },
                 }}
               />
             }
             label="Emergency override"
             sx={{
-              mb: "12px",
               "& .MuiFormControlLabel-label": {
                 fontSize: "0.875rem",
                 color: "var(--foreground)",
@@ -276,8 +308,9 @@ export function AppointmentFormModal({
             multiline
             rows={3}
             value={form.notes}
-            onChange={(e) => onChange({...form, notes: e.target.value})}
+            onChange={(e) => onChange({ ...form, notes: e.target.value })}
             placeholder="e.g. Patient mentioned tooth sensitivity..."
+            sx={TF_SX}
           />
         </div>
       </DialogContent>
@@ -335,7 +368,11 @@ export function AppointmentFormModal({
               },
             }}
           >
-            {isSaving ? "Saving..." : form.id ? "Save Changes" : "Create Appointment"}
+            {isSaving
+              ? "Saving..."
+              : form.id
+                ? "Save Changes"
+                : "Create Appointment"}
           </Button>
         </div>
       </DialogActions>
