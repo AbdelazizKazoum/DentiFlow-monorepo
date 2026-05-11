@@ -1,17 +1,19 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
-import type {Appointment} from "@/domain/appointment/entities/appointment";
-import {useAppointmentStore} from "@/presentation/stores/appointmentStore";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Appointment } from "@/domain/appointment/entities/appointment";
+import { useAppointmentStore } from "@/presentation/stores/appointmentStore";
+import { useQueueStore } from "@/presentation/stores/queueStore";
 import {
   APPOINTMENT_CLINIC_ID,
   APPOINTMENT_PROVIDERS,
 } from "../appointmentConfig";
-import type {AppointmentFormState} from "../types";
+import type { AppointmentFormState } from "../types";
+import type { CheckInFormState } from "../components/CheckInDialog";
 import {
   appointmentToForm,
   makeEmptyAppointmentForm,
   toDatetimeLocal,
 } from "../utils";
-import {AppError} from "@/infrastructure/http/httpErrorHandler";
+import { AppError } from "@/infrastructure/http/httpErrorHandler";
 
 const firstProvider = APPOINTMENT_PROVIDERS[0];
 
@@ -35,6 +37,17 @@ export function useAppointmentPage() {
   const [form, setForm] = useState<AppointmentFormState>(() =>
     makeEmptyAppointmentForm(firstProvider.id, firstProvider.name),
   );
+
+  // Check-in state
+  const { checkInPatient, isUpdating: isChecking } = useQueueStore();
+  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [checkInAppointment, setCheckInAppointment] =
+    useState<Appointment | null>(null);
+  const [checkInForm, setCheckInForm] = useState<CheckInFormState>({
+    priority: "NORMAL",
+    notes: "",
+  });
+  const [checkInError, setCheckInError] = useState("");
 
   useEffect(() => {
     const start = new Date();
@@ -69,21 +82,24 @@ export function useAppointmentPage() {
     });
   }, []);
 
-  const openNew = useCallback((start?: Date, end?: Date, doctorId?: string) => {
-    const provider =
-      APPOINTMENT_PROVIDERS.find((item) => item.id === doctorId) ??
-      APPOINTMENT_PROVIDERS.find((item) => activeProviderIds.has(item.id)) ??
-      firstProvider;
-    const empty = makeEmptyAppointmentForm(provider.id, provider.name);
+  const openNew = useCallback(
+    (start?: Date, end?: Date, doctorId?: string) => {
+      const provider =
+        APPOINTMENT_PROVIDERS.find((item) => item.id === doctorId) ??
+        APPOINTMENT_PROVIDERS.find((item) => activeProviderIds.has(item.id)) ??
+        firstProvider;
+      const empty = makeEmptyAppointmentForm(provider.id, provider.name);
 
-    setForm({
-      ...empty,
-      startAt: start ? toDatetimeLocal(start) : empty.startAt,
-      endAt: end ? toDatetimeLocal(end) : empty.endAt,
-    });
-    setFormError("");
-    setModalOpen(true);
-  }, [activeProviderIds]);
+      setForm({
+        ...empty,
+        startAt: start ? toDatetimeLocal(start) : empty.startAt,
+        endAt: end ? toDatetimeLocal(end) : empty.endAt,
+      });
+      setFormError("");
+      setModalOpen(true);
+    },
+    [activeProviderIds],
+  );
 
   const openEdit = useCallback((appointment: Appointment) => {
     setForm(appointmentToForm(appointment));
@@ -162,6 +178,41 @@ export function useAppointmentPage() {
     [moveAppointment],
   );
 
+  const openCheckIn = useCallback((appointment: Appointment) => {
+    setCheckInAppointment(appointment);
+    setCheckInForm({ priority: "NORMAL", notes: "" });
+    setCheckInError("");
+    setCheckInOpen(true);
+  }, []);
+
+  const submitCheckIn = useCallback(async () => {
+    if (!checkInAppointment) return;
+    setCheckInError("");
+    try {
+      await checkInPatient({
+        clinicId: APPOINTMENT_CLINIC_ID,
+        appointmentId: checkInAppointment.id,
+        patientId: checkInAppointment.patientId,
+        patientName: checkInAppointment.patientName,
+        patientPhone: checkInAppointment.patientPhone,
+        doctorId: checkInAppointment.doctorId,
+        doctorName: checkInAppointment.doctorName,
+        appointmentType: checkInAppointment.type,
+        priority: checkInForm.priority,
+        notes: checkInForm.notes || undefined,
+        arrivedAt: new Date(),
+      });
+      setCheckInOpen(false);
+      setCheckInAppointment(null);
+    } catch (error) {
+      const message =
+        error instanceof AppError || error instanceof Error
+          ? error.message
+          : "Failed to check in patient.";
+      setCheckInError(message);
+    }
+  }, [checkInAppointment, checkInForm, checkInPatient]);
+
   return {
     appointments,
     visibleAppointments,
@@ -180,5 +231,15 @@ export function useAppointmentPage() {
     saveForm,
     deleteForm,
     move,
+    // Check-in
+    checkInOpen,
+    checkInAppointment,
+    checkInForm,
+    checkInError,
+    isChecking,
+    openCheckIn,
+    submitCheckIn,
+    setCheckInOpen,
+    setCheckInForm,
   };
 }

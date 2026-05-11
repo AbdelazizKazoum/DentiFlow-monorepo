@@ -175,6 +175,30 @@ src/
     └── components/             # React: Calendar (Drag/Drop) and Waiting Room UI
 ```
 
+---
+
+## 7. UI Integration: Check-In Action in Appointment View
+
+To streamline the workflow, the Appointment View Page (e.g., calendar or appointment list) will include a **"Check In" action** for confirmed appointments. This allows secretaries to transition a patient directly from their appointment to the queue without navigating to the Waiting Room page.
+
+### Implementation Details
+
+- **Trigger**: A "Check In" button or menu item on each appointment card/row in the appointment view.
+- **Eligibility**: Only available for appointments with `status: "CONFIRMED"` and `startAt` within a reasonable window (e.g., today or within the next hour).
+- **Action Flow**:
+  1. User clicks "Check In" on an appointment.
+  2. Open a quick modal/dialog for additional details:
+     - Priority: Dropdown with `NORMAL`, `URGENT`, `EMERGENCY` (defaults to `NORMAL`).
+     - Notes: Optional text field for arrival notes.
+     - Arrived At: Auto-set to current time, but editable if needed.
+  3. On submit, invoke `CheckInPatientUseCase` with `CheckInPatientCommand` populated from the appointment data.
+  4. On success: Refresh the appointment list (mark as checked-in or hide), and optionally notify the queue page.
+- **Error Handling**: If the appointment is already checked in, show an error. Prevent check-in for cancelled/no-show appointments.
+- **UI Placement**: Add to the appointment components (e.g., `AppointmentCard.tsx` or `AppointmentTable.tsx`).
+- **Domain Alignment**: This integrates the `CheckInPatientUseCase` (from Queue domain) into the Appointment presentation layer, ensuring clean separation while improving UX.
+
+This feature reduces friction for secretaries by allowing check-ins from the appointment context, while keeping the queue page focused on active management.
+
 ```
 
 This document provides a clear roadmap for your implementation. The **Viewport Pattern** in the repository will keep the calendar fast even as your clinic grows, and the **Emergency Override** logic ensures the secretary has the power they need for real-world scenarios.

@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -12,10 +12,11 @@ import type {
   EventClickArg,
   EventInput,
 } from "@fullcalendar/core";
-import {Avatar} from "@mui/material";
-import type {Appointment} from "@/domain/appointment/entities/appointment";
-import type {AppointmentProvider} from "../appointmentConfig";
-import {APPOINTMENT_STATUS_CONFIG} from "../appointmentConfig";
+import { Avatar } from "@mui/material";
+import type { Appointment } from "@/domain/appointment/entities/appointment";
+import type { AppointmentProvider } from "../appointmentConfig";
+import { APPOINTMENT_STATUS_CONFIG } from "../appointmentConfig";
+import { AppointmentEventPopover } from "./AppointmentEventPopover";
 
 interface AppointmentCalendarProps {
   appointments: Appointment[];
@@ -23,6 +24,7 @@ interface AppointmentCalendarProps {
   activeProviderIds: Set<string>;
   onAddRequested: (start: Date, end: Date, doctorId?: string) => void;
   onEditRequested: (appointment: Appointment) => void;
+  onCheckInRequested: (appointment: Appointment) => void;
   onMoveRequested: (
     appointmentId: string,
     doctorId: string,
@@ -66,34 +68,41 @@ export function AppointmentCalendar({
   activeProviderIds,
   onAddRequested,
   onEditRequested,
+  onCheckInRequested,
   onMoveRequested,
 }: AppointmentCalendarProps) {
   const [currentView, setCurrentView] = useState("resourceTimeGridDay");
+  const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
+  const [popoverAppointment, setPopoverAppointment] =
+    useState<Appointment | null>(null);
   const isResourceView = currentView === "resourceTimeGridDay";
   const visibleAppointments = appointments.filter((appointment) =>
     activeProviderIds.has(appointment.doctorId),
   );
   const visibleResources = providers
     .filter((provider) => activeProviderIds.has(provider.id))
-    .map((provider) => ({id: provider.id, title: provider.name}));
+    .map((provider) => ({ id: provider.id, title: provider.name }));
 
   const handleSelect = (info: DateSelectArg) => {
     info.view.calendar.unselect();
-    const doctorId = (info as DateSelectArg & {resource?: {id: string}})
+    const doctorId = (info as DateSelectArg & { resource?: { id: string } })
       .resource?.id;
     onAddRequested(info.start, info.end, doctorId);
   };
 
   const handleEventClick = (info: EventClickArg) => {
+    info.jsEvent.preventDefault();
+    info.jsEvent.stopPropagation();
     const appointment = info.event.extendedProps.appointment as
       | Appointment
       | undefined;
     if (!appointment) return;
-    onEditRequested(appointment);
+    setPopoverAppointment(appointment);
+    setPopoverAnchor(info.el as HTMLElement);
   };
 
   const handleEventChange = async (info: EventChangeArg) => {
-    const {event, oldEvent} = info;
+    const { event, oldEvent } = info;
     if (!event.start) {
       info.revert();
       return;
@@ -102,7 +111,9 @@ export function AppointmentCalendar({
     let end = event.end;
     if (!end && oldEvent?.start && oldEvent?.end) {
       end = new Date(
-        event.start.getTime() + oldEvent.end.getTime() - oldEvent.start.getTime(),
+        event.start.getTime() +
+          oldEvent.end.getTime() -
+          oldEvent.start.getTime(),
       );
     }
     if (!end) end = new Date(event.start.getTime() + 30 * 60_000);
@@ -158,7 +169,9 @@ export function AppointmentCalendar({
           resourceTimeGridDay: "Day",
         }}
         resourceLabelContent={(arg) => {
-          const provider = providers.find((item) => item.id === arg.resource.id);
+          const provider = providers.find(
+            (item) => item.id === arg.resource.id,
+          );
           if (!provider) return <span>{arg.resource.title}</span>;
           return (
             <div
@@ -201,8 +214,9 @@ export function AppointmentCalendar({
         }}
         events={visibleAppointments.map(toCalendarEvent)}
         eventContent={(eventInfo) => {
-          const appointment = eventInfo.event.extendedProps
-            .appointment as Appointment | undefined;
+          const appointment = eventInfo.event.extendedProps.appointment as
+            | Appointment
+            | undefined;
           if (!appointment) {
             return (
               <div
@@ -226,7 +240,11 @@ export function AppointmentCalendar({
                   {eventInfo.event.title || "New Appointment"}
                 </div>
                 <div
-                  style={{fontSize: "0.68rem", fontWeight: 500, opacity: 0.85}}
+                  style={{
+                    fontSize: "0.68rem",
+                    fontWeight: 500,
+                    opacity: 0.85,
+                  }}
                 >
                   {eventInfo.timeText}
                 </div>
@@ -261,7 +279,9 @@ export function AppointmentCalendar({
               >
                 {eventInfo.event.title}
               </div>
-              <div style={{fontSize: "0.68rem", fontWeight: 500, opacity: 0.85}}>
+              <div
+                style={{ fontSize: "0.68rem", fontWeight: 500, opacity: 0.85 }}
+              >
                 {eventInfo.timeText}
               </div>
               {showBadge && (
@@ -302,6 +322,18 @@ export function AppointmentCalendar({
         eventClick={handleEventClick}
         eventChange={handleEventChange}
         height="auto"
+      />
+
+      <AppointmentEventPopover
+        anchorEl={popoverAnchor}
+        appointment={popoverAppointment}
+        providers={providers}
+        onClose={() => {
+          setPopoverAnchor(null);
+          setPopoverAppointment(null);
+        }}
+        onEdit={onEditRequested}
+        onCheckIn={onCheckInRequested}
       />
     </div>
   );
