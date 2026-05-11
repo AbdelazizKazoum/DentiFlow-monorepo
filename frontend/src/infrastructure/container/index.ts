@@ -38,3 +38,12 @@ export {
   moveAppointmentUseCase,
   updateAppointmentUseCase,
 } from "@/infrastructure/appointment/container";
+
+export {
+  checkInPatientUseCase,
+  correctQueueStatusUseCase,
+  getWaitingRoomQueueUseCase,
+  seatPatientUseCase,
+  updateQueueNotesUseCase,
+  updateQueueStatusUseCase,
+} from "@/infrastructure/queue/container";
