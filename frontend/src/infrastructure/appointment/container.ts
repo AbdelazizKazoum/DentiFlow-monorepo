@@ -3,9 +3,9 @@ import {GetCalendarViewUseCase} from "@/application/appointment/useCases/GetCale
 import {GetPaginatedAppointmentsUseCase} from "@/application/appointment/useCases/GetPaginatedAppointmentsUseCase";
 import {MoveAppointmentUseCase} from "@/application/appointment/useCases/MoveAppointmentUseCase";
 import {UpdateAppointmentUseCase} from "@/application/appointment/useCases/UpdateAppointmentUseCase";
-import {InMemoryAppointmentRepository} from "./inMemory/InMemoryAppointmentRepository";
+import {AppointmentHttpRepository} from "./repositories/appointment.repository";
 
-const appointmentRepository = new InMemoryAppointmentRepository();
+const appointmentRepository = new AppointmentHttpRepository();
 
 export const getCalendarViewUseCase = new GetCalendarViewUseCase(
   appointmentRepository,
