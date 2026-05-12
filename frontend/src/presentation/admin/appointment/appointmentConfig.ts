@@ -2,6 +2,7 @@ import type {
   AppointmentStatus,
   BookingChannel,
 } from "@/domain/appointment/entities/appointment";
+import type { Staff } from "@/domain/staff/entities/staff";
 
 export interface AppointmentProvider {
   id: string;
@@ -14,26 +15,19 @@ export const APPOINTMENT_CLINIC_ID =
   process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ??
   "00000000-0000-4000-8000-000000000001";
 
-export const APPOINTMENT_PROVIDERS: AppointmentProvider[] = [
-  {
-    id: "d1",
-    name: "Dr. Emily Carter",
-    avatar: "https://i.pravatar.cc/150?img=47",
-    color: "#1e56d0",
-  },
-  {
-    id: "d2",
-    name: "Dr. John Harris",
-    avatar: "https://i.pravatar.cc/150?img=12",
-    color: "#0891b2",
-  },
-  {
-    id: "d3",
-    name: "Dr. Sarah Chen",
-    avatar: "https://i.pravatar.cc/150?img=25",
-    color: "#9333ea",
-  },
-];
+// Removed mock data - now using real staff data from store
+export const APPOINTMENT_PROVIDERS: AppointmentProvider[] = [];
+
+// Function to convert staff to appointment providers
+export function staffToAppointmentProviders(staff: Staff[]): AppointmentProvider[] {
+  const colors = ["#1e56d0", "#0891b2", "#9333ea", "#dc2626", "#059669", "#7c3aed"];
+  return staff.map((member, index) => ({
+    id: member.id,
+    name: member.fullName,
+    avatar: member.avatar || `https://i.pravatar.cc/150?img=${index + 1}`,
+    color: colors[index % colors.length],
+  }));
+}
 
 export const APPOINTMENT_STATUS_CONFIG: Record<
   AppointmentStatus,
@@ -58,15 +52,15 @@ export const APPOINTMENT_STATUS_CONFIG: Record<
     label: "Cancelled",
   },
   NO_SHOW: {
-    color: "#334155",
-    bg: "#e2e8f0",
-    border: "#64748b",
-    label: "No show",
+    color: "#7c2d12",
+    bg: "#fef2f2",
+    border: "#dc2626",
+    label: "No Show",
   },
   COMPLETED: {
-    color: "#075985",
-    bg: "#e0f2fe",
-    border: "#0284c7",
+    color: "#0f5132",
+    bg: "#d1e7dd",
+    border: "#198754",
     label: "Completed",
   },
 };
@@ -77,8 +71,11 @@ export const APPOINTMENT_LEGEND_STATUSES: AppointmentStatus[] = [
   "CANCELLED",
 ];
 
-export const APPOINTMENT_CHANNEL_LABELS: Record<BookingChannel, string> = {
-  ONLINE: "Online",
-  WALK_IN: "Walk-in",
-  PHONE: "Phone",
+export const APPOINTMENT_CHANNEL_CONFIG: Record<
+  BookingChannel,
+  {label: string}
+> = {
+  ONLINE: { label: "Online" },
+  WALK_IN: { label: "Walk-in" },
+  PHONE: { label: "Phone" },
 };

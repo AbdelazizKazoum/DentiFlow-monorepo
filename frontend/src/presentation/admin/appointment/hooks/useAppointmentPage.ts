@@ -4,7 +4,7 @@ import { useAppointmentStore } from "@/presentation/stores/appointmentStore";
 import { useQueueStore } from "@/presentation/stores/queueStore";
 import {
   APPOINTMENT_CLINIC_ID,
-  APPOINTMENT_PROVIDERS,
+  staffToAppointmentProviders,
 } from "../appointmentConfig";
 import type { AppointmentFormState } from "../types";
 import type { CheckInFormState } from "../components/CheckInDialog";
@@ -15,27 +15,36 @@ import {
 } from "../utils";
 import { AppError } from "@/infrastructure/http/httpErrorHandler";
 
-const firstProvider = APPOINTMENT_PROVIDERS[0];
-
 export function useAppointmentPage() {
   const {
     appointments,
+    doctors,
     isLoading,
     isSaving,
     loadCalendar,
+    loadDoctors,
     addAppointment,
     editAppointment,
     removeAppointment,
     moveAppointment,
   } = useAppointmentStore();
 
+  const providers = useMemo(() => staffToAppointmentProviders(doctors), [doctors]);
+
   const [activeProviderIds, setActiveProviderIds] = useState<Set<string>>(
-    () => new Set(APPOINTMENT_PROVIDERS.map((provider) => provider.id)),
+    new Set(),
   );
+
+  // Update activeProviderIds when providers change
+  useEffect(() => {
+    if (providers.length > 0) {
+      setActiveProviderIds(new Set(providers.map((provider) => provider.id)));
+    }
+  }, [providers]);
   const [modalOpen, setModalOpen] = useState(false);
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState<AppointmentFormState>(() =>
-    makeEmptyAppointmentForm(firstProvider.id, firstProvider.name),
+    makeEmptyAppointmentForm("", ""),
   );
 
   // Check-in state
@@ -85,10 +94,10 @@ export function useAppointmentPage() {
   const openNew = useCallback(
     (start?: Date, end?: Date, doctorId?: string) => {
       const provider =
-        APPOINTMENT_PROVIDERS.find((item) => item.id === doctorId) ??
-        APPOINTMENT_PROVIDERS.find((item) => activeProviderIds.has(item.id)) ??
-        firstProvider;
-      const empty = makeEmptyAppointmentForm(provider.id, provider.name);
+        providers.find((item) => item.id === doctorId) ??
+        providers.find((item) => activeProviderIds.has(item.id)) ??
+        providers[0];
+      const empty = makeEmptyAppointmentForm(provider?.id || "", provider?.name || "");
 
       setForm({
         ...empty,
@@ -98,7 +107,7 @@ export function useAppointmentPage() {
       setFormError("");
       setModalOpen(true);
     },
-    [activeProviderIds],
+    [activeProviderIds, providers],
   );
 
   const openEdit = useCallback((appointment: Appointment) => {
@@ -213,12 +222,22 @@ export function useAppointmentPage() {
     }
   }, [checkInAppointment, checkInForm, checkInPatient]);
 
+  // Load doctors and calendar on mount
+  useEffect(() => {
+    loadDoctors();
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7); // Load one week of appointments
+    loadCalendar(APPOINTMENT_CLINIC_ID, start, end);
+  }, [loadDoctors, loadCalendar]);
+
   return {
     appointments,
     visibleAppointments,
     isLoading,
     isSaving,
-    providers: APPOINTMENT_PROVIDERS,
+    providers,
     activeProviderIds,
     toggleProvider,
     modalOpen,

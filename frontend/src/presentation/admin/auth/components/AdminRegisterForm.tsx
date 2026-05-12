@@ -23,7 +23,7 @@ import {AdminRegister} from "@/application/auth/useCases/AdminRegister";
 const ROLES: {value: Exclude<UserRole, "patient">; labelKey: string}[] = [
   {value: "admin", labelKey: "register.role_admin"},
   {value: "doctor", labelKey: "register.role_doctor"},
-  {value: "secretariat", labelKey: "register.role_secretariat"},
+  {value: "secretary", labelKey: "register.role_secretariat"},
   {value: "dental_assistant", labelKey: "register.role_dental_assistant"},
 ];
 

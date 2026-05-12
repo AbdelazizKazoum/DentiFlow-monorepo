@@ -20,6 +20,7 @@ import type { AppointmentStatus } from "@/domain/appointment/entities/appointmen
 import type { AppointmentProvider } from "../appointmentConfig";
 import type { AppointmentFormState } from "../types";
 import { TF_SX } from "../../patient/patientConfig";
+import { PatientSearchSelect } from "./PatientSearchSelect";
 
 interface AppointmentFormModalProps {
   open: boolean;
@@ -119,16 +120,16 @@ export function AppointmentFormModal({
 
         <div className="flex flex-col gap-4 pt-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TextField
-              label="Patient Name"
-              fullWidth
+            <PatientSearchSelect
               value={form.patientName}
-              onChange={(e) =>
-                onChange({ ...form, patientName: e.target.value })
+              onChange={(patientName, patientId, patientPhone) =>
+                onChange({
+                  ...form,
+                  patientName,
+                  patientId: patientId || form.patientId,
+                  patientPhone: patientPhone || form.patientPhone,
+                })
               }
-              placeholder="e.g. Jane Doe"
-              required
-              sx={TF_SX}
             />
             <TextField
               label="Service / Procedure"

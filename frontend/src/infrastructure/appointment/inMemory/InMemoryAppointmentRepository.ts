@@ -189,7 +189,9 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
       (item) => item.id === command.appointmentId,
     );
     if (index === -1) {
-      throw new Error(`Appointment with id "${command.appointmentId}" not found`);
+      throw new Error(
+        `Appointment with id "${command.appointmentId}" not found`,
+      );
     }
 
     this.store[index] = {
@@ -208,8 +210,7 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
   ): Promise<boolean> {
     return this.store.some(
       (item) =>
-        item.doctorId === doctorId &&
-        isBlockingOverlap(item, start, end),
+        item.doctorId === doctorId && isBlockingOverlap(item, start, end),
     );
   }
 }
