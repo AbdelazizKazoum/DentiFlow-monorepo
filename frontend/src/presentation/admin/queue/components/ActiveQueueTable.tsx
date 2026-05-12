@@ -2,7 +2,9 @@ import type React from "react";
 import {
   closestCenter,
   DndContext,
+  DragOverlay,
   type DragEndEvent,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -27,6 +29,7 @@ import {
   RotateCcw,
   User,
 } from "lucide-react";
+import {useMemo, useState} from "react";
 import type {QueueEntry} from "@/domain/queue/entities/queueEntry";
 import type {QueueSortMode} from "@/domain/queue/services/queuePolicy";
 import {PriorityBadge} from "./PriorityBadge";
@@ -60,6 +63,11 @@ interface MobileQueueItemProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
+}
+
+interface QueueDragOverlayProps {
+  entry: QueueEntry;
+  now: Date;
 }
 
 function rowAccent(status: QueueEntry["status"]): string {
@@ -110,6 +118,7 @@ function SortableQueueRow({
         transition,
         position: "relative",
         zIndex: isDragging ? 1 : "auto",
+        boxShadow: isDragging ? "0 14px 30px rgba(15, 23, 42, 0.18)" : "none",
       }}
     >
       {isDragEnabled && (
@@ -258,6 +267,7 @@ function MobileQueueItem({
         transition,
         position: "relative",
         zIndex: isDragging ? 1 : "auto",
+        boxShadow: isDragging ? "0 14px 30px rgba(15, 23, 42, 0.18)" : "none",
       }}
     >
       <div className="flex items-start gap-3">
@@ -352,6 +362,53 @@ function MobileQueueItem({
   );
 }
 
+function QueueDragOverlay({entry, now}: QueueDragOverlayProps) {
+  return (
+    <div
+      className="w-[min(420px,calc(100vw-32px))] rounded-lg border bg-card p-4 shadow-2xl"
+      style={{
+        borderColor: "var(--border-ui)",
+        cursor: "grabbing",
+        transform: "rotate(1deg)",
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-sm ring-2 ring-white/20"
+          style={{
+            backgroundColor: "var(--brand-primary)",
+            color: "white",
+          }}
+        >
+          {getInitials(entry.patientName)}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-foreground">
+                {entry.patientName}
+              </p>
+              <p className="mt-0.5 truncate text-xs" style={{color: "var(--text-muted)"}}>
+                {entry.doctorName} - {entry.appointmentType ?? "Visit"}
+              </p>
+            </div>
+            <StatusChip status={entry.status} />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <PriorityBadge priority={entry.priority} />
+            <span
+              className="text-xs font-bold"
+              style={{color: "var(--brand-primary)"}}
+            >
+              {formatElapsed(entry.arrivedAt, now)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ActiveQueueTable({
   canReorder,
   entries,
@@ -364,6 +421,7 @@ export function ActiveQueueTable({
   onResetOrder,
   onSortModeChange,
 }: ActiveQueueTableProps) {
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const isDragEnabled = canReorder && sortMode === "POLICY";
   const isMobile = useMediaQuery("(max-width: 767px)", {noSsr: true});
   const sensors = useSensors(
@@ -372,9 +430,18 @@ export function ActiveQueueTable({
   const headings = isDragEnabled
     ? ["", "Patient", "Visit", "Elapsed", "Priority", "Status", ""]
     : ["Patient", "Visit", "Elapsed", "Priority", "Status", ""];
+  const activeDragEntry = useMemo(
+    () => entries.find((entry) => entry.id === activeDragId) ?? null,
+    [activeDragId, entries],
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const {active, over} = event;
+    setActiveDragId(null);
     if (!over || active.id === over.id) return;
 
     const oldIndex = entries.findIndex((entry) => entry.id === active.id);
@@ -452,7 +519,9 @@ export function ActiveQueueTable({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveDragId(null)}
         >
           {isMobile ? (
             <SortableContext
@@ -519,6 +588,11 @@ export function ActiveQueueTable({
               </table>
             </div>
           )}
+          <DragOverlay>
+            {activeDragEntry ? (
+              <QueueDragOverlay entry={activeDragEntry} now={now} />
+            ) : null}
+          </DragOverlay>
         </DndContext>
       )}
     </div>
