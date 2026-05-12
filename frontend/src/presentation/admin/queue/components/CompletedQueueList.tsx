@@ -1,13 +1,18 @@
-import {CheckCircle2} from "lucide-react";
+import type React from "react";
+import {CheckCircle2, MoreVertical} from "lucide-react";
 import type {QueueEntry} from "@/domain/queue/entities/queueEntry";
 import {StatusChip} from "./StatusChip";
 import {formatClockTime, getInitials} from "../utils";
 
 interface CompletedQueueListProps {
   entries: QueueEntry[];
+  onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
 }
 
-export function CompletedQueueList({entries}: CompletedQueueListProps) {
+export function CompletedQueueList({
+  entries,
+  onOpenMenu,
+}: CompletedQueueListProps) {
   if (entries.length === 0) return null;
 
   return (
@@ -53,7 +58,18 @@ export function CompletedQueueList({entries}: CompletedQueueListProps) {
                   </div>
                 </div>
               </div>
-              <StatusChip status="DONE" />
+              <div className="flex shrink-0 items-center gap-2">
+                <StatusChip status="DONE" />
+                <button
+                  type="button"
+                  onClick={(event) => onOpenMenu(event, entry)}
+                  className="rounded-lg p-1.5 transition-colors hover:bg-gray-100"
+                  style={{color: "var(--text-muted)"}}
+                  aria-label={`Open actions for ${entry.patientName}`}
+                >
+                  <MoreVertical size={16} />
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -91,7 +107,18 @@ export function CompletedQueueList({entries}: CompletedQueueListProps) {
                   </div>
                 </td>
                 <td className="px-6 py-3 whitespace-nowrap text-right">
-                  <StatusChip status="DONE" />
+                  <div className="flex items-center justify-end gap-2">
+                    <StatusChip status="DONE" />
+                    <button
+                      type="button"
+                      onClick={(event) => onOpenMenu(event, entry)}
+                      className="rounded-lg p-1.5 transition-colors hover:bg-gray-100"
+                      style={{color: "var(--text-muted)"}}
+                      aria-label={`Open actions for ${entry.patientName}`}
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

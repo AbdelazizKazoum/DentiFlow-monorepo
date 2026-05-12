@@ -100,7 +100,13 @@ export function useWaitingRoomPage() {
 
   const canReorder = useMemo(() => {
     const role = session?.user?.role as string | undefined;
-    return role === "admin" || role === "secretary" || role === "secretariat";
+    return (
+      role === "admin" ||
+      role === "secretary" ||
+      role === "secretariat" ||
+      role === "doctor" ||
+      role === "dental_assistant"
+    );
   }, [session?.user?.role]);
 
   const counts = useMemo(

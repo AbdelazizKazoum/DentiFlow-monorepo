@@ -46,27 +46,27 @@ export function QueueSummaryCards({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3.5">
+    <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
       {cards.map(({label, value, Icon, color, bg}) => (
         <div
           key={label}
           style={{
             background: "var(--surface-card)",
             border: "1px solid var(--border-ui)",
-            borderRadius: 8,
-            padding: "14px 14px",
+            borderRadius: 14,
+            padding: "18px 20px",
             display: "flex",
             alignItems: "center",
-            gap: 12,
+            gap: 14,
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
             cursor: "default",
           }}
         >
           <div
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: 8,
+              width: 48,
+              height: 48,
+              borderRadius: 12,
               background: bg,
               display: "flex",
               alignItems: "center",
@@ -79,7 +79,7 @@ export function QueueSummaryCards({
           <div>
             <div
               style={{
-                fontSize: 24,
+                fontSize: 28,
                 fontWeight: 800,
                 color: "var(--foreground)",
                 lineHeight: 1,

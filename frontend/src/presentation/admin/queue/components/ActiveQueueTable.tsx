@@ -14,6 +14,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
+import {useMediaQuery} from "@mui/material";
 import {AnimatePresence, motion} from "framer-motion";
 import {
   AlertCircle,
@@ -55,6 +56,7 @@ interface SortableQueueRowProps {
 
 interface MobileQueueItemProps {
   entry: QueueEntry;
+  isDragEnabled: boolean;
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
@@ -215,18 +217,29 @@ function SortableQueueRow({
 
 function MobileQueueItem({
   entry,
+  isDragEnabled,
   isUpdated,
   now,
   onOpenMenu,
 }: MobileQueueItemProps) {
+  const {
+    attributes,
+    listeners,
+    setActivatorNodeRef,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({id: entry.id, disabled: !isDragEnabled});
   const accent = rowAccent(entry.status);
 
   return (
     <motion.div
+      ref={setNodeRef}
       layout
       initial={{opacity: 0, y: -10}}
       animate={{
-        opacity: 1,
+        opacity: isDragging ? 0.84 : 1,
         y: 0,
         backgroundColor: isUpdated
           ? ["rgba(16, 185, 129, 0.22)", accent]
@@ -239,20 +252,41 @@ function MobileQueueItem({
         backgroundColor: {duration: 1.5, ease: "easeOut"},
       }}
       className="border-b p-4 last:border-b-0"
-      style={{borderColor: "var(--border-ui)"}}
+      style={{
+        borderColor: "var(--border-ui)",
+        transform: CSS.Transform.toString(transform),
+        transition,
+        position: "relative",
+        zIndex: isDragging ? 1 : "auto",
+      }}
     >
       <div className="flex items-start gap-3">
-        <div
-          className="relative mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-sm ring-2 ring-white/20"
-          style={{
-            backgroundColor: "var(--brand-primary)",
-            color: "white",
-          }}
-        >
-          {(entry.status === "WAITING" || entry.status === "IN_CHAIR") && (
-            <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
+        <div className="flex shrink-0 items-center gap-2">
+          {isDragEnabled && (
+            <button
+              ref={setActivatorNodeRef}
+              type="button"
+              aria-label={`Reorder ${entry.patientName}`}
+              className="rounded-lg p-1.5 transition-colors hover:bg-gray-100 cursor-grab active:cursor-grabbing"
+              style={{color: "var(--text-muted)"}}
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical size={16} />
+            </button>
           )}
-          {getInitials(entry.patientName)}
+          <div
+            className="relative mt-0.5 flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold shadow-sm ring-2 ring-white/20"
+            style={{
+              backgroundColor: "var(--brand-primary)",
+              color: "white",
+            }}
+          >
+            {(entry.status === "WAITING" || entry.status === "IN_CHAIR") && (
+              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-white animate-pulse" />
+            )}
+            {getInitials(entry.patientName)}
+          </div>
         </div>
 
         <div className="min-w-0 flex-1">
@@ -331,6 +365,7 @@ export function ActiveQueueTable({
   onSortModeChange,
 }: ActiveQueueTableProps) {
   const isDragEnabled = canReorder && sortMode === "POLICY";
+  const isMobile = useMediaQuery("(max-width: 767px)", {noSsr: true});
   const sensors = useSensors(
     useSensor(PointerSensor, {activationConstraint: {distance: 6}}),
   );
@@ -345,7 +380,6 @@ export function ActiveQueueTable({
     const oldIndex = entries.findIndex((entry) => entry.id === active.id);
     const newIndex = entries.findIndex((entry) => entry.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-    if (entries[oldIndex].status !== entries[newIndex].status) return;
 
     onReorder(arrayMove(entries.map((entry) => entry.id), oldIndex, newIndex));
   };
@@ -415,27 +449,33 @@ export function ActiveQueueTable({
           </p>
         </div>
       ) : (
-        <>
-          <div className="md:hidden">
-            <AnimatePresence initial={false}>
-              {entries.map((entry) => (
-                <MobileQueueItem
-                  key={entry.id}
-                  entry={entry}
-                  isUpdated={entry.id === lastUpdatedId}
-                  now={now}
-                  onOpenMenu={onOpenMenu}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="hidden overflow-x-auto md:block">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          {isMobile ? (
+            <SortableContext
+              items={entries.map((entry) => entry.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div>
+                <AnimatePresence initial={false}>
+                  {entries.map((entry) => (
+                    <MobileQueueItem
+                      key={entry.id}
+                      entry={entry}
+                      isDragEnabled={isDragEnabled}
+                      isUpdated={entry.id === lastUpdatedId}
+                      now={now}
+                      onOpenMenu={onOpenMenu}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            </SortableContext>
+          ) : (
+            <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr
@@ -478,8 +518,8 @@ export function ActiveQueueTable({
                 </SortableContext>
               </table>
             </div>
-          </DndContext>
-        </>
+          )}
+        </DndContext>
       )}
     </div>
   );

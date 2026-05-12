@@ -41,7 +41,10 @@ export default function WaitingRoomPage() {
           onSortModeChange={hook.setSortMode}
           sortMode={hook.sortMode}
         />
-        <CompletedQueueList entries={hook.completedToday} />
+        <CompletedQueueList
+          entries={hook.completedToday}
+          onOpenMenu={hook.openMenu}
+        />
       </div>
 
       <QueueActionMenu
