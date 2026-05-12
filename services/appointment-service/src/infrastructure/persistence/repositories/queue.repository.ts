@@ -63,7 +63,9 @@ export class QueueRepository implements IQueueRepository {
   }
 
   async findByAppointmentId(appointmentId: string): Promise<QueueEntry | null> {
-    const entity = await this.repo.findOne({where: {appointment_id: appointmentId}});
+    const entity = await this.repo.findOne({
+      where: {appointment_id: appointmentId},
+    });
     return entity ? QueueEntryMapper.toDomain(entity) : null;
   }
 
@@ -75,10 +77,7 @@ export class QueueRepository implements IQueueRepository {
         "FIELD(q.status, 'ARRIVED', 'WAITING', 'IN_CHAIR', 'DONE')",
         "ASC",
       )
-      .addOrderBy(
-        "FIELD(q.priority, 'EMERGENCY', 'URGENT', 'NORMAL')",
-        "ASC",
-      )
+      .addOrderBy("FIELD(q.priority, 'EMERGENCY', 'URGENT', 'NORMAL')", "ASC")
       .addOrderBy("q.arrived_at", "ASC")
       .getMany();
 
@@ -91,7 +90,8 @@ export class QueueRepository implements IQueueRepository {
     correctionReason?: string,
   ): Promise<QueueEntry> {
     const existing = await this.repo.findOne({where: {id}});
-    if (!existing) throw new NotFoundException(`Queue entry \"${id}\" not found`);
+    if (!existing)
+      throw new NotFoundException(`Queue entry \"${id}\" not found`);
 
     const currentIndex = QUEUE_ORDER.indexOf(existing.status);
     const nextIndex = QUEUE_ORDER.indexOf(status);
@@ -130,9 +130,13 @@ export class QueueRepository implements IQueueRepository {
 
   async updateNotes(id: string, notes?: string | null): Promise<QueueEntry> {
     const existing = await this.repo.findOne({where: {id}});
-    if (!existing) throw new NotFoundException(`Queue entry \"${id}\" not found`);
+    if (!existing)
+      throw new NotFoundException(`Queue entry \"${id}\" not found`);
 
-    const saved = await this.repo.save({...existing, queue_notes: notes ?? null});
+    const saved = await this.repo.save({
+      ...existing,
+      queue_notes: notes ?? null,
+    });
     return QueueEntryMapper.toDomain(saved);
   }
 

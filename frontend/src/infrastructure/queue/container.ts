@@ -4,9 +4,9 @@ import {GetWaitingRoomQueueUseCase} from "@/application/queue/useCases/GetWaitin
 import {SeatPatientUseCase} from "@/application/queue/useCases/SeatPatientUseCase";
 import {UpdateQueueNotesUseCase} from "@/application/queue/useCases/UpdateQueueNotesUseCase";
 import {UpdateQueueStatusUseCase} from "@/application/queue/useCases/UpdateQueueStatusUseCase";
-import {InMemoryQueueRepository} from "./inMemory/InMemoryQueueRepository";
+import {QueueHttpRepository} from "./repositories";
 
-const queueRepository = new InMemoryQueueRepository();
+const queueRepository = new QueueHttpRepository();
 
 export const getWaitingRoomQueueUseCase = new GetWaitingRoomQueueUseCase(
   queueRepository,

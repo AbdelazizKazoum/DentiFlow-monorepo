@@ -55,7 +55,7 @@ export class QueueController implements OnModuleInit {
       const result = await lastValueFrom(
         this.appointmentGrpcService.listQueueEntries({clinicId}),
       );
-      return {queue_entries: result.queueEntries.map(queueEntryToHttp)};
+      return {queue_entries: (result.queueEntries ?? []).map(queueEntryToHttp)};
     } catch (err: unknown) {
       handleGrpcError(err);
     }
@@ -177,7 +177,10 @@ export class QueueController implements OnModuleInit {
     this.assertClinicAccess(entry.clinicId, clinicId);
   }
 
-  private assertClinicAccess(entityClinicId: string, userClinicId: string): void {
+  private assertClinicAccess(
+    entityClinicId: string,
+    userClinicId: string,
+  ): void {
     if (entityClinicId !== userClinicId) {
       throw new ForbiddenException(
         "You do not have access to this clinic's resources",
