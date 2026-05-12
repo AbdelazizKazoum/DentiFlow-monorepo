@@ -124,8 +124,16 @@ async function forward(
     // but the access token itself still has its 1-minute grace window left.
   }
 
-  // Forward the request to the API gateway
-  const target = new URL(`/api/v1/${path.join("/")}`, GATEWAY_URL);
+  const pathName = path.join("/");
+  const isEventStream = pathName === "events/queue";
+
+  // Forward the request to the API gateway. The gateway keeps SSE outside the
+  // global /api/v1 prefix, while this BFF exposes it under the same frontend API
+  // shape as the rest of the gateway routes.
+  const target = new URL(
+    isEventStream ? "/events/queue" : `/api/v1/${pathName}`,
+    GATEWAY_URL,
+  );
   target.search = req.nextUrl.search;
 
   const headers = new Headers();
@@ -143,6 +151,31 @@ async function forward(
     headers,
     ...(body !== undefined && { body }),
   });
+
+  if (isEventStream) {
+    const response = new NextResponse(upstream.body, {
+      status: upstream.status,
+      headers: {
+        "Content-Type":
+          upstream.headers.get("content-type") ?? "text/event-stream",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
+
+    if (refreshedCookie) {
+      const isProd = process.env.NODE_ENV === "production";
+      response.cookies.set(COOKIE_NAME, refreshedCookie, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "lax",
+        path: "/",
+        maxAge: SESSION_MAX_AGE_SECONDS,
+      });
+    }
+
+    return response;
+  }
 
   const responseData = await upstream.arrayBuffer();
   const resHeaders = new Headers();

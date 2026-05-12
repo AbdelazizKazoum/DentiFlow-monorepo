@@ -45,11 +45,13 @@ services:
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
+      NATS_URL: nats://nats:4222
     ports:
       - "127.0.0.1:3001:3001"
     depends_on:
       - auth-service
       - appointment-service
+      - nats
     networks:
       - dentiflow-network
 
@@ -93,6 +95,7 @@ services:
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       NATS_URL: nats://nats:4222
+      OUTBOX_RELAY_INTERVAL_MS: 500
     ports:
       - "127.0.0.1:3005:3005"
     depends_on:

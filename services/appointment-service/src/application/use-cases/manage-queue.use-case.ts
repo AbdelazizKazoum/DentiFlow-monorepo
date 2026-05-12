@@ -84,9 +84,18 @@ export class ManageQueueUseCase {
       clinic_id: entry.clinicId,
       appointment_id: entry.appointmentId,
       patient_id: entry.patientId,
+      patient_name: entry.patientName,
+      patient_phone: entry.patientPhone ?? undefined,
       doctor_id: entry.doctorId,
+      doctor_name: entry.doctorName,
+      appointment_type: entry.appointmentType ?? undefined,
       status: entry.status,
       priority: entry.priority,
+      queue_notes: entry.notes ?? undefined,
+      arrived_at: entry.arrivedAt.toISOString(),
+      called_at: entry.calledAt?.toISOString(),
+      seated_at: entry.seatedAt?.toISOString(),
+      completed_at: entry.completedAt?.toISOString(),
     };
   }
 }

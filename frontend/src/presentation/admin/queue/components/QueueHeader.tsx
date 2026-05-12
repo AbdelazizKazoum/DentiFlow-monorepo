@@ -16,16 +16,18 @@ export function QueueHeader({
 }: QueueHeaderProps) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Waiting Room</h1>
+      <div className="min-w-0">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+          Waiting Room
+        </h1>
         <p className="text-sm" style={{color: "var(--text-muted)"}}>
           Manage real-time patient queue and status tracking
         </p>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
         <LivePulse lastUpdatedAt={lastUpdatedAt} now={now} />
         <div
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold shadow-sm"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border text-sm font-semibold shadow-sm"
           style={{
             borderColor: "var(--border-ui)",
             backgroundColor: "var(--card-bg)",
@@ -36,7 +38,7 @@ export function QueueHeader({
           <span>{activeCount} in queue</span>
         </div>
         <div
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold shadow-sm"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border text-sm font-semibold shadow-sm"
           style={{
             borderColor: "var(--border-ui)",
             backgroundColor: "var(--card-bg)",

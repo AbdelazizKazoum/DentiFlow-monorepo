@@ -13,7 +13,7 @@ export default function WaitingRoomPage() {
   const hook = useWaitingRoomPage();
 
   return (
-    <div className="p-6 lg:p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5 lg:space-y-6">
       <QueueHeader
         activeCount={hook.counts.active}
         completedCount={hook.counts.completed}
@@ -30,9 +30,16 @@ export default function WaitingRoomPage() {
 
       <div style={{opacity: hook.isLoading ? 0.68 : 1}}>
         <ActiveQueueTable
+          canReorder={hook.canReorder}
           entries={hook.activeQueue}
+          lastUpdatedId={hook.lastUpdatedId}
+          manualOrder={hook.manualOrder}
           now={hook.now}
           onOpenMenu={hook.openMenu}
+          onReorder={hook.setManualOrder}
+          onResetOrder={hook.resetManualOrder}
+          onSortModeChange={hook.setSortMode}
+          sortMode={hook.sortMode}
         />
         <CompletedQueueList entries={hook.completedToday} />
       </div>

@@ -4,6 +4,8 @@ import type {
   QueueStatus,
 } from "@/domain/queue/entities/queueEntry";
 
+export type QueueSortMode = "POLICY" | "ARRIVED_AT";
+
 const statusRank: Record<QueueStatus, number> = {
   IN_CHAIR: 0,
   WAITING: 1,
@@ -25,15 +27,26 @@ export function isBackwardStatusMove(
   return flow.indexOf(nextStatus) < flow.indexOf(currentStatus);
 }
 
-export function sortQueueEntries(entries: QueueEntry[]): QueueEntry[] {
-  return [...entries].sort((first, second) => {
-    const statusDelta = statusRank[first.status] - statusRank[second.status];
-    if (statusDelta !== 0) return statusDelta;
+function sortByPolicy(first: QueueEntry, second: QueueEntry): number {
+  const statusDelta = statusRank[first.status] - statusRank[second.status];
+  if (statusDelta !== 0) return statusDelta;
 
-    const priorityDelta =
-      priorityRank[first.priority] - priorityRank[second.priority];
-    if (priorityDelta !== 0) return priorityDelta;
+  const priorityDelta =
+    priorityRank[first.priority] - priorityRank[second.priority];
+  if (priorityDelta !== 0) return priorityDelta;
 
-    return first.arrivedAt.getTime() - second.arrivedAt.getTime();
-  });
+  return first.arrivedAt.getTime() - second.arrivedAt.getTime();
+}
+
+function sortByArrivedAt(first: QueueEntry, second: QueueEntry): number {
+  return first.arrivedAt.getTime() - second.arrivedAt.getTime();
+}
+
+export function sortQueueEntries(
+  entries: QueueEntry[],
+  mode: QueueSortMode = "POLICY",
+): QueueEntry[] {
+  return [...entries].sort(
+    mode === "ARRIVED_AT" ? sortByArrivedAt : sortByPolicy,
+  );
 }

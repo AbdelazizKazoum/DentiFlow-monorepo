@@ -88,6 +88,7 @@ describe("ManageQueueUseCase", () => {
     return {
       useCase: new ManageQueueUseCase(queue, appointments, outbox),
       queue,
+      outbox,
     };
   }
 
@@ -124,5 +125,35 @@ describe("ManageQueueUseCase", () => {
 
     expect(updated.status).toBe(QueueStatus.WAITING);
     expect(updated.calledAt).toEqual(now);
+  });
+
+  it("publishes a complete queue event payload after check-in", async () => {
+    const {useCase, outbox} = setup();
+
+    await useCase.checkIn({
+      clinicId: "clinic-1",
+      appointmentId: "appointment-1",
+      patientId: "patient-1",
+      patientName: "Patient One",
+      doctorId: "doctor-1",
+      doctorName: "Doctor One",
+    });
+
+    expect(outbox.add).toHaveBeenCalledWith({
+      eventType: "queue.checked_in",
+      payload: expect.objectContaining({
+        id: "queue-1",
+        clinic_id: "clinic-1",
+        appointment_id: "appointment-1",
+        patient_id: "patient-1",
+        patient_name: "Patient One",
+        doctor_id: "doctor-1",
+        doctor_name: "Doctor One",
+        appointment_type: "Checkup",
+        status: QueueStatus.ARRIVED,
+        priority: QueuePriority.NORMAL,
+        arrived_at: now.toISOString(),
+      }),
+    });
   });
 });

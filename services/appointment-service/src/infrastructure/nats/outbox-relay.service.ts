@@ -28,7 +28,8 @@ export class OutboxRelayService implements OnModuleInit, OnModuleDestroy {
       this.connection = await connect({servers});
       this.timer = setInterval(() => {
         void this.publishPending();
-      }, this.config.get<number>("OUTBOX_RELAY_INTERVAL_MS", 2000));
+      }, this.config.get<number>("OUTBOX_RELAY_INTERVAL_MS", 500));
+      void this.publishPending();
       this.logger.log("Outbox relay connected to NATS", "OutboxRelay");
     } catch (error) {
       this.logger.error(

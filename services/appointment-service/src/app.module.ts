@@ -15,7 +15,7 @@ const appointmentEnvSchema = baseSchema.concat(
     PATIENT_SERVICE_GRPC_URL: Joi.string().default("localhost:5003"),
     CLINIC_SERVICE_GRPC_URL: Joi.string().default("localhost:5002"),
     NATS_URL: Joi.string().allow("").optional(),
-    OUTBOX_RELAY_INTERVAL_MS: Joi.number().default(2000),
+    OUTBOX_RELAY_INTERVAL_MS: Joi.number().default(500),
   }),
 );
 

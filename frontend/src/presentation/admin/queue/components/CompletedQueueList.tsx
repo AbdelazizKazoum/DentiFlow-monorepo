@@ -24,7 +24,42 @@ export function CompletedQueueList({entries}: CompletedQueueListProps) {
           Completed Today
         </h2>
       </div>
-      <div className="overflow-x-auto">
+      <div className="md:hidden">
+        {entries.map((entry) => (
+          <div
+            key={entry.id}
+            className="border-b p-4 last:border-b-0"
+            style={{borderColor: "var(--border-ui)"}}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-semibold text-green-700 ring-1 ring-white/10">
+                  {getInitials(entry.patientName)}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {entry.patientName}
+                  </p>
+                  <div
+                    className="mt-0.5 text-xs"
+                    style={{color: "var(--text-muted)"}}
+                  >
+                    <span>{entry.doctorName}</span>
+                    <span> - </span>
+                    <span>
+                      {formatClockTime(entry.arrivedAt)} to{" "}
+                      {formatClockTime(entry.completedAt)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <StatusChip status="DONE" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-left">
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {entries.map((entry) => (

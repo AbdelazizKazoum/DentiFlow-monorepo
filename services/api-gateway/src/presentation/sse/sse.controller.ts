@@ -6,18 +6,16 @@ import {
   Sse,
   UseGuards,
 } from "@nestjs/common";
-import {Observable, EMPTY} from "rxjs";
+import {interval, map, merge, Observable} from "rxjs";
 import {JwtAuthGuard} from "../../shared/guards/jwt-auth.guard";
 import {CurrentUser} from "../../shared/decorators/current-user.decorator";
 import {JwtPayload} from "../../domain/auth/entities/jwt-payload.entity";
+import {QueueEventBroadcaster} from "../../infrastructure/nats/queue-event-broadcaster.service";
 
 @Controller()
 export class SseController {
-  /**
-   * SSE queue event stream.
-   * clinicId query param MUST match the JWT clinic_id claim.
-   * NATS subscription is wired in Story 8.5; returns EMPTY for now.
-   */
+  constructor(private readonly broadcaster: QueueEventBroadcaster) {}
+
   @UseGuards(JwtAuthGuard)
   @Sse("/events/queue")
   queueEvents(
@@ -30,7 +28,10 @@ export class SseController {
         "clinicId does not match authenticated clinic scope",
       );
     }
-    // Stub: NATS subscription to queue.status.updated added in Story 8.5
-    return EMPTY;
+
+    return merge(
+      this.broadcaster.getStream(clinicId),
+      interval(25_000).pipe(map(() => ({data: ":heartbeat"}))),
+    );
   }
 }

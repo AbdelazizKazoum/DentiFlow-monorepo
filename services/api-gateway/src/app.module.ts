@@ -13,6 +13,7 @@ import {AuthModule} from "./presentation/auth/auth.module";
 import {ClinicModule} from "./presentation/clinic/clinic.module";
 import {PatientModule} from "./presentation/patient/patient.module";
 import {AppointmentModule} from "./presentation/appointment/appointment.module";
+import {NatsModule} from "./infrastructure/nats/nats.module";
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import {AppointmentModule} from "./presentation/appointment/appointment.module";
     HttpModule,
 
     // Feature modules
+    NatsModule,
     HealthModule,
     SseModule,
     ProxyModule,

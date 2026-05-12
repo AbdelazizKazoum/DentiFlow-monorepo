@@ -1,12 +1,17 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import type React from "react";
+import {useSession} from "next-auth/react";
 import type {
   QueueEntry,
   QueueStatus,
 } from "@/domain/queue/entities/queueEntry";
-import {isBackwardStatusMove} from "@/domain/queue/services/queuePolicy";
+import {
+  isBackwardStatusMove,
+  sortQueueEntries,
+} from "@/domain/queue/services/queuePolicy";
 import {useQueueStore} from "@/presentation/stores/queueStore";
 import {QUEUE_CLINIC_ID} from "../queueConfig";
+import {useQueueStream} from "./useQueueStream";
 
 interface NotesState {
   open: boolean;
@@ -23,11 +28,18 @@ interface CorrectionState {
 }
 
 export function useWaitingRoomPage() {
+  const {data: session} = useSession();
   const {
     entries,
     isLoading,
     isUpdating,
+    lastUpdatedId,
     lastUpdatedAt,
+    manualOrder,
+    resetManualOrder,
+    setManualOrder,
+    setSortMode,
+    sortMode,
     loadQueue,
     changeStatus,
     correctStatus,
@@ -55,19 +67,41 @@ export function useWaitingRoomPage() {
     loadQueue(QUEUE_CLINIC_ID);
   }, [loadQueue]);
 
+  useQueueStream(QUEUE_CLINIC_ID);
+
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
     return () => window.clearInterval(interval);
   }, []);
 
+  const sortedEntries = useMemo(
+    () => sortQueueEntries(entries, sortMode),
+    [entries, sortMode],
+  );
+
   const activeQueue = useMemo(
-    () => entries.filter((entry) => entry.status !== "DONE"),
-    [entries],
+    () => {
+      const active = sortedEntries.filter((entry) => entry.status !== "DONE");
+      if (!manualOrder || sortMode !== "POLICY") return active;
+
+      const activeById = new Map(active.map((entry) => [entry.id, entry]));
+      const ordered = manualOrder
+        .map((id) => activeById.get(id))
+        .filter((entry): entry is QueueEntry => Boolean(entry));
+      const missing = active.filter((entry) => !manualOrder.includes(entry.id));
+      return [...ordered, ...missing];
+    },
+    [manualOrder, sortMode, sortedEntries],
   );
   const completedToday = useMemo(
-    () => entries.filter((entry) => entry.status === "DONE"),
-    [entries],
+    () => sortedEntries.filter((entry) => entry.status === "DONE"),
+    [sortedEntries],
   );
+
+  const canReorder = useMemo(() => {
+    const role = session?.user?.role as string | undefined;
+    return role === "admin" || role === "secretary" || role === "secretariat";
+  }, [session?.user?.role]);
 
   const counts = useMemo(
     () => ({
@@ -161,13 +195,16 @@ export function useWaitingRoomPage() {
 
   return {
     activeQueue,
+    canReorder,
     completedToday,
     counts,
     correctionState,
     entries,
     isLoading,
     isUpdating,
+    lastUpdatedId,
     lastUpdatedAt,
+    manualOrder,
     menuAnchor,
     menuEntry,
     notesState,
@@ -177,8 +214,12 @@ export function useWaitingRoomPage() {
     openMenu,
     openNotes,
     requestStatusChange,
+    resetManualOrder,
     setCorrectionState,
+    setManualOrder,
     setNotesState,
+    setSortMode,
+    sortMode,
     submitCorrection,
     submitNotes,
   };

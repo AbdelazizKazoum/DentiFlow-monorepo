@@ -1,4 +1,5 @@
-import { CheckCircle2, Clock, ClipboardList, UserCheck } from "lucide-react";
+import {motion} from "framer-motion";
+import {CheckCircle2, Clock, ClipboardList, UserCheck} from "lucide-react";
 
 interface QueueSummaryCardsProps {
   active: number;
@@ -45,29 +46,27 @@ export function QueueSummaryCards({
   ];
 
   return (
-    <div
-      style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}
-    >
-      {cards.map(({ label, value, Icon, color, bg }) => (
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3.5">
+      {cards.map(({label, value, Icon, color, bg}) => (
         <div
           key={label}
           style={{
             background: "var(--surface-card)",
             border: "1px solid var(--border-ui)",
-            borderRadius: 14,
-            padding: "18px 20px",
+            borderRadius: 8,
+            padding: "14px 14px",
             display: "flex",
             alignItems: "center",
-            gap: 14,
+            gap: 12,
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
             cursor: "default",
           }}
         >
           <div
             style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
+              width: 42,
+              height: 42,
+              borderRadius: 8,
               background: bg,
               display: "flex",
               alignItems: "center",
@@ -80,14 +79,21 @@ export function QueueSummaryCards({
           <div>
             <div
               style={{
-                fontSize: 28,
+                fontSize: 24,
                 fontWeight: 800,
                 color: "var(--foreground)",
                 lineHeight: 1,
-                letterSpacing: "-0.03em",
+                letterSpacing: 0,
               }}
             >
-              {value}
+              <motion.span
+                key={value}
+                initial={{opacity: 0, scale: 0.7}}
+                animate={{opacity: 1, scale: 1}}
+                transition={{type: "spring", stiffness: 400, damping: 20}}
+              >
+                {value}
+              </motion.span>
             </div>
             <div
               style={{

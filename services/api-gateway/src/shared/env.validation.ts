@@ -23,6 +23,7 @@ export const gatewaySchema = jwtSchema.concat(
     APPOINTMENT_SERVICE_GRPC_URL: Joi.string().default(
       "appointment-service:5004",
     ),
+    NATS_URL: Joi.string().allow("").optional(),
   }),
 );
 
@@ -39,4 +40,5 @@ export type GatewayEnv = {
   CLINIC_SERVICE_GRPC_URL: string;
   PATIENT_SERVICE_GRPC_URL: string;
   APPOINTMENT_SERVICE_GRPC_URL: string;
+  NATS_URL?: string;
 };

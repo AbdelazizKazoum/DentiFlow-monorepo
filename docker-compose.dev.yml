@@ -59,6 +59,7 @@ services:
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
       FRONTEND_URL: http://localhost:3000
+      NATS_URL: nats://nats:4222
     ports:
       - "127.0.0.1:3001:3001"
     extra_hosts:
@@ -72,6 +73,7 @@ services:
       - clinic-service
       - patient-service
       - appointment-service
+      - nats
     networks:
       - dentiflow-network
 
@@ -208,6 +210,7 @@ services:
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       NATS_URL: nats://nats:4222
+      OUTBOX_RELAY_INTERVAL_MS: 500
       CHOKIDAR_USEPOLLING: "true"
       FORCE_POLLING: "true"
       WATCHPACK_POLLING: "true"
