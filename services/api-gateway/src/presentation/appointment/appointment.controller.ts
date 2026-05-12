@@ -95,8 +95,8 @@ export class AppointmentController implements OnModuleInit {
         }),
       );
       return {
-        appointments: result.appointments.map(appointmentToHttp),
-        total: result.total,
+        appointments: (result.appointments ?? []).map(appointmentToHttp),
+        total: result.total ?? 0,
       };
     } catch (err: unknown) {
       handleGrpcError(err);
@@ -263,7 +263,10 @@ export class AppointmentController implements OnModuleInit {
     this.assertClinicAccess(appointment.clinicId, clinicId);
   }
 
-  private assertClinicAccess(entityClinicId: string, userClinicId: string): void {
+  private assertClinicAccess(
+    entityClinicId: string,
+    userClinicId: string,
+  ): void {
     if (entityClinicId !== userClinicId) {
       throw new ForbiddenException(
         "You do not have access to this clinic's resources",

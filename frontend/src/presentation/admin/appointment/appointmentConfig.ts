@@ -31,7 +31,7 @@ export function staffToAppointmentProviders(
     "#7c3aed",
   ];
   return staff.map((member, index) => ({
-    id: member.id,
+    id: member.userId,
     name: member.fullName,
     avatar: member.avatar || `https://i.pravatar.cc/150?img=${index + 1}`,
     color: colors[index % colors.length],

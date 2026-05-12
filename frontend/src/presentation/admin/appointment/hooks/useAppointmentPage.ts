@@ -127,6 +127,10 @@ export function useAppointmentPage() {
       setFormError("Patient name and appointment type are required.");
       return;
     }
+    if (!form.id && !form.patientId) {
+      setFormError("Please select a patient from the search results.");
+      return;
+    }
 
     const startAt = new Date(form.startAt);
     const endAt = new Date(form.endAt);
@@ -143,7 +147,7 @@ export function useAppointmentPage() {
     const payload = {
       id: form.id,
       clinicId: APPOINTMENT_CLINIC_ID,
-      patientId: form.patientId || `patient-${Date.now()}`,
+      patientId: form.patientId,
       patientName: form.patientName,
       patientPhone: form.patientPhone || undefined,
       doctorId: form.doctorId,

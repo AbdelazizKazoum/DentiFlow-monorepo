@@ -40,7 +40,7 @@ export class AppointmentHttpRepository
         },
       }),
     );
-    return response.data.appointments.map(appointmentToDomain);
+    return (response.data.appointments ?? []).map(appointmentToDomain);
   }
 
   async getPaginated(
@@ -60,8 +60,8 @@ export class AppointmentHttpRepository
     );
 
     return {
-      items: response.data.appointments.map(appointmentToDomain),
-      total: response.data.total,
+      items: (response.data.appointments ?? []).map(appointmentToDomain),
+      total: response.data.total ?? 0,
     };
   }
 
@@ -80,12 +80,15 @@ export class AppointmentHttpRepository
 
   async updateTiming(command: MoveAppointmentCommand): Promise<void> {
     await this.execute(() =>
-      axiosClient.patch(`/api/v1/appointments/${command.appointmentId}/timing`, {
-        doctor_id: command.doctorId,
-        doctor_name: command.doctorName,
-        new_start_at: command.newStartAt.toISOString(),
-        new_end_at: command.newEndAt.toISOString(),
-      }),
+      axiosClient.patch(
+        `/api/v1/appointments/${command.appointmentId}/timing`,
+        {
+          doctor_id: command.doctorId,
+          doctor_name: command.doctorName,
+          new_start_at: command.newStartAt.toISOString(),
+          new_end_at: command.newEndAt.toISOString(),
+        },
+      ),
     );
   }
 
