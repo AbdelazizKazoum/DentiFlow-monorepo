@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {useState} from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -13,11 +13,11 @@ import type {
   EventClickArg,
   EventInput,
 } from "@fullcalendar/core";
-import { Avatar } from "@mui/material";
-import type { Appointment } from "@/domain/appointment/entities/appointment";
-import type { AppointmentProvider } from "../appointmentConfig";
-import { APPOINTMENT_STATUS_CONFIG } from "../appointmentConfig";
-import { AppointmentEventPopover } from "./AppointmentEventPopover";
+import {Avatar} from "@mui/material";
+import type {Appointment} from "@/domain/appointment/entities/appointment";
+import type {AppointmentProvider} from "../appointmentConfig";
+import {APPOINTMENT_STATUS_CONFIG} from "../appointmentConfig";
+import {AppointmentEventPopover} from "./AppointmentEventPopover";
 
 interface AppointmentCalendarProps {
   appointments: Appointment[];
@@ -84,11 +84,11 @@ export function AppointmentCalendar({
   );
   const visibleResources = providers
     .filter((provider) => activeProviderIds.has(provider.id))
-    .map((provider) => ({ id: provider.id, title: provider.name }));
+    .map((provider) => ({id: provider.id, title: provider.name}));
 
   const handleSelect = (info: DateSelectArg) => {
     info.view.calendar.unselect();
-    const doctorId = (info as DateSelectArg & { resource?: { id: string } })
+    const doctorId = (info as DateSelectArg & {resource?: {id: string}})
       .resource?.id;
     onAddRequested(info.start, info.end, doctorId);
   };
@@ -105,7 +105,7 @@ export function AppointmentCalendar({
   };
 
   const handleEventChange = async (info: EventChangeArg) => {
-    const { event, oldEvent } = info;
+    const {event, oldEvent} = info;
     if (!event.start) {
       info.revert();
       return;
@@ -283,7 +283,7 @@ export function AppointmentCalendar({
                 {eventInfo.event.title}
               </div>
               <div
-                style={{ fontSize: "0.68rem", fontWeight: 500, opacity: 0.85 }}
+                style={{fontSize: "0.68rem", fontWeight: 500, opacity: 0.85}}
               >
                 {eventInfo.timeText}
               </div>

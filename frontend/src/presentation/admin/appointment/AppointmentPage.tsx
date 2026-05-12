@@ -1,11 +1,11 @@
 "use client";
 
-import { AppointmentCalendar } from "./components/AppointmentCalendar";
-import { AppointmentCalendarStyles } from "./components/AppointmentCalendarStyles";
-import { AppointmentFormModal } from "./components/AppointmentFormModal";
-import { CheckInDialog } from "./components/CheckInDialog";
-import { ProviderFilterBar } from "./components/ProviderFilterBar";
-import { useAppointmentPage } from "./hooks/useAppointmentPage";
+import {AppointmentCalendar} from "./components/AppointmentCalendar";
+import {AppointmentCalendarStyles} from "./components/AppointmentCalendarStyles";
+import {AppointmentFormModal} from "./components/AppointmentFormModal";
+import {CheckInDialog} from "./components/CheckInDialog";
+import {ProviderFilterBar} from "./components/ProviderFilterBar";
+import {useAppointmentPage} from "./hooks/useAppointmentPage";
 
 export default function AppointmentPage() {
   const hook = useAppointmentPage();
@@ -17,7 +17,7 @@ export default function AppointmentPage() {
       <div className="p-6 lg:p-8 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          <p className="text-sm" style={{color: "var(--text-muted)"}}>
             Manage your patient schedule
           </p>
         </div>
