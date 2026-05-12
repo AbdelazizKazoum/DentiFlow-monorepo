@@ -1,7 +1,7 @@
 // Dependency injection container (root composition) — gathers domain containers
 // and re-exports ready-to-use instances.
 
-export { adminLoginUseCase } from "@/infrastructure/auth/container";
+export {adminLoginUseCase} from "@/infrastructure/auth/container";
 
 export {
   getAllStaffUseCase,

@@ -26,9 +26,7 @@ interface AppointmentStoreState {
   loadCalendar: (clinicId: string, start: Date, end: Date) => Promise<void>;
   loadDoctors: () => Promise<void>;
   searchPatients: (query: string) => Promise<void>;
-  addAppointment: (
-    command: CreateAppointmentCommand,
-  ) => Promise<Appointment>;
+  addAppointment: (command: CreateAppointmentCommand) => Promise<Appointment>;
   editAppointment: (appointment: Appointment) => Promise<Appointment>;
   removeAppointment: (id: string) => Promise<void>;
   moveAppointment: (command: MoveAppointmentCommand) => Promise<boolean>;

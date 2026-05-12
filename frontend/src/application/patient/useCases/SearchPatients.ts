@@ -1,8 +1,11 @@
-import { Patient } from "@/domain/patient/entities/patient";
-import { IPatientRepository } from "@/domain/patient/repositories/patientRepository";
+import {Patient} from "@/domain/patient/entities/patient";
+import {IPatientRepository} from "@/domain/patient/repositories/patientRepository";
 
 export class SearchPatients {
-  constructor(private readonly patientRepository: IPatientRepository, private readonly clinicId: string) {}
+  constructor(
+    private readonly patientRepository: IPatientRepository,
+    private readonly clinicId: string,
+  ) {}
 
   async execute(query: string): Promise<Patient[]> {
     if (!query.trim()) {
@@ -18,7 +21,7 @@ export class SearchPatients {
     if (/\d/.test(trimmedQuery)) {
       return await this.patientRepository.searchByPhone(
         this.clinicId,
-        trimmedQuery
+        trimmedQuery,
       );
     }
 
@@ -28,7 +31,7 @@ export class SearchPatients {
       return await this.patientRepository.searchByName(
         this.clinicId,
         parts[0],
-        parts.slice(1).join(" ")
+        parts.slice(1).join(" "),
       );
     }
 
@@ -36,7 +39,7 @@ export class SearchPatients {
     return await this.patientRepository.searchByName(
       this.clinicId,
       trimmedQuery,
-      undefined
+      undefined,
     );
   }
 }

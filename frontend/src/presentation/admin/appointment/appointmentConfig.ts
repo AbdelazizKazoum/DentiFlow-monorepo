@@ -2,7 +2,7 @@ import type {
   AppointmentStatus,
   BookingChannel,
 } from "@/domain/appointment/entities/appointment";
-import type { Staff } from "@/domain/staff/entities/staff";
+import type {Staff} from "@/domain/staff/entities/staff";
 
 export interface AppointmentProvider {
   id: string;
@@ -19,8 +19,17 @@ export const APPOINTMENT_CLINIC_ID =
 export const APPOINTMENT_PROVIDERS: AppointmentProvider[] = [];
 
 // Function to convert staff to appointment providers
-export function staffToAppointmentProviders(staff: Staff[]): AppointmentProvider[] {
-  const colors = ["#1e56d0", "#0891b2", "#9333ea", "#dc2626", "#059669", "#7c3aed"];
+export function staffToAppointmentProviders(
+  staff: Staff[],
+): AppointmentProvider[] {
+  const colors = [
+    "#1e56d0",
+    "#0891b2",
+    "#9333ea",
+    "#dc2626",
+    "#059669",
+    "#7c3aed",
+  ];
   return staff.map((member, index) => ({
     id: member.id,
     name: member.fullName,
@@ -75,7 +84,7 @@ export const APPOINTMENT_CHANNEL_CONFIG: Record<
   BookingChannel,
   {label: string}
 > = {
-  ONLINE: { label: "Online" },
-  WALK_IN: { label: "Walk-in" },
-  PHONE: { label: "Phone" },
+  ONLINE: {label: "Online"},
+  WALK_IN: {label: "Walk-in"},
+  PHONE: {label: "Phone"},
 };

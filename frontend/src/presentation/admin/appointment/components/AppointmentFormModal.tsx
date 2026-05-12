@@ -15,12 +15,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { X } from "lucide-react";
-import type { AppointmentStatus } from "@/domain/appointment/entities/appointment";
-import type { AppointmentProvider } from "../appointmentConfig";
-import type { AppointmentFormState } from "../types";
-import { TF_SX } from "../../patient/patientConfig";
-import { PatientSearchSelect } from "./PatientSearchSelect";
+import {X} from "lucide-react";
+import type {AppointmentStatus} from "@/domain/appointment/entities/appointment";
+import type {AppointmentProvider} from "../appointmentConfig";
+import type {AppointmentFormState} from "../types";
+import {TF_SX} from "../../patient/patientConfig";
+import {PatientSearchSelect} from "./PatientSearchSelect";
 
 interface AppointmentFormModalProps {
   open: boolean;
@@ -84,14 +84,14 @@ export function AppointmentFormModal({
         <Typography
           variant="h6"
           component="div"
-          sx={{ fontWeight: 700, color: "var(--foreground)" }}
+          sx={{fontWeight: 700, color: "var(--foreground)"}}
         >
           {form.id ? "Edit Appointment" : "Book New Appointment"}
         </Typography>
         <IconButton
           size="small"
           onClick={onClose}
-          sx={{ color: "var(--text-muted)" }}
+          sx={{color: "var(--text-muted)"}}
         >
           <X size={20} />
         </IconButton>
@@ -135,7 +135,7 @@ export function AppointmentFormModal({
               label="Service / Procedure"
               fullWidth
               value={form.type}
-              onChange={(e) => onChange({ ...form, type: e.target.value })}
+              onChange={(e) => onChange({...form, type: e.target.value})}
               placeholder="e.g. Annual Checkup"
               required
               sx={TF_SX}
@@ -148,8 +148,8 @@ export function AppointmentFormModal({
               type="datetime-local"
               fullWidth
               value={form.startAt}
-              onChange={(e) => onChange({ ...form, startAt: e.target.value })}
-              slotProps={{ inputLabel: { shrink: true } }}
+              onChange={(e) => onChange({...form, startAt: e.target.value})}
+              slotProps={{inputLabel: {shrink: true}}}
               sx={TF_SX}
             />
             <TextField
@@ -157,8 +157,8 @@ export function AppointmentFormModal({
               type="datetime-local"
               fullWidth
               value={form.endAt}
-              onChange={(e) => onChange({ ...form, endAt: e.target.value })}
-              slotProps={{ inputLabel: { shrink: true } }}
+              onChange={(e) => onChange({...form, endAt: e.target.value})}
+              slotProps={{inputLabel: {shrink: true}}}
               sx={TF_SX}
             />
           </div>
@@ -183,7 +183,7 @@ export function AppointmentFormModal({
                   const provider = providers.find((item) => item.id === value);
                   return provider ? (
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                      style={{display: "flex", alignItems: "center", gap: 8}}
                     >
                       <Avatar
                         src={provider.avatar}
@@ -206,7 +206,7 @@ export function AppointmentFormModal({
                 {providers.map((provider) => (
                   <MenuItem key={provider.id} value={provider.id}>
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                      style={{display: "flex", alignItems: "center", gap: 10}}
                     >
                       <Avatar
                         src={provider.avatar}
@@ -219,7 +219,7 @@ export function AppointmentFormModal({
                       >
                         {initials(provider.name)}
                       </Avatar>
-                      <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                      <span style={{fontSize: "0.875rem", fontWeight: 500}}>
                         {provider.name}
                       </span>
                       <span
@@ -262,7 +262,7 @@ export function AppointmentFormModal({
               fullWidth
               value={form.patientPhone}
               onChange={(e) =>
-                onChange({ ...form, patientPhone: e.target.value })
+                onChange({...form, patientPhone: e.target.value})
               }
               placeholder="e.g. 555-0101"
               sx={TF_SX}
@@ -273,7 +273,7 @@ export function AppointmentFormModal({
               fullWidth
               value={form.patientEmail}
               onChange={(e) =>
-                onChange({ ...form, patientEmail: e.target.value })
+                onChange({...form, patientEmail: e.target.value})
               }
               placeholder="e.g. jane.d@example.com"
               sx={TF_SX}
@@ -285,11 +285,11 @@ export function AppointmentFormModal({
               <Checkbox
                 checked={form.isEmergency}
                 onChange={(e) =>
-                  onChange({ ...form, isEmergency: e.target.checked })
+                  onChange({...form, isEmergency: e.target.checked})
                 }
                 sx={{
                   color: "var(--text-muted)",
-                  "&.Mui-checked": { color: "var(--brand-primary)" },
+                  "&.Mui-checked": {color: "var(--brand-primary)"},
                 }}
               />
             }
@@ -309,7 +309,7 @@ export function AppointmentFormModal({
             multiline
             rows={3}
             value={form.notes}
-            onChange={(e) => onChange({ ...form, notes: e.target.value })}
+            onChange={(e) => onChange({...form, notes: e.target.value})}
             placeholder="e.g. Patient mentioned tooth sensitivity..."
             sx={TF_SX}
           />

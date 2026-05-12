@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { Autocomplete, TextField, Avatar, Box } from "@mui/material";
-import { Search, Phone, User, CheckCircle2, Plus } from "lucide-react";
-import { useAppointmentStore } from "@/presentation/stores/appointmentStore";
-import type { Patient } from "@/domain/patient/entities/patient";
-import { TF_SX, AVATAR_COLORS } from "../../patient/patientConfig";
+import {useState, useEffect, useMemo} from "react";
+import {Autocomplete, TextField, Avatar, Box} from "@mui/material";
+import {Search, Phone, User, CheckCircle2, Plus} from "lucide-react";
+import {useAppointmentStore} from "@/presentation/stores/appointmentStore";
+import type {Patient} from "@/domain/patient/entities/patient";
+import {TF_SX, AVATAR_COLORS} from "../../patient/patientConfig";
 
 interface PatientSearchSelectProps {
   value: string;
-  onChange: (patientName: string, patientId?: string, patientPhone?: string) => void;
+  onChange: (
+    patientName: string,
+    patientId?: string,
+    patientPhone?: string,
+  ) => void;
   error?: boolean;
   helperText?: string;
 }
@@ -17,7 +21,8 @@ interface PatientSearchSelectProps {
 // Deterministic color from name so the same patient always gets the same color
 function avatarColor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
@@ -31,9 +36,12 @@ function initials(name: string): string {
 }
 
 // Highlight matching characters in the text
-function HighlightMatch({ text, query }: { text: string; query: string }) {
+function HighlightMatch({text, query}: {text: string; query: string}) {
   if (!query.trim()) return <>{text}</>;
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+  const regex = new RegExp(
+    `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+    "gi",
+  );
   const parts = text.split(regex);
   return (
     <>
@@ -68,7 +76,8 @@ export function PatientSearchSelect({
   error,
   helperText,
 }: PatientSearchSelectProps) {
-  const { searchResults, isSearchingPatients, searchPatients } = useAppointmentStore();
+  const {searchResults, isSearchingPatients, searchPatients} =
+    useAppointmentStore();
   const [inputValue, setInputValue] = useState(value);
   const [open, setOpen] = useState(false);
 
@@ -80,7 +89,9 @@ export function PatientSearchSelect({
     }
   }, [inputValue, searchPatients]);
 
-  useEffect(() => { setInputValue(value); }, [value]);
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const options = useMemo<(Patient | typeof NEW_PATIENT_SENTINEL)[]>(() => {
     if (inputValue.trim().length < 2) return [];
@@ -106,11 +117,15 @@ export function PatientSearchSelect({
       onClose={() => setOpen(false)}
       options={options}
       getOptionLabel={(opt) =>
-        opt === NEW_PATIENT_SENTINEL || typeof opt === "string" ? inputValue : opt.fullName
+        opt === NEW_PATIENT_SENTINEL || typeof opt === "string"
+          ? inputValue
+          : opt.fullName
       }
       isOptionEqualToValue={(opt, val) => {
-        if (opt === NEW_PATIENT_SENTINEL || val === NEW_PATIENT_SENTINEL) return false;
-        if (typeof opt === "string" || typeof val === "string") return opt === val;
+        if (opt === NEW_PATIENT_SENTINEL || val === NEW_PATIENT_SENTINEL)
+          return false;
+        if (typeof opt === "string" || typeof val === "string")
+          return opt === val;
         return opt.id === val.id;
       }}
       filterOptions={(x) => x} // server-side search — no client filter
@@ -131,7 +146,7 @@ export function PatientSearchSelect({
               overflow: "hidden",
               mt: 0.5,
             },
-            "& .MuiAutocomplete-listbox": { p: 0 },
+            "& .MuiAutocomplete-listbox": {p: 0},
             "& .MuiAutocomplete-loading": {
               fontSize: "0.8rem",
               color: "var(--text-muted)",
@@ -143,8 +158,14 @@ export function PatientSearchSelect({
       }}
       renderInput={(params) => {
         // Must merge our slotProps INTO the params ones — overwriting loses Autocomplete's inputRef
-        const existingSlotProps = (params.slotProps ?? {}) as Record<string, unknown>;
-        const existingInputSlot = (existingSlotProps.input ?? {}) as Record<string, unknown>;
+        const existingSlotProps = (params.slotProps ?? {}) as Record<
+          string,
+          unknown
+        >;
+        const existingInputSlot = (existingSlotProps.input ?? {}) as Record<
+          string,
+          unknown
+        >;
         return (
           <TextField
             {...params}
@@ -154,7 +175,10 @@ export function PatientSearchSelect({
             helperText={helperText}
             sx={{
               ...TF_SX,
-              "& .MuiInputBase-input::placeholder": { color: "var(--text-placeholder)", opacity: 1 },
+              "& .MuiInputBase-input::placeholder": {
+                color: "var(--text-placeholder)",
+                opacity: 1,
+              },
             }}
             slotProps={{
               ...existingSlotProps,
@@ -163,7 +187,11 @@ export function PatientSearchSelect({
                 startAdornment: (
                   <Search
                     size={15}
-                    style={{ color: "var(--text-muted)", marginRight: 6, flexShrink: 0 }}
+                    style={{
+                      color: "var(--text-muted)",
+                      marginRight: 6,
+                      flexShrink: 0,
+                    }}
                   />
                 ),
               },
@@ -172,7 +200,9 @@ export function PatientSearchSelect({
         );
       }}
       renderOption={(props, option) => {
-        const { key: _key, ...rest } = props as { key: React.Key } & React.HTMLAttributes<HTMLLIElement>;
+        const {key: _key, ...rest} = props as {
+          key: React.Key;
+        } & React.HTMLAttributes<HTMLLIElement>;
 
         /* ── "Add as new patient" row ── */
         if (option === NEW_PATIENT_SENTINEL) {
@@ -204,9 +234,11 @@ export function PatientSearchSelect({
               >
                 <Plus size={14} color="#64748b" />
               </span>
-              <span style={{ fontSize: "0.82rem", color: "#1d4ed8", fontWeight: 500 }}>
+              <span
+                style={{fontSize: "0.82rem", color: "#1d4ed8", fontWeight: 500}}
+              >
                 Continue as &ldquo;
-                <strong style={{ fontWeight: 700 }}>{inputValue.trim()}</strong>
+                <strong style={{fontWeight: 700}}>{inputValue.trim()}</strong>
                 &rdquo; &mdash; new patient
               </span>
             </li>
@@ -218,12 +250,7 @@ export function PatientSearchSelect({
         const color = avatarColor(patient.fullName);
 
         return (
-          <li
-            key={patient.id}
-            {...rest}
-            style={{ padding: 0 }}
-          >
-
+          <li key={patient.id} {...rest} style={{padding: 0}}>
             <Box
               sx={{
                 display: "flex",
@@ -232,7 +259,7 @@ export function PatientSearchSelect({
                 px: "14px",
                 py: "10px",
                 width: "100%",
-                "&:hover": { background: "#f8fafc" },
+                "&:hover": {background: "#f8fafc"},
                 cursor: "pointer",
               }}
             >
@@ -253,9 +280,9 @@ export function PatientSearchSelect({
               </Avatar>
 
               {/* Name + details */}
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{flex: 1, minWidth: 0}}>
                 {/* Row 1: name */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Box sx={{display: "flex", alignItems: "center", gap: "6px"}}>
                   <span
                     style={{
                       fontSize: "0.875rem",
@@ -266,7 +293,10 @@ export function PatientSearchSelect({
                       textOverflow: "ellipsis",
                     }}
                   >
-                    <HighlightMatch text={patient.fullName} query={inputValue} />
+                    <HighlightMatch
+                      text={patient.fullName}
+                      query={inputValue}
+                    />
                   </span>
                 </Box>
 
@@ -296,7 +326,11 @@ export function PatientSearchSelect({
 
               {/* Check icon if already selected */}
               {value === patient.fullName && (
-                <CheckCircle2 size={16} color="#1d4ed8" style={{ flexShrink: 0 }} />
+                <CheckCircle2
+                  size={16}
+                  color="#1d4ed8"
+                  style={{flexShrink: 0}}
+                />
               )}
             </Box>
           </li>
@@ -314,15 +348,21 @@ export function PatientSearchSelect({
             }}
           >
             <User size={22} color="#cbd5e1" />
-            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 500 }}>
+            <span
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-muted)",
+                fontWeight: 500,
+              }}
+            >
               No patients found
             </span>
-            <span style={{ fontSize: "0.73rem", color: "#94a3b8" }}>
+            <span style={{fontSize: "0.73rem", color: "#94a3b8"}}>
               You can enter a name and continue as a new patient
             </span>
           </Box>
         ) : (
-          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+          <span style={{fontSize: "0.8rem", color: "var(--text-muted)"}}>
             Type at least 2 characters to search
           </span>
         )

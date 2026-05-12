@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Appointment } from "@/domain/appointment/entities/appointment";
-import { useAppointmentStore } from "@/presentation/stores/appointmentStore";
-import { useQueueStore } from "@/presentation/stores/queueStore";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import type {Appointment} from "@/domain/appointment/entities/appointment";
+import {useAppointmentStore} from "@/presentation/stores/appointmentStore";
+import {useQueueStore} from "@/presentation/stores/queueStore";
 import {
   APPOINTMENT_CLINIC_ID,
   staffToAppointmentProviders,
 } from "../appointmentConfig";
-import type { AppointmentFormState } from "../types";
-import type { CheckInFormState } from "../components/CheckInDialog";
+import type {AppointmentFormState} from "../types";
+import type {CheckInFormState} from "../components/CheckInDialog";
 import {
   appointmentToForm,
   makeEmptyAppointmentForm,
   toDatetimeLocal,
 } from "../utils";
-import { AppError } from "@/infrastructure/http/httpErrorHandler";
+import {AppError} from "@/infrastructure/http/httpErrorHandler";
 
 export function useAppointmentPage() {
   const {
@@ -29,7 +29,10 @@ export function useAppointmentPage() {
     moveAppointment,
   } = useAppointmentStore();
 
-  const providers = useMemo(() => staffToAppointmentProviders(doctors), [doctors]);
+  const providers = useMemo(
+    () => staffToAppointmentProviders(doctors),
+    [doctors],
+  );
 
   const [activeProviderIds, setActiveProviderIds] = useState<Set<string>>(
     new Set(),
@@ -48,7 +51,7 @@ export function useAppointmentPage() {
   );
 
   // Check-in state
-  const { checkInPatient, isUpdating: isChecking } = useQueueStore();
+  const {checkInPatient, isUpdating: isChecking} = useQueueStore();
   const [checkInOpen, setCheckInOpen] = useState(false);
   const [checkInAppointment, setCheckInAppointment] =
     useState<Appointment | null>(null);
@@ -97,7 +100,10 @@ export function useAppointmentPage() {
         providers.find((item) => item.id === doctorId) ??
         providers.find((item) => activeProviderIds.has(item.id)) ??
         providers[0];
-      const empty = makeEmptyAppointmentForm(provider?.id || "", provider?.name || "");
+      const empty = makeEmptyAppointmentForm(
+        provider?.id || "",
+        provider?.name || "",
+      );
 
       setForm({
         ...empty,
@@ -189,7 +195,7 @@ export function useAppointmentPage() {
 
   const openCheckIn = useCallback((appointment: Appointment) => {
     setCheckInAppointment(appointment);
-    setCheckInForm({ priority: "NORMAL", notes: "" });
+    setCheckInForm({priority: "NORMAL", notes: ""});
     setCheckInError("");
     setCheckInOpen(true);
   }, []);

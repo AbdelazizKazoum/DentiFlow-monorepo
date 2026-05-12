@@ -1,22 +1,22 @@
-import { CreateInsuranceProvider } from "@/application/patient/useCases/CreateInsuranceProvider";
-import { CreateInsuranceTemplate } from "@/application/patient/useCases/CreateInsuranceTemplate";
-import { CreatePatient } from "@/application/patient/useCases/CreatePatient";
-import { CreatePatientDocument } from "@/application/patient/useCases/CreatePatientDocument";
-import { CreatePatientInsurance } from "@/application/patient/useCases/CreatePatientInsurance";
-import { DeleteInsuranceProvider } from "@/application/patient/useCases/DeleteInsuranceProvider";
-import { DeleteInsuranceTemplate } from "@/application/patient/useCases/DeleteInsuranceTemplate";
-import { DeletePatient } from "@/application/patient/useCases/DeletePatient";
-import { DeletePatientDocument } from "@/application/patient/useCases/DeletePatientDocument";
-import { DeletePatientInsurance } from "@/application/patient/useCases/DeletePatientInsurance";
-import { GetInsuranceProviders } from "@/application/patient/useCases/GetInsuranceProviders";
-import { GetInsuranceTemplates } from "@/application/patient/useCases/GetInsuranceTemplates";
-import { GetPatientDocuments } from "@/application/patient/useCases/GetPatientDocuments";
-import { GetPatientInsurances } from "@/application/patient/useCases/GetPatientInsurances";
-import { GetPatientsByClinic } from "@/application/patient/useCases/GetPatientsByClinic";
-import { SearchPatients } from "@/application/patient/useCases/SearchPatients";
-import { UpdateInsuranceProvider } from "@/application/patient/useCases/UpdateInsuranceProvider";
-import { UpdatePatient } from "@/application/patient/useCases/UpdatePatient";
-import { UpdatePatientInsurance } from "@/application/patient/useCases/UpdatePatientInsurance";
+import {CreateInsuranceProvider} from "@/application/patient/useCases/CreateInsuranceProvider";
+import {CreateInsuranceTemplate} from "@/application/patient/useCases/CreateInsuranceTemplate";
+import {CreatePatient} from "@/application/patient/useCases/CreatePatient";
+import {CreatePatientDocument} from "@/application/patient/useCases/CreatePatientDocument";
+import {CreatePatientInsurance} from "@/application/patient/useCases/CreatePatientInsurance";
+import {DeleteInsuranceProvider} from "@/application/patient/useCases/DeleteInsuranceProvider";
+import {DeleteInsuranceTemplate} from "@/application/patient/useCases/DeleteInsuranceTemplate";
+import {DeletePatient} from "@/application/patient/useCases/DeletePatient";
+import {DeletePatientDocument} from "@/application/patient/useCases/DeletePatientDocument";
+import {DeletePatientInsurance} from "@/application/patient/useCases/DeletePatientInsurance";
+import {GetInsuranceProviders} from "@/application/patient/useCases/GetInsuranceProviders";
+import {GetInsuranceTemplates} from "@/application/patient/useCases/GetInsuranceTemplates";
+import {GetPatientDocuments} from "@/application/patient/useCases/GetPatientDocuments";
+import {GetPatientInsurances} from "@/application/patient/useCases/GetPatientInsurances";
+import {GetPatientsByClinic} from "@/application/patient/useCases/GetPatientsByClinic";
+import {SearchPatients} from "@/application/patient/useCases/SearchPatients";
+import {UpdateInsuranceProvider} from "@/application/patient/useCases/UpdateInsuranceProvider";
+import {UpdatePatient} from "@/application/patient/useCases/UpdatePatient";
+import {UpdatePatientInsurance} from "@/application/patient/useCases/UpdatePatientInsurance";
 import {
   PatientHttpRepository,
   InsuranceProviderHttpRepository,
@@ -43,7 +43,10 @@ const insuranceTemplateRepository = new InsuranceTemplateHttpRepository(
 export const getPatientsByClinicUseCase = new GetPatientsByClinic(
   patientRepository,
 );
-export const searchPatientsUseCase = new SearchPatients(patientRepository, clinicId);
+export const searchPatientsUseCase = new SearchPatients(
+  patientRepository,
+  clinicId,
+);
 export const createPatientUseCase = new CreatePatient(patientRepository);
 export const updatePatientUseCase = new UpdatePatient(patientRepository);
 export const deletePatientUseCase = new DeletePatient(patientRepository);
