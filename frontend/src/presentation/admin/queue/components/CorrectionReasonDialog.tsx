@@ -56,7 +56,7 @@ export function CorrectionReasonDialog({
       }}
     >
       <DialogTitle>
-        <Typography variant="h6" sx={{fontWeight: 700}}>
+        <Typography component="span" variant="h6" sx={{fontWeight: 700}}>
           Correction Reason Required
         </Typography>
         {entry && (

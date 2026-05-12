@@ -24,6 +24,7 @@ import {
   ClipboardList,
   Clock,
   GripVertical,
+  Loader2,
   MoreVertical,
   Phone,
   RotateCcw,
@@ -39,6 +40,7 @@ import {formatClockTime, formatElapsed, getInitials} from "../utils";
 interface ActiveQueueTableProps {
   canReorder: boolean;
   entries: QueueEntry[];
+  isLoading: boolean;
   lastUpdatedId: string | null;
   manualOrder: string[] | null;
   now: Date;
@@ -409,9 +411,51 @@ function QueueDragOverlay({entry, now}: QueueDragOverlayProps) {
   );
 }
 
+function QueueLoadingState() {
+  return (
+    <div className="p-4 sm:p-6">
+      <div
+        className="mb-5 flex items-center gap-2 text-sm font-semibold"
+        style={{color: "var(--text-muted)"}}
+      >
+        <Loader2 size={16} className="animate-spin" />
+        Loading queue...
+      </div>
+      <div className="space-y-3">
+        {[0, 1, 2].map((item) => (
+          <div
+            key={item}
+            className="flex items-center gap-3 rounded-lg border p-4"
+            style={{borderColor: "var(--border-ui)"}}
+          >
+            <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-3 w-36 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="h-3 w-52 max-w-full animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+            </div>
+            <div className="hidden h-8 w-24 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800 sm:block" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function QueueEmptyState() {
+  return (
+    <div className="p-12 flex flex-col items-center gap-3">
+      <ClipboardList size={40} style={{color: "var(--text-muted)"}} />
+      <p className="text-sm font-medium" style={{color: "var(--text-muted)"}}>
+        No patients in the queue right now
+      </p>
+    </div>
+  );
+}
+
 export function ActiveQueueTable({
   canReorder,
   entries,
+  isLoading,
   lastUpdatedId,
   manualOrder,
   now,
@@ -505,16 +549,10 @@ export function ActiveQueueTable({
         </div>
       </div>
 
-      {entries.length === 0 ? (
-        <div className="p-12 flex flex-col items-center gap-3">
-          <ClipboardList size={40} style={{color: "var(--text-muted)"}} />
-          <p
-            className="text-sm font-medium"
-            style={{color: "var(--text-muted)"}}
-          >
-            No patients in the queue right now
-          </p>
-        </div>
+      {isLoading ? (
+        <QueueLoadingState />
+      ) : entries.length === 0 ? (
+        <QueueEmptyState />
       ) : (
         <DndContext
           sensors={sensors}

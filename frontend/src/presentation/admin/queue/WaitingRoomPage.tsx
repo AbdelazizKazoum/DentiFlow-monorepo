@@ -28,10 +28,11 @@ export default function WaitingRoomPage() {
         completed={hook.counts.completed}
       />
 
-      <div style={{opacity: hook.isLoading ? 0.68 : 1}}>
+      <div>
         <ActiveQueueTable
           canReorder={hook.canReorder}
           entries={hook.activeQueue}
+          isLoading={hook.isLoading}
           lastUpdatedId={hook.lastUpdatedId}
           manualOrder={hook.manualOrder}
           now={hook.now}

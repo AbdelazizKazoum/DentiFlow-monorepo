@@ -49,7 +49,11 @@ export function QueueNotesDialog({
       <DialogTitle sx={{pb: 1}}>
         <div className="flex items-center justify-between">
           <div>
-            <Typography variant="h6" sx={{fontWeight: 700, fontSize: "1.125rem"}}>
+            <Typography
+              component="span"
+              variant="h6"
+              sx={{fontWeight: 700, fontSize: "1.125rem"}}
+            >
               Patient Notes
             </Typography>
             {entry && (
