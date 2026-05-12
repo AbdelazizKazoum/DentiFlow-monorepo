@@ -34,16 +34,23 @@ export function useAppointmentPage() {
     [doctors],
   );
 
-  const [activeProviderIds, setActiveProviderIds] = useState<Set<string>>(
+  const allProviderIds = useMemo(
+    () => new Set(providers.map((provider) => provider.id)),
+    [providers],
+  );
+
+  const [disabledProviderIds, setDisabledProviderIds] = useState<Set<string>>(
     new Set(),
   );
 
-  // Update activeProviderIds when providers change
-  useEffect(() => {
-    if (providers.length > 0) {
-      setActiveProviderIds(new Set(providers.map((provider) => provider.id)));
+  const activeProviderIds = useMemo(() => {
+    const active = new Set(allProviderIds);
+    for (const id of disabledProviderIds) {
+      active.delete(id);
     }
-  }, [providers]);
+    return active;
+  }, [allProviderIds, disabledProviderIds]);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState<AppointmentFormState>(() =>
@@ -69,18 +76,23 @@ export function useAppointmentPage() {
     [appointments, activeProviderIds],
   );
 
-  const toggleProvider = useCallback((id: string) => {
-    setActiveProviderIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(id)) {
-        if (next.size === 1) return previous;
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
+  const toggleProvider = useCallback(
+    (id: string) => {
+      setDisabledProviderIds((previous) => {
+        const next = new Set(previous);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          // Prevent disabling the last provider
+          if (allProviderIds.size - next.size > 1) {
+            next.add(id);
+          }
+        }
+        return next;
+      });
+    },
+    [allProviderIds.size],
+  );
 
   const openNew = useCallback(
     (start?: Date, end?: Date, doctorId?: string) => {
