@@ -61,18 +61,6 @@ export function useAppointmentPage() {
   });
   const [checkInError, setCheckInError] = useState("");
 
-  useEffect(() => {
-    const start = new Date();
-    start.setDate(start.getDate() - 14);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date();
-    end.setDate(end.getDate() + 45);
-    end.setHours(23, 59, 59, 999);
-
-    loadCalendar(APPOINTMENT_CLINIC_ID, start, end);
-  }, [loadCalendar]);
-
   const visibleAppointments = useMemo(
     () =>
       appointments.filter((appointment) =>
@@ -232,13 +220,20 @@ export function useAppointmentPage() {
     }
   }, [checkInAppointment, checkInForm, checkInPatient]);
 
-  // Load doctors and calendar on mount
+  const navigateCalendar = useCallback(
+    (start: Date, end: Date) => {
+      loadCalendar(APPOINTMENT_CLINIC_ID, start, end);
+    },
+    [loadCalendar],
+  );
+
+  // Load doctors and initial week on mount
   useEffect(() => {
     loadDoctors();
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const end = new Date(start);
-    end.setDate(end.getDate() + 7); // Load one week of appointments
+    end.setDate(end.getDate() + 7);
     loadCalendar(APPOINTMENT_CLINIC_ID, start, end);
   }, [loadDoctors, loadCalendar]);
 
@@ -260,6 +255,7 @@ export function useAppointmentPage() {
     saveForm,
     deleteForm,
     move,
+    navigateCalendar,
     // Check-in
     checkInOpen,
     checkInAppointment,

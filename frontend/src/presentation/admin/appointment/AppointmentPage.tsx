@@ -43,6 +43,7 @@ export default function AppointmentPage() {
             onEditRequested={hook.openEdit}
             onCheckInRequested={hook.openCheckIn}
             onMoveRequested={hook.move}
+            onRangeChange={hook.navigateCalendar}
           />
         </div>
       </div>

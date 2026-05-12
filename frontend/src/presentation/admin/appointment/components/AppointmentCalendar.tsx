@@ -8,6 +8,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
 import type {
   DateSelectArg,
+  DatesSetArg,
   EventChangeArg,
   EventClickArg,
   EventInput,
@@ -32,6 +33,7 @@ interface AppointmentCalendarProps {
     start: Date,
     end: Date,
   ) => Promise<boolean>;
+  onRangeChange: (start: Date, end: Date) => void;
 }
 
 function initials(name: string): string {
@@ -70,6 +72,7 @@ export function AppointmentCalendar({
   onEditRequested,
   onCheckInRequested,
   onMoveRequested,
+  onRangeChange,
 }: AppointmentCalendarProps) {
   const [currentView, setCurrentView] = useState("resourceTimeGridDay");
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
@@ -308,7 +311,10 @@ export function AppointmentCalendar({
           );
         }}
         viewDidMount={(arg) => setCurrentView(arg.view.type)}
-        datesSet={(arg) => setCurrentView(arg.view.type)}
+        datesSet={(arg: DatesSetArg) => {
+          setCurrentView(arg.view.type);
+          onRangeChange(arg.start, arg.end);
+        }}
         editable={currentView !== "dayGridMonth"}
         selectable
         selectMirror
