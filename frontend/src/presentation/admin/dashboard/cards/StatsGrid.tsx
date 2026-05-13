@@ -27,17 +27,17 @@ export const StatsGrid: React.FC<StatsGridProps> = ({stats}) => {
       {stats.map((stat) => (
         <div
           key={stat.id}
-          className="bg-card p-5 rounded-lg shadow-[0_1px_10px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)] hover:shadow-[0_10px_24px_rgba(11,59,73,0.08)] transition-all border border-ui-border"
+          className="app-card app-card-hover p-5"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 bg-primary-soft rounded-lg flex items-center justify-center">
               {getIcon(stat.icon)}
             </div>
           </div>
-          <p className="text-[0.8125rem] text-text-muted font-medium mb-1 tracking-wide">
+          <p className="text-[0.875rem] text-text-muted font-medium mb-1 tracking-wide">
             {stat.label}
           </p>
-          <h3 className="text-[1.375rem] font-semibold text-foreground tracking-tight">
+          <h3 className="text-[1.5rem] font-semibold text-foreground tracking-tight">
             {stat.value}
           </h3>
         </div>

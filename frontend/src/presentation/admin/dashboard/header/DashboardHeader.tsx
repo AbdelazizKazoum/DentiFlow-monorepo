@@ -40,7 +40,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       </div>
 
       <div className="flex items-center justify-center flex-1 lg:max-w-xl md:mx-4 min-w-0">
-        <div className="relative group flex items-center bg-surface-hover/70 dark:bg-surface-hover/50 rounded-lg px-3 border border-transparent focus-within:border-primary/45 focus-within:bg-card transition-all w-full">
+        <div className="relative group flex items-center bg-page/80 dark:bg-white/[0.035] rounded-lg px-3 border border-ui-border focus-within:border-primary/45 focus-within:bg-card transition-all w-full shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
           <Search
             className="text-text-muted group-focus-within:text-primary transition-colors cursor-pointer shrink-0"
             size={18}
@@ -48,7 +48,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <input
             type="text"
             placeholder="Search patients, appointments"
-            className="ml-2 py-2 bg-transparent text-foreground border-none outline-none w-full text-[0.875rem] transition-all placeholder:text-text-placeholder hidden sm:block"
+            className="ml-2 py-2 bg-transparent text-foreground border-none outline-none w-full text-[0.9375rem] transition-all placeholder:text-text-placeholder hidden sm:block"
           />
         </div>
       </div>

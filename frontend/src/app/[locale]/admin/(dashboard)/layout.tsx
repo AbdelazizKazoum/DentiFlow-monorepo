@@ -39,7 +39,7 @@ export default function AdminLayout({children}: AdminLayoutProps) {
           onMobileClose={closeMobile}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="shrink-0 bg-card/95 border-b border-ui-border shadow-[0_1px_12px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_14px_rgba(0,0,0,0.22)] relative z-10 w-full transition-all">
+          <div className="shrink-0 bg-card/95 border-b border-ui-border shadow-[0_1px_2px_rgba(15,35,45,0.06),0_8px_18px_rgba(15,35,45,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3),0_10px_22px_rgba(0,0,0,0.2)] relative z-10 w-full transition-all">
             <DashboardHeader
               onToggleTheme={handleToggleTheme}
               theme={theme.mode}

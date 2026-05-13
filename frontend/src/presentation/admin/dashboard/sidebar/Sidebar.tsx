@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Stethoscope,
   UserCog,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -84,6 +85,7 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const {data: session} = useSession();
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const logout = useAdminAuthStore((s) => s.logout);
   const locale = useLocale();
   const router = useRouter();
@@ -96,7 +98,10 @@ function SidebarContent({
     .slice(0, 2)
     .map((n: string) => n[0] ?? "")
     .join("")
-    .toUpperCase();
+    .toUpperCase()
+    .trim();
+  const userImage = session?.user?.image || undefined;
+  const showUserImage = Boolean(userImage && failedImageUrl !== userImage);
 
   const getActiveTab = () => {
     if (pathname.includes("/appointments")) return "Schedule";
@@ -127,7 +132,7 @@ function SidebarContent({
           />
         </div>
         <span
-          className={`text-white font-semibold text-[1.0625rem] tracking-tight whitespace-nowrap
+          className={`text-white font-normal text-[1.0625rem] tracking-tight whitespace-nowrap
             overflow-hidden transition-[width,opacity] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)]
             ${isExpanded ? "w-32 opacity-100" : "w-0 opacity-0"}`}
         >
@@ -138,26 +143,31 @@ function SidebarContent({
       <div className="mx-4 h-px bg-white/10 rounded-full shrink-0" />
 
       <div
-        className={`flex items-center gap-3 overflow-hidden px-4 py-4 shrink-0
-          ${!isExpanded ? "justify-center" : ""}`}
+        className={`flex items-center overflow-hidden px-4 py-4 shrink-0
+          ${isExpanded ? "gap-3" : "justify-center gap-0"}`}
       >
         <div className="relative shrink-0">
           <div
             className={`rounded-full overflow-hidden ring-2 ring-white/25 transition-[width,height] duration-300
               ${isExpanded ? "w-9 h-9" : "w-8 h-8"}`}
           >
-            {session?.user?.image ? (
+            {showUserImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={session.user.image}
+                src={userImage}
                 alt={userName}
                 className="w-full h-full object-cover"
+                onError={() => setFailedImageUrl(userImage ?? null)}
               />
             ) : (
               <div className="w-full h-full bg-sidebar-muted flex items-center justify-center">
-                <span className="text-white text-xs font-bold leading-none">
-                  {userInitials}
-                </span>
+                {userInitials ? (
+                  <span className="text-white text-xs font-normal leading-none">
+                    {userInitials}
+                  </span>
+                ) : (
+                  <UserRound size={16} className="text-white" />
+                )}
               </div>
             )}
           </div>
@@ -168,10 +178,10 @@ function SidebarContent({
           className={`overflow-hidden transition-[width,opacity] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)]
             ${isExpanded ? "w-40 opacity-100" : "w-0 opacity-0"}`}
         >
-          <p className="text-white text-sm font-semibold whitespace-nowrap truncate leading-tight">
+          <p className="text-sidebar-text text-sm font-normal whitespace-nowrap truncate leading-tight">
             {userName}
           </p>
-          <p className="text-white/55 text-[0.6875rem] whitespace-nowrap truncate mt-0.5 uppercase tracking-[0.12em] font-medium">
+          <p className="text-sidebar-text-muted text-[0.6875rem] whitespace-nowrap truncate mt-0.5 uppercase tracking-[0.04em] font-normal">
             {userRole}
           </p>
         </div>
@@ -186,7 +196,7 @@ function SidebarContent({
               className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-in-out
                 ${isExpanded ? "max-h-7 opacity-100 mb-1" : "max-h-0 opacity-0 mb-0"}`}
             >
-              <p className="px-3 text-[0.625rem] font-semibold tracking-[0.14em] uppercase text-white/42 select-none">
+              <p className="px-3 text-[0.6875rem] font-normal tracking-[0.04em] uppercase text-sidebar-label select-none">
                 {group.label}
               </p>
             </div>
@@ -208,8 +218,8 @@ function SidebarContent({
                       ${isExpanded ? "px-3" : "justify-center"}
                       ${
                         isActive
-                          ? "bg-white text-primary font-semibold shadow-[0_8px_22px_rgba(0,0,0,0.18)]"
-                          : "text-white/70 hover:bg-white/10 hover:text-white"
+                          ? "bg-white text-primary font-normal shadow-[0_8px_22px_rgba(0,0,0,0.18)]"
+                          : "text-sidebar-text-muted hover:bg-white/10 hover:text-white"
                       }`}
                   >
                     <span
@@ -220,7 +230,7 @@ function SidebarContent({
                     </span>
 
                     <span
-                      className={`text-[0.875rem] whitespace-nowrap overflow-hidden leading-none text-left
+                      className={`text-[0.90625rem] font-normal tracking-normal whitespace-nowrap overflow-hidden leading-5 text-left
                         transition-[width,opacity,margin] duration-280 ease-in-out
                         ${isExpanded ? "w-36 opacity-100 ml-3" : "w-0 opacity-0 ml-0"}`}
                       style={{
@@ -235,7 +245,7 @@ function SidebarContent({
                     {!isExpanded && (
                       <span
                         className="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900/95 backdrop-blur-sm
-                          text-white text-xs font-medium rounded-lg pointer-events-none whitespace-nowrap z-50
+                          text-white text-xs font-normal rounded-lg pointer-events-none whitespace-nowrap z-50
                           shadow-xl border border-white/10 opacity-0 translate-x-0
                           transition-[opacity,transform] duration-150
                           group-hover:opacity-100 group-hover:translate-x-1"
@@ -258,7 +268,7 @@ function SidebarContent({
           onClick={() => logout(locale)}
           title={!isExpanded ? "Logout" : undefined}
           className={`group relative h-11 w-full flex items-center rounded-lg
-            text-white/55 hover:bg-red-500/15 hover:text-red-300
+            text-sidebar-text-muted hover:bg-red-500/15 hover:text-red-200
             transition-all duration-200 ease-in-out
             ${isExpanded ? "px-3 gap-3" : "justify-center"}`}
         >
@@ -267,7 +277,7 @@ function SidebarContent({
             className="shrink-0 transition-transform duration-200 group-hover:scale-105"
           />
           <span
-            className={`text-[0.875rem] whitespace-nowrap overflow-hidden leading-none
+            className={`text-[0.875rem] font-normal whitespace-nowrap overflow-hidden leading-5
               transition-[width,opacity] duration-280 ease-in-out
               ${isExpanded ? "w-16 opacity-100" : "w-0 opacity-0"}`}
           >
@@ -277,7 +287,7 @@ function SidebarContent({
           {!isExpanded && (
             <span
               className="absolute left-full ml-3 px-2.5 py-1.5 bg-gray-900/95 backdrop-blur-sm
-                text-white text-xs font-medium rounded-lg pointer-events-none whitespace-nowrap z-50
+                text-white text-xs font-normal rounded-lg pointer-events-none whitespace-nowrap z-50
                 shadow-xl border border-white/10 opacity-0 translate-x-0
                 transition-[opacity,transform] duration-150
                 group-hover:opacity-100 group-hover:translate-x-1"
@@ -318,7 +328,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <>
       <aside
         style={{width: isDesktopExpanded ? "260px" : "72px"}}
-        className="hidden md:flex flex-col bg-sidebar text-white shrink-0 border-r border-white/10
+        className="sidebar-crisp hidden md:flex flex-col bg-sidebar text-white shrink-0 border-r border-white/10
           shadow-[4px_0_24px_rgba(11,59,73,0.18)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.38)] z-30
           transition-[width] duration-300 ease-[cubic-bezier(0.65,0,0.35,1)]
           will-change-[width] overflow-visible"
@@ -342,7 +352,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
 
             <motion.aside
-              className="fixed left-0 top-0 h-full w-72 bg-sidebar text-white
+              className="sidebar-crisp fixed left-0 top-0 h-full w-72 bg-sidebar text-white
                 flex flex-col z-50 md:hidden shadow-[8px_0_40px_rgba(0,0,0,0.35)]"
               initial={{x: "-100%"}}
               animate={{x: 0}}

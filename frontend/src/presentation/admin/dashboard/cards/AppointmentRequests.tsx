@@ -10,18 +10,21 @@ export const AppointmentRequests: React.FC<AppointmentRequestsProps> = ({
   requests,
 }) => {
   return (
-    <section className="bg-card rounded-lg p-5 shadow-[0_1px_10px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)] border border-ui-border">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[0.9375rem] font-semibold text-foreground">
+    <section className="app-card p-5">
+      <div className="flex justify-between items-center pb-4 mb-4 border-b border-ui-border">
+        <h3 className="text-[1rem] font-semibold text-foreground">
           Appointment Requests
         </h3>
         <button className="text-primary text-xs font-semibold hover:underline">
           See All
         </button>
       </div>
-      <div className="space-y-5">
+      <div className="divide-y divide-ui-border">
         {requests.map((req) => (
-          <div key={req.id} className="flex items-center justify-between gap-3">
+          <div
+            key={req.id}
+            className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+          >
             <div className="flex items-center space-x-3 min-w-0">
               <img
                 src={req.avatar}
@@ -29,10 +32,10 @@ export const AppointmentRequests: React.FC<AppointmentRequestsProps> = ({
                 alt=""
               />
               <div className="min-w-0">
-                <h4 className="font-semibold text-[0.875rem] text-foreground truncate">
+                <h4 className="font-semibold text-[0.9375rem] text-foreground truncate">
                   {req.name}
                 </h4>
-                <p className="text-[0.8125rem] text-text-muted font-normal truncate">
+                <p className="text-[0.875rem] text-text-muted font-normal truncate">
                   {req.type} / {req.time || "10:00"}
                 </p>
               </div>

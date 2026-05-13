@@ -10,9 +10,9 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
   patient,
 }) => {
   return (
-    <div className="bg-card rounded-lg p-5 sm:p-6 shadow-[0_1px_10px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)] border border-ui-border relative">
-      <div className="flex justify-between items-start mb-6">
-        <h3 className="font-semibold text-[0.75rem] text-text-muted uppercase tracking-widest">
+    <div className="app-card p-5 sm:p-6 relative">
+      <div className="flex justify-between items-start pb-4 mb-5 border-b border-ui-border">
+        <h3 className="font-semibold text-[0.8125rem] text-text-muted uppercase tracking-widest">
           Next Patient Details
         </h3>
       </div>
@@ -26,16 +26,16 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
               alt=""
             />
             <div className="min-w-0">
-              <h2 className="text-[1.125rem] font-semibold text-foreground truncate">
+              <h2 className="text-[1.25rem] font-semibold text-foreground truncate">
                 {patient.name}
               </h2>
-              <p className="text-[0.8125rem] text-text-muted mt-1 font-normal leading-relaxed">
+              <p className="text-[0.875rem] text-text-muted mt-1 font-normal leading-relaxed">
                 {patient.address}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-5 gap-x-4 mb-6 rounded-lg bg-page/60 dark:bg-white/[0.025] border border-ui-border p-4">
             {[
               { label: "D.O.B", value: patient.dob },
               { label: "Sex", value: patient.sex },
@@ -45,10 +45,10 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
               { label: "Register Date", value: patient.registerDate },
             ].map((item, idx) => (
               <div key={idx}>
-                <p className="text-[0.75rem] text-text-muted font-normal mb-1">
+                <p className="text-[0.8125rem] text-text-muted font-normal mb-1">
                   {item.label}
                 </p>
-                <p className="text-[0.875rem] font-semibold text-foreground">
+                <p className="text-[0.9375rem] font-semibold text-foreground">
                   {item.value}
                 </p>
               </div>
@@ -73,15 +73,15 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button className="flex items-center space-x-2 bg-primary text-white px-4 py-2.5 rounded-lg text-[0.875rem] font-medium hover:bg-primary-dark transition-all shadow-sm">
+            <button className="flex items-center space-x-2 bg-primary text-white px-4 py-2.5 rounded-lg text-[0.9375rem] font-medium hover:bg-primary-dark transition-all shadow-sm">
               <Phone size={14} />
               <span>(308) 555-0121</span>
             </button>
-            <button className="flex items-center space-x-2 bg-card border border-ui-border text-primary px-4 py-2.5 rounded-lg text-[0.875rem] font-medium hover:bg-surface-hover transition-all">
+            <button className="flex items-center space-x-2 bg-card border border-ui-border text-primary px-4 py-2.5 rounded-lg text-[0.9375rem] font-medium hover:bg-surface-hover transition-all">
               <FileText size={15} />
               <span>Documents</span>
             </button>
-            <button className="flex items-center space-x-2 bg-card border border-ui-border text-primary px-4 py-2.5 rounded-lg text-[0.875rem] font-medium hover:bg-surface-hover transition-all">
+            <button className="flex items-center space-x-2 bg-card border border-ui-border text-primary px-4 py-2.5 rounded-lg text-[0.9375rem] font-medium hover:bg-surface-hover transition-all">
               <MessageCircle size={14} />
               <span>Chat</span>
             </button>
