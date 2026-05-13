@@ -33,7 +33,7 @@ export function StaffFilters({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-9 pr-4 h-9 text-sm rounded-lg border bg-transparent outline-none
-            focus:ring-2 focus:ring-blue-500/30"
+            focus:ring-2 focus:ring-primary/30"
           style={{
             borderColor: "var(--border-ui)",
             color: "var(--foreground)",
@@ -60,9 +60,9 @@ export function StaffFilters({
                     }
                   : isActive
                     ? {
-                        backgroundColor: "#1e56d0",
+                        backgroundColor: "#0f8aa3",
                         color: "#fff",
-                        borderColor: "#1e56d0",
+                        borderColor: "#0f8aa3",
                       }
                     : {
                         backgroundColor: "transparent",

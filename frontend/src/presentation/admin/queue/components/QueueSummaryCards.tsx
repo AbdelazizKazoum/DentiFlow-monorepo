@@ -19,7 +19,7 @@ export function QueueSummaryCards({
       label: "Active Queue",
       value: active,
       Icon: ClipboardList,
-      color: "#1e56d0",
+      color: "#0f8aa3",
       bg: "#eff6ff",
     },
     {

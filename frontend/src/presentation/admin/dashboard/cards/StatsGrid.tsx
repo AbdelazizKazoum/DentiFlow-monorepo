@@ -1,45 +1,43 @@
 import React from "react";
-import { Users } from "lucide-react";
-import { StatsCard } from "@domain/dashboard/entities";
+import {CalendarCheck, CircleDollarSign, Pill, Users} from "lucide-react";
+import {StatsCard} from "@domain/dashboard/entities";
 
 interface StatsGridProps {
   stats: StatsCard[];
 }
 
-export const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
+export const StatsGrid: React.FC<StatsGridProps> = ({stats}) => {
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "users":
-        return <Users className="text-purple-500" size={20} />;
+        return <Users className="text-primary" size={20} />;
       case "dollar":
-        return <span className="text-blue-500 font-semibold text-lg">$</span>;
+        return <CircleDollarSign className="text-emerald-500" size={20} />;
       case "calendar":
-        return <span className="text-teal-500 font-semibold text-lg">📅</span>;
+        return <CalendarCheck className="text-brand-accent" size={20} />;
       case "pill":
-        return <span className="text-red-400 font-semibold text-lg">💊</span>;
+        return <Pill className="text-rose-500" size={20} />;
       default:
-        return <Users className="text-purple-500" size={20} />;
+        return <Users className="text-primary" size={20} />;
     }
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
       {stats.map((stat) => (
         <div
           key={stat.id}
-          className="bg-card p-6 rounded-2xl shadow-sm hover:shadow-md transition-all border border-transparent hover:border-ui-border"
+          className="bg-card p-5 rounded-lg shadow-[0_1px_10px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)] hover:shadow-[0_10px_24px_rgba(11,59,73,0.08)] transition-all border border-ui-border"
         >
           <div className="flex items-center justify-between mb-4">
-            <div
-              className={`w-10 h-10 ${stat.bgColor} dark:bg-surface-hover rounded-xl flex items-center justify-center`}
-            >
+            <div className="w-10 h-10 bg-primary-soft rounded-lg flex items-center justify-center">
               {getIcon(stat.icon)}
             </div>
           </div>
-          <p className="text-[0.8125rem] text-[#6d6b77] dark:text-slate-400 font-normal mb-1.5 tracking-wide">
+          <p className="text-[0.8125rem] text-text-muted font-medium mb-1 tracking-wide">
             {stat.label}
           </p>
-          <h3 className="text-[1.5rem] font-semibold text-slate-700 dark:text-slate-100 tracking-tight">
+          <h3 className="text-[1.375rem] font-semibold text-foreground tracking-tight">
             {stat.value}
           </h3>
         </div>

@@ -13,7 +13,7 @@ export function AnimatedBlobs() {
           height: 500,
           top: "-100px",
           left: "-100px",
-          background: "#1e56d0",
+          background: "#0f8aa3",
         }}
         animate={{
           x: [0, 40, -20, 0],

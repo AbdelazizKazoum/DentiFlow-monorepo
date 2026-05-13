@@ -8,50 +8,56 @@
    ============================================================ */
 
 :root {
-  /* Brand — DentiFlow blue */
-  --brand-primary: #1e56d0;
-  --brand-primary-dark: #1847b0;
+  /* Brand: clinical blue-green */
+  --brand-primary: #0f8aa3;
+  --brand-primary-dark: #0b6f85;
+  --brand-primary-soft: #e3f6f8;
+  --brand-accent: #28b8a5;
 
   /* Surfaces */
-  --surface-page: #f8f7fa;
+  --surface-page: #f5f8fa;
   --surface-card: #ffffff;
-  --surface-sidebar: #1e56d0;
-  --surface-hover: rgba(168, 170, 174, 0.08);
+  --surface-sidebar: #0b3b49;
+  --surface-sidebar-muted: #124f5f;
+  --surface-hover: rgba(15, 138, 163, 0.08);
 
   /* Borders */
-  --border-ui: #e9e9ea;
+  --border-ui: #dbe7ec;
 
   /* Chart */
-  --chart-grid: #e2e8f0;
+  --chart-grid: #d8e6ea;
 
-  /* Body — Vuexy text colors */
+  /* Body */
   --background: #ffffff;
-  --foreground: #444050;
-  --text-muted: #6d6b77;
-  --text-placeholder: #acaab1;
+  --foreground: #25333a;
+  --text-muted: #64747c;
+  --text-placeholder: #98a6ad;
 }
 
 .dark {
-  --brand-primary: #1e56d0;
-  --brand-primary-dark: #1847b0;
+  --brand-primary: #31c6d4;
+  --brand-primary-dark: #0f8aa3;
+  --brand-primary-soft: rgba(49, 198, 212, 0.14);
+  --brand-accent: #37d0b8;
 
   /* Surfaces */
-  --surface-page: #1a2035;
-  --surface-card: #2f3349;
-  --surface-sidebar: #2f3349;
-  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-page: #111b22;
+  --surface-card: #18262e;
+  --surface-sidebar: #0b222b;
+  --surface-sidebar-muted: #123847;
+  --surface-hover: rgba(255, 255, 255, 0.07);
 
   /* Borders */
-  --border-ui: #2d3a54;
+  --border-ui: #263943;
 
   /* Chart */
-  --chart-grid: #2a3557;
+  --chart-grid: #263943;
 
   /* Body */
-  --background: #0a0a0a;
-  --foreground: #cdd0dd;
-  --text-muted: #9e9caa;
-  --text-placeholder: #5c5a67;
+  --background: #111b22;
+  --foreground: #dbe7ec;
+  --text-muted: #9eb0b8;
+  --text-placeholder: #687b84;
 }
 
 /* Register theme tokens as Tailwind CSS utilities */
@@ -67,11 +73,14 @@
   /* Brand */
   --color-primary: var(--brand-primary);
   --color-primary-dark: var(--brand-primary-dark);
+  --color-primary-soft: var(--brand-primary-soft);
+  --color-brand-accent: var(--brand-accent);
 
   /* Surfaces */
   --color-page: var(--surface-page);
   --color-card: var(--surface-card);
   --color-sidebar: var(--surface-sidebar);
+  --color-sidebar-muted: var(--surface-sidebar-muted);
   --color-surface-hover: var(--surface-hover);
 
   /* Borders */
@@ -81,25 +90,27 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-size: 0.9375rem; /* 15px — Vuexy base */
-  line-height: 1.6;
+  font-size: 0.9375rem;
+  line-height: 1.55;
   font-family:
     var(--font-public-sans), "Public Sans", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar for Sidebar */
 .sidebar-scroll::-webkit-scrollbar {
   width: 4px;
 }
+
 .sidebar-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 10px;
 }
+
 .sidebar-scroll:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.22);
 }

@@ -301,7 +301,7 @@ export function AdminRegisterForm() {
           className="w-full py-3 px-6 rounded-xl font-semibold text-white flex items-center justify-center gap-2
             disabled:opacity-70 disabled:cursor-not-allowed
             transition-all focus:outline-none focus:ring-4 focus:ring-blue-600/30"
-          style={{background: "#1e56d0"}}
+          style={{background: "#0f8aa3"}}
         >
           {status === "loading" ? (
             <>

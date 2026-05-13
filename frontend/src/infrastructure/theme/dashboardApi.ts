@@ -13,28 +13,28 @@ const mockStats: StatsCard[] = [
     label: "Patients",
     value: "666",
     icon: "users",
-    bgColor: "bg-purple-50",
+    bgColor: "bg-primary-soft",
   },
   {
     id: 2,
     label: "Income",
     value: "$2,111",
     icon: "dollar",
-    bgColor: "bg-blue-50",
+    bgColor: "bg-emerald-50",
   },
   {
     id: 3,
     label: "Appointments",
     value: "211",
     icon: "calendar",
-    bgColor: "bg-teal-50",
+    bgColor: "bg-primary-soft",
   },
   {
     id: 4,
     label: "Treatments",
     value: "402",
     icon: "pill",
-    bgColor: "bg-red-50",
+    bgColor: "bg-rose-50",
   },
 ];
 

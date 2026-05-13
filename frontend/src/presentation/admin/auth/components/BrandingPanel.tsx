@@ -14,7 +14,7 @@ export function BrandingPanel() {
       {/* Decorative circles */}
       <div
         className="absolute -top-20 -start-20 w-64 h-64 rounded-full opacity-10"
-        style={{background: "#1e56d0"}}
+        style={{background: "#0f8aa3"}}
       />
       <div
         className="absolute -bottom-16 -end-16 w-80 h-80 rounded-full opacity-10"
@@ -26,7 +26,7 @@ export function BrandingPanel() {
         <div className="flex items-center gap-3 mb-10">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{background: "#1e56d0"}}
+            style={{background: "#0f8aa3"}}
           >
             {/* Tooth SVG */}
             <svg

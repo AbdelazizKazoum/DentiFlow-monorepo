@@ -15,7 +15,7 @@ export const QUEUE_STATUS_CONFIG: Record<
 > = {
   ARRIVED: {
     label: "Arrived",
-    color: "#1e56d0",
+    color: "#0f8aa3",
     bg: "#e8f0fe",
     icon: <CheckCircle2 size={16} />,
   },

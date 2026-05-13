@@ -32,7 +32,7 @@ export function PatientRecordSection({ form, onChange }: PatientRecordSectionPro
         <SectionHeader
           icon={<User />}
           title="Personal Information"
-          iconColor="#1e56d0"
+          iconColor="#0f8aa3"
           iconBg="#eff6ff"
         />
         <div className="flex flex-col gap-1">

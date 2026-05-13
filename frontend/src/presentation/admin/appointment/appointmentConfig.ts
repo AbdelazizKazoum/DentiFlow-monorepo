@@ -23,7 +23,7 @@ export function staffToAppointmentProviders(
   staff: Staff[],
 ): AppointmentProvider[] {
   const colors = [
-    "#1e56d0",
+    "#0f8aa3",
     "#0891b2",
     "#9333ea",
     "#dc2626",

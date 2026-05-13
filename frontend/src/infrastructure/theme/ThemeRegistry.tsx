@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
-import { useThemeStore } from "./themeStore";
+import {ThemeProvider, createTheme, CssBaseline} from "@mui/material";
+import {useThemeStore} from "./themeStore";
 
 interface ThemeRegistryProps {
   children: React.ReactNode;
@@ -17,33 +17,37 @@ const themeOptions = {
     fontWeightRegular: 400,
     fontWeightMedium: 500,
     fontWeightBold: 600,
+    fontSize: 15,
+  },
+  shape: {
+    borderRadius: 8,
   },
   palette: {
     primary: {
-      main: "#1e56d0",
-      light: "#3b82f6",
-      dark: "#1847b0",
+      main: "#0f8aa3",
+      light: "#31c6d4",
+      dark: "#0b6f85",
     },
     background: {
-      default: "#ffffff",
+      default: "#f5f8fa",
       paper: "#ffffff",
     },
     text: {
-      primary: "#444050",
-      secondary: "#6d6b77",
-      disabled: "#acaab1",
+      primary: "#25333a",
+      secondary: "#64747c",
+      disabled: "#98a6ad",
     },
   },
   components: {
     MuiInputBase: {
       styleOverrides: {
         root: {
-          color: "#444050",
-          fontWeight: 300,
+          color: "#25333a",
+          fontWeight: 400,
         },
         input: {
           "&::placeholder": {
-            color: "#acaab1",
+            color: "#98a6ad",
             opacity: 1,
           },
         },
@@ -53,14 +57,14 @@ const themeOptions = {
       styleOverrides: {
         root: {
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#d0d0d0",
+            borderColor: "#dbe7ec",
             borderWidth: "1px",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1e56d0",
+            borderColor: "#0f8aa3",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1e56d0",
+            borderColor: "#0f8aa3",
             borderWidth: "1px",
           },
         },
@@ -69,8 +73,8 @@ const themeOptions = {
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "#6d6b77",
-          fontWeight: 300,
+          color: "#64747c",
+          fontWeight: 500,
         },
       },
     },
@@ -92,25 +96,25 @@ const darkThemeOptions = {
   palette: {
     ...themeOptions.palette,
     background: {
-      default: "#1a2035",
-      paper: "#2f3349",
+      default: "#111b22",
+      paper: "#18262e",
     },
     text: {
-      primary: "#cdd0dd",
-      secondary: "#9e9caa",
-      disabled: "#5c5a67",
+      primary: "#dbe7ec",
+      secondary: "#9eb0b8",
+      disabled: "#687b84",
     },
   },
   components: {
     MuiInputBase: {
       styleOverrides: {
         root: {
-          color: "#cdd0dd",
-          fontWeight: 300,
+          color: "#dbe7ec",
+          fontWeight: 400,
         },
         input: {
           "&::placeholder": {
-            color: "#5c5a67",
+            color: "#687b84",
             opacity: 1,
           },
         },
@@ -120,14 +124,14 @@ const darkThemeOptions = {
       styleOverrides: {
         root: {
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#374151",
+            borderColor: "#263943",
             borderWidth: "1px",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1e56d0",
+            borderColor: "#31c6d4",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1e56d0",
+            borderColor: "#31c6d4",
             borderWidth: "1px",
           },
         },
@@ -136,8 +140,8 @@ const darkThemeOptions = {
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "#9e9caa",
-          fontWeight: 300,
+          color: "#9eb0b8",
+          fontWeight: 500,
         },
       },
     },

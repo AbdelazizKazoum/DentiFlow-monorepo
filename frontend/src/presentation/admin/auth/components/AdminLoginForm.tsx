@@ -184,7 +184,7 @@ export function AdminLoginForm() {
             background:
               status === "loading" || status === "success"
                 ? undefined
-                : "#1e56d0",
+                : "#0f8aa3",
           }}
         >
           {status === "loading" ? (

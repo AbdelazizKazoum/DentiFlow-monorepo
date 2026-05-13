@@ -12,7 +12,7 @@ export function StaffSummaryCards({
   inactive,
 }: StaffSummaryCardsProps) {
   const stats = [
-    {label: "Total Staff", value: total, dot: "#1e56d0"},
+    {label: "Total Staff", value: total, dot: "#0f8aa3"},
     {label: "Active", value: active, dot: "#279C41"},
     {label: "On Leave", value: onLeave, dot: "#f6ad55"},
     {label: "Inactive", value: inactive, dot: "#94a3b8"},

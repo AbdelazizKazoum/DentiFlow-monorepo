@@ -1,21 +1,22 @@
 "use client";
-import React, { useEffect } from "react";
-import { Sidebar } from "@presentation/admin/dashboard/sidebar/Sidebar";
-import { DashboardHeader } from "@presentation/admin/dashboard/header/DashboardHeader";
-import { useThemeStore } from "@infrastructure/theme/themeStore";
-import { useSidebarStore } from "@infrastructure/theme/sidebarStore";
-import { ToggleThemeUseCase } from "@application/useCases/admin/dashboard/toggleTheme";
-import { ToggleSidebarUseCase } from "@application/useCases/admin/dashboard/toggleSidebar";
+import React, {useEffect} from "react";
+import {Sidebar} from "@presentation/admin/dashboard/sidebar/Sidebar";
+import {DashboardHeader} from "@presentation/admin/dashboard/header/DashboardHeader";
+import {useThemeStore} from "@infrastructure/theme/themeStore";
+import {useSidebarStore} from "@infrastructure/theme/sidebarStore";
+import {ToggleThemeUseCase} from "@application/useCases/admin/dashboard/toggleTheme";
+import {ToggleSidebarUseCase} from "@application/useCases/admin/dashboard/toggleSidebar";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({children}: AdminLayoutProps) {
   const {theme} = useThemeStore();
-  const {isCollapsed, isMobileOpen, openMobile, closeMobile} = useSidebarStore();
+  const {isCollapsed, isMobileOpen, openMobile, closeMobile} =
+    useSidebarStore();
 
-  // Sync dark class on <html> with the theme store
+  // Sync dark class on <html> with the theme store.
   useEffect(() => {
     const root = document.documentElement;
     if (theme.mode === "dark") {
@@ -29,7 +30,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const handleToggleSidebar = () => ToggleSidebarUseCase.execute();
 
   return (
-    <div className="h-screen bg-page overflow-hidden">
+    <div className="h-screen bg-page text-foreground overflow-hidden">
       <div className="flex h-full overflow-hidden">
         <Sidebar
           isCollapsed={isCollapsed}
@@ -38,7 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           onMobileClose={closeMobile}
         />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="shrink-0 bg-card border-b border-ui-border shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.2)] relative z-10 w-full transition-all">
+          <div className="shrink-0 bg-card/95 border-b border-ui-border shadow-[0_1px_12px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_14px_rgba(0,0,0,0.22)] relative z-10 w-full transition-all">
             <DashboardHeader
               onToggleTheme={handleToggleTheme}
               theme={theme.mode}
@@ -47,7 +48,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               onOpenMobile={openMobile}
             />
           </div>
-          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-page p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-page p-4 sm:p-6 lg:p-8">
             {children}
           </main>
         </div>

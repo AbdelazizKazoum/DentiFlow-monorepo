@@ -25,23 +25,23 @@ export const AdminDashboard: React.FC = () => {
 
   if (!dashboardData) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
+      <div className="flex min-h-[60vh] items-center justify-center text-text-muted">
+        Loading dashboard...
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <StatsGrid stats={dashboardData.stats} />
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-        <div className="xl:col-span-5 space-y-8">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div className="xl:col-span-5 space-y-6">
           <TodayAppointments appointments={dashboardData.todayAppointments} />
           <AppointmentRequests requests={dashboardData.appointmentRequests} />
         </div>
 
-        <div className="xl:col-span-7 space-y-8">
+        <div className="xl:col-span-7 space-y-6">
           <PatientDetailsCard patient={dashboardData.patientDetails} />
           <ActivityChart data={dashboardData.chartData} />
         </div>

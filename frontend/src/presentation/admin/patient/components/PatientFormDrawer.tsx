@@ -542,7 +542,7 @@ export function PatientFormDrawer({
             <AccordionSection
               title="Patient Record"
               icon={<User />}
-              iconColor="#1e56d0"
+              iconColor="#0f8aa3"
               iconBg="#eff6ff"
               savedBadge={savedSection === "patient"}
               summary={

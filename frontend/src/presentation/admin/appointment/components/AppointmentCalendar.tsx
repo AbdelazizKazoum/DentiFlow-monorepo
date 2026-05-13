@@ -224,7 +224,7 @@ export function AppointmentCalendar({
             return (
               <div
                 style={{
-                  color: "#1e56d0",
+                  color: "#0f8aa3",
                   width: "100%",
                   height: "100%",
                   padding: "4px 6px",

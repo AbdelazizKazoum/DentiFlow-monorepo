@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { ChartData } from "@domain/dashboard/entities";
+import {ChartData} from "@domain/dashboard/entities";
 
 interface ActivityChartProps {
   data: ChartData[];
@@ -16,14 +16,14 @@ interface ActivityChartProps {
 
 export const ActivityChart: React.FC<ActivityChartProps> = ({ data }) => {
   return (
-    <div className="bg-card rounded-3xl p-6 shadow-sm overflow-hidden">
+    <div className="bg-card rounded-lg p-5 shadow-[0_1px_10px_rgba(11,59,73,0.06)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)] border border-ui-border overflow-hidden">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[1rem] font-semibold text-slate-700 dark:text-slate-200">
+        <h3 className="text-[0.9375rem] font-semibold text-foreground">
           Patient Activity
         </h3>
         <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-          <span className="text-[0.75rem] text-[#6d6b77] dark:text-slate-400 font-medium uppercase tracking-widest">
+          <div className="w-2 h-2 rounded-full bg-primary"></div>
+          <span className="text-[0.75rem] text-text-muted font-medium uppercase tracking-widest">
             Total Patients Visited
           </span>
         </div>
@@ -43,7 +43,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({ data }) => {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 500 }}
+              tick={{fill: "var(--text-muted)", fontSize: 10, fontWeight: 500}}
               dy={10}
             />
             <YAxis hide />
@@ -51,8 +51,8 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({ data }) => {
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={index % 2 === 0 ? "#8b5cf6" : "#2dd4bf"}
-                  fillOpacity={0.9}
+                  fill={index % 2 === 0 ? "#0f8aa3" : "#28b8a5"}
+                  fillOpacity={0.92}
                 />
               ))}
             </Bar>

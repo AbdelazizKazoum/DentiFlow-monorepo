@@ -44,7 +44,7 @@ export function QueueActionMenu({
               onClick={() => onStatusChange(entry, "ARRIVED")}
               sx={{fontSize: "0.875rem", py: 1.5}}
             >
-              <RotateCcw size={16} className="mr-3 text-blue-500" />
+              <RotateCcw size={16} className="mr-3 text-primary" />
               Correct to Arrived
             </MenuItem>
           )}
@@ -62,7 +62,7 @@ export function QueueActionMenu({
               onClick={() => onStatusChange(entry, "IN_CHAIR")}
               sx={{fontSize: "0.875rem", py: 1.5}}
             >
-              <UserCheck size={16} className="mr-3 text-purple-500" />
+              <UserCheck size={16} className="mr-3 text-brand-accent" />
               Mark as In Chair
             </MenuItem>
           )}

@@ -57,7 +57,7 @@ export const SORT_OPTIONS: {value: SortOption; label: string}[] = [
 export const PAGE_SIZE = 8;
 
 export const AVATAR_COLORS = [
-  "#1e56d0",
+  "#0f8aa3",
   "#279C41",
   "#d97706",
   "#7c3aed",

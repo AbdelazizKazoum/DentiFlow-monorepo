@@ -4,7 +4,7 @@ export const ROLE_CONFIG: Record<
   StaffRole,
   {label: string; color: string; bg: string}
 > = {
-  [StaffRole.DOCTOR]: {label: "Doctor", color: "#1e56d0", bg: "#e8f0fe"},
+  [StaffRole.DOCTOR]: {label: "Doctor", color: "#0f8aa3", bg: "#e3f6f8"},
   [StaffRole.SECRETARY]: {label: "Secretary", color: "#c05621", bg: "#fef3e8"},
   [StaffRole.DENTAL_ASSISTANT]: {
     label: "Dental Assistant",

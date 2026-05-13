@@ -4,7 +4,7 @@ export function AppointmentCalendarStyles() {
         .fc {
           --fc-border-color: #e2e8f0;
           --fc-today-bg-color: rgba(0,0,0,0.02);
-          --fc-now-indicator-color: #1e56d0;
+          --fc-now-indicator-color: #0f8aa3;
           font-family: inherit;
         }
         .dark .fc-theme-standard td, .dark .fc-theme-standard th, .dark .fc-theme-standard .fc-scrollgrid {
@@ -102,7 +102,7 @@ export function AppointmentCalendarStyles() {
         .fc .fc-today-button {
           background: #f0f4ff !important;
           border-color: #c7d7fa !important;
-          color: #1e56d0 !important;
+          color: #0f8aa3 !important;
           font-weight: 600 !important;
           letter-spacing: 0.01em !important;
         }
@@ -163,7 +163,7 @@ export function AppointmentCalendarStyles() {
         .fc .fc-button-group .fc-button-primary:not(:disabled).fc-button-active,
         .fc .fc-button-group .fc-button-primary:not(:disabled):active {
           background: #eff6ff !important;
-          color: #1e56d0 !important;
+          color: #0f8aa3 !important;
           font-weight: 600 !important;
         }
         .dark .fc .fc-button-group .fc-button-primary:not(:disabled).fc-button-active,
@@ -177,7 +177,7 @@ export function AppointmentCalendarStyles() {
         .fc .fc-addAppointment-button {
           height: 36px !important;
           padding: 0 16px !important;
-          background: #1e56d0 !important;
+          background: #0f8aa3 !important;
           color: #ffffff !important;
           border: none !important;
           border-radius: 8px !important;
@@ -254,7 +254,7 @@ export function AppointmentCalendarStyles() {
           text-decoration: none !important;
           padding: 8px 0 !important;
         }
-        .fc-day-today .fc-col-header-cell-cushion { color: #1e56d0 !important; }
+        .fc-day-today .fc-col-header-cell-cushion { color: #0f8aa3 !important; }
         .fc-timegrid-axis-cushion,
         .fc-timegrid-slot-label-cushion {
           font-size: 0.8rem !important;
@@ -268,17 +268,17 @@ export function AppointmentCalendarStyles() {
         :root {
           --fc-highlight-color: rgba(30, 86, 208, 0.15);
           --fc-event-bg-color: rgba(30, 86, 208, 0.25);
-          --fc-event-border-color: #1e56d0;
-          --fc-event-text-color: #1e56d0;
+          --fc-event-border-color: #0f8aa3;
+          --fc-event-text-color: #0f8aa3;
           --fc-event-selected-overlay-color: rgba(0, 0, 0, 0);
         }
         .fc-timegrid-event.fc-v-event.fc-select-mirror,
         .fc-select-mirror {
           --fc-event-bg-color: rgba(30, 86, 208, 0.2) !important;
-          --fc-event-border-color: #1e56d0 !important;
-          --fc-event-text-color: #1e56d0 !important;
+          --fc-event-border-color: #0f8aa3 !important;
+          --fc-event-text-color: #0f8aa3 !important;
           background-color: rgba(30, 86, 208, 0.2) !important;
-          border-left: 3px solid #1e56d0 !important;
+          border-left: 3px solid #0f8aa3 !important;
           border-top: none !important;
           border-right: none !important;
           border-bottom: none !important;
@@ -289,7 +289,7 @@ export function AppointmentCalendarStyles() {
         .fc-select-mirror .fc-event-main,
         .fc-select-mirror .fc-event-time,
         .fc-select-mirror .fc-event-title {
-          color: #1e56d0 !important;
+          color: #0f8aa3 !important;
           font-weight: 600 !important;
           font-size: 0.75rem !important;
         }
