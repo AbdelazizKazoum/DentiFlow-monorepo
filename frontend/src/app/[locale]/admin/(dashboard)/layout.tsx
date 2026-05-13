@@ -12,8 +12,8 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { theme } = useThemeStore();
-  const { isCollapsed } = useSidebarStore();
+  const {theme} = useThemeStore();
+  const {isCollapsed, isMobileOpen, openMobile, closeMobile} = useSidebarStore();
 
   // Sync dark class on <html> with the theme store
   useEffect(() => {
@@ -31,7 +31,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="h-screen bg-page overflow-hidden">
       <div className="flex h-full overflow-hidden">
-        <Sidebar isCollapsed={isCollapsed} onToggle={handleToggleSidebar} />
+        <Sidebar
+          isCollapsed={isCollapsed}
+          onToggle={handleToggleSidebar}
+          isMobileOpen={isMobileOpen}
+          onMobileClose={closeMobile}
+        />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           <div className="shrink-0 bg-card border-b border-ui-border shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.2)] relative z-10 w-full transition-all">
             <DashboardHeader
@@ -39,6 +44,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               theme={theme.mode}
               onToggleSidebar={handleToggleSidebar}
               isSidebarCollapsed={isCollapsed}
+              onOpenMobile={openMobile}
             />
           </div>
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-page p-6 lg:p-8">

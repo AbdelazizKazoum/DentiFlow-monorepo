@@ -14,6 +14,7 @@ interface DashboardHeaderProps {
   theme: "light" | "dark";
   onToggleSidebar: () => void;
   isSidebarCollapsed: boolean;
+  onOpenMobile?: () => void;
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -21,14 +22,24 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   theme,
   onToggleSidebar,
   isSidebarCollapsed,
+  onOpenMobile,
 }) => {
   return (
     <header className="flex items-center justify-between px-6 h-16 gap-4 w-full bg-card">
       <div className="flex items-center gap-3 w-1/4">
+        {/* Desktop: collapse/expand sidebar */}
         <button
           onClick={onToggleSidebar}
-          className="p-2 rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-all"
+          className="hidden md:flex p-2 rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-all"
           title={isSidebarCollapsed ? "Open sidebar" : "Close sidebar"}
+        >
+          <Menu size={20} />
+        </button>
+        {/* Mobile: open drawer */}
+        <button
+          onClick={onOpenMobile}
+          className="flex md:hidden p-2 rounded-full text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-all"
+          aria-label="Open navigation"
         >
           <Menu size={20} />
         </button>
