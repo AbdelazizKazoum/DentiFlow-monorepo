@@ -142,7 +142,7 @@ export interface DentalAct {
 ### `frontend/src/domain/treatment/entities/toothTreatment.ts`
 
 ```ts
-import type { TreatmentStatus } from "./dentalAct";
+import type {TreatmentStatus} from "./dentalAct";
 
 /** FDI mesh name string — e.g. "tooth_16" */
 export type ToothId = string;
@@ -166,7 +166,7 @@ export interface ToothTreatment {
 ### `frontend/src/domain/treatment/repositories/ITreatmentRepository.ts`
 
 ```ts
-import type { ToothTreatment } from "../entities/toothTreatment";
+import type {ToothTreatment} from "../entities/toothTreatment";
 
 export interface ITreatmentRepository {
   getTreatmentsByPatient(patientId: string): Promise<ToothTreatment[]>;
@@ -189,19 +189,22 @@ export interface ITreatmentRepository {
 
 Each use case receives store action functions as constructor parameters — consistent with the existing pattern (`loadDashboardData`, `toggleTheme`).
 
-| File | Responsibility |
-|---|---|
-| `addTreatmentUseCase.ts` | Validate act + toothId, generate UUID (`crypto.randomUUID()`), build `ToothTreatment`, dispatch `store.addTreatment` |
-| `updateTreatmentStatusUseCase.ts` | Validate status value, dispatch `store.updateTreatment` |
-| `removeTreatmentUseCase.ts` | Dispatch `store.removeTreatment` |
-| `saveTreatmentNoteUseCase.ts` | Trim note, dispatch `store.updateTreatment({ notes })` |
+| File                              | Responsibility                                                                                                       |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `addTreatmentUseCase.ts`          | Validate act + toothId, generate UUID (`crypto.randomUUID()`), build `ToothTreatment`, dispatch `store.addTreatment` |
+| `updateTreatmentStatusUseCase.ts` | Validate status value, dispatch `store.updateTreatment`                                                              |
+| `removeTreatmentUseCase.ts`       | Dispatch `store.removeTreatment`                                                                                     |
+| `saveTreatmentNoteUseCase.ts`     | Trim note, dispatch `store.updateTreatment({ notes })`                                                               |
 
 **Example — `addTreatmentUseCase.ts`:**
 
 ```ts
-import { v4 as uuid } from "uuid"; // or crypto.randomUUID()
-import type { DentalAct } from "@/domain/treatment/entities/dentalAct";
-import type { ToothTreatment, ToothId } from "@/domain/treatment/entities/toothTreatment";
+import {v4 as uuid} from "uuid"; // or crypto.randomUUID()
+import type {DentalAct} from "@/domain/treatment/entities/dentalAct";
+import type {
+  ToothTreatment,
+  ToothId,
+} from "@/domain/treatment/entities/toothTreatment";
 
 type AddFn = (t: ToothTreatment) => void;
 
@@ -237,8 +240,8 @@ export class AddTreatmentUseCase {
 ### `frontend/src/presentation/stores/dentalChartStore.ts`
 
 ```ts
-import { create } from "zustand";
-import type { DentalAct } from "@/domain/treatment/entities/dentalAct";
+import {create} from "zustand";
+import type {DentalAct} from "@/domain/treatment/entities/dentalAct";
 import type {
   ToothTreatment,
   ToothId,
@@ -276,22 +279,19 @@ export const useDentalChartStore = create<DentalChartState>((set) => ({
   treatments: [],
   popupOpen: false,
 
-  setSelectedTooth: (id) =>
-    set({ selectedToothId: id, popupOpen: id !== null }),
-  setHoveredTooth: (id) => set({ hoveredToothId: id }),
-  setDraggingAct: (act) => set({ draggingAct: act }),
-  setOrbitEnabled: (enabled) => set({ orbitEnabled: enabled }),
-  setPopupOpen: (open) => set({ popupOpen: open }),
+  setSelectedTooth: (id) => set({selectedToothId: id, popupOpen: id !== null}),
+  setHoveredTooth: (id) => set({hoveredToothId: id}),
+  setDraggingAct: (act) => set({draggingAct: act}),
+  setOrbitEnabled: (enabled) => set({orbitEnabled: enabled}),
+  setPopupOpen: (open) => set({popupOpen: open}),
 
-  addTreatment: (t) => set((s) => ({ treatments: [...s.treatments, t] })),
+  addTreatment: (t) => set((s) => ({treatments: [...s.treatments, t]})),
   updateTreatment: (id, patch) =>
     set((s) => ({
-      treatments: s.treatments.map((t) =>
-        t.id === id ? { ...t, ...patch } : t,
-      ),
+      treatments: s.treatments.map((t) => (t.id === id ? {...t, ...patch} : t)),
     })),
   removeTreatment: (id) =>
-    set((s) => ({ treatments: s.treatments.filter((t) => t.id !== id) })),
+    set((s) => ({treatments: s.treatments.filter((t) => t.id !== id)})),
 }));
 ```
 
@@ -302,17 +302,73 @@ export const useDentalChartStore = create<DentalChartState>((set) => ({
 ### `frontend/src/presentation/admin/treatment/data/dentalActs.data.ts`
 
 ```ts
-import type { DentalAct } from "@/domain/treatment/entities/dentalAct";
+import type {DentalAct} from "@/domain/treatment/entities/dentalAct";
 
 export const DENTAL_ACTS: DentalAct[] = [
-  { id: "caries",       label: "Caries",        icon: "AlertCircle",         category: "Diagnostic",   defaultStatus: "planned",  colorHex: "#EF4444" },
-  { id: "filling",      label: "Filling",        icon: "CircleDot",           category: "Restorative",  defaultStatus: "planned",  colorHex: "#3B82F6" },
-  { id: "crown",        label: "Crown",          icon: "Crown",               category: "Prosthetic",   defaultStatus: "planned",  colorHex: "#F59E0B" },
-  { id: "implant",      label: "Implant",        icon: "Anchor",              category: "Surgical",     defaultStatus: "planned",  colorHex: "#8B5CF6" },
-  { id: "extraction",   label: "Extraction",     icon: "X",                   category: "Surgical",     defaultStatus: "planned",  colorHex: "#374151" },
-  { id: "root_canal",   label: "Root Canal",     icon: "Zap",                 category: "Endodontic",   defaultStatus: "planned",  colorHex: "#DC2626" },
-  { id: "whitening",    label: "Whitening",      icon: "Sun",                 category: "Cosmetic",     defaultStatus: "planned",  colorHex: "#60A5FA" },
-  { id: "orthodontics", label: "Orthodontics",   icon: "GitCommitHorizontal", category: "Orthodontic",  defaultStatus: "planned",  colorHex: "#FCD34D" },
+  {
+    id: "caries",
+    label: "Caries",
+    icon: "AlertCircle",
+    category: "Diagnostic",
+    defaultStatus: "planned",
+    colorHex: "#EF4444",
+  },
+  {
+    id: "filling",
+    label: "Filling",
+    icon: "CircleDot",
+    category: "Restorative",
+    defaultStatus: "planned",
+    colorHex: "#3B82F6",
+  },
+  {
+    id: "crown",
+    label: "Crown",
+    icon: "Crown",
+    category: "Prosthetic",
+    defaultStatus: "planned",
+    colorHex: "#F59E0B",
+  },
+  {
+    id: "implant",
+    label: "Implant",
+    icon: "Anchor",
+    category: "Surgical",
+    defaultStatus: "planned",
+    colorHex: "#8B5CF6",
+  },
+  {
+    id: "extraction",
+    label: "Extraction",
+    icon: "X",
+    category: "Surgical",
+    defaultStatus: "planned",
+    colorHex: "#374151",
+  },
+  {
+    id: "root_canal",
+    label: "Root Canal",
+    icon: "Zap",
+    category: "Endodontic",
+    defaultStatus: "planned",
+    colorHex: "#DC2626",
+  },
+  {
+    id: "whitening",
+    label: "Whitening",
+    icon: "Sun",
+    category: "Cosmetic",
+    defaultStatus: "planned",
+    colorHex: "#60A5FA",
+  },
+  {
+    id: "orthodontics",
+    label: "Orthodontics",
+    icon: "GitCommitHorizontal",
+    category: "Orthodontic",
+    defaultStatus: "planned",
+    colorHex: "#FCD34D",
+  },
 ];
 ```
 
@@ -403,21 +459,23 @@ frontend/src/presentation/admin/treatment/
 // 6. onDragEnd   → resolveDrop() → if hit: AddTreatmentUseCase.execute()
 //                → setDraggingAct(null) + setOrbitEnabled(true).
 
-import { useRef } from "react";
-import { DndContext, DragOverlay, type DragEndEvent } from "@dnd-kit/core";
-import { AnimatePresence } from "framer-motion";
-import { useDentalChartStore } from "@/presentation/stores/dentalChartStore";
-import { DentalScene } from "./components/DentalScene/DentalScene";
-import { TreatmentPalette } from "./components/TreatmentPalette/TreatmentPalette";
-import { ToothPopup } from "./components/ToothPopup/ToothPopup";
-import { ActCard } from "./components/TreatmentPalette/ActCard";
-import { useDentalDrop } from "./hooks/useDentalDrop";
-import { AddTreatmentUseCase } from "@/application/useCases/admin/treatment/addTreatmentUseCase";
-import type { DentalAct } from "@/domain/treatment/entities/dentalAct";
+import {useRef} from "react";
+import {DndContext, DragOverlay, type DragEndEvent} from "@dnd-kit/core";
+import {AnimatePresence} from "framer-motion";
+import {useDentalChartStore} from "@/presentation/stores/dentalChartStore";
+import {DentalScene} from "./components/DentalScene/DentalScene";
+import {TreatmentPalette} from "./components/TreatmentPalette/TreatmentPalette";
+import {ToothPopup} from "./components/ToothPopup/ToothPopup";
+import {ActCard} from "./components/TreatmentPalette/ActCard";
+import {useDentalDrop} from "./hooks/useDentalDrop";
+import {AddTreatmentUseCase} from "@/application/useCases/admin/treatment/addTreatmentUseCase";
+import type {DentalAct} from "@/domain/treatment/entities/dentalAct";
 
 export default function TreatmentPage() {
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<{ camera: THREE.Camera; scene: THREE.Scene } | null>(null);
+  const sceneRef = useRef<{camera: THREE.Camera; scene: THREE.Scene} | null>(
+    null,
+  );
 
   const {
     draggingAct,
@@ -427,7 +485,7 @@ export default function TreatmentPage() {
     addTreatment,
   } = useDentalChartStore();
 
-  const { resolveDrop } = useDentalDrop(canvasWrapperRef, sceneRef);
+  const {resolveDrop} = useDentalDrop(canvasWrapperRef, sceneRef);
   const addUseCase = new AddTreatmentUseCase(addTreatment);
 
   function handleDragStart(event: DragStartEvent) {
@@ -467,9 +525,7 @@ export default function TreatmentPage() {
         </div>
 
         {/* Right — Tooth Popup */}
-        <AnimatePresence>
-          {popupOpen && <ToothPopup />}
-        </AnimatePresence>
+        <AnimatePresence>{popupOpen && <ToothPopup />}</AnimatePresence>
       </div>
 
       {/* Drag ghost overlay */}
@@ -515,14 +571,14 @@ export default function TreatmentPage() {
 
 **Critical canvas settings for rendering quality:**
 
-| Setting | Value | Reason |
-|---|---|---|
-| `gl.antialias` | `true` | Smooth edges |
-| `gl.powerPreference` | `"high-performance"` | GPU priority |
-| `dpr` | `[1, 2]` | Retina-aware, capped at 2× |
-| `shadows` | `true` | Realistic depth |
-| `camera.fov` | `40` | Telephoto — reduces perspective distortion on teeth |
-| `Environment preset` | `"studio"` | Neutral professional reflections |
+| Setting              | Value                | Reason                                              |
+| -------------------- | -------------------- | --------------------------------------------------- |
+| `gl.antialias`       | `true`               | Smooth edges                                        |
+| `gl.powerPreference` | `"high-performance"` | GPU priority                                        |
+| `dpr`                | `[1, 2]`             | Retina-aware, capped at 2×                          |
+| `shadows`            | `true`               | Realistic depth                                     |
+| `camera.fov`         | `40`                 | Telephoto — reduces perspective distortion on teeth |
+| `Environment preset` | `"studio"`           | Neutral professional reflections                    |
 
 ---
 
@@ -531,11 +587,13 @@ export default function TreatmentPage() {
 This is the most critical component. Implement carefully.
 
 **Loading:**
+
 ```ts
-const { scene } = useGLTF("/models/teeth.glb");
+const {scene} = useGLTF("/models/teeth.glb");
 ```
 
 **Material isolation and enhancement — run once on mount:**
+
 ```ts
 useEffect(() => {
   scene.traverse((obj) => {
@@ -548,14 +606,14 @@ useEffect(() => {
 
       // Step 3: Replace with MeshPhysicalMaterial for realistic dental look
       const dental = new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color("#F5F0EB"),     // warm ivory white
-        roughness: 0.15,                        // glossy enamel
+        color: new THREE.Color("#F5F0EB"), // warm ivory white
+        roughness: 0.15, // glossy enamel
         metalness: 0.0,
         reflectivity: 0.8,
-        clearcoat: 0.6,                         // enamel clearcoat
+        clearcoat: 0.6, // enamel clearcoat
         clearcoatRoughness: 0.1,
         envMapIntensity: 1.2,
-        flatShading: false,                     // NEVER true — preserves smooth normals
+        flatShading: false, // NEVER true — preserves smooth normals
       });
 
       obj.material = dental;
@@ -567,6 +625,7 @@ useEffect(() => {
 ```
 
 **Hover / selected / treatment tint — update emissive color reactively:**
+
 ```ts
 useFrame(() => {
   scene.traverse((obj) => {
@@ -576,18 +635,18 @@ useFrame(() => {
       const isHovered = hoveredToothId === toothId;
       const isSelected = selectedToothId === toothId;
       const activeCount = treatments.filter(
-        (t) => t.toothId === toothId && t.status !== "completed"
+        (t) => t.toothId === toothId && t.status !== "completed",
       ).length;
 
       if (isSelected) {
-        mat.emissive.set("#1E40AF");   // deep blue selected
+        mat.emissive.set("#1E40AF"); // deep blue selected
         mat.emissiveIntensity = 0.18;
       } else if (isHovered) {
-        mat.emissive.set("#BFDBFE");   // soft blue hover
+        mat.emissive.set("#BFDBFE"); // soft blue hover
         mat.emissiveIntensity = 0.12;
       } else if (activeCount > 0) {
-        mat.emissive.set("#FEF3C7");   // subtle amber — active treatment
-        mat.emissiveIntensity = 0.10;
+        mat.emissive.set("#FEF3C7"); // subtle amber — active treatment
+        mat.emissiveIntensity = 0.1;
       } else {
         mat.emissive.set("#000000");
         mat.emissiveIntensity = 0;
@@ -598,11 +657,13 @@ useFrame(() => {
 ```
 
 **Event handlers on the primitive:**
+
 - `onPointerOver`: `(e) => { e.stopPropagation(); setHoveredTooth(e.object.name); }`
 - `onPointerOut`: `(e) => { setHoveredTooth(null); }`
 - `onClick`: `(e) => { e.stopPropagation(); setSelectedTooth(e.object.name); }`
 
 **Performance notes:**
+
 - Wrap the component with `React.memo`.
 - Store the cloned material references in a `useRef<Map<string, THREE.MeshPhysicalMaterial>>` to avoid re-traversal inside `useFrame` — only update the stored references.
 - `useFrame` runs every RAF tick; keep the logic O(n) over the 32 tooth materials map only.
@@ -779,38 +840,38 @@ This is necessary because `useThree()` can only be called inside the R3F Canvas 
 
 The following requirements define the minimum bar for the rendered result to feel like **professional dental SaaS** and not a basic Three.js demo:
 
-| Requirement | Implementation |
-|---|---|
-| Anti-aliasing | `<Canvas gl={{ antialias: true }}>` |
-| Smooth normals | `geometry.computeVertexNormals()` on every tooth mesh at load |
-| No flat shading | `flatShading: false` on all materials (never set to `true`) |
-| Physical material | `THREE.MeshPhysicalMaterial` with `clearcoat`, `roughness: 0.15` |
-| Environment lighting | `<Environment preset="studio" />` from `@react-three/drei` |
-| Directional key light | `position={[5, 10, 5]}` intensity 1.2 |
-| Fill light | `position={[-5, 5, -5]}` intensity 0.5 |
-| Ambient light | `intensity={0.4}` |
-| Shadow casting | `castShadow` + `receiveShadow` on tooth meshes |
-| Hover feedback | Emissive `#BFDBFE` intensity 0.12 |
-| Selected feedback | Emissive `#1E40AF` intensity 0.18 |
-| Active treatment tint | Emissive `#FEF3C7` intensity 0.10 (never heavy color replacement) |
-| Retina display | `dpr={[1, 2]}` |
-| Telephoto lens | `fov: 40` (reduces distortion on close model view) |
-| Material isolation | `obj.material = new THREE.MeshPhysicalMaterial(...)` per tooth mesh (never shared) |
+| Requirement           | Implementation                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| Anti-aliasing         | `<Canvas gl={{ antialias: true }}>`                                                |
+| Smooth normals        | `geometry.computeVertexNormals()` on every tooth mesh at load                      |
+| No flat shading       | `flatShading: false` on all materials (never set to `true`)                        |
+| Physical material     | `THREE.MeshPhysicalMaterial` with `clearcoat`, `roughness: 0.15`                   |
+| Environment lighting  | `<Environment preset="studio" />` from `@react-three/drei`                         |
+| Directional key light | `position={[5, 10, 5]}` intensity 1.2                                              |
+| Fill light            | `position={[-5, 5, -5]}` intensity 0.5                                             |
+| Ambient light         | `intensity={0.4}`                                                                  |
+| Shadow casting        | `castShadow` + `receiveShadow` on tooth meshes                                     |
+| Hover feedback        | Emissive `#BFDBFE` intensity 0.12                                                  |
+| Selected feedback     | Emissive `#1E40AF` intensity 0.18                                                  |
+| Active treatment tint | Emissive `#FEF3C7` intensity 0.10 (never heavy color replacement)                  |
+| Retina display        | `dpr={[1, 2]}`                                                                     |
+| Telephoto lens        | `fov: 40` (reduces distortion on close model view)                                 |
+| Material isolation    | `obj.material = new THREE.MeshPhysicalMaterial(...)` per tooth mesh (never shared) |
 
 ---
 
 ## Performance Requirements
 
-| Area | Strategy |
-|---|---|
-| Material refs | Store cloned material references in `useRef<Map<string, THREE.MeshPhysicalMaterial>>` — avoid re-traversing the scene graph on every frame |
-| `useFrame` logic | O(32) loop over a flat material map — no traversal inside the RAF tick |
-| Marker rendering | `useMemo` on `treatments` array inside `TreatmentMarkers` to prevent re-render on unrelated store changes |
-| `TeethModel` | Wrap with `React.memo` — only re-renders when `scene` ref changes |
-| `TreatmentMarker` | Wrap with `React.memo(({ treatment, position }) => ...)` |
-| `useGLTF.preload` | Call `useGLTF.preload("/models/teeth.glb")` at module level in `DentalScene.tsx` |
-| Canvas DPR cap | `dpr={[1, 2]}` prevents 3× render on high-DPI devices |
-| Selective store subscription | Each component subscribes to only the slice of the store it needs using selector functions |
+| Area                         | Strategy                                                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Material refs                | Store cloned material references in `useRef<Map<string, THREE.MeshPhysicalMaterial>>` — avoid re-traversing the scene graph on every frame |
+| `useFrame` logic             | O(32) loop over a flat material map — no traversal inside the RAF tick                                                                     |
+| Marker rendering             | `useMemo` on `treatments` array inside `TreatmentMarkers` to prevent re-render on unrelated store changes                                  |
+| `TeethModel`                 | Wrap with `React.memo` — only re-renders when `scene` ref changes                                                                          |
+| `TreatmentMarker`            | Wrap with `React.memo(({ treatment, position }) => ...)`                                                                                   |
+| `useGLTF.preload`            | Call `useGLTF.preload("/models/teeth.glb")` at module level in `DentalScene.tsx`                                                           |
+| Canvas DPR cap               | `dpr={[1, 2]}` prevents 3× render on high-DPI devices                                                                                      |
+| Selective store subscription | Each component subscribes to only the slice of the store it needs using selector functions                                                 |
 
 ---
 
@@ -824,13 +885,13 @@ The following requirements define the minimum bar for the rendered result to fee
 
 ## Accessibility
 
-| Requirement | Implementation |
-|---|---|
-| Keyboard fallback for drag | "Tab to tooth" → `onClick` selects it → "+ Add Act" inside popup is keyboard-accessible |
-| Act card ARIA | `aria-label="Drag ${act.label} onto a tooth"` |
-| Popup close ARIA | `aria-label="Close tooth detail panel"` |
-| Color not sole indicator | Every tinted state is paired with an icon or text label |
-| Focus management | On popup open, focus moves to the popup header; on close, returns to the last selected tooth's DOM equivalent |
+| Requirement                | Implementation                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Keyboard fallback for drag | "Tab to tooth" → `onClick` selects it → "+ Add Act" inside popup is keyboard-accessible                       |
+| Act card ARIA              | `aria-label="Drag ${act.label} onto a tooth"`                                                                 |
+| Popup close ARIA           | `aria-label="Close tooth detail panel"`                                                                       |
+| Color not sole indicator   | Every tinted state is paired with an icon or text label                                                       |
+| Focus management           | On popup open, focus moves to the popup header; on close, returns to the last selected tooth's DOM equivalent |
 
 ---
 
