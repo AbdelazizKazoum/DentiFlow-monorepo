@@ -1,0 +1,68 @@
+import type {DentalAct} from "@/domain/treatment/entities/dentalAct";
+
+export const DENTAL_ACTS: DentalAct[] = [
+  {
+    id: "caries",
+    label: "Caries",
+    icon: "AlertCircle",
+    category: "Diagnostic",
+    defaultStatus: "planned",
+    colorHex: "#EF4444",
+  },
+  {
+    id: "filling",
+    label: "Filling",
+    icon: "CircleDot",
+    category: "Restorative",
+    defaultStatus: "planned",
+    colorHex: "#3B82F6",
+  },
+  {
+    id: "crown",
+    label: "Crown",
+    icon: "Crown",
+    category: "Prosthetic",
+    defaultStatus: "planned",
+    colorHex: "#F59E0B",
+  },
+  {
+    id: "implant",
+    label: "Implant",
+    icon: "Anchor",
+    category: "Surgical",
+    defaultStatus: "planned",
+    colorHex: "#8B5CF6",
+  },
+  {
+    id: "extraction",
+    label: "Extraction",
+    icon: "X",
+    category: "Surgical",
+    defaultStatus: "planned",
+    colorHex: "#374151",
+  },
+  {
+    id: "root_canal",
+    label: "Root Canal",
+    icon: "Zap",
+    category: "Endodontic",
+    defaultStatus: "planned",
+    colorHex: "#DC2626",
+  },
+  {
+    id: "whitening",
+    label: "Whitening",
+    icon: "Sun",
+    category: "Cosmetic",
+    defaultStatus: "planned",
+    colorHex: "#60A5FA",
+  },
+  {
+    id: "orthodontics",
+    label: "Orthodontics",
+    icon: "GitCommitHorizontal",
+    category: "Orthodontic",
+    defaultStatus: "planned",
+    colorHex: "#FCD34D",
+  },
+];
