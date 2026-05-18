@@ -47,7 +47,7 @@ export function useToothMaterials({
     const activeColors = new Map<string, string[]>();
 
     treatments.forEach((treatment) => {
-      if (treatment.status !== "completed") {
+      if (treatment.status !== "completed" && treatment.actId !== "extraction") {
         activeCounts.set(
           treatment.toothId,
           (activeCounts.get(treatment.toothId) ?? 0) + 1,

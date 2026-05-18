@@ -12,6 +12,8 @@ interface DentalChartState {
   orbitEnabled: boolean;
   treatments: ToothTreatment[];
   toothSurfacePositions: Record<ToothId, [number, number, number]>;
+  toothSurfaceRotations: Record<ToothId, [number, number, number, number]>;
+  toothSurfaceRadii: Record<ToothId, number>;
   popupOpen: boolean;
   setSelectedTooth: (id: ToothId | null) => void;
   setHoveredTooth: (id: ToothId | null) => void;
@@ -22,6 +24,11 @@ interface DentalChartState {
     id: ToothId,
     position: [number, number, number],
   ) => void;
+  setToothSurfaceRotation: (
+    id: ToothId,
+    rotation: [number, number, number, number],
+  ) => void;
+  setToothSurfaceRadius: (id: ToothId, radius: number) => void;
   addTreatment: (treatment: ToothTreatment) => void;
   updateTreatment: (id: string, patch: Partial<ToothTreatment>) => void;
   removeTreatment: (id: string) => void;
@@ -34,6 +41,8 @@ export const useDentalChartStore = create<DentalChartState>((set) => ({
   orbitEnabled: true,
   treatments: [],
   toothSurfacePositions: {},
+  toothSurfaceRotations: {},
+  toothSurfaceRadii: {},
   popupOpen: false,
   setSelectedTooth: (id) => set({selectedToothId: id, popupOpen: id !== null}),
   setHoveredTooth: (id) => set({hoveredToothId: id}),
@@ -45,6 +54,20 @@ export const useDentalChartStore = create<DentalChartState>((set) => ({
       toothSurfacePositions: {
         ...state.toothSurfacePositions,
         [id]: position,
+      },
+    })),
+  setToothSurfaceRotation: (id, rotation) =>
+    set((state) => ({
+      toothSurfaceRotations: {
+        ...state.toothSurfaceRotations,
+        [id]: rotation,
+      },
+    })),
+  setToothSurfaceRadius: (id, radius) =>
+    set((state) => ({
+      toothSurfaceRadii: {
+        ...state.toothSurfaceRadii,
+        [id]: radius,
       },
     })),
   addTreatment: (treatment) =>

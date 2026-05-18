@@ -31,6 +31,13 @@ function getObjectCenter(object: THREE.Object3D): [number, number, number] {
   return [center.x, center.y + 0.12, center.z];
 }
 
+function getObjectRadius(object: THREE.Object3D): number {
+  const box = new THREE.Box3().setFromObject(object);
+  const size = box.getSize(new THREE.Vector3());
+
+  return Math.max(size.x, size.y, size.z) * 0.42;
+}
+
 export const TeethModel = React.memo(function TeethModel() {
   const gltf = useGLTF(MODEL_PATH);
   const scene = gltf.scene;
@@ -43,6 +50,12 @@ export const TeethModel = React.memo(function TeethModel() {
   );
   const setToothSurfacePosition = useDentalChartStore(
     (state) => state.setToothSurfacePosition,
+  );
+  const setToothSurfaceRotation = useDentalChartStore(
+    (state) => state.setToothSurfaceRotation,
+  );
+  const setToothSurfaceRadius = useDentalChartStore(
+    (state) => state.setToothSurfaceRadius,
   );
   const [tooltipPosition, setTooltipPosition] = useState<
     [number, number, number] | null
@@ -64,13 +77,27 @@ export const TeethModel = React.memo(function TeethModel() {
 
   useEffect(() => {
     normalizedScene.updateMatrixWorld(true);
+    const quaternion = new THREE.Quaternion();
 
     normalizedScene.traverse((object) => {
       if (object.name.startsWith("tooth_")) {
+        object.getWorldQuaternion(quaternion);
         setToothSurfacePosition(object.name, getObjectCenter(object));
+        setToothSurfaceRotation(object.name, [
+          quaternion.x,
+          quaternion.y,
+          quaternion.z,
+          quaternion.w,
+        ]);
+        setToothSurfaceRadius(object.name, getObjectRadius(object));
       }
     });
-  }, [normalizedScene, setToothSurfacePosition]);
+  }, [
+    normalizedScene,
+    setToothSurfacePosition,
+    setToothSurfaceRadius,
+    setToothSurfaceRotation,
+  ]);
 
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
     const toothId = findToothId(event.object);
