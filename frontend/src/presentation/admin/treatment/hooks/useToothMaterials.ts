@@ -29,6 +29,10 @@ interface TreatmentMaterialUserData {
 
 const MAX_TREATMENT_BANDS = 8;
 const TOOTH_BASE_COLOR = new THREE.Color("#E8E1D8");
+const UNFINISHED_STATUS_COLOR = {
+  planned: "#F59E0B",
+  in_progress: "#3B82F6",
+} as const;
 
 export function useToothMaterials({
   scene,
@@ -47,14 +51,20 @@ export function useToothMaterials({
     const activeColors = new Map<string, string[]>();
 
     treatments.forEach((treatment) => {
-      if (treatment.status !== "completed" && treatment.actId !== "extraction") {
+      if (
+        treatment.status !== "completed" &&
+        treatment.status !== "cancelled" &&
+        treatment.actId !== "extraction"
+      ) {
         activeCounts.set(
           treatment.toothId,
           (activeCounts.get(treatment.toothId) ?? 0) + 1,
         );
         activeColors.set(treatment.toothId, [
           ...(activeColors.get(treatment.toothId) ?? []),
-          treatment.actColor,
+          UNFINISHED_STATUS_COLOR[
+            treatment.status === "in_progress" ? "in_progress" : "planned"
+          ],
         ]);
       }
     });

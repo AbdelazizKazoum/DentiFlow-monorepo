@@ -11,6 +11,7 @@ import {DeletePatientInsurance} from "@/application/patient/useCases/DeletePatie
 import {GetInsuranceProviders} from "@/application/patient/useCases/GetInsuranceProviders";
 import {GetInsuranceTemplates} from "@/application/patient/useCases/GetInsuranceTemplates";
 import {GetPatientDocuments} from "@/application/patient/useCases/GetPatientDocuments";
+import {GetPatientById} from "@/application/patient/useCases/GetPatientById";
 import {GetPatientInsurances} from "@/application/patient/useCases/GetPatientInsurances";
 import {GetPatientsByClinic} from "@/application/patient/useCases/GetPatientsByClinic";
 import {SearchPatients} from "@/application/patient/useCases/SearchPatients";
@@ -43,6 +44,7 @@ const insuranceTemplateRepository = new InsuranceTemplateHttpRepository(
 export const getPatientsByClinicUseCase = new GetPatientsByClinic(
   patientRepository,
 );
+export const getPatientByIdUseCase = new GetPatientById(patientRepository);
 export const searchPatientsUseCase = new SearchPatients(
   patientRepository,
   clinicId,

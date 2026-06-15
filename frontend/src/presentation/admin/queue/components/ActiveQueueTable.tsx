@@ -28,6 +28,7 @@ import {
   MoreVertical,
   Phone,
   RotateCcw,
+  Stethoscope,
   User,
 } from "lucide-react";
 import {useMemo, useState} from "react";
@@ -49,6 +50,7 @@ interface ActiveQueueTableProps {
   onReorder: (ids: string[]) => void;
   onResetOrder: () => void;
   onSortModeChange: (mode: QueueSortMode) => void;
+  onStartTreatment: (patientId: string) => void;
 }
 
 interface SortableQueueRowProps {
@@ -57,6 +59,7 @@ interface SortableQueueRowProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
+  onStartTreatment: (patientId: string) => void;
 }
 
 interface MobileQueueItemProps {
@@ -65,6 +68,7 @@ interface MobileQueueItemProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
+  onStartTreatment: (patientId: string) => void;
 }
 
 interface QueueDragOverlayProps {
@@ -84,6 +88,7 @@ function SortableQueueRow({
   isUpdated,
   now,
   onOpenMenu,
+  onStartTreatment,
 }: SortableQueueRowProps) {
   const {
     attributes,
@@ -213,14 +218,27 @@ function SortableQueueRow({
       </td>
 
       <td className="px-6 py-4 whitespace-nowrap text-right">
-        <button
-          type="button"
-          onClick={(event) => onOpenMenu(event, entry)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-          style={{color: "var(--text-muted)"}}
-        >
-          <MoreVertical size={16} />
-        </button>
+        <div className="flex items-center justify-end gap-2">
+          {entry.status === "IN_CHAIR" && (
+            <button
+              type="button"
+              onClick={() => onStartTreatment(entry.patientId)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+            >
+              <Stethoscope size={14} />
+              Start Treatment
+            </button>
+          )}
+          <button
+            type="button"
+            aria-label={`Open actions for ${entry.patientName}`}
+            onClick={(event) => onOpenMenu(event, entry)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            style={{color: "var(--text-muted)"}}
+          >
+            <MoreVertical size={16} />
+          </button>
+        </div>
       </td>
     </motion.tr>
   );
@@ -232,6 +250,7 @@ function MobileQueueItem({
   isUpdated,
   now,
   onOpenMenu,
+  onStartTreatment,
 }: MobileQueueItemProps) {
   const {
     attributes,
@@ -358,6 +377,17 @@ function MobileQueueItem({
               <span className="min-w-0 break-words">{entry.notes}</span>
             </div>
           )}
+
+          {entry.status === "IN_CHAIR" && (
+            <button
+              type="button"
+              onClick={() => onStartTreatment(entry.patientId)}
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+            >
+              <Stethoscope size={16} />
+              Start Treatment
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
@@ -464,6 +494,7 @@ export function ActiveQueueTable({
   onReorder,
   onResetOrder,
   onSortModeChange,
+  onStartTreatment,
 }: ActiveQueueTableProps) {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const isDragEnabled = canReorder && sortMode === "POLICY";
@@ -576,6 +607,7 @@ export function ActiveQueueTable({
                       isUpdated={entry.id === lastUpdatedId}
                       now={now}
                       onOpenMenu={onOpenMenu}
+                      onStartTreatment={onStartTreatment}
                     />
                   ))}
                 </AnimatePresence>
@@ -618,6 +650,7 @@ export function ActiveQueueTable({
                           isUpdated={entry.id === lastUpdatedId}
                           now={now}
                           onOpenMenu={onOpenMenu}
+                          onStartTreatment={onStartTreatment}
                         />
                       ))}
                     </AnimatePresence>

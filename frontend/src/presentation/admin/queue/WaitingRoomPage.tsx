@@ -1,5 +1,7 @@
 "use client";
 
+import {useLocale} from "next-intl";
+import {useRouter} from "next/navigation";
 import {ActiveQueueTable} from "./components/ActiveQueueTable";
 import {CompletedQueueList} from "./components/CompletedQueueList";
 import {CorrectionReasonDialog} from "./components/CorrectionReasonDialog";
@@ -11,6 +13,12 @@ import {useWaitingRoomPage} from "./hooks/useWaitingRoomPage";
 
 export default function WaitingRoomPage() {
   const hook = useWaitingRoomPage();
+  const locale = useLocale();
+  const router = useRouter();
+
+  const startTreatment = (patientId: string) => {
+    router.push(`/${locale}/admin/patients/${patientId}/treatment`);
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-5 lg:space-y-6">
@@ -40,6 +48,7 @@ export default function WaitingRoomPage() {
           onReorder={hook.setManualOrder}
           onResetOrder={hook.resetManualOrder}
           onSortModeChange={hook.setSortMode}
+          onStartTreatment={startTreatment}
           sortMode={hook.sortMode}
         />
         <CompletedQueueList

@@ -8,6 +8,7 @@ import {
   Crown,
   GitCommitHorizontal,
   LucideIcon,
+  RotateCcw,
   Sun,
   Trash2,
   X,
@@ -38,6 +39,12 @@ const statusClass: Record<string, string> = {
   cancelled: "bg-gray-100 text-gray-500 dark:bg-gray-500/15 dark:text-gray-300",
 };
 
+const previousStatus = {
+  in_progress: "planned",
+  completed: "in_progress",
+  cancelled: "planned",
+} as const;
+
 interface TreatmentListItemProps {
   treatment: ToothTreatment;
 }
@@ -64,6 +71,17 @@ export function TreatmentListItem({treatment}: TreatmentListItemProps) {
       treatment.id,
       "completed",
     );
+  };
+
+  const handleGoBack = () => {
+    const status = previousStatus[treatment.status as keyof typeof previousStatus];
+
+    if (status) {
+      new UpdateTreatmentStatusUseCase(updateTreatment).execute(
+        treatment.id,
+        status,
+      );
+    }
   };
 
   const handleRemove = () => {
@@ -109,6 +127,20 @@ export function TreatmentListItem({treatment}: TreatmentListItemProps) {
           )}
 
           <div className="mt-3 flex flex-wrap gap-2">
+            {treatment.status !== "planned" && (
+              <button
+                type="button"
+                onClick={handleGoBack}
+                className="inline-flex items-center gap-1 rounded-md border border-ui-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-hover"
+              >
+                <RotateCcw size={13} />
+                {treatment.status === "completed"
+                  ? "Reopen act"
+                  : treatment.status === "cancelled"
+                    ? "Restore as planned"
+                    : "Back to planned"}
+              </button>
+            )}
             {treatment.status !== "completed" &&
               treatment.status !== "cancelled" && (
                 <button

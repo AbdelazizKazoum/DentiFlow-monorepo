@@ -1,6 +1,6 @@
 "use client";
 
-import {useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {
   DndContext,
   DragOverlay,
@@ -17,18 +17,25 @@ import {AnimatePresence, motion} from "framer-motion";
 import {
   AlertCircle,
   Anchor,
+  CalendarDays,
   CheckCircle2,
   CircleDot,
   Crown,
   Eye,
   GitCommitHorizontal,
+  HeartPulse,
   LucideIcon,
+  Mail,
+  Phone,
+  Pill,
   Plus,
+  RotateCcw,
   Search,
   Sparkles,
   Stethoscope,
   Sun,
   Trash2,
+  UserRound,
   X,
   Zap,
 } from "lucide-react";
@@ -42,6 +49,7 @@ import type {
   ToothTreatment,
 } from "@/domain/treatment/entities/toothTreatment";
 import {useDentalChartStore} from "@/presentation/stores/dentalChartStore";
+import {usePatientStore} from "@/presentation/stores/patientStore";
 import {DentalScene} from "./components/DentalScene/DentalScene";
 import type {DentalSceneHandle} from "./components/DentalScene/SceneExposer";
 import {DENTAL_ACTS} from "./data/dentalActs.data";
@@ -83,6 +91,17 @@ const STATUS_CLASS: Record<TreatmentStatus, string> = {
   in_progress: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/25 dark:bg-blue-500/10 dark:text-blue-200",
   completed: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200",
   cancelled: "border-slate-200 bg-slate-100 text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300",
+};
+
+const PREVIOUS_STATUS: Partial<Record<TreatmentStatus, TreatmentStatus>> = {
+  in_progress: "planned",
+  completed: "in_progress",
+  cancelled: "planned",
+};
+
+const UNFINISHED_TOOTH_COLOR: Record<"planned" | "in_progress", string> = {
+  planned: "#f59e0b",
+  in_progress: "#3b82f6",
 };
 
 const UPPER_TEETH = [
@@ -171,7 +190,11 @@ function getToothPath(kind: string, isUpper: boolean) {
     : "M29 65 C23 56 22 40 25 23 C28 8 33 1 40 1 C47 1 52 8 55 23 C58 40 57 56 51 65 C47 71 43 64 40 56 C37 64 33 71 29 65 Z";
 }
 
-function TreatmentPage() {
+interface TreatmentPageProps {
+  patientId: string;
+}
+
+function TreatmentPage({patientId}: TreatmentPageProps) {
   const sceneRef = useRef<DentalSceneHandle | null>(null);
   const [activeTab, setActiveTab] = useState<TreatmentTab>("chart");
   const [query, setQuery] = useState("");
@@ -186,12 +209,24 @@ function TreatmentPage() {
   const treatments = useDentalChartStore((state) => state.treatments);
   const setSelectedTooth = useDentalChartStore((state) => state.setSelectedTooth);
   const setHoveredTooth = useDentalChartStore((state) => state.setHoveredTooth);
+  const patient = usePatientStore((state) =>
+    state.patients.find((item) => item.id === patientId),
+  );
+  const getPatientById = usePatientStore((state) => state.getPatientById);
+  const isLoadingPatient = usePatientStore((state) => state.isLoadingPatient);
+  const patientError = usePatientStore((state) => state.patientError);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {distance: 6},
     }),
   );
+
+  useEffect(() => {
+    if (!patient) {
+      void getPatientById(patientId);
+    }
+  }, [getPatientById, patient, patientId]);
 
   const filteredActs = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -272,7 +307,7 @@ function TreatmentPage() {
     >
       <main className="min-h-screen bg-[#f4f7f8] text-slate-950 dark:bg-slate-950 dark:text-slate-50">
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col gap-4 px-4 py-4 lg:px-6">
-          <header className="flex flex-col gap-4 border-b border-slate-200/80 bg-white px-4 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
+          <header className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-teal-700 dark:text-teal-300">
                 <Stethoscope size={15} />
@@ -295,8 +330,14 @@ function TreatmentPage() {
             </div>
           </header>
 
+          <PatientSummary
+            patient={patient}
+            isLoading={isLoadingPatient}
+            error={patientError}
+          />
+
           <div className="flex flex-1 flex-col gap-4 xl:flex-row">
-            <aside className="flex min-h-0 w-full shrink-0 flex-col border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 xl:w-[23rem]">
+            <aside className="flex min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 xl:w-[23rem]">
               <div className="border-b border-slate-200 p-4 dark:border-slate-800">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -337,7 +378,7 @@ function TreatmentPage() {
               </div>
             </aside>
 
-            <section className="min-w-0 flex-1 border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex flex-col gap-3 border-b border-slate-200 p-4 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h2 className="text-base font-semibold text-slate-950 dark:text-white">
@@ -363,6 +404,24 @@ function TreatmentPage() {
                     onClick={() => setActiveTab("visualization")}
                   />
                 </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+                <span className="font-semibold uppercase tracking-[0.08em] text-slate-400">
+                  Tooth status
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                  Planned
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                  In progress
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  Completed
+                </span>
               </div>
 
               {activeTab === "chart" ? (
@@ -423,11 +482,201 @@ function TreatmentPage() {
   );
 }
 
+function PatientSummary({
+  patient,
+  isLoading,
+  error,
+}: {
+  patient: ReturnType<typeof usePatientStore.getState>["patients"][number] | undefined;
+  isLoading: boolean;
+  error: string | null;
+}) {
+  if (isLoading && !patient) {
+    return (
+      <section className="animate-pulse rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
+          <div className="flex-1">
+            <div className="h-5 w-48 rounded bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-2 h-4 w-72 max-w-full rounded bg-slate-100 dark:bg-slate-800" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!patient) {
+    return (
+      <section className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700 shadow-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-500/15">
+          <AlertCircle size={20} />
+        </span>
+        <div>
+          <p className="font-semibold">Patient information unavailable</p>
+          <p className="mt-1 text-sm opacity-80">
+            {error ?? "Patient record not found."}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  const initials = `${patient.firstName[0] ?? ""}${patient.lastName[0] ?? ""}`
+    .toUpperCase();
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-50 text-sm font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-200">
+            {initials || <UserRound size={20} />}
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="truncate text-lg font-semibold text-slate-950 dark:text-white">
+                {patient.fullName}
+              </h2>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[0.68rem] font-semibold capitalize ${
+                  patient.isActive()
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200"
+                    : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"
+                }`}
+              >
+                {patient.status.toLowerCase()}
+              </span>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+              <SimplePatientDetail icon={CalendarDays}>
+                {patient.dateOfBirth
+                  ? `${getAge(patient.dateOfBirth)} years`
+                  : "Age not recorded"}
+              </SimplePatientDetail>
+              {patient.gender && (
+                <SimplePatientDetail icon={UserRound}>
+                  <span className="capitalize">
+                    {patient.gender.toLowerCase()}
+                  </span>
+                </SimplePatientDetail>
+              )}
+              <SimplePatientDetail icon={Phone}>
+                {patient.phone ?? "No phone"}
+              </SimplePatientDetail>
+              <SimplePatientDetail icon={Mail}>
+                {patient.email ?? "No email"}
+              </SimplePatientDetail>
+            </div>
+          </div>
+        </div>
+
+        {patient.cnie && (
+          <div className="shrink-0 text-left lg:text-right">
+            <p className="text-xs font-medium text-slate-400">CNIE</p>
+            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {patient.cnie}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-5 grid gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:grid-cols-2 xl:grid-cols-4">
+        <MedicalDetail
+          icon={AlertCircle}
+          label="Allergies"
+          value={patient.allergies}
+          alert={Boolean(patient.allergies)}
+        />
+        <MedicalDetail
+          icon={HeartPulse}
+          label="Conditions"
+          value={patient.chronicConditions}
+        />
+        <MedicalDetail
+          icon={Pill}
+          label="Medication"
+          value={patient.currentMedications}
+        />
+        <MedicalDetail
+          icon={Stethoscope}
+          label="Medical notes"
+          value={patient.medicalNotes}
+        />
+      </div>
+    </section>
+  );
+}
+
+function SimplePatientDetail({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Icon size={14} />
+      {children}
+    </span>
+  );
+}
+
+function MedicalDetail({
+  icon: Icon,
+  label,
+  value,
+  alert = false,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value?: string;
+  alert?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-lg px-3 py-2.5 ${
+        alert
+          ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-200"
+          : "bg-slate-50 dark:bg-slate-950"
+      }`}
+    >
+      <p
+        className={`flex items-center gap-1.5 text-xs font-medium ${
+          alert ? "text-red-700 dark:text-red-200" : "text-slate-500"
+        }`}
+      >
+        <Icon size={13} />
+        {label}
+      </p>
+      <p className="mt-1.5 line-clamp-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+        {value || "None recorded"}
+      </p>
+    </div>
+  );
+}
+
+function getAge(dateOfBirth: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - dateOfBirth.getFullYear();
+
+  if (
+    today.getMonth() < dateOfBirth.getMonth() ||
+    (today.getMonth() === dateOfBirth.getMonth() &&
+      today.getDate() < dateOfBirth.getDate())
+  ) {
+    age -= 1;
+  }
+
+  return age;
+}
+
 function Metric({label, value}: {label: string; value: string}) {
   return (
-    <div className="min-w-28 border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-950">
-      <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">
+    <div className="min-w-28 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 dark:border-slate-700 dark:bg-slate-950">
+      <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
         {value}
       </p>
     </div>
@@ -582,6 +831,23 @@ function OdontogramTooth({
   const visibleTreatments = treatments.filter(
     (treatment) => treatment.status !== "cancelled",
   );
+  const unfinishedTreatments = visibleTreatments.filter(
+    (treatment) => treatment.status !== "completed",
+  );
+  const toothStatus = unfinishedTreatments.some(
+    (treatment) => treatment.status === "in_progress",
+  )
+    ? "in_progress"
+    : unfinishedTreatments.length > 0
+      ? "planned"
+      : visibleTreatments.length > 0
+        ? "completed"
+        : null;
+  const statusColor = toothStatus
+    ? toothStatus === "completed"
+      ? "#10b981"
+      : UNFINISHED_TOOTH_COLOR[toothStatus]
+    : null;
   const kind = getToothKind(toothId);
   const path = getToothPath(kind, isUpper);
   const gradientId = `tooth-shade-${toothId}`;
@@ -606,9 +872,9 @@ function OdontogramTooth({
         <svg viewBox="0 0 80 80" className="h-full w-full drop-shadow-sm">
           <path
             d={path}
-            fill="#fbfaf6"
-            stroke={isOver ? "#0f766e" : "#94a3b8"}
-            strokeWidth="2"
+            fill={statusColor ? `${statusColor}24` : "#fbfaf6"}
+            stroke={isOver ? "#0f766e" : statusColor ?? "#94a3b8"}
+            strokeWidth={statusColor ? "2.8" : "2"}
           />
           <path
             d={path}
@@ -654,9 +920,26 @@ function OdontogramTooth({
             ))}
           </span>
         )}
+
+        {toothStatus && (
+          <span
+            className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-white shadow-sm dark:border-slate-950"
+            style={{backgroundColor: statusColor ?? undefined}}
+            aria-hidden="true"
+          />
+        )}
       </span>
-      <span className="text-[0.65rem] font-medium text-slate-400">
-        {visibleTreatments.length ? `${visibleTreatments.length} act` : "clear"}
+      <span
+        className="text-[0.65rem] font-semibold"
+        style={{color: statusColor ?? "#94a3b8"}}
+      >
+        {toothStatus === "in_progress"
+          ? "in progress"
+          : toothStatus === "planned"
+            ? "planned"
+            : toothStatus === "completed"
+              ? "completed"
+              : "clear"}
       </span>
     </button>
   );
@@ -798,6 +1081,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
   const updateStatus = (status: TreatmentStatus) => {
     new UpdateTreatmentStatusUseCase(updateTreatment).execute(treatment.id, status);
   };
+  const previousStatus = PREVIOUS_STATUS[treatment.status];
 
   return (
     <article className="border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
@@ -849,7 +1133,23 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
       />
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {treatment.status !== "completed" && (
+        {previousStatus && (
+          <button
+            type="button"
+            onClick={() => updateStatus(previousStatus)}
+            className="inline-flex items-center gap-1 border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            title={`Change status back to ${previousStatus.replace("_", " ")}`}
+          >
+            <RotateCcw size={14} />
+            {treatment.status === "completed"
+              ? "Reopen act"
+              : treatment.status === "cancelled"
+                ? "Restore as planned"
+                : "Back to planned"}
+          </button>
+        )}
+        {treatment.status !== "completed" &&
+          treatment.status !== "cancelled" && (
           <button
             type="button"
             onClick={() => updateStatus("completed")}
@@ -859,7 +1159,9 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
             Complete
           </button>
         )}
-        {treatment.status !== "in_progress" && treatment.status !== "completed" && (
+        {treatment.status !== "in_progress" &&
+          treatment.status !== "completed" &&
+          treatment.status !== "cancelled" && (
           <button
             type="button"
             onClick={() => updateStatus("in_progress")}

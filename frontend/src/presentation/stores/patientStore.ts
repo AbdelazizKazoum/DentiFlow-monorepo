@@ -8,6 +8,7 @@ import type {UpdatePatientInput} from "@/domain/patient/commands/UpdatePatientIn
 import type {CreateInsuranceProviderInput} from "@/domain/patient/commands/CreateInsuranceProviderInput";
 import {
   getPatientsByClinicUseCase,
+  getPatientByIdUseCase,
   createPatientUseCase,
   updatePatientUseCase,
   deletePatientUseCase,
@@ -31,6 +32,8 @@ interface PatientStoreState {
   isLoading: boolean;
   isAdding: boolean;
   isUpdating: boolean;
+  isLoadingPatient: boolean;
+  patientError: string | null;
   // ── Insurance providers state ──────────────────────────────────────────────
   insuranceProviders: InsuranceProvider[];
   isLoadingProviders: boolean;
@@ -39,6 +42,7 @@ interface PatientStoreState {
   isLoadingTemplates: boolean;
   // ── Actions ────────────────────────────────────────────────────────────────
   loadPatients: (query: GetPatientsQuery) => Promise<void>;
+  getPatientById: (id: string) => Promise<Patient | null>;
   addPatient: (input: CreatePatientInput) => Promise<Patient>;
   editPatient: (id: string, input: UpdatePatientInput) => Promise<Patient>;
   removePatient: (id: string) => Promise<void>;
@@ -49,12 +53,14 @@ interface PatientStoreState {
   loadInsuranceTemplates: (providerIds: string[]) => Promise<void>;
 }
 
-export const usePatientStore = create<PatientStoreState>((set) => ({
+export const usePatientStore = create<PatientStoreState>((set, get) => ({
   patients: [],
   patientsMeta: {page: 1, limit: 8, total: 0, totalPages: 1},
   isLoading: false,
   isAdding: false,
   isUpdating: false,
+  isLoadingPatient: false,
+  patientError: null,
   insuranceProviders: [],
   isLoadingProviders: false,
   insuranceTemplates: [],
@@ -64,16 +70,63 @@ export const usePatientStore = create<PatientStoreState>((set) => ({
     set({isLoading: true});
     try {
       const response = await getPatientsByClinicUseCase.execute(query);
-      set({
-        patients: response.items.map(toPatientFromListItem),
-        patientsMeta: response.meta,
-        isLoading: false,
+      set((state) => {
+        const cachedPatients = new Map(
+          state.patients.map((patient) => [patient.id, patient]),
+        );
+
+        return {
+          patients: response.items.map(
+            (item) => cachedPatients.get(item.id) ?? toPatientFromListItem(item),
+          ),
+          patientsMeta: response.meta,
+          isLoading: false,
+        };
       });
     } catch (error) {
       set({isLoading: false});
       const message =
         error instanceof AppError ? error.message : "Failed to load patients";
       toast.error(message);
+    }
+  },
+
+  getPatientById: async (id) => {
+    const cachedPatient = get().patients.find((patient) => patient.id === id);
+
+    if (cachedPatient) {
+      return cachedPatient;
+    }
+
+    set({isLoadingPatient: true, patientError: null});
+
+    try {
+      const patient = await getPatientByIdUseCase.execute(id);
+
+      if (!patient) {
+        set({
+          isLoadingPatient: false,
+          patientError: "Patient record not found.",
+        });
+        return null;
+      }
+
+      set((state) => ({
+        patients: state.patients.some((item) => item.id === patient.id)
+          ? state.patients
+          : [...state.patients, patient],
+        isLoadingPatient: false,
+        patientError: null,
+      }));
+
+      return patient;
+    } catch (error) {
+      const message =
+        error instanceof AppError
+          ? error.message
+          : "Failed to load patient information";
+      set({isLoadingPatient: false, patientError: message});
+      return null;
     }
   },
 
@@ -189,7 +242,7 @@ function toPatientFromListItem(item: PatientListItem): Patient {
     item.updatedAt,
     item.status,
     undefined,
-    undefined,
+    item.phone,
     item.email,
     item.dateOfBirth,
     item.gender,
