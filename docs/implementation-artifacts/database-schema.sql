@@ -588,6 +588,10 @@ CREATE TABLE treatment_acts (
   quantity        TINYINT        NOT NULL DEFAULT 1,
   -- SNAPSHOT: copied from act_catalog.default_price at entry time. Write once, never update.
   unit_price      DECIMAL(10,2)  NOT NULL COMMENT 'Snapshot of price at entry time — catalog changes do not affect this',
+  surface         ENUM('MESIAL','DISTAL','OCCLUSAL','BUCCAL','LINGUAL','PALATAL','INCISAL') NULL COMMENT 'Tooth surface where procedure was performed',
+  tooth_part      ENUM('CROWN','ROOT','WHOLE_TOOTH') NULL COMMENT 'Part of tooth treated',
+  dentition       ENUM('PERMANENT','PRIMARY') NOT NULL DEFAULT 'PERMANENT' COMMENT 'Permanent or primary tooth',
+  status          ENUM('PLANNED','IN_PROGRESS','DONE','CANCELLED') NOT NULL DEFAULT 'DONE' COMMENT 'Treatment act status',
   notes           TEXT               NULL,
   entered_by      CHAR(36)       NOT NULL COMMENT 'FK to auth_service.users — the assistant or doctor who entered this act',
   created_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
