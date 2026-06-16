@@ -51,10 +51,21 @@ export interface Visit {
 ### TreatmentAct Entity
 
 ```typescript
-export type ToothSurface = "MESIAL" | "DISTAL" | "OCCLUSAL" | "BUCCAL" | "LINGUAL" | "PALATAL" | "INCISAL";
+export type ToothSurface =
+  | "MESIAL"
+  | "DISTAL"
+  | "OCCLUSAL"
+  | "BUCCAL"
+  | "LINGUAL"
+  | "PALATAL"
+  | "INCISAL";
 export type ToothPart = "CROWN" | "ROOT" | "WHOLE_TOOTH";
 export type Dentition = "PERMANENT" | "PRIMARY";
-export type TreatmentActStatus = "PLANNED" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+export type TreatmentActStatus =
+  | "PLANNED"
+  | "IN_PROGRESS"
+  | "DONE"
+  | "CANCELLED";
 
 export interface TreatmentAct {
   id: string;
@@ -84,6 +95,7 @@ These interfaces define the inputs for Use Cases.
 ### Visit Commands
 
 - **OpenVisitCommand**: Triggered when a patient moves to IN_CHAIR in the queue.
+
   ```typescript
   interface OpenVisitCommand {
     appointmentId: string;
@@ -96,6 +108,7 @@ These interfaces define the inputs for Use Cases.
   ```
 
 - **AssignAssistantCommand**: Assigns a dental assistant to an open visit.
+
   ```typescript
   interface AssignAssistantCommand {
     visitId: string;
@@ -105,6 +118,7 @@ These interfaces define the inputs for Use Cases.
   ```
 
 - **ConfirmVisitCommand**: Doctor confirms all treatment acts and signs off.
+
   ```typescript
   interface ConfirmVisitCommand {
     visitId: string;
@@ -122,6 +136,7 @@ These interfaces define the inputs for Use Cases.
 ### TreatmentAct Commands
 
 - **AddTreatmentActCommand**: Assistant records a new procedure during the visit.
+
   ```typescript
   interface AddTreatmentActCommand {
     visitId: string;
@@ -139,6 +154,7 @@ These interfaces define the inputs for Use Cases.
   ```
 
 - **UpdateTreatmentActCommand**: Modify an existing act (while visit is OPEN).
+
   ```typescript
   interface UpdateTreatmentActCommand {
     treatmentActId: string;
@@ -163,6 +179,7 @@ These interfaces define the inputs for Use Cases.
 ### Queries
 
 - **GetActCatalogQuery**: Fetch all active procedures for the clinic.
+
   ```typescript
   interface GetActCatalogQuery {
     clinicId: string;
@@ -173,6 +190,7 @@ These interfaces define the inputs for Use Cases.
   ```
 
 - **GetVisitQuery**: Fetch a specific visit with all its treatment acts.
+
   ```typescript
   interface GetVisitQuery {
     visitId: string;
@@ -250,6 +268,7 @@ export interface TreatmentActRepository {
 ### Visit Use Cases
 
 #### **OpenVisitUseCase**
+
 - **Purpose**: Transition a confirmed appointment to an open visit when the patient moves to IN_CHAIR.
 - **Input**: `OpenVisitCommand`
 - **Output**: `Visit`
@@ -261,6 +280,7 @@ export interface TreatmentActRepository {
 - **Error Handling**: Throw error if appointment not found or already has a visit.
 
 #### **AssignAssistantUseCase**
+
 - **Purpose**: Assign a dental assistant to a visit.
 - **Input**: `AssignAssistantCommand`
 - **Output**: `Visit`
@@ -271,6 +291,7 @@ export interface TreatmentActRepository {
   4. Emit `visit.assistant.assigned` event.
 
 #### **ConfirmVisitUseCase**
+
 - **Purpose**: Doctor reviews all treatment acts and confirms the visit.
 - **Input**: `ConfirmVisitCommand`
 - **Output**: `Visit`
@@ -282,6 +303,7 @@ export interface TreatmentActRepository {
 - **Error Handling**: Throw if visit has no acts or visit is already CLOSED.
 
 #### **CloseVisitUseCase**
+
 - **Purpose**: Close the visit and trigger invoice creation in checkout_service.
 - **Input**: `CloseVisitCommand`
 - **Output**: `Visit`
@@ -295,6 +317,7 @@ export interface TreatmentActRepository {
 ### TreatmentAct Use Cases
 
 #### **AddTreatmentActUseCase**
+
 - **Purpose**: Record a new procedure during the visit.
 - **Input**: `AddTreatmentActCommand`
 - **Output**: `TreatmentAct`
@@ -307,6 +330,7 @@ export interface TreatmentActRepository {
 - **Error Handling**: Throw if visit not OPEN or act catalog not found.
 
 #### **UpdateTreatmentActUseCase**
+
 - **Purpose**: Modify an existing act (only allowed while visit is OPEN).
 - **Input**: `UpdateTreatmentActCommand`
 - **Output**: `TreatmentAct`
@@ -319,6 +343,7 @@ export interface TreatmentActRepository {
 - **Business Rule**: unitPrice is immutable (snapshot); only toothFdi, surface, toothPart, dentition, status, and notes can be edited.
 
 #### **RemoveTreatmentActUseCase**
+
 - **Purpose**: Delete a treatment act from the visit.
 - **Input**: `RemoveTreatmentActCommand`
 - **Output**: `void`
@@ -333,6 +358,7 @@ export interface TreatmentActRepository {
 ### Query Use Cases
 
 #### **GetActCatalogUseCase**
+
 - **Purpose**: Fetch the active procedure list for the assistant UI.
 - **Input**: `GetActCatalogQuery`
 - **Output**: `ActCatalog[]`
@@ -342,6 +368,7 @@ export interface TreatmentActRepository {
   3. Cache locally for offline support.
 
 #### **GetOpenVisitsUseCase**
+
 - **Purpose**: List all open visits for workload management.
 - **Input**: `GetOpenVisitsQuery`
 - **Output**: `PaginatedVisits`
@@ -351,6 +378,7 @@ export interface TreatmentActRepository {
   3. Return paginated results.
 
 #### **GetVisitDetailUseCase**
+
 - **Purpose**: Fetch a complete visit record with all treatment acts.
 - **Input**: `GetVisitQuery`
 - **Output**: `Visit` (with `treatmentActs` populated)
@@ -498,6 +526,7 @@ The Treatment Service integrates into the workflow after a patient is seated in 
 **Purpose**: Central interface where assistants record procedures and doctors confirm the visit.
 
 **Layout**:
+
 - **Left Panel**: Visit details (patient name, doctor, appointment type, elapsed time).
 - **Center Panel**: Tooth diagram with FDI notation for quick tooth selection.
 - **Right Panel**: List of treatment acts recorded so far (with ability to edit/remove while OPEN).
@@ -546,6 +575,7 @@ The Treatment Service integrates into the workflow after a patient is seated in 
 **Purpose**: Visual tool for quick tooth selection using FDI notation.
 
 **Features**:
+
 - Display all 32 adult teeth (16 if primary selected via dentition toggle).
 - Highlight selected tooth with FDI code.
 - Color-code teeth by surface (MESIAL, DISTAL, OCCLUSAL, etc.) for multi-surface procedures.
@@ -556,6 +586,7 @@ The Treatment Service integrates into the workflow after a patient is seated in 
 **Purpose**: Add or edit a treatment act.
 
 **Fields**:
+
 - **Procedure**: Dropdown (fetched from ActCatalog).
 - **Tooth**: Optional, via FDI or visual diagram.
 - **Surface**: Optional dropdown (MESIAL, DISTAL, OCCLUSAL, BUCCAL, LINGUAL, PALATAL, INCISAL).
@@ -586,13 +617,13 @@ The Treatment Service integrates into the workflow after a patient is seated in 
 
 ### Common Errors
 
-| Scenario | Error | Action |
-|----------|-------|--------|
-| Try to add act while visit CONFIRMED | `VisitNotOpenError` | Show toast: "Cannot add procedures to a confirmed visit." |
-| Try to confirm visit with no acts | `NoTreatmentActsError` | Show validation message: "Add at least one procedure before confirming." |
-| Remove act fails (DB error) | `RemoveActFailedError` | Show toast: "Failed to remove procedure. Try again." |
-| Act catalog empty | `ActCatalogEmptyError` | Show message: "No procedures available. Please set up the catalog." |
-| Unauthorized (not assistant/doctor) | `UnauthorizedError` | Redirect to login or home. |
+| Scenario                             | Error                  | Action                                                                   |
+| ------------------------------------ | ---------------------- | ------------------------------------------------------------------------ |
+| Try to add act while visit CONFIRMED | `VisitNotOpenError`    | Show toast: "Cannot add procedures to a confirmed visit."                |
+| Try to confirm visit with no acts    | `NoTreatmentActsError` | Show validation message: "Add at least one procedure before confirming." |
+| Remove act fails (DB error)          | `RemoveActFailedError` | Show toast: "Failed to remove procedure. Try again."                     |
+| Act catalog empty                    | `ActCatalogEmptyError` | Show message: "No procedures available. Please set up the catalog."      |
+| Unauthorized (not assistant/doctor)  | `UnauthorizedError`    | Redirect to login or home.                                               |
 
 ### Optimistic Updates
 
