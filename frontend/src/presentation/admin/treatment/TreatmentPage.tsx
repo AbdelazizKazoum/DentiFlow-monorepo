@@ -39,10 +39,6 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import {AddTreatmentUseCase} from "@/application/useCases/admin/treatment/addTreatmentUseCase";
-import {RemoveTreatmentUseCase} from "@/application/useCases/admin/treatment/removeTreatmentUseCase";
-import {SaveTreatmentNoteUseCase} from "@/application/useCases/admin/treatment/saveTreatmentNoteUseCase";
-import {UpdateTreatmentStatusUseCase} from "@/application/useCases/admin/treatment/updateTreatmentStatusUseCase";
 import type {DentalAct, TreatmentStatus} from "@/domain/treatment/entities/dentalAct";
 import type {
   ToothId,
@@ -50,9 +46,9 @@ import type {
 } from "@/domain/treatment/entities/toothTreatment";
 import {useDentalChartStore} from "@/presentation/stores/dentalChartStore";
 import {usePatientStore} from "@/presentation/stores/patientStore";
+import {useTreatmentStore} from "@/presentation/stores/treatmentStore";
 import {DentalScene} from "./components/DentalScene/DentalScene";
 import type {DentalSceneHandle} from "./components/DentalScene/SceneExposer";
-import {DENTAL_ACTS} from "./data/dentalActs.data";
 import {getToothFdi, getToothLabel} from "./data/toothNames.data";
 
 type TreatmentTab = "chart" | "visualization";
@@ -205,10 +201,12 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
   const draggingAct = useDentalChartStore((state) => state.draggingAct);
   const setDraggingAct = useDentalChartStore((state) => state.setDraggingAct);
   const setOrbitEnabled = useDentalChartStore((state) => state.setOrbitEnabled);
-  const addTreatment = useDentalChartStore((state) => state.addTreatment);
-  const treatments = useDentalChartStore((state) => state.treatments);
   const setSelectedTooth = useDentalChartStore((state) => state.setSelectedTooth);
   const setHoveredTooth = useDentalChartStore((state) => state.setHoveredTooth);
+  const acts = useTreatmentStore((state) => state.acts);
+  const treatments = useTreatmentStore((state) => state.treatments);
+  const loadTreatmentWorkspace = useTreatmentStore((state) => state.loadWorkspace);
+  const addTreatment = useTreatmentStore((state) => state.addTreatment);
   const patient = usePatientStore((state) =>
     state.patients.find((item) => item.id === patientId),
   );
@@ -228,17 +226,25 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
     }
   }, [getPatientById, patient, patientId]);
 
+  useEffect(() => {
+    void loadTreatmentWorkspace({
+      patientId,
+      patientName: patient?.fullName,
+      locale: "en",
+    });
+  }, [loadTreatmentWorkspace, patient?.fullName, patientId]);
+
   const filteredActs = useMemo(() => {
     const normalized = query.trim().toLowerCase();
 
-    return DENTAL_ACTS.filter((act) => {
+    return acts.filter((act) => {
       if (!normalized) return true;
 
       return `${act.label} ${act.category} ${getActMeta(act.id).code}`
         .toLowerCase()
         .includes(normalized);
     });
-  }, [query]);
+  }, [acts, query]);
 
   const groupedActs = useMemo(() => {
     return filteredActs.reduce<Record<string, DentalAct[]>>((acc, act) => {
@@ -279,7 +285,7 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
     const toothId = event.over?.data.current?.toothId as ToothId | undefined;
 
     if (act && toothId) {
-      new AddTreatmentUseCase(addTreatment).execute(act, toothId, [0, 0.2, 0]);
+      void addTreatment(act, toothId, [0, 0.2, 0]);
       setSelectedModalTooth(toothId);
       setSelectedTooth(toothId);
     }
@@ -305,18 +311,18 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <main className="min-h-screen bg-[#f4f7f8] text-slate-950 dark:bg-slate-950 dark:text-slate-50">
+      <main className="min-h-screen bg-page text-foreground">
         <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col gap-4 px-4 py-4 lg:px-6">
-          <header className="flex flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
+          <header className="flex flex-col gap-4 rounded-2xl border border-ui-border bg-card px-5 py-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-teal-700 dark:text-teal-300">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
                 <Stethoscope size={15} />
                 Clinical treatment planning
               </div>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                 Odontogram and act application
               </h1>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm text-text-muted">
                 Drag clinical acts onto teeth, review tooth history, and keep the
                 3D model for visual confirmation.
               </p>
@@ -337,26 +343,26 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
           />
 
           <div className="flex flex-1 flex-col gap-4 xl:flex-row">
-            <aside className="flex min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 xl:w-[23rem]">
-              <div className="border-b border-slate-200 p-4 dark:border-slate-800">
+            <aside className="flex min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-ui-border bg-card shadow-sm xl:w-[23rem]">
+              <div className="border-b border-ui-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h2 className="text-base font-semibold text-slate-950 dark:text-white">
+                    <h2 className="text-base font-semibold text-foreground">
                       Act library
                     </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 text-sm text-text-muted">
                       Drag an act to a tooth or open a tooth to add manually.
                     </p>
                   </div>
-                  <Sparkles className="text-teal-600 dark:text-teal-300" size={20} />
+                  <Sparkles className="text-primary" size={20} />
                 </div>
-                <label className="mt-4 flex h-10 items-center gap-2 border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500 focus-within:border-teal-500 dark:border-slate-700 dark:bg-slate-950">
+                <label className="mt-4 flex h-10 items-center gap-2 border border-ui-border bg-page px-3 text-sm text-text-muted focus-within:border-primary">
                   <Search size={16} />
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     placeholder="Search act, code, category"
-                    className="h-full min-w-0 flex-1 bg-transparent text-slate-950 outline-none placeholder:text-slate-400 dark:text-white"
+                    className="h-full min-w-0 flex-1 bg-transparent text-foreground outline-none placeholder:text-text-placeholder"
                   />
                 </label>
               </div>
@@ -364,7 +370,7 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
               <div className="min-h-0 flex-1 overflow-y-auto p-4">
                 {Object.entries(groupedActs).map(([category, acts]) => (
                   <section key={category} className="mb-5 last:mb-0">
-                    <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+                    <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
                       <span>{category}</span>
                       <span>{acts.length}</span>
                     </div>
@@ -378,19 +384,19 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
               </div>
             </aside>
 
-            <section className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-col gap-3 border-b border-slate-200 p-4 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
+            <section className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-ui-border bg-card shadow-sm">
+              <div className="flex flex-col gap-3 border-b border-ui-border p-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-950 dark:text-white">
+                  <h2 className="text-base font-semibold text-foreground">
                     Treatment workspace
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm text-text-muted">
                     Primary planning happens on the 2D model. Open any tooth for
                     pricing, notes, status, and history.
                   </p>
                 </div>
 
-                <div className="inline-flex w-full border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950 md:w-auto">
+                <div className="inline-flex w-full border border-ui-border bg-page p-1 md:w-auto">
                   <TabButton
                     active={activeTab === "chart"}
                     icon={CircleDot}
@@ -406,8 +412,8 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-                <span className="font-semibold uppercase tracking-[0.08em] text-slate-400">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-ui-border bg-page px-4 py-2 text-xs text-text-muted">
+                <span className="font-semibold uppercase tracking-[0.08em] text-text-muted">
                   Tooth status
                 </span>
                 <span className="inline-flex items-center gap-2">
@@ -425,7 +431,7 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
               </div>
 
               {activeTab === "chart" ? (
-                <div className="min-h-[44rem] overflow-auto bg-[#eef4f3] p-4 dark:bg-slate-950 lg:p-6">
+                <div className="min-h-[44rem] overflow-auto bg-page p-4 lg:p-6">
                   <div className="mx-auto flex min-w-[58rem] max-w-6xl flex-col gap-5">
                     <Arch
                       title="Maxillary arch"
@@ -435,11 +441,11 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
                       onHoverTooth={setHoveredTooth}
                     />
                     <div className="flex items-center justify-center gap-3 px-8">
-                      <div className="h-px flex-1 bg-slate-300 dark:bg-slate-700" />
-                      <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                      <div className="h-px flex-1 bg-ui-border" />
+                      <span className="rounded-full border border-ui-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-text-muted">
                         Occlusal plane
                       </span>
-                      <div className="h-px flex-1 bg-slate-300 dark:bg-slate-700" />
+                      <div className="h-px flex-1 bg-ui-border" />
                     </div>
                     <Arch
                       title="Mandibular arch"
@@ -467,6 +473,7 @@ function TreatmentPage({patientId}: TreatmentPageProps) {
             treatments={treatments.filter(
               (treatment) => treatment.toothId === selectedModalTooth,
             )}
+            acts={acts}
             onClose={() => {
               setSelectedModalTooth(null);
               setSelectedTooth(null);
@@ -493,12 +500,12 @@ function PatientSummary({
 }) {
   if (isLoading && !patient) {
     return (
-      <section className="animate-pulse rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="animate-pulse rounded-2xl border border-ui-border bg-card p-5 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
+          <div className="h-12 w-12 rounded-full bg-page" />
           <div className="flex-1">
-            <div className="h-5 w-48 rounded bg-slate-200 dark:bg-slate-700" />
-            <div className="mt-2 h-4 w-72 max-w-full rounded bg-slate-100 dark:bg-slate-800" />
+            <div className="h-5 w-48 rounded bg-page" />
+            <div className="mt-2 h-4 w-72 max-w-full rounded bg-page" />
           </div>
         </div>
       </section>
@@ -525,28 +532,28 @@ function PatientSummary({
     .toUpperCase();
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className="rounded-2xl border border-ui-border bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-center gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-50 text-sm font-bold text-teal-700 dark:bg-teal-500/10 dark:text-teal-200">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-soft text-sm font-bold text-primary">
             {initials || <UserRound size={20} />}
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-lg font-semibold text-slate-950 dark:text-white">
+              <h2 className="truncate text-lg font-semibold text-foreground">
                 {patient.fullName}
               </h2>
               <span
                 className={`rounded-full px-2 py-0.5 text-[0.68rem] font-semibold capitalize ${
                   patient.isActive()
                     ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200"
-                    : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"
+                    : "bg-page text-text-muted"
                 }`}
               >
                 {patient.status.toLowerCase()}
               </span>
             </div>
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-muted">
               <SimplePatientDetail icon={CalendarDays}>
                 {patient.dateOfBirth
                   ? `${getAge(patient.dateOfBirth)} years`
@@ -571,15 +578,15 @@ function PatientSummary({
 
         {patient.cnie && (
           <div className="shrink-0 text-left lg:text-right">
-            <p className="text-xs font-medium text-slate-400">CNIE</p>
-            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <p className="text-xs font-medium text-text-muted">CNIE</p>
+            <p className="mt-1 text-sm font-semibold text-foreground">
               {patient.cnie}
             </p>
           </div>
         )}
       </div>
 
-      <div className="mt-5 grid gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid gap-3 border-t border-ui-border pt-4 sm:grid-cols-2 xl:grid-cols-4">
         <MedicalDetail
           icon={AlertCircle}
           label="Allergies"
@@ -637,18 +644,18 @@ function MedicalDetail({
       className={`rounded-lg px-3 py-2.5 ${
         alert
           ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-200"
-          : "bg-slate-50 dark:bg-slate-950"
+          : "bg-page"
       }`}
     >
       <p
         className={`flex items-center gap-1.5 text-xs font-medium ${
-          alert ? "text-red-700 dark:text-red-200" : "text-slate-500"
+          alert ? "text-red-700 dark:text-red-200" : "text-text-muted"
         }`}
       >
         <Icon size={13} />
         {label}
       </p>
-      <p className="mt-1.5 line-clamp-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+      <p className="mt-1.5 line-clamp-2 text-sm font-medium text-foreground">
         {value || "None recorded"}
       </p>
     </div>
@@ -672,11 +679,11 @@ function getAge(dateOfBirth: Date): number {
 
 function Metric({label, value}: {label: string; value: string}) {
   return (
-    <div className="min-w-28 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 dark:border-slate-700 dark:bg-slate-950">
-      <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-slate-400">
+    <div className="min-w-28 rounded-xl border border-ui-border bg-page px-3.5 py-2.5">
+      <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-text-muted">
         {label}
       </p>
-      <p className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
+      <p className="mt-1 text-base font-semibold text-foreground">
         {value}
       </p>
     </div>
@@ -700,8 +707,8 @@ function TabButton({
       onClick={onClick}
       className={`inline-flex h-9 flex-1 items-center justify-center gap-2 px-3 text-sm font-medium transition md:flex-none ${
         active
-          ? "bg-white text-teal-700 shadow-sm dark:bg-slate-800 dark:text-teal-200"
-          : "text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
+          ? "bg-card text-primary shadow-sm"
+          : "text-text-muted hover:bg-surface-hover hover:text-foreground"
       }`}
     >
       <Icon size={16} />
@@ -739,7 +746,7 @@ function ActGhost({act}: {act: DentalAct}) {
   const meta = getActMeta(act.id);
 
   return (
-    <div className="group flex items-center gap-3 border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-950 dark:hover:border-teal-500/70">
+    <div className="group flex items-center gap-3 border border-ui-border bg-card p-3 text-left shadow-sm transition hover:border-primary/45 hover:bg-surface-hover">
       <span
         className="flex h-11 w-11 shrink-0 items-center justify-center border"
         style={{
@@ -752,16 +759,16 @@ function ActGhost({act}: {act: DentalAct}) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-semibold text-slate-950 dark:text-white">
+          <span className="truncate text-sm font-semibold text-foreground">
             {act.label}
           </span>
-          <span className="text-xs font-semibold text-slate-500">
+          <span className="text-xs font-semibold text-text-muted">
             {meta.code}
           </span>
         </span>
-        <span className="mt-1 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <span className="mt-1 flex items-center justify-between gap-2 text-xs text-text-muted">
           <span>{meta.duration}</span>
-          <span className="font-medium text-slate-700 dark:text-slate-200">
+          <span className="font-medium text-foreground">
             {currencyFormatter.format(meta.price)}
           </span>
         </span>
@@ -784,12 +791,12 @@ function Arch({
   onHoverTooth: (toothId: ToothId | null) => void;
 }) {
   return (
-    <section className="border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className="border border-ui-border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-muted">
           {title}
         </h3>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-text-muted">
           {teeth.length} permanent teeth
         </span>
       </div>
@@ -859,13 +866,13 @@ function OdontogramTooth({
       onClick={onOpen}
       onMouseEnter={() => onHover(toothId)}
       onMouseLeave={() => onHover(null)}
-      className={`group relative flex min-h-32 flex-col items-center justify-between border bg-slate-50 px-1.5 py-2 transition dark:bg-slate-950 ${
+      className={`group relative flex min-h-32 flex-col items-center justify-between border bg-page px-1.5 py-2 transition ${
         isOver
-          ? "border-teal-500 shadow-[0_0_0_3px_rgba(20,184,166,0.18)]"
-          : "border-slate-200 hover:border-teal-300 dark:border-slate-700 dark:hover:border-teal-500"
+          ? "border-primary shadow-[0_0_0_3px_rgba(15,138,163,0.18)]"
+          : "border-ui-border hover:border-primary/50"
       }`}
     >
-      <span className="text-[0.7rem] font-semibold text-slate-500">
+      <span className="text-[0.7rem] font-semibold text-text-muted">
         {getToothFdi(toothId)}
       </span>
       <span className="relative block h-20 w-full">
@@ -873,7 +880,7 @@ function OdontogramTooth({
           <path
             d={path}
             fill={statusColor ? `${statusColor}24` : "#fbfaf6"}
-            stroke={isOver ? "#0f766e" : statusColor ?? "#94a3b8"}
+            stroke={isOver ? "var(--brand-primary)" : statusColor ?? "#94a3b8"}
             strokeWidth={statusColor ? "2.8" : "2"}
           />
           <path
@@ -923,7 +930,7 @@ function OdontogramTooth({
 
         {toothStatus && (
           <span
-            className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-white shadow-sm dark:border-slate-950"
+            className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-card shadow-sm"
             style={{backgroundColor: statusColor ?? undefined}}
             aria-hidden="true"
           />
@@ -948,24 +955,27 @@ function OdontogramTooth({
 function ToothTreatmentModal({
   toothId,
   treatments,
+  acts,
   onClose,
 }: {
   toothId: ToothId;
   treatments: ToothTreatment[];
+  acts: DentalAct[];
   onClose: () => void;
 }) {
-  const addTreatment = useDentalChartStore((state) => state.addTreatment);
-  const [actId, setActId] = useState(DENTAL_ACTS[0]?.id ?? "");
+  const addTreatment = useTreatmentStore((state) => state.addTreatment);
+  const [actId, setActId] = useState(acts[0]?.id ?? "");
+  const selectedActId = actId || acts[0]?.id || "";
   const total = treatments
     .filter((treatment) => treatment.status !== "cancelled")
     .reduce((sum, treatment) => sum + getActMeta(treatment.actId).price, 0);
 
   const handleAdd = () => {
-    const act = DENTAL_ACTS.find((item) => item.id === actId);
+    const act = acts.find((item) => item.id === selectedActId);
 
     if (!act) return;
 
-    new AddTreatmentUseCase(addTreatment).execute(act, toothId, [0, 0.2, 0]);
+    void addTreatment(act, toothId, [0, 0.2, 0]);
   };
 
   return (
@@ -983,17 +993,17 @@ function ToothTreatmentModal({
         animate={{y: 0, scale: 1, opacity: 1}}
         exit={{y: 18, scale: 0.98, opacity: 0}}
         transition={{duration: 0.18}}
-        className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+        className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden border border-ui-border bg-card shadow-2xl"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-slate-800">
+        <header className="flex items-start justify-between gap-4 border-b border-ui-border p-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-teal-700 dark:text-teal-300">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
               Tooth details
             </p>
-            <h2 className="mt-1 text-2xl font-semibold text-slate-950 dark:text-white">
+            <h2 className="mt-1 text-2xl font-semibold text-foreground">
               Tooth {getToothFdi(toothId)}
             </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-text-muted">
               {getToothLabel(toothId)}
             </p>
           </div>
@@ -1001,13 +1011,13 @@ function ToothTreatmentModal({
             type="button"
             aria-label="Close tooth treatment details"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="inline-flex h-9 w-9 items-center justify-center text-text-muted transition hover:bg-surface-hover hover:text-foreground"
           >
             <X size={18} />
           </button>
         </header>
 
-        <div className="grid gap-3 border-b border-slate-200 p-5 dark:border-slate-800 sm:grid-cols-3">
+        <div className="grid gap-3 border-b border-ui-border p-5 sm:grid-cols-3">
           <Metric label="Acts applied" value={treatments.length.toString()} />
           <Metric
             label="Active"
@@ -1026,25 +1036,25 @@ function ToothTreatmentModal({
               ))}
             </div>
           ) : (
-            <div className="border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-950">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <div className="border border-dashed border-ui-border bg-page p-6 text-center">
+              <p className="text-sm font-medium text-foreground">
                 No acts applied to this tooth yet.
               </p>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm text-text-muted">
                 Add one below or drag from the act library onto the tooth.
               </p>
             </div>
           )}
         </div>
 
-        <footer className="border-t border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+        <footer className="border-t border-ui-border bg-page p-4">
           <div className="flex flex-col gap-2 sm:flex-row">
             <select
-              value={actId}
+              value={selectedActId}
               onChange={(event) => setActId(event.target.value)}
-              className="h-11 min-w-0 flex-1 border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none focus:border-teal-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              className="h-11 min-w-0 flex-1 border border-ui-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary"
             >
-              {DENTAL_ACTS.map((act) => (
+              {acts.map((act) => (
                 <option key={act.id} value={act.id}>
                   {act.label} - {currencyFormatter.format(getActMeta(act.id).price)}
                 </option>
@@ -1066,8 +1076,11 @@ function ToothTreatmentModal({
 }
 
 function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
-  const updateTreatment = useDentalChartStore((state) => state.updateTreatment);
-  const removeTreatment = useDentalChartStore((state) => state.removeTreatment);
+  const updateTreatmentStatus = useTreatmentStore(
+    (state) => state.updateTreatmentStatus,
+  );
+  const saveTreatmentNote = useTreatmentStore((state) => state.saveTreatmentNote);
+  const removeTreatment = useTreatmentStore((state) => state.removeTreatment);
   const [note, setNote] = useState(treatment.notes ?? "");
   const Icon = ICONS[treatment.actIcon] ?? CircleDot;
   const meta = getActMeta(treatment.actId);
@@ -1079,12 +1092,12 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
   }).format(new Date(treatment.createdAt));
 
   const updateStatus = (status: TreatmentStatus) => {
-    new UpdateTreatmentStatusUseCase(updateTreatment).execute(treatment.id, status);
+    void updateTreatmentStatus(treatment.id, status);
   };
   const previousStatus = PREVIOUS_STATUS[treatment.status];
 
   return (
-    <article className="border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <article className="border border-ui-border bg-card p-4 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <span
@@ -1099,7 +1112,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-semibold text-slate-950 dark:text-white">
+              <h3 className="text-sm font-semibold text-foreground">
                 {treatment.actLabel}
               </h3>
               <span
@@ -1108,7 +1121,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
                 {treatment.status.replace("_", " ")}
               </span>
             </div>
-            <div className="mt-2 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-4">
+            <div className="mt-2 grid gap-2 text-xs text-text-muted sm:grid-cols-4">
               <span>Code: {meta.code}</span>
               <span>Surface: {meta.surface}</span>
               <span>Duration: {meta.duration}</span>
@@ -1118,10 +1131,10 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
         </div>
 
         <div className="text-left lg:text-right">
-          <p className="text-sm font-semibold text-slate-950 dark:text-white">
+          <p className="text-sm font-semibold text-foreground">
             {currencyFormatter.format(meta.price)}
           </p>
-          <p className="mt-1 text-xs text-slate-500">Clinical fee</p>
+          <p className="mt-1 text-xs text-text-muted">Clinical fee</p>
         </div>
       </div>
 
@@ -1129,7 +1142,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
         value={note}
         onChange={(event) => setNote(event.target.value)}
         placeholder="Clinical note, material, shade, surface detail..."
-        className="mt-4 min-h-20 w-full resize-none border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-teal-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        className="mt-4 min-h-20 w-full resize-none border border-ui-border bg-page px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-text-placeholder focus:border-primary"
       />
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -1137,7 +1150,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
           <button
             type="button"
             onClick={() => updateStatus(previousStatus)}
-            className="inline-flex items-center gap-1 border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex items-center gap-1 border border-ui-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-surface-hover"
             title={`Change status back to ${previousStatus.replace("_", " ")}`}
           >
             <RotateCcw size={14} />
@@ -1174,10 +1187,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
           <button
             type="button"
             onClick={() =>
-              new SaveTreatmentNoteUseCase(updateTreatment).execute(
-                treatment.id,
-                note,
-              )
+              void saveTreatmentNote(treatment.id, note)
             }
             className="bg-teal-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-800"
           >
@@ -1186,9 +1196,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
         )}
         <button
           type="button"
-          onClick={() =>
-            new RemoveTreatmentUseCase(removeTreatment).execute(treatment.id)
-          }
+          onClick={() => void removeTreatment(treatment.id)}
           className="inline-flex items-center gap-1 border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
         >
           <Trash2 size={14} />

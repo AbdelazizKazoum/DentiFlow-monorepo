@@ -49,3 +49,16 @@ export {
   updateQueueNotesUseCase,
   updateQueueStatusUseCase,
 } from "@/infrastructure/queue/container";
+
+export {
+  addTreatmentActUseCase,
+  assignAssistantUseCase,
+  closeVisitUseCase,
+  confirmVisitUseCase,
+  getActCatalogUseCase,
+  getOpenVisitsUseCase,
+  getVisitDetailUseCase,
+  openVisitUseCase,
+  removeTreatmentActUseCase,
+  updateTreatmentActUseCase,
+} from "@/infrastructure/treatment/container";

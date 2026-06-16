@@ -29,6 +29,7 @@ interface DentalChartState {
     rotation: [number, number, number, number],
   ) => void;
   setToothSurfaceRadius: (id: ToothId, radius: number) => void;
+  setTreatments: (treatments: ToothTreatment[]) => void;
   addTreatment: (treatment: ToothTreatment) => void;
   updateTreatment: (id: string, patch: Partial<ToothTreatment>) => void;
   removeTreatment: (id: string) => void;
@@ -70,6 +71,7 @@ export const useDentalChartStore = create<DentalChartState>((set) => ({
         [id]: radius,
       },
     })),
+  setTreatments: (treatments) => set({treatments}),
   addTreatment: (treatment) =>
     set((state) => ({treatments: [...state.treatments, treatment]})),
   updateTreatment: (id, patch) =>
