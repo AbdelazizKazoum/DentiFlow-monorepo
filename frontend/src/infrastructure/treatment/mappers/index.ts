@@ -13,4 +13,5 @@ export {
   confirmVisitToDTO,
   openVisitToDTO,
   visitToDomain,
+  voidVisitToDTO,
 } from "./visit.mapper";

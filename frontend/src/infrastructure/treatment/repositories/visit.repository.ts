@@ -11,6 +11,7 @@ import {
   confirmVisitToDTO,
   openVisitToDTO,
   visitToDomain,
+  voidVisitToDTO,
 } from "../mappers";
 
 export class VisitHttpRepository
@@ -29,6 +30,8 @@ export class VisitHttpRepository
   }
 
   async getByAppointmentId(appointmentId: string): Promise<Visit | null> {
+    // Backend should return the active/latest non-voided visit for this
+    // appointment. Voided visits remain audit history, not active encounters.
     const response = await this.execute(() =>
       axiosClient.get<VisitDTO | null>(
         `/api/v1/treatment/visits/by-appointment/${appointmentId}`,
@@ -118,6 +121,16 @@ export class VisitHttpRepository
   async close(visitId: string): Promise<Visit> {
     const response = await this.execute(() =>
       axiosClient.patch<VisitDTO>(`/api/v1/treatment/visits/${visitId}/close`),
+    );
+    return visitToDomain(response.data);
+  }
+
+  async void(visitId: string, reason: string): Promise<Visit> {
+    const response = await this.execute(() =>
+      axiosClient.patch<VisitDTO>(
+        `/api/v1/treatment/visits/${visitId}/void`,
+        voidVisitToDTO(reason),
+      ),
     );
     return visitToDomain(response.data);
   }

@@ -17,7 +17,6 @@ import {
   getActCatalogUseCase,
   getOpenVisitsUseCase,
   getVisitDetailUseCase,
-  openVisitUseCase,
   removeTreatmentActUseCase,
   updateTreatmentActUseCase,
 } from "@/infrastructure/container";
@@ -29,9 +28,6 @@ const clinicId =
 const currentUserId =
   process.env.NEXT_PUBLIC_MOCK_USER_ID ??
   "00000000-0000-4000-8000-000000000010";
-const doctorId =
-  process.env.NEXT_PUBLIC_MOCK_DOCTOR_ID ??
-  "00000000-0000-4000-8000-000000000020";
 
 const ACT_UI: Record<string, Pick<DentalAct, "category" | "colorHex" | "icon">> = {
   caries: {category: "Diagnostic", colorHex: "#EF4444", icon: "AlertCircle"},
@@ -71,8 +67,8 @@ interface TreatmentStoreState {
   isSaving: boolean;
   /**
    * Opens the patient treatment workspace.
-   * Loads the act catalog, reuses an existing open visit when available, or
-   * creates a mock/open visit so the UI can immediately record treatment acts.
+   * Loads the act catalog and the existing open visit created by the waiting
+   * room seating workflow. It does not create visits from page navigation.
    */
   loadWorkspace: (params: {
     patientId: string;
@@ -195,7 +191,7 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
   isSaving: false,
 
   // Entry point for the page: prepares catalog, visit context, and chart state.
-  loadWorkspace: async ({patientId, patientName, locale = "en"}) => {
+  loadWorkspace: async ({patientId, locale = "en"}) => {
     set({isLoading: true});
     try {
       const catalog = await getActCatalogUseCase.execute({
@@ -203,20 +199,20 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
         locale,
       });
       const openVisits = await getOpenVisitsUseCase.execute({clinicId});
-      let visit =
+      const visit =
         openVisits.items.find((item) => item.patientId === patientId) ?? null;
 
-      // In mock mode a patient treatment page can be opened without a real queue
-      // event yet; API mode should later replace this with backend visit opening.
       if (!visit) {
-        visit = await openVisitUseCase.execute({
-          appointmentId: `mock-appointment-${patientId}`,
-          clinicId,
-          patientId,
-          patientName: patientName ?? "Walk-in patient",
-          doctorId,
-          doctorName: "Dr. DentiFlow",
+        syncChartTreatments([]);
+        set({
+          catalog,
+          acts: catalog.map((item) => toDentalAct(item, locale)),
+          currentVisit: null,
+          treatments: [],
+          isLoading: false,
         });
+        toast.info("Seat this patient from the waiting room before treatment.");
+        return;
       }
 
       const detail = await getVisitDetailUseCase.execute({

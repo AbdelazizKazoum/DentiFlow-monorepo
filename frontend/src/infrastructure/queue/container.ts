@@ -6,7 +6,7 @@ import {UpdateQueueNotesUseCase} from "@/application/queue/useCases/UpdateQueueN
 import {UpdateQueueStatusUseCase} from "@/application/queue/useCases/UpdateQueueStatusUseCase";
 import {QueueHttpRepository} from "./repositories";
 
-const queueRepository = new QueueHttpRepository();
+export const queueRepository = new QueueHttpRepository();
 
 export const getWaitingRoomQueueUseCase = new GetWaitingRoomQueueUseCase(
   queueRepository,

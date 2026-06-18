@@ -62,3 +62,8 @@ export {
   removeTreatmentActUseCase,
   updateTreatmentActUseCase,
 } from "@/infrastructure/treatment/container";
+
+export {
+  correctQueueStatusWithVisitUseCase,
+  seatPatientAndOpenVisitUseCase,
+} from "@/infrastructure/workflows/container";

@@ -8,9 +8,9 @@ import {
 } from "@/domain/queue/services/queuePolicy";
 import {
   checkInPatientUseCase,
-  correctQueueStatusUseCase,
+  correctQueueStatusWithVisitUseCase,
   getWaitingRoomQueueUseCase,
-  seatPatientUseCase,
+  seatPatientAndOpenVisitUseCase,
   updateQueueNotesUseCase,
   updateQueueStatusUseCase,
 } from "@/infrastructure/container";
@@ -151,7 +151,9 @@ export const useQueueStore = create<QueueStoreState>((set) => ({
   correctStatus: async (entryId, status, correctionReason) => {
     set({isUpdating: true});
     try {
-      const updated = await correctQueueStatusUseCase.execute({
+      // Corrections can affect the clinical visit lifecycle, for example
+      // voiding an empty visit created by a mistaken IN_CHAIR status.
+      const updated = await correctQueueStatusWithVisitUseCase.execute({
         queueEntryId: entryId,
         status,
         correctionReason,
@@ -174,7 +176,10 @@ export const useQueueStore = create<QueueStoreState>((set) => ({
   seatPatient: async (entryId) => {
     set({isUpdating: true});
     try {
-      const updated = await seatPatientUseCase.execute(entryId);
+      // Seating a patient is the queue trigger that opens/reuses the treatment
+      // visit. The workflow keeps the action idempotent for repeated clicks.
+      const {queueEntry: updated} =
+        await seatPatientAndOpenVisitUseCase.execute(entryId);
       set((state) => ({
         entries: replaceEntry(state.entries, updated),
         isUpdating: false,

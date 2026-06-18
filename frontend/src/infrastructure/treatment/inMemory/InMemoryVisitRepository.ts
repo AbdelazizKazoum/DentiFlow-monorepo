@@ -9,6 +9,7 @@ function cloneVisit(visit: Visit): Visit {
   return {
     ...visit,
     confirmedAt: visit.confirmedAt ? new Date(visit.confirmedAt) : undefined,
+    voidedAt: visit.voidedAt ? new Date(visit.voidedAt) : undefined,
     createdAt: new Date(visit.createdAt),
     updatedAt: new Date(visit.updatedAt),
     treatmentActs: visit.treatmentActs?.map((act) => ({...act})),
@@ -27,9 +28,12 @@ export class InMemoryVisitRepository implements VisitRepository {
   }
 
   async getByAppointmentId(appointmentId: string): Promise<Visit | null> {
-    const visit = treatmentMemoryStore.visits.find(
-      (item) => item.appointmentId === appointmentId,
-    );
+    // Return the latest non-voided visit. Voided visits are audit records and
+    // should not block a real chair encounter from opening later.
+    const visit = treatmentMemoryStore.visits
+      .filter((item) => item.appointmentId === appointmentId)
+      .filter((item) => item.status !== "VOIDED")
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
 
     return visit ? cloneVisit(visit) : null;
   }
@@ -65,6 +69,8 @@ export class InMemoryVisitRepository implements VisitRepository {
       totalAmount: visit.totalAmount ?? 0,
       confirmedAt: visit.confirmedAt,
       confirmedBy: visit.confirmedBy,
+      voidedAt: visit.voidedAt,
+      voidReason: visit.voidReason,
       createdAt: visit.createdAt ?? new Date(),
       updatedAt: visit.updatedAt ?? new Date(),
     };
@@ -99,6 +105,14 @@ export class InMemoryVisitRepository implements VisitRepository {
 
   async close(visitId: string): Promise<Visit> {
     return this.updateVisit(visitId, {status: "CLOSED"});
+  }
+
+  async void(visitId: string, reason: string): Promise<Visit> {
+    return this.updateVisit(visitId, {
+      status: "VOIDED",
+      voidedAt: new Date(),
+      voidReason: reason.trim(),
+    });
   }
 
   private async updateVisit(

@@ -15,6 +15,8 @@ export interface VisitDTO {
   total_amount: number;
   confirmed_at?: string | null;
   confirmed_by?: string | null;
+  voided_at?: string | null;
+  void_reason?: string | null;
   created_at: string;
   updated_at: string;
   treatment_acts?: TreatmentActDTO[];
@@ -42,4 +44,8 @@ export interface AssignAssistantDTO {
 
 export interface ConfirmVisitDTO {
   confirmed_by: string;
+}
+
+export interface VoidVisitDTO {
+  reason: string;
 }

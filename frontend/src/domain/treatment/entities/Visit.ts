@@ -1,6 +1,6 @@
 import type {TreatmentAct} from "./TreatmentAct";
 
-export type VisitStatus = "OPEN" | "CONFIRMED" | "CLOSED";
+export type VisitStatus = "OPEN" | "CONFIRMED" | "CLOSED" | "VOIDED";
 
 export interface Visit {
   id: string;
@@ -16,6 +16,8 @@ export interface Visit {
   totalAmount: number;
   confirmedAt?: Date;
   confirmedBy?: string;
+  voidedAt?: Date;
+  voidReason?: string;
   createdAt: Date;
   updatedAt: Date;
   treatmentActs?: TreatmentAct[];

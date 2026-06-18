@@ -16,4 +16,5 @@ export type {
   CreateVisitDTO,
   VisitDTO,
   VisitListDTO,
+  VoidVisitDTO,
 } from "./visit.dto";

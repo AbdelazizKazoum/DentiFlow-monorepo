@@ -5,6 +5,7 @@ import type {
   ConfirmVisitDTO,
   CreateVisitDTO,
   VisitDTO,
+  VoidVisitDTO,
 } from "../dtos/visit.dto";
 import {treatmentActToDomain} from "./treatmentAct.mapper";
 
@@ -25,6 +26,8 @@ export const visitToDomain = (dto: VisitDTO): Visit => ({
   totalAmount: dto.total_amount,
   confirmedAt: dto.confirmed_at ? new Date(dto.confirmed_at) : undefined,
   confirmedBy: emptyToUndefined(dto.confirmed_by),
+  voidedAt: dto.voided_at ? new Date(dto.voided_at) : undefined,
+  voidReason: emptyToUndefined(dto.void_reason),
   createdAt: new Date(dto.created_at),
   updatedAt: new Date(dto.updated_at),
   treatmentActs: dto.treatment_acts?.map(treatmentActToDomain),
@@ -51,4 +54,8 @@ export const assignAssistantToDTO = (
 
 export const confirmVisitToDTO = (confirmedBy: string): ConfirmVisitDTO => ({
   confirmed_by: confirmedBy,
+});
+
+export const voidVisitToDTO = (reason: string): VoidVisitDTO => ({
+  reason,
 });

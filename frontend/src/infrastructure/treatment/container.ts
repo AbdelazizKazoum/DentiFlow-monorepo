@@ -20,13 +20,13 @@ import {
 const useMockTreatmentRepository =
   process.env.NEXT_PUBLIC_USE_MOCK_TREATMENT_REPOSITORY !== "false";
 
-const visitRepository = useMockTreatmentRepository
+export const visitRepository = useMockTreatmentRepository
   ? new InMemoryVisitRepository()
   : new VisitHttpRepository();
-const actCatalogRepository = useMockTreatmentRepository
+export const actCatalogRepository = useMockTreatmentRepository
   ? new InMemoryActCatalogRepository()
   : new ActCatalogHttpRepository();
-const treatmentActRepository = useMockTreatmentRepository
+export const treatmentActRepository = useMockTreatmentRepository
   ? new InMemoryTreatmentActRepository()
   : new TreatmentActHttpRepository();
 

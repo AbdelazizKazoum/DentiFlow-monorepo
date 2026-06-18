@@ -19,4 +19,5 @@ export interface VisitRepository {
   ): Promise<Visit>;
   confirm(visitId: string, confirmedBy: string): Promise<Visit>;
   close(visitId: string): Promise<Visit>;
+  void(visitId: string, reason: string): Promise<Visit>;
 }
