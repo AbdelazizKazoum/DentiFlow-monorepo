@@ -21,6 +21,10 @@ import {
   groupTreatmentActs,
 } from "../utils";
 
+/**
+ * Presentation orchestrator for the treatment workspace.
+ * Keeps UI-only state here while treatment mutations go through treatmentStore.
+ */
 export function useTreatmentPage(patientId: string) {
   const sceneRef = useRef<DentalSceneHandle | null>(null);
   const [activeTab, setActiveTab] = useState<TreatmentTab>("chart");
@@ -52,12 +56,14 @@ export function useTreatmentPage(patientId: string) {
     }),
   );
 
+  // Ensure the patient summary has data even when the user lands directly here.
   useEffect(() => {
     if (!patient) {
       void getPatientById(patientId);
     }
   }, [getPatientById, patient, patientId]);
 
+  // Prepare catalog, open visit context, and already-recorded treatment acts.
   useEffect(() => {
     void loadTreatmentWorkspace({
       patientId,
@@ -79,6 +85,7 @@ export function useTreatmentPage(patientId: string) {
     [treatments],
   );
 
+  // Disable 3D orbiting while an act is being dragged over the odontogram.
   const handleDragStart = (event: DragStartEvent) => {
     const act = event.active.data.current?.act as DentalAct | undefined;
 
@@ -88,6 +95,7 @@ export function useTreatmentPage(patientId: string) {
     setOrbitEnabled(false);
   };
 
+  // Applies the dragged act to the drop target tooth and opens that tooth modal.
   const handleDragEnd = (event: DragEndEvent) => {
     const act = event.active.data.current?.act as DentalAct | undefined;
     const toothId = event.over?.data.current?.toothId as ToothId | undefined;
@@ -102,16 +110,19 @@ export function useTreatmentPage(patientId: string) {
     setOrbitEnabled(true);
   };
 
+  // Restore chart interaction when drag is aborted outside a tooth target.
   const handleDragCancel = () => {
     setDraggingAct(null);
     setOrbitEnabled(true);
   };
 
+  // Selects a tooth in both the 2D modal and the 3D chart highlight state.
   const openTooth = (toothId: ToothId) => {
     setSelectedModalTooth(toothId);
     setSelectedTooth(toothId);
   };
 
+  // Clears the modal and any selected tooth highlight.
   const closeTooth = () => {
     setSelectedModalTooth(null);
     setSelectedTooth(null);

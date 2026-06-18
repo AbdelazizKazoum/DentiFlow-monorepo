@@ -69,22 +69,47 @@ interface TreatmentStoreState {
   treatments: ToothTreatment[];
   isLoading: boolean;
   isSaving: boolean;
+  /**
+   * Opens the patient treatment workspace.
+   * Loads the act catalog, reuses an existing open visit when available, or
+   * creates a mock/open visit so the UI can immediately record treatment acts.
+   */
   loadWorkspace: (params: {
     patientId: string;
     patientName?: string;
     locale?: "ar" | "fr" | "en";
   }) => Promise<void>;
+  /**
+   * Adds a catalog act to a tooth in the current open visit.
+   * Use this from drag/drop or the tooth modal after a workspace has loaded.
+   */
   addTreatment: (
     act: DentalAct,
     toothId: ToothId,
     position?: [number, number, number],
   ) => Promise<ToothTreatment>;
+  /**
+   * Changes the clinical workflow status for an existing treatment act.
+   * The store translates UI status names into treatment domain status values.
+   */
   updateTreatmentStatus: (
     treatmentId: string,
     status: TreatmentStatus,
   ) => Promise<void>;
+  /**
+   * Persists a free-text clinical note for one treatment act.
+   * Pass raw textarea content; trimming is handled by the store.
+   */
   saveTreatmentNote: (treatmentId: string, notes: string) => Promise<void>;
+  /**
+   * Removes a treatment act from the current open visit and refreshes chart data.
+   * Use only for acts that are still editable according to visit lifecycle rules.
+   */
   removeTreatment: (treatmentId: string) => Promise<void>;
+  /**
+   * Confirms the current visit after clinical review.
+   * The use case enforces that at least one act is completed before sign-off.
+   */
   confirmVisit: () => Promise<void>;
 }
 
@@ -153,6 +178,10 @@ function toToothTreatment(
   };
 }
 
+/**
+ * Keeps the legacy/3D chart renderer in sync while treatment data is owned by
+ * the treatment store and domain use cases.
+ */
 function syncChartTreatments(treatments: ToothTreatment[]) {
   useDentalChartStore.getState().setTreatments(treatments);
 }
@@ -165,6 +194,7 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
   isLoading: false,
   isSaving: false,
 
+  // Entry point for the page: prepares catalog, visit context, and chart state.
   loadWorkspace: async ({patientId, patientName, locale = "en"}) => {
     set({isLoading: true});
     try {
@@ -176,6 +206,8 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
       let visit =
         openVisits.items.find((item) => item.patientId === patientId) ?? null;
 
+      // In mock mode a patient treatment page can be opened without a real queue
+      // event yet; API mode should later replace this with backend visit opening.
       if (!visit) {
         visit = await openVisitUseCase.execute({
           appointmentId: `mock-appointment-${patientId}`,
@@ -209,6 +241,7 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
     }
   },
 
+  // Called by both drag/drop and modal add flows after the workspace is ready.
   addTreatment: async (act, toothId, position = [0, 0.2, 0]) => {
     const visit = get().currentVisit;
 
@@ -227,6 +260,8 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
         clinicId,
       });
       const treatment = {
+        // The domain entity stores FDI/tooth data; the odontogram needs its UI
+        // marker position as a separate presentation concern.
         ...toToothTreatment(created, get().catalog, "en"),
         position,
       };
@@ -255,6 +290,8 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
     }
   },
 
+  // Status changes stay optimistic in presentation state after the use case
+  // accepts the command, so the chart markers update immediately.
   updateTreatmentStatus: async (treatmentId, status) => {
     set({isSaving: true});
     try {
@@ -276,6 +313,8 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
     }
   },
 
+  // Notes are edited locally in the row component and committed through this
+  // action when the user chooses to save.
   saveTreatmentNote: async (treatmentId, notes) => {
     set({isSaving: true});
     try {
@@ -297,6 +336,7 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
     }
   },
 
+  // Delete the act through the domain use case, then remove its UI projection.
   removeTreatment: async (treatmentId) => {
     const visit = get().currentVisit;
 
@@ -324,6 +364,8 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
     }
   },
 
+  // Sign-off action for the active visit; billing/closing can be layered on
+  // top of the confirmed visit state later.
   confirmVisit: async () => {
     const visit = get().currentVisit;
 
