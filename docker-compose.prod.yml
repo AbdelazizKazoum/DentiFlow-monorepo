@@ -45,12 +45,14 @@ services:
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
+      TREATMENT_SERVICE_GRPC_URL: treatment-service:5005
       NATS_URL: nats://nats:4222
     ports:
       - "127.0.0.1:3001:3001"
     depends_on:
       - auth-service
       - appointment-service
+      - treatment-service
       - nats
     networks:
       - dentiflow-network
@@ -98,6 +100,30 @@ services:
       OUTBOX_RELAY_INTERVAL_MS: 500
     ports:
       - "127.0.0.1:3005:3005"
+    depends_on:
+      - db
+      - nats
+    networks:
+      - dentiflow-network
+
+  treatment-service:
+    build:
+      context: .
+      dockerfile: services/treatment-service/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: "${DB_USERNAME:-root}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${TREATMENT_DB_NAME:-treatment_db}"
+      GRPC_PORT: 5005
+      NATS_URL: nats://nats:4222
+      OUTBOX_RELAY_INTERVAL_MS: 500
+    ports:
+      - "127.0.0.1:3006:3006"
     depends_on:
       - db
       - nats

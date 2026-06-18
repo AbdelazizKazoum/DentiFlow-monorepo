@@ -43,6 +43,7 @@ export const databaseSchema = jwtSchema.concat(
     DB_USERNAME: Joi.string().required(),
     DB_PASSWORD: Joi.string().required(),
     DB_NAME: Joi.string().required(),
+    DB_SYNCHRONIZE: Joi.boolean().optional(),
   }),
 );
 
@@ -54,6 +55,7 @@ export const authServiceSchema = refreshTokenSchema.concat(
     DB_USERNAME: Joi.string().required(),
     DB_PASSWORD: Joi.string().required(),
     DB_NAME: Joi.string().required(),
+    DB_SYNCHRONIZE: Joi.boolean().optional(),
   }),
 );
 

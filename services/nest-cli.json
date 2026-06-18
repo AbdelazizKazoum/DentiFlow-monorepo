@@ -99,6 +99,24 @@
           "watchAssets": true
         }
       ]
+    },
+    "treatment-service": {
+      "type": "application",
+      "root": "treatment-service",
+      "entryFile": "main",
+      "sourceRoot": "treatment-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "treatment-service/tsconfig.json",
+        "webpack": false,
+        "deleteOutDir": false
+      },
+      "assets": [
+        {
+          "include": "../../lib/proto/*.proto",
+          "outDir": "lib/proto",
+          "watchAssets": true
+        }
+      ]
     }
   }
 }

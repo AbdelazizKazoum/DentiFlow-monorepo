@@ -5,6 +5,10 @@ export function typeormOptionsFactory(
   configService: ConfigService,
 ): TypeOrmModuleOptions {
   const isProduction = configService.get<string>("NODE_ENV") === "production";
+  const synchronize = configService.get<boolean>(
+    "DB_SYNCHRONIZE",
+    !isProduction,
+  );
 
   return {
     type: "mysql",
@@ -14,7 +18,7 @@ export function typeormOptionsFactory(
     password: configService.getOrThrow<string>("DB_PASSWORD"),
     database: configService.getOrThrow<string>("DB_NAME"),
     autoLoadEntities: true, // picks up all entities registered via forFeature()
-    synchronize: !isProduction, // auto-create/update tables in dev; use migrations in prod
+    synchronize,
     migrationsRun: false,
     logging: !isProduction,
     charset: "utf8mb4", // supports Arabic and all Unicode characters

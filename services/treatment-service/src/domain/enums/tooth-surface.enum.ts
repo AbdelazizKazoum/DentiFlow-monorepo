@@ -1,0 +1,8 @@
+export enum ToothSurface {
+  OCCLUSAL = "OCCLUSAL",
+  MESIAL = "MESIAL",
+  DISTAL = "DISTAL",
+  BUCCAL = "BUCCAL",
+  LINGUAL = "LINGUAL",
+  PALATAL = "PALATAL",
+}

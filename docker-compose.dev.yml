@@ -58,6 +58,7 @@ services:
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
+      TREATMENT_SERVICE_GRPC_URL: treatment-service:5005
       # FRONTEND_URL: http://localhost:3000
       FRONTEND_URL: http://192.168.130.95:3000
       NATS_URL: nats://nats:4222
@@ -74,6 +75,7 @@ services:
       - clinic-service
       - patient-service
       - appointment-service
+      - treatment-service
       - nats
     networks:
       - dentiflow-network
@@ -227,5 +229,44 @@ services:
       - nats
       - patient-service
       - clinic-service
+    networks:
+      - dentiflow-network
+
+  treatment-service:
+    build:
+      context: .
+      dockerfile: services/treatment-service/Dockerfile
+      target: builder
+      args:
+        PNPM_FLAGS: "--no-frozen-lockfile"
+    image: dentiflow/treatment-service:dev
+    working_dir: /app
+    command: pnpm -C ./services start:dev:treatment-service
+    environment:
+      NODE_ENV: development
+      PORT: 3006
+      LOG_LEVEL: info
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: secret
+      DB_NAME: treatment_db
+      DB_SYNCHRONIZE: "false"
+      GRPC_PORT: 5005
+      NATS_URL: nats://nats:4222
+      OUTBOX_RELAY_INTERVAL_MS: 500
+      CHOKIDAR_USEPOLLING: "true"
+      FORCE_POLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "127.0.0.1:3006:3006"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./services/treatment-service/src:/app/services/treatment-service/src:rw
+      - ./services/lib:/app/services/lib:rw
+    depends_on:
+      - db
+      - nats
     networks:
       - dentiflow-network
