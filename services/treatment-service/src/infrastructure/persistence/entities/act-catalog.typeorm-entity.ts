@@ -36,6 +36,9 @@ export class ActCatalogTypeOrmEntity {
   @Column({name: "is_active", default: true})
   is_active!: boolean;
 
+  @Column({type: "varchar", length: 80, nullable: true})
+  icon!: string | null;
+
   @CreateDateColumn({name: "created_at"})
   created_at!: Date;
 

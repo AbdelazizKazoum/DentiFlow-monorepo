@@ -107,6 +107,7 @@ export function actCatalogToHttp(dto: TreatmentProto.ActCatalogReply) {
     name_en: field<string>(shape, "nameEn", "name_en", ""),
     default_price: field<number>(shape, "defaultPrice", "default_price", 0),
     is_active: field<boolean>(shape, "isActive", "is_active", false),
+    icon: field<string>(shape, "icon", "icon", "") || undefined,
     created_at: field<string>(shape, "createdAt", "created_at", ""),
     updated_at: field<string>(shape, "updatedAt", "updated_at", ""),
   };

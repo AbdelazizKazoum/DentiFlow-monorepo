@@ -8,6 +8,7 @@ export interface CreateActCatalogInput {
   nameEn: string;
   defaultPrice: number;
   isActive?: boolean;
+  icon?: string | null;
 }
 
 export interface UpdateActCatalogInput {
@@ -17,6 +18,7 @@ export interface UpdateActCatalogInput {
   nameEn?: string;
   defaultPrice?: number;
   isActive?: boolean;
+  icon?: string | null;
 }
 
 export interface ActCatalogListResponse {

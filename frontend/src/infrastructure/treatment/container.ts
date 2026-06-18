@@ -18,7 +18,7 @@ import {
 } from "./repositories";
 
 const useMockTreatmentRepository =
-  process.env.NEXT_PUBLIC_USE_MOCK_TREATMENT_REPOSITORY !== "false";
+  process.env.NEXT_PUBLIC_USE_MOCK_TREATMENT_REPOSITORY === "true";
 
 export const visitRepository = useMockTreatmentRepository
   ? new InMemoryVisitRepository()

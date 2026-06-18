@@ -29,18 +29,22 @@ const currentUserId =
   "00000000-0000-4000-8000-000000000010";
 
 const ACT_UI: Record<string, Pick<DentalAct, "category" | "colorHex" | "icon">> = {
-  caries: {category: "Diagnostic", colorHex: "#EF4444", icon: "AlertCircle"},
-  filling: {category: "Restorative", colorHex: "#3B82F6", icon: "CircleDot"},
-  crown: {category: "Prosthetic", colorHex: "#F59E0B", icon: "Crown"},
-  implant: {category: "Surgical", colorHex: "#8B5CF6", icon: "Anchor"},
-  extraction: {category: "Surgical", colorHex: "#374151", icon: "X"},
-  root_canal: {category: "Endodontic", colorHex: "#DC2626", icon: "Zap"},
-  whitening: {category: "Cosmetic", colorHex: "#60A5FA", icon: "Sun"},
-  orthodontics: {
+  "DIA-01": {category: "Diagnostic", colorHex: "#EF4444", icon: "AlertCircle"},
+  "RES-12": {category: "Restorative", colorHex: "#3B82F6", icon: "CircleDot"},
+  "PRO-40": {category: "Prosthetic", colorHex: "#F59E0B", icon: "Crown"},
+  "SUR-90": {category: "Surgical", colorHex: "#8B5CF6", icon: "Anchor"},
+  "SUR-20": {category: "Surgical", colorHex: "#374151", icon: "X"},
+  "END-31": {category: "Endodontic", colorHex: "#DC2626", icon: "Zap"},
+  "COS-10": {category: "Cosmetic", colorHex: "#60A5FA", icon: "Sun"},
+  "ORT-70": {
     category: "Orthodontic",
     colorHex: "#FCD34D",
     icon: "GitCommitHorizontal",
   },
+  CONS: {category: "Diagnostic", colorHex: "#0f8aa3", icon: "Stethoscope"},
+  DET: {category: "Preventive", colorHex: "#14B8A6", icon: "Sparkles"},
+  FILL: {category: "Restorative", colorHex: "#3B82F6", icon: "CircleDot"},
+  EXT: {category: "Surgical", colorHex: "#374151", icon: "X"},
 };
 
 const statusToUi: Record<TreatmentActStatus, TreatmentStatus> = {
@@ -118,10 +122,10 @@ function getLocalizedName(catalog: ActCatalog, locale: "ar" | "fr" | "en") {
 }
 
 function toDentalAct(catalog: ActCatalog, locale: "ar" | "fr" | "en"): DentalAct {
-  const ui = ACT_UI[catalog.id] ?? {
+  const ui = ACT_UI[catalog.code] ?? {
     category: "Clinical",
     colorHex: "#0f8aa3",
-    icon: "CircleDot",
+    icon: catalog.icon ?? "CircleDot",
   };
 
   return {
@@ -129,6 +133,7 @@ function toDentalAct(catalog: ActCatalog, locale: "ar" | "fr" | "en"): DentalAct
     label: getLocalizedName(catalog, locale),
     defaultStatus: "planned",
     ...ui,
+    icon: catalog.icon ?? ui.icon,
   };
 }
 

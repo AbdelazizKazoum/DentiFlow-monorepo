@@ -28,9 +28,12 @@ export interface VisitListDTO {
   total?: number;
 }
 
+export interface VisitByAppointmentDTO {
+  visit?: VisitDTO | null;
+}
+
 export interface CreateVisitDTO {
   appointment_id: string;
-  clinic_id: string;
   patient_id: string;
   patient_name: string;
   doctor_id: string;

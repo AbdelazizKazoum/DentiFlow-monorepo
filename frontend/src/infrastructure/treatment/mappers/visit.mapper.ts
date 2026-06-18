@@ -37,7 +37,6 @@ export const openVisitToDTO = (
   command: OpenVisitCommand,
 ): CreateVisitDTO => ({
   appointment_id: command.appointmentId,
-  clinic_id: command.clinicId,
   patient_id: command.patientId,
   patient_name: command.patientName,
   doctor_id: command.doctorId,

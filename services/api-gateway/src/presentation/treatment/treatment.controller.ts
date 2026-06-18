@@ -409,6 +409,7 @@ export class TreatmentController implements OnModuleInit {
       name_en?: string;
       default_price?: number;
       is_active?: boolean;
+      icon?: string;
     },
   ) {
     try {
@@ -422,6 +423,7 @@ export class TreatmentController implements OnModuleInit {
           nameEn: body.name_en ?? "",
           defaultPrice: body.default_price ?? 0,
           isActive: body.is_active,
+          icon: body.icon,
         }),
       );
       return actCatalogToHttp(item);
@@ -461,6 +463,7 @@ export class TreatmentController implements OnModuleInit {
       name_en?: string;
       default_price?: number;
       is_active?: boolean;
+      icon?: string;
     },
   ) {
     try {
@@ -477,6 +480,7 @@ export class TreatmentController implements OnModuleInit {
           nameEn: body.name_en,
           defaultPrice: body.default_price,
           isActive: body.is_active,
+          icon: body.icon,
         }),
       );
       return actCatalogToHttp(item);

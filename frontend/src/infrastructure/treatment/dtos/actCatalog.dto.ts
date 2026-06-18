@@ -7,6 +7,7 @@ export interface ActCatalogDTO {
   name_en: string;
   default_price: number;
   is_active: boolean;
+  icon?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +26,7 @@ export interface CreateActCatalogDTO {
   name_en: string;
   default_price: number;
   is_active?: boolean;
+  icon?: string;
 }
 
 export interface UpdateActCatalogDTO {
@@ -34,4 +36,5 @@ export interface UpdateActCatalogDTO {
   name_en?: string;
   default_price?: number;
   is_active?: boolean;
+  icon?: string | null;
 }

@@ -49,6 +49,7 @@ export class ActCatalogRepository implements IActCatalogRepository {
         name_en: input.nameEn,
         default_price: input.defaultPrice.toFixed(2),
         is_active: input.isActive ?? true,
+        icon: input.icon ?? null,
       });
       return ActCatalogMapper.toDomain(saved);
     } catch (error) {
@@ -74,6 +75,7 @@ export class ActCatalogRepository implements IActCatalogRepository {
           ? {default_price: input.defaultPrice.toFixed(2)}
           : {}),
         ...(input.isActive !== undefined ? {is_active: input.isActive} : {}),
+        ...(input.icon !== undefined ? {icon: input.icon} : {}),
       });
       return ActCatalogMapper.toDomain(saved);
     } catch (error) {

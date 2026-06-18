@@ -5,10 +5,9 @@ import type {
 } from "@/domain/treatment/repositories/VisitRepository";
 import {axiosClient} from "@/infrastructure/http/axiosClient";
 import {BaseRepository} from "@/infrastructure/http/BaseRepository";
-import type {VisitDTO, VisitListDTO} from "../dtos";
+import type {VisitByAppointmentDTO, VisitDTO, VisitListDTO} from "../dtos";
 import {
   assignAssistantToDTO,
-  confirmVisitToDTO,
   openVisitToDTO,
   visitToDomain,
   voidVisitToDTO,
@@ -33,11 +32,11 @@ export class VisitHttpRepository
     // Backend should return the active/latest non-voided visit for this
     // appointment. Voided visits remain audit history, not active encounters.
     const response = await this.execute(() =>
-      axiosClient.get<VisitDTO | null>(
+      axiosClient.get<VisitByAppointmentDTO>(
         `/api/v1/treatment/visits/by-appointment/${appointmentId}`,
       ),
     );
-    return response.data ? visitToDomain(response.data) : null;
+    return response.data.visit ? visitToDomain(response.data.visit) : null;
   }
 
   async getOpenVisits(
@@ -78,20 +77,25 @@ export class VisitHttpRepository
   }
 
   async updateStatus(visitId: string, status: VisitStatus): Promise<Visit> {
-    const response = await this.execute(() =>
-      axiosClient.patch<VisitDTO>(`/api/v1/treatment/visits/${visitId}/status`, {
-        status,
-      }),
-    );
-    return visitToDomain(response.data);
+    if (status === "CONFIRMED") {
+      return this.confirm(visitId, "");
+    }
+
+    if (status === "CLOSED") {
+      return this.close(visitId);
+    }
+
+    if (status === "VOIDED") {
+      return this.void(visitId, "Visit status updated to voided.");
+    }
+
+    return this.getById(visitId);
   }
 
-  async updateTotalAmount(visitId: string, newTotal: number): Promise<void> {
-    await this.execute(() =>
-      axiosClient.patch(`/api/v1/treatment/visits/${visitId}/total`, {
-        total_amount: newTotal,
-      }),
-    );
+  async updateTotalAmount(_visitId: string, _newTotal: number): Promise<void> {
+    void _visitId;
+    void _newTotal;
+    // Totals are calculated and persisted by the treatment API when acts change.
   }
 
   async assignAssistant(
@@ -109,11 +113,9 @@ export class VisitHttpRepository
   }
 
   async confirm(visitId: string, confirmedBy: string): Promise<Visit> {
+    void confirmedBy;
     const response = await this.execute(() =>
-      axiosClient.patch<VisitDTO>(
-        `/api/v1/treatment/visits/${visitId}/confirm`,
-        confirmVisitToDTO(confirmedBy),
-      ),
+      axiosClient.patch<VisitDTO>(`/api/v1/treatment/visits/${visitId}/confirm`),
     );
     return visitToDomain(response.data);
   }

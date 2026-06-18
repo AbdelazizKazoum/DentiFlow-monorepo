@@ -12,6 +12,7 @@ export class ActCatalogMapper {
       entity.name_en,
       Number(entity.default_price),
       entity.is_active,
+      entity.icon,
       entity.created_at,
       entity.updated_at,
     );

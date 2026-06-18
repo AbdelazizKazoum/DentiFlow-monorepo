@@ -164,6 +164,7 @@ export class TreatmentGrpcController {
         nameEn: data.nameEn,
         defaultPrice: data.defaultPrice,
         isActive: data.isActive ?? true,
+        icon: data.icon || null,
       });
       return TreatmentGrpcMapper.toActCatalogReply(item);
     } catch (error) {
@@ -181,6 +182,7 @@ export class TreatmentGrpcController {
         nameEn: data.nameEn || undefined,
         defaultPrice: data.defaultPrice,
         isActive: data.isActive,
+        icon: data.icon,
       });
       return TreatmentGrpcMapper.toActCatalogReply(item);
     } catch (error) {

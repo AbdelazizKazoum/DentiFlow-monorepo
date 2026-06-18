@@ -12,6 +12,7 @@ export class CreateTreatmentTables20260618000001 implements MigrationInterface {
         \`name_en\`       VARCHAR(255) NOT NULL,
         \`default_price\` DECIMAL(12,2) NOT NULL,
         \`is_active\`     TINYINT(1) NOT NULL DEFAULT 1,
+        \`icon\`          VARCHAR(80) NULL,
         \`created_at\`    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
         \`updated_at\`    DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
         PRIMARY KEY (\`id\`),

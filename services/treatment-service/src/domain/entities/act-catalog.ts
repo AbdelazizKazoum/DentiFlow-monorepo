@@ -8,6 +8,7 @@ export class ActCatalog {
     public readonly nameEn: string,
     public readonly defaultPrice: number,
     public readonly isActive: boolean,
+    public readonly icon: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
   ) {}

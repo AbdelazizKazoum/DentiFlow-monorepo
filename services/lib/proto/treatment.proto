@@ -106,8 +106,9 @@ message ActCatalogReply {
   string name_en = 6;
   double default_price = 7;
   bool is_active = 8;
-  string created_at = 9;
-  string updated_at = 10;
+  string icon = 9;
+  string created_at = 10;
+  string updated_at = 11;
 }
 
 message ActCatalogListReply {
@@ -134,6 +135,7 @@ message CreateActCatalogRequest {
   string name_en = 5;
   double default_price = 6;
   optional bool is_active = 7;
+  optional string icon = 8;
 }
 
 message UpdateActCatalogRequest {
@@ -144,6 +146,7 @@ message UpdateActCatalogRequest {
   optional string name_en = 5;
   optional double default_price = 6;
   optional bool is_active = 7;
+  optional string icon = 8;
 }
 
 message DeleteActCatalogRequest {

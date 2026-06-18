@@ -10,8 +10,12 @@ export class OpenVisitUseCase {
       command.appointmentId,
     );
 
-    if (existing) {
-      throw new Error("This appointment already has a visit.");
+    if (existing?.status === "OPEN") {
+      return existing;
+    }
+
+    if (existing?.status === "CONFIRMED" || existing?.status === "CLOSED") {
+      throw new Error("This appointment already has a finalized visit.");
     }
 
     return this.visitRepository.save({

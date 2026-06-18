@@ -40,6 +40,7 @@ export class TreatmentGrpcMapper {
       nameEn: item.nameEn,
       defaultPrice: item.defaultPrice,
       isActive: item.isActive,
+      icon: item.icon ?? "",
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString(),
     };

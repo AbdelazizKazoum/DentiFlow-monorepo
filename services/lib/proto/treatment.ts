@@ -93,6 +93,7 @@ export interface ActCatalogReply {
   nameEn: string;
   defaultPrice: number;
   isActive: boolean;
+  icon: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -121,6 +122,7 @@ export interface CreateActCatalogRequest {
   nameEn: string;
   defaultPrice: number;
   isActive?: boolean | undefined;
+  icon?: string | undefined;
 }
 
 export interface UpdateActCatalogRequest {
@@ -131,6 +133,7 @@ export interface UpdateActCatalogRequest {
   nameEn?: string | undefined;
   defaultPrice?: number | undefined;
   isActive?: boolean | undefined;
+  icon?: string | undefined;
 }
 
 export interface DeleteActCatalogRequest {
@@ -954,6 +957,7 @@ function createBaseActCatalogReply(): ActCatalogReply {
     nameEn: "",
     defaultPrice: 0,
     isActive: false,
+    icon: "",
     createdAt: "",
     updatedAt: "",
   };
@@ -985,11 +989,14 @@ export const ActCatalogReply: MessageFns<ActCatalogReply> = {
     if (message.isActive !== false) {
       writer.uint32(64).bool(message.isActive);
     }
+    if (message.icon !== "") {
+      writer.uint32(74).string(message.icon);
+    }
     if (message.createdAt !== "") {
-      writer.uint32(74).string(message.createdAt);
+      writer.uint32(82).string(message.createdAt);
     }
     if (message.updatedAt !== "") {
-      writer.uint32(82).string(message.updatedAt);
+      writer.uint32(90).string(message.updatedAt);
     }
     return writer;
   },
@@ -1070,11 +1077,19 @@ export const ActCatalogReply: MessageFns<ActCatalogReply> = {
             break;
           }
 
-          message.createdAt = reader.string();
+          message.icon = reader.string();
           continue;
         }
         case 10: {
           if (tag !== 82) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
             break;
           }
 
@@ -1273,6 +1288,9 @@ export const CreateActCatalogRequest: MessageFns<CreateActCatalogRequest> = {
     if (message.isActive !== undefined) {
       writer.uint32(56).bool(message.isActive);
     }
+    if (message.icon !== undefined) {
+      writer.uint32(66).string(message.icon);
+    }
     return writer;
   },
 
@@ -1339,6 +1357,14 @@ export const CreateActCatalogRequest: MessageFns<CreateActCatalogRequest> = {
           message.isActive = reader.bool();
           continue;
         }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.icon = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1375,6 +1401,9 @@ export const UpdateActCatalogRequest: MessageFns<UpdateActCatalogRequest> = {
     }
     if (message.isActive !== undefined) {
       writer.uint32(56).bool(message.isActive);
+    }
+    if (message.icon !== undefined) {
+      writer.uint32(66).string(message.icon);
     }
     return writer;
   },
@@ -1440,6 +1469,14 @@ export const UpdateActCatalogRequest: MessageFns<UpdateActCatalogRequest> = {
           }
 
           message.isActive = reader.bool();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.icon = reader.string();
           continue;
         }
       }

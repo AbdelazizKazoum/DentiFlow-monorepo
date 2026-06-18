@@ -14,6 +14,7 @@ export const actCatalogToDomain = (dto: ActCatalogDTO): ActCatalog => ({
   nameEn: dto.name_en,
   defaultPrice: dto.default_price,
   isActive: dto.is_active,
+  icon: dto.icon ?? undefined,
   createdAt: new Date(dto.created_at),
   updatedAt: new Date(dto.updated_at),
 });
@@ -28,6 +29,7 @@ export const actCatalogToCreateDTO = (
   name_en: catalog.nameEn ?? "",
   default_price: catalog.defaultPrice ?? 0,
   ...(catalog.isActive !== undefined ? {is_active: catalog.isActive} : {}),
+  ...(catalog.icon !== undefined ? {icon: catalog.icon} : {}),
 });
 
 export const actCatalogToUpdateDTO = (
@@ -41,4 +43,5 @@ export const actCatalogToUpdateDTO = (
     ? {default_price: catalog.defaultPrice}
     : {}),
   ...(catalog.isActive !== undefined ? {is_active: catalog.isActive} : {}),
+  ...(catalog.icon !== undefined ? {icon: catalog.icon ?? null} : {}),
 });

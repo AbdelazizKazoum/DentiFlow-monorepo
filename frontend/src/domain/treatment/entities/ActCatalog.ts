@@ -7,6 +7,7 @@ export interface ActCatalog {
   nameEn: string;
   defaultPrice: number;
   isActive: boolean;
+  icon?: string;
   createdAt: Date;
   updatedAt: Date;
 }
