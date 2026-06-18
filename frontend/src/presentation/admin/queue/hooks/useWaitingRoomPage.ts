@@ -44,6 +44,7 @@ export function useWaitingRoomPage() {
     changeStatus,
     correctStatus,
     seatPatient,
+    startTreatment,
     saveNotes,
   } = useQueueStore();
 
@@ -221,6 +222,7 @@ export function useWaitingRoomPage() {
     openNotes,
     requestStatusChange,
     resetManualOrder,
+    startTreatment,
     setCorrectionState,
     setManualOrder,
     setNotesState,

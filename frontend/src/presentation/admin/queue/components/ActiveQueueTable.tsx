@@ -50,7 +50,7 @@ interface ActiveQueueTableProps {
   onReorder: (ids: string[]) => void;
   onResetOrder: () => void;
   onSortModeChange: (mode: QueueSortMode) => void;
-  onStartTreatment: (patientId: string) => void;
+  onStartTreatment: (entry: QueueEntry) => void;
 }
 
 interface SortableQueueRowProps {
@@ -59,7 +59,7 @@ interface SortableQueueRowProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
-  onStartTreatment: (patientId: string) => void;
+  onStartTreatment: (entry: QueueEntry) => void;
 }
 
 interface MobileQueueItemProps {
@@ -68,7 +68,7 @@ interface MobileQueueItemProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
-  onStartTreatment: (patientId: string) => void;
+  onStartTreatment: (entry: QueueEntry) => void;
 }
 
 interface QueueDragOverlayProps {
@@ -222,7 +222,7 @@ function SortableQueueRow({
           {entry.status === "IN_CHAIR" && (
             <button
               type="button"
-              onClick={() => onStartTreatment(entry.patientId)}
+              onClick={() => onStartTreatment(entry)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
             >
               <Stethoscope size={14} />
@@ -381,7 +381,7 @@ function MobileQueueItem({
           {entry.status === "IN_CHAIR" && (
             <button
               type="button"
-              onClick={() => onStartTreatment(entry.patientId)}
+              onClick={() => onStartTreatment(entry)}
               className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
             >
               <Stethoscope size={16} />

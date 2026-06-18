@@ -2,6 +2,7 @@ import {create} from "zustand";
 import {toast} from "sonner";
 import type {CheckInPatientCommand} from "@/domain/queue/commands/CheckInPatientCommand";
 import type {QueueEntry, QueueStatus} from "@/domain/queue/entities/queueEntry";
+import type {Visit} from "@/domain/treatment/entities/Visit";
 import {
   sortQueueEntries,
   type QueueSortMode,
@@ -34,6 +35,7 @@ interface QueueStoreState {
     correctionReason: string,
   ) => Promise<QueueEntry>;
   seatPatient: (entryId: string) => Promise<QueueEntry>;
+  startTreatment: (entryId: string) => Promise<{entry: QueueEntry; visit: Visit}>;
   saveNotes: (entryId: string, notes?: string) => Promise<QueueEntry>;
   setManualOrder: (ids: string[]) => void;
   resetManualOrder: () => void;
@@ -191,6 +193,27 @@ export const useQueueStore = create<QueueStoreState>((set) => ({
     } catch (error) {
       set({isUpdating: false});
       toast.error(getMessage(error, "Failed to seat patient"));
+      throw error;
+    }
+  },
+
+  startTreatment: async (entryId) => {
+    set({isUpdating: true});
+    try {
+      // Start Treatment uses the same workflow as seating so the visit id is
+      // always available and repeated clicks reuse the existing OPEN visit.
+      const {queueEntry: updated, visit} =
+        await seatPatientAndOpenVisitUseCase.execute(entryId);
+      set((state) => ({
+        entries: replaceEntry(state.entries, updated),
+        isUpdating: false,
+        lastUpdatedAt: new Date(),
+        manualOrder: null,
+      }));
+      return {entry: updated, visit};
+    } catch (error) {
+      set({isUpdating: false});
+      toast.error(getMessage(error, "Failed to start treatment"));
       throw error;
     }
   },

@@ -1,0 +1,296 @@
+# Treatment Service API Contracts
+
+This file defines the contracts that should be implemented by `treatment-service` and exposed through the API gateway.
+
+## 1. gRPC Service
+
+Add:
+
+```text
+services/lib/proto/treatment.proto
+```
+
+Suggested proto:
+
+```proto
+syntax = "proto3";
+package treatment;
+
+service TreatmentService {
+  rpc GetVisit (GetVisitRequest) returns (VisitReply);
+  rpc GetVisitByAppointment (GetVisitByAppointmentRequest) returns (NullableVisitReply);
+  rpc ListOpenVisits (ListOpenVisitsRequest) returns (VisitsListReply);
+  rpc OpenVisit (OpenVisitRequest) returns (VisitReply);
+  rpc AssignAssistant (AssignAssistantRequest) returns (VisitReply);
+  rpc ConfirmVisit (ConfirmVisitRequest) returns (VisitReply);
+  rpc CloseVisit (CloseVisitRequest) returns (VisitReply);
+  rpc VoidVisit (VoidVisitRequest) returns (VisitReply);
+
+  rpc ListActCatalog (ListActCatalogRequest) returns (ActCatalogListReply);
+  rpc GetActCatalog (GetActCatalogRequest) returns (ActCatalogReply);
+  rpc CreateActCatalog (CreateActCatalogRequest) returns (ActCatalogReply);
+  rpc UpdateActCatalog (UpdateActCatalogRequest) returns (ActCatalogReply);
+  rpc DeleteActCatalog (DeleteActCatalogRequest) returns (EmptyReply);
+
+  rpc ListTreatmentActs (ListTreatmentActsRequest) returns (TreatmentActListReply);
+  rpc GetTreatmentAct (GetTreatmentActRequest) returns (TreatmentActReply);
+  rpc AddTreatmentAct (AddTreatmentActRequest) returns (TreatmentActReply);
+  rpc UpdateTreatmentAct (UpdateTreatmentActRequest) returns (TreatmentActReply);
+  rpc RemoveTreatmentAct (RemoveTreatmentActRequest) returns (EmptyReply);
+  rpc CalculateVisitTotal (CalculateVisitTotalRequest) returns (VisitTotalReply);
+}
+```
+
+## 2. Visit Messages
+
+```proto
+message VisitReply {
+  string id = 1;
+  string clinic_id = 2;
+  string appointment_id = 3;
+  string patient_id = 4;
+  string patient_name = 5;
+  string doctor_id = 6;
+  string doctor_name = 7;
+  string assistant_id = 8;
+  string assistant_name = 9;
+  string status = 10;
+  double total_amount = 11;
+  string confirmed_at = 12;
+  string confirmed_by = 13;
+  string voided_at = 14;
+  string void_reason = 15;
+  string created_at = 16;
+  string updated_at = 17;
+  repeated TreatmentActReply treatment_acts = 18;
+}
+
+message NullableVisitReply {
+  optional VisitReply visit = 1;
+}
+
+message VisitsListReply {
+  repeated VisitReply visits = 1;
+  int32 total = 2;
+}
+
+message GetVisitRequest {
+  string id = 1;
+}
+
+message GetVisitByAppointmentRequest {
+  string appointment_id = 1;
+}
+
+message ListOpenVisitsRequest {
+  string clinic_id = 1;
+  optional string doctor_id = 2;
+}
+
+message OpenVisitRequest {
+  string clinic_id = 1;
+  string appointment_id = 2;
+  string patient_id = 3;
+  string patient_name = 4;
+  string doctor_id = 5;
+  string doctor_name = 6;
+}
+
+message AssignAssistantRequest {
+  string visit_id = 1;
+  string assistant_id = 2;
+  string assistant_name = 3;
+}
+
+message ConfirmVisitRequest {
+  string visit_id = 1;
+  string confirmed_by = 2;
+}
+
+message CloseVisitRequest {
+  string visit_id = 1;
+}
+
+message VoidVisitRequest {
+  string visit_id = 1;
+  string reason = 2;
+}
+```
+
+## 3. Act Catalog Messages
+
+```proto
+message ActCatalogReply {
+  string id = 1;
+  string clinic_id = 2;
+  string code = 3;
+  string name_ar = 4;
+  string name_fr = 5;
+  string name_en = 6;
+  double default_price = 7;
+  bool is_active = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message ActCatalogListReply {
+  repeated ActCatalogReply items = 1;
+  int32 total = 2;
+}
+
+message ListActCatalogRequest {
+  string clinic_id = 1;
+  optional string locale = 2;
+  optional int32 page = 3;
+  optional int32 limit = 4;
+}
+
+message GetActCatalogRequest {
+  string id = 1;
+}
+
+message CreateActCatalogRequest {
+  string clinic_id = 1;
+  string code = 2;
+  string name_ar = 3;
+  string name_fr = 4;
+  string name_en = 5;
+  double default_price = 6;
+  optional bool is_active = 7;
+}
+
+message UpdateActCatalogRequest {
+  string id = 1;
+  optional string code = 2;
+  optional string name_ar = 3;
+  optional string name_fr = 4;
+  optional string name_en = 5;
+  optional double default_price = 6;
+  optional bool is_active = 7;
+}
+
+message DeleteActCatalogRequest {
+  string id = 1;
+}
+```
+
+## 4. Treatment Act Messages
+
+```proto
+message TreatmentActReply {
+  string id = 1;
+  string clinic_id = 2;
+  string visit_id = 3;
+  string act_catalog_id = 4;
+  string tooth_fdi = 5;
+  int32 quantity = 6;
+  double unit_price = 7;
+  string surface = 8;
+  string tooth_part = 9;
+  string dentition = 10;
+  string status = 11;
+  string notes = 12;
+  string entered_by = 13;
+  string created_at = 14;
+  string updated_at = 15;
+}
+
+message TreatmentActListReply {
+  repeated TreatmentActReply treatment_acts = 1;
+  int32 total = 2;
+}
+
+message ListTreatmentActsRequest {
+  string visit_id = 1;
+}
+
+message GetTreatmentActRequest {
+  string id = 1;
+}
+
+message AddTreatmentActRequest {
+  string clinic_id = 1;
+  string visit_id = 2;
+  string act_catalog_id = 3;
+  optional string tooth_fdi = 4;
+  optional int32 quantity = 5;
+  optional string surface = 6;
+  optional string tooth_part = 7;
+  optional string dentition = 8;
+  optional string status = 9;
+  optional string notes = 10;
+  string entered_by = 11;
+}
+
+message UpdateTreatmentActRequest {
+  string id = 1;
+  optional string tooth_fdi = 2;
+  optional int32 quantity = 3;
+  optional string surface = 4;
+  optional string tooth_part = 5;
+  optional string dentition = 6;
+  optional string status = 7;
+  optional string notes = 8;
+}
+
+message RemoveTreatmentActRequest {
+  string id = 1;
+}
+
+message CalculateVisitTotalRequest {
+  string visit_id = 1;
+}
+
+message VisitTotalReply {
+  double total_amount = 1;
+}
+
+message EmptyReply {}
+```
+
+## 5. API Gateway REST Routes
+
+The frontend repositories currently expect REST routes through the API gateway.
+
+### Visits
+
+```text
+GET   /api/v1/treatment/visits/:visitId
+GET   /api/v1/treatment/visits/by-appointment/:appointmentId
+GET   /api/v1/clinics/:clinicId/treatment/visits?status=OPEN&doctor_id=:doctorId
+POST  /api/v1/clinics/:clinicId/treatment/visits
+PATCH /api/v1/treatment/visits/:visitId/assistant
+PATCH /api/v1/treatment/visits/:visitId/confirm
+PATCH /api/v1/treatment/visits/:visitId/close
+PATCH /api/v1/treatment/visits/:visitId/void
+```
+
+### Treatment Acts
+
+```text
+GET    /api/v1/treatment/visits/:visitId/acts
+POST   /api/v1/treatment/visits/:visitId/acts
+GET    /api/v1/treatment/acts/:actId
+PATCH  /api/v1/treatment/acts/:actId
+DELETE /api/v1/treatment/acts/:actId
+GET    /api/v1/treatment/visits/:visitId/total
+```
+
+### Act Catalog
+
+```text
+GET    /api/v1/clinics/:clinicId/treatment/act-catalog
+POST   /api/v1/clinics/:clinicId/treatment/act-catalog
+GET    /api/v1/treatment/act-catalog/:id
+PATCH  /api/v1/treatment/act-catalog/:id
+DELETE /api/v1/treatment/act-catalog/:id
+```
+
+### Queue + Treatment Workflow
+
+These routes are cross-domain and should be implemented in API gateway or an orchestrator:
+
+```text
+POST  /api/v1/clinics/:clinicId/queue/:queueEntryId/start-treatment
+PATCH /api/v1/clinics/:clinicId/queue/:queueEntryId/correct-status
+```

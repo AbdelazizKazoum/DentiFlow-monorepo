@@ -15,7 +15,6 @@ import {
   addTreatmentActUseCase,
   confirmVisitUseCase,
   getActCatalogUseCase,
-  getOpenVisitsUseCase,
   getVisitDetailUseCase,
   removeTreatmentActUseCase,
   updateTreatmentActUseCase,
@@ -67,12 +66,11 @@ interface TreatmentStoreState {
   isSaving: boolean;
   /**
    * Opens the patient treatment workspace.
-   * Loads the act catalog and the existing open visit created by the waiting
-   * room seating workflow. It does not create visits from page navigation.
+   * Loads the act catalog and the existing visit created by the waiting room
+   * seating workflow. It does not create visits from page navigation.
    */
   loadWorkspace: (params: {
-    patientId: string;
-    patientName?: string;
+    visitId: string;
     locale?: "ar" | "fr" | "en";
   }) => Promise<void>;
   /**
@@ -191,32 +189,15 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
   isSaving: false,
 
   // Entry point for the page: prepares catalog, visit context, and chart state.
-  loadWorkspace: async ({patientId, locale = "en"}) => {
+  loadWorkspace: async ({visitId, locale = "en"}) => {
     set({isLoading: true});
     try {
       const catalog = await getActCatalogUseCase.execute({
         clinicId,
         locale,
       });
-      const openVisits = await getOpenVisitsUseCase.execute({clinicId});
-      const visit =
-        openVisits.items.find((item) => item.patientId === patientId) ?? null;
-
-      if (!visit) {
-        syncChartTreatments([]);
-        set({
-          catalog,
-          acts: catalog.map((item) => toDentalAct(item, locale)),
-          currentVisit: null,
-          treatments: [],
-          isLoading: false,
-        });
-        toast.info("Seat this patient from the waiting room before treatment.");
-        return;
-      }
-
       const detail = await getVisitDetailUseCase.execute({
-        visitId: visit.id,
+        visitId,
         clinicId,
       });
       const treatments = (detail.treatmentActs ?? []).map((act) =>

@@ -10,11 +10,11 @@ import {TreatmentWorkspace} from "./components/TreatmentWorkspace";
 import {useTreatmentPage} from "./hooks/useTreatmentPage";
 
 interface TreatmentPageProps {
-  patientId: string;
+  visitId: string;
 }
 
-function TreatmentPage({patientId}: TreatmentPageProps) {
-  const hook = useTreatmentPage(patientId);
+function TreatmentPage({visitId}: TreatmentPageProps) {
+  const hook = useTreatmentPage(visitId);
 
   return (
     <DndContext

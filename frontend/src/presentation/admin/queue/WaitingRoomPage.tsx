@@ -2,6 +2,7 @@
 
 import {useLocale} from "next-intl";
 import {useRouter} from "next/navigation";
+import type {QueueEntry} from "@/domain/queue/entities/queueEntry";
 import {ActiveQueueTable} from "./components/ActiveQueueTable";
 import {CompletedQueueList} from "./components/CompletedQueueList";
 import {CorrectionReasonDialog} from "./components/CorrectionReasonDialog";
@@ -16,8 +17,9 @@ export default function WaitingRoomPage() {
   const locale = useLocale();
   const router = useRouter();
 
-  const startTreatment = (patientId: string) => {
-    router.push(`/${locale}/admin/patients/${patientId}/treatment`);
+  const startTreatment = async (entry: QueueEntry) => {
+    const {visit} = await hook.startTreatment(entry.id);
+    router.push(`/${locale}/admin/visits/${visit.id}/treatment`);
   };
 
   return (

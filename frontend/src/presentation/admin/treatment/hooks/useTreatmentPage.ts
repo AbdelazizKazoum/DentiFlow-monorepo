@@ -25,7 +25,7 @@ import {
  * Presentation orchestrator for the treatment workspace.
  * Keeps UI-only state here while treatment mutations go through treatmentStore.
  */
-export function useTreatmentPage(patientId: string) {
+export function useTreatmentPage(visitId: string) {
   const sceneRef = useRef<DentalSceneHandle | null>(null);
   const [activeTab, setActiveTab] = useState<TreatmentTab>("chart");
   const [query, setQuery] = useState("");
@@ -39,9 +39,11 @@ export function useTreatmentPage(patientId: string) {
   const setHoveredTooth = useDentalChartStore((state) => state.setHoveredTooth);
 
   const acts = useTreatmentStore((state) => state.acts);
+  const currentVisit = useTreatmentStore((state) => state.currentVisit);
   const treatments = useTreatmentStore((state) => state.treatments);
   const loadTreatmentWorkspace = useTreatmentStore((state) => state.loadWorkspace);
   const addTreatment = useTreatmentStore((state) => state.addTreatment);
+  const patientId = currentVisit?.patientId;
 
   const patient = usePatientStore((state) =>
     state.patients.find((item) => item.id === patientId),
@@ -58,7 +60,7 @@ export function useTreatmentPage(patientId: string) {
 
   // Ensure the patient summary has data even when the user lands directly here.
   useEffect(() => {
-    if (!patient) {
+    if (patientId && !patient) {
       void getPatientById(patientId);
     }
   }, [getPatientById, patient, patientId]);
@@ -66,11 +68,10 @@ export function useTreatmentPage(patientId: string) {
   // Prepare catalog, open visit context, and already-recorded treatment acts.
   useEffect(() => {
     void loadTreatmentWorkspace({
-      patientId,
-      patientName: patient?.fullName,
+      visitId,
       locale: "en",
     });
-  }, [loadTreatmentWorkspace, patient?.fullName, patientId]);
+  }, [loadTreatmentWorkspace, visitId]);
 
   const filteredActs = useMemo(
     () => filterTreatmentActs(acts, query),
