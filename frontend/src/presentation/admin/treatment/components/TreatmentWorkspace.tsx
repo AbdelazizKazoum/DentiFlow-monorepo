@@ -16,12 +16,14 @@ import {
   UPPER_TEETH,
 } from "../treatmentConfig";
 import type {TreatmentTab} from "../types";
+import type {TreatmentPlanItem} from "@/domain/treatment/entities/TreatmentPlanItem";
 import {getToothKind, getToothPath} from "../utils";
 import {getToothFdi} from "../data/toothNames.data";
 
 interface TreatmentWorkspaceProps {
   activeTab: TreatmentTab;
   treatments: ToothTreatment[];
+  planItems: TreatmentPlanItem[];
   sceneRef: React.MutableRefObject<DentalSceneHandle | null>;
   onTabChange: (tab: TreatmentTab) => void;
   onOpenTooth: (toothId: ToothId) => void;
@@ -31,6 +33,7 @@ interface TreatmentWorkspaceProps {
 export function TreatmentWorkspace({
   activeTab,
   treatments,
+  planItems,
   sceneRef,
   onTabChange,
   onOpenTooth,
@@ -66,6 +69,14 @@ export function TreatmentWorkspace({
       </div>
 
       <TreatmentStatusLegend />
+
+      <div className="flex flex-wrap gap-2 border-b border-ui-border bg-card px-4 py-3 text-xs">
+        <span className="font-semibold text-foreground">Patient plan</span>
+        <span className="rounded-full bg-amber-100 px-2 py-1 text-amber-800">{planItems.filter((item) => item.status === "PLANNED").length} planned</span>
+        <span className="rounded-full bg-blue-100 px-2 py-1 text-blue-800">{planItems.filter((item) => item.status === "IN_PROGRESS").length} in progress</span>
+        <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-800">{planItems.filter((item) => item.status === "DONE").length} completed</span>
+        <span className="text-text-muted">Markers remain visit-specific; this summary follows the patient across visits.</span>
+      </div>
 
       {activeTab === "chart" ? (
         <div className="min-h-[44rem] overflow-auto bg-page p-4 lg:p-6">

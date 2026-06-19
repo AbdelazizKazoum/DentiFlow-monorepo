@@ -61,6 +61,7 @@ export {
   openVisitUseCase,
   removeTreatmentActUseCase,
   updateTreatmentActUseCase,
+  treatmentPlanRepository,
 } from "@/infrastructure/treatment/container";
 
 export {

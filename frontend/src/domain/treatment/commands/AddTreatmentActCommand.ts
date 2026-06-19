@@ -17,4 +17,6 @@ export interface AddTreatmentActCommand {
   notes?: string;
   enteredBy: string;
   clinicId: string;
+  treatmentPlanItemId?: string;
+  actionType?: "PLANNED" | "PERFORMED" | "AMENDED" | "CANCELLED";
 }

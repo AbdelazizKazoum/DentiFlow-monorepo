@@ -12,6 +12,7 @@ import {Dentition} from "../../../domain/enums/dentition.enum";
 import {ToothPart} from "../../../domain/enums/tooth-part.enum";
 import {ToothSurface} from "../../../domain/enums/tooth-surface.enum";
 import {TreatmentActStatus} from "../../../domain/enums/treatment-act-status.enum";
+import {TreatmentActionType} from "../../../domain/enums/treatment-action-type.enum";
 import {ActCatalogTypeOrmEntity} from "./act-catalog.typeorm-entity";
 import {VisitTypeOrmEntity} from "./visit.typeorm-entity";
 
@@ -27,6 +28,9 @@ export class TreatmentActTypeOrmEntity {
 
   @Column({name: "visit_id", length: 36})
   visit_id!: string;
+
+  @Column({name: "treatment_plan_item_id", type: "varchar", length: 36, nullable: true})
+  treatment_plan_item_id!: string | null;
 
   @Column({name: "act_catalog_id", length: 36})
   act_catalog_id!: string;
@@ -55,6 +59,9 @@ export class TreatmentActTypeOrmEntity {
     default: TreatmentActStatus.PLANNED,
   })
   status!: TreatmentActStatus;
+
+  @Column({name: "action_type", type: "enum", enum: TreatmentActionType, default: TreatmentActionType.PERFORMED})
+  action_type!: TreatmentActionType;
 
   @Column({type: "text", nullable: true})
   notes!: string | null;

@@ -23,6 +23,9 @@ service TreatmentService {
   rpc UpdateTreatmentAct (UpdateTreatmentActRequest) returns (TreatmentActReply);
   rpc RemoveTreatmentAct (RemoveTreatmentActRequest) returns (EmptyReply);
   rpc CalculateVisitTotal (CalculateVisitTotalRequest) returns (VisitTotalReply);
+  rpc ListTreatmentPlanItems (ListTreatmentPlanItemsRequest) returns (TreatmentPlanItemListReply);
+  rpc CreateTreatmentPlanItem (CreateTreatmentPlanItemRequest) returns (TreatmentPlanItemReply);
+  rpc UpdateTreatmentPlanItemStatus (UpdateTreatmentPlanItemStatusRequest) returns (TreatmentPlanItemReply);
 }
 
 message VisitReply {
@@ -169,7 +172,37 @@ message TreatmentActReply {
   string entered_by = 13;
   string created_at = 14;
   string updated_at = 15;
+  string treatment_plan_item_id = 16;
+  string action_type = 17;
 }
+
+message TreatmentPlanItemReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string act_catalog_id = 4;
+  string tooth_fdi = 5;
+  string surface = 6;
+  string tooth_part = 7;
+  string dentition = 8;
+  string status = 9;
+  string diagnosis_notes = 10;
+  string created_visit_id = 11;
+  string completed_visit_id = 12;
+  string created_by = 13;
+  string completed_by = 14;
+  string created_at = 15;
+  string updated_at = 16;
+}
+
+message TreatmentPlanItemListReply { repeated TreatmentPlanItemReply items = 1; int32 total = 2; }
+message ListTreatmentPlanItemsRequest { string clinic_id = 1; string patient_id = 2; optional bool include_cancelled = 3; }
+message CreateTreatmentPlanItemRequest {
+  string clinic_id = 1; string patient_id = 2; string act_catalog_id = 3;
+  optional string tooth_fdi = 4; optional string surface = 5; optional string tooth_part = 6; optional string dentition = 7;
+  optional string diagnosis_notes = 8; string created_visit_id = 9; string created_by = 10;
+}
+message UpdateTreatmentPlanItemStatusRequest { string id = 1; string status = 2; optional string completed_visit_id = 3; optional string completed_by = 4; }
 
 message TreatmentActListReply {
   repeated TreatmentActReply treatment_acts = 1;
@@ -196,6 +229,8 @@ message AddTreatmentActRequest {
   optional string status = 9;
   optional string notes = 10;
   string entered_by = 11;
+  optional string treatment_plan_item_id = 12;
+  optional string action_type = 13;
 }
 
 message UpdateTreatmentActRequest {

@@ -6,6 +6,7 @@ import {ActCatalogTypeOrmEntity} from "./entities/act-catalog.typeorm-entity";
 import {OutboxTypeOrmEntity} from "./entities/outbox.typeorm-entity";
 import {TreatmentActTypeOrmEntity} from "./entities/treatment-act.typeorm-entity";
 import {VisitTypeOrmEntity} from "./entities/visit.typeorm-entity";
+import {TreatmentPlanItemTypeOrmEntity} from "./entities/treatment-plan-item.typeorm-entity";
 
 dotenv.config({path: path.join(__dirname, "../../../.env")});
 
@@ -19,6 +20,7 @@ export const AppDataSource = new DataSource({
   entities: [
     ActCatalogTypeOrmEntity,
     VisitTypeOrmEntity,
+    TreatmentPlanItemTypeOrmEntity,
     TreatmentActTypeOrmEntity,
     OutboxTypeOrmEntity,
   ],

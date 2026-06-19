@@ -1,4 +1,5 @@
 export type {ActCatalog} from "./entities/ActCatalog";
+export type {TreatmentPlanItem} from "./entities/TreatmentPlanItem";
 export type {Visit, VisitStatus} from "./entities/Visit";
 export type {
   Dentition,
@@ -6,6 +7,7 @@ export type {
   ToothSurface,
   TreatmentAct,
   TreatmentActStatus,
+  TreatmentActionType,
 } from "./entities/TreatmentAct";
 export type {
   AddTreatmentActCommand,
@@ -27,4 +29,5 @@ export type {
   PaginatedVisits,
   TreatmentActRepository,
   VisitRepository,
+  TreatmentPlanRepository,
 } from "./repositories";

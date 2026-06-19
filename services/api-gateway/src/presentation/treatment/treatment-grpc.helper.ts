@@ -131,5 +131,12 @@ export function treatmentActToHttp(dto: TreatmentProto.TreatmentActReply) {
     entered_by: field<string>(shape, "enteredBy", "entered_by", ""),
     created_at: field<string>(shape, "createdAt", "created_at", ""),
     updated_at: field<string>(shape, "updatedAt", "updated_at", ""),
+    treatment_plan_item_id: field<string>(shape, "treatmentPlanItemId", "treatment_plan_item_id", "") || undefined,
+    action_type: field<string>(shape, "actionType", "action_type", "PERFORMED"),
   };
+}
+
+export function treatmentPlanItemToHttp(dto: TreatmentProto.TreatmentPlanItemReply) {
+  const shape = dto as unknown as GrpcShape;
+  return {id: field<string>(shape, "id", "id", ""), clinic_id: grpcClinicId(shape), patient_id: field<string>(shape, "patientId", "patient_id", ""), act_catalog_id: field<string>(shape, "actCatalogId", "act_catalog_id", ""), tooth_fdi: field<string>(shape, "toothFdi", "tooth_fdi", "") || undefined, surface: field<string>(shape, "surface", "surface", "") || undefined, tooth_part: field<string>(shape, "toothPart", "tooth_part", "") || undefined, dentition: field<string>(shape, "dentition", "dentition", "") || undefined, status: field<string>(shape, "status", "status", ""), diagnosis_notes: field<string>(shape, "diagnosisNotes", "diagnosis_notes", "") || undefined, created_visit_id: field<string>(shape, "createdVisitId", "created_visit_id", ""), completed_visit_id: field<string>(shape, "completedVisitId", "completed_visit_id", "") || undefined, created_by: field<string>(shape, "createdBy", "created_by", ""), completed_by: field<string>(shape, "completedBy", "completed_by", "") || undefined, created_at: field<string>(shape, "createdAt", "created_at", ""), updated_at: field<string>(shape, "updatedAt", "updated_at", "")};
 }

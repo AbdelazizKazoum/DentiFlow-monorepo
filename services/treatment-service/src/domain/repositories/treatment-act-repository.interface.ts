@@ -3,10 +3,12 @@ import {Dentition} from "../enums/dentition.enum";
 import {ToothPart} from "../enums/tooth-part.enum";
 import {ToothSurface} from "../enums/tooth-surface.enum";
 import {TreatmentActStatus} from "../enums/treatment-act-status.enum";
+import {TreatmentActionType} from "../enums/treatment-action-type.enum";
 
 export interface AddTreatmentActInput {
   clinicId: string;
   visitId: string;
+  treatmentPlanItemId?: string | null;
   actCatalogId: string;
   toothFdi?: string | null;
   quantity?: number;
@@ -15,6 +17,7 @@ export interface AddTreatmentActInput {
   toothPart?: ToothPart | null;
   dentition?: Dentition | null;
   status?: TreatmentActStatus;
+  actionType?: TreatmentActionType;
   notes?: string | null;
   enteredBy: string;
 }
@@ -26,6 +29,7 @@ export interface UpdateTreatmentActInput {
   toothPart?: ToothPart | null;
   dentition?: Dentition | null;
   status?: TreatmentActStatus;
+  actionType?: TreatmentActionType;
   notes?: string | null;
 }
 

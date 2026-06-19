@@ -13,4 +13,8 @@ export interface ToothTreatment {
   position: [number, number, number];
   notes?: string;
   createdAt: string;
+  /** Historical plan markers are visible but cannot mutate a prior visit act. */
+  isCurrentVisit?: boolean;
+  isPlanSummary?: boolean;
+  planItemId?: string;
 }

@@ -20,6 +20,7 @@ Clean Architecture layers
 - act catalog
 - clinical visits
 - treatment acts
+- patient-level treatment plan items
 - visit lifecycle rules
 - treatment act mutation rules
 - treatment total recalculation
@@ -416,9 +417,28 @@ LoggerModule
 3. Recalculate total after create/update/delete.
 4. Exclude `CANCELLED` acts from total.
 
+### Patient-Level Treatment Plans (Phase 2)
+
+Use two models, with different responsibilities:
+
+- `treatment_plan_items` is the durable clinical intent for one patient and one tooth/procedure. It owns the current clinical status.
+- `treatment_acts` is an immutable, visit-specific execution/audit event. It links to its plan item through `treatment_plan_item_id`.
+
+For example, a root canal planned in visit A and completed in visit C has **one** plan item with `created_visit_id = A` and `completed_visit_id = C`; it has one or more treatment acts, each linked to the visit in which that part was recorded. This is audit history, not duplicate clinical plans.
+
+Rules:
+
+1. Never move an existing treatment act to a later visit.
+2. Continuing work creates a new treatment act for the current open visit and links it to the existing plan item.
+3. A plan item becomes `DONE` only with a completing visit and clinician.
+4. Corrections after confirmation create an `AMENDED` execution event; they do not rewrite an old performed event.
+5. Prices remain snapshots on execution acts. Plan items do not own billable price snapshots.
+
+Required indexes are `(clinic_id, patient_id)`, `(clinic_id, patient_id, status)`, `(clinic_id, patient_id, tooth_fdi)` on plans, and `treatment_plan_item_id` on acts.
+
 ### Confirmation
 
-1. Visit must have at least one `DONE` act.
+1. A doctor may confirm an open visit even when no billable act was performed (for example, a consultation-only encounter).
 2. Set `CONFIRMED`, `confirmedAt`, `confirmedBy`.
 3. No further treatment act mutations after confirmation.
 
@@ -443,6 +463,8 @@ PATCH  /api/v1/treatment/visits/:visitId/assistant
 PATCH  /api/v1/treatment/visits/:visitId/confirm
 PATCH  /api/v1/treatment/visits/:visitId/close
 PATCH  /api/v1/treatment/visits/:visitId/void
+GET    /api/v1/clinics/:clinicId/patients/:patientId/treatment-plan
+POST   /api/v1/clinics/:clinicId/patients/:patientId/treatment-plan
 GET    /api/v1/treatment/visits/:visitId/acts
 POST   /api/v1/treatment/visits/:visitId/acts
 PATCH  /api/v1/treatment/acts/:actId
@@ -475,7 +497,7 @@ Minimum tests:
 - add act snapshots catalog price
 - update act cannot change unit price
 - total recalculates after act mutation
-- confirm visit requires at least one `DONE` act
+- confirm visit locks an open clinical encounter, including consultation-only visits
 - closed/confirmed/voided visits reject act mutation
 
 ## 13. Implementation Order

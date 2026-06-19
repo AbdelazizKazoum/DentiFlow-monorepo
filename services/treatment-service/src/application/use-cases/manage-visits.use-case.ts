@@ -82,10 +82,6 @@ export class ManageVisitsUseCase {
   async confirm(visitId: string, confirmedBy: string): Promise<Visit> {
     const existing = await this.getById(visitId);
     this.assertOpen(existing);
-    if (!(await this.treatmentActs.hasDoneAct(visitId))) {
-      throw new BadRequestException("Visit must have at least one DONE treatment act");
-    }
-
     const updated = await this.visits.confirm(visitId, confirmedBy);
     await this.outbox.add({
       eventType: "visit.confirmed",

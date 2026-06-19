@@ -6,6 +6,7 @@ import type {
   TreatmentActStatus,
 } from "@/domain/treatment/entities/TreatmentAct";
 import type {Visit} from "@/domain/treatment/entities/Visit";
+import type {TreatmentPlanItem} from "@/domain/treatment/entities/TreatmentPlanItem";
 import type {DentalAct, TreatmentStatus} from "@/domain/treatment/entities/dentalAct";
 import type {
   ToothId,
@@ -18,6 +19,7 @@ import {
   getVisitDetailUseCase,
   removeTreatmentActUseCase,
   updateTreatmentActUseCase,
+  treatmentPlanRepository,
 } from "@/infrastructure/container";
 import {useDentalChartStore} from "./dentalChartStore";
 
@@ -66,6 +68,7 @@ interface TreatmentStoreState {
   acts: DentalAct[];
   currentVisit: Visit | null;
   treatments: ToothTreatment[];
+  planItems: TreatmentPlanItem[];
   isLoading: boolean;
   isSaving: boolean;
   /**
@@ -86,6 +89,8 @@ interface TreatmentStoreState {
     toothId: ToothId,
     position?: [number, number, number],
   ) => Promise<ToothTreatment>;
+  /** Records the next visit-specific execution for an existing patient plan. */
+  continuePlan: (planItemId: string) => Promise<void>;
   /**
    * Changes the clinical workflow status for an existing treatment act.
    * The store translates UI status names into treatment domain status values.
@@ -174,7 +179,15 @@ function toToothTreatment(
     position: [0, 0.2, 0],
     notes: act.notes,
     createdAt: act.createdAt.toISOString(),
+    isCurrentVisit: true,
+    planItemId: act.treatmentPlanItemId,
   };
+}
+
+function planToToothTreatment(item: TreatmentPlanItem, catalog: ActCatalog[], locale: "ar" | "fr" | "en"): ToothTreatment {
+  const catalogItem = catalog.find((entry) => entry.id === item.actCatalogId);
+  const dentalAct = catalogItem ? toDentalAct(catalogItem, locale) : {id: item.actCatalogId, label: "Clinical plan", category: "Clinical", colorHex: "#0f8aa3", defaultStatus: "planned" as const, icon: "CircleDot"};
+  return {id: `plan-${item.id}`, planItemId: item.id, isPlanSummary: true, isCurrentVisit: false, toothId: fdiToToothId(item.toothFdi), actId: item.actCatalogId, actLabel: dentalAct.label, actIcon: dentalAct.icon, actColor: dentalAct.colorHex, status: statusToUi[item.status], position: [0, 0.2, 0], notes: item.diagnosisNotes, createdAt: item.createdAt.toISOString()};
 }
 
 /**
@@ -190,6 +203,7 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
   acts: [],
   currentVisit: null,
   treatments: [],
+  planItems: [],
   isLoading: false,
   isSaving: false,
 
@@ -205,9 +219,14 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
         visitId,
         clinicId,
       });
-      const treatments = (detail.treatmentActs ?? []).map((act) =>
+      const planItems = await treatmentPlanRepository.getByPatient(clinicId, detail.patientId);
+      const currentTreatments = (detail.treatmentActs ?? []).map((act) =>
         toToothTreatment(act, catalog, locale),
       );
+      // A plan is shown once on the chart; when this visit has an execution for it,
+      // the editable execution marker replaces the read-only historical marker.
+      const representedPlanIds = new Set(currentTreatments.map((item) => item.planItemId).filter(Boolean));
+      const treatments = [...currentTreatments, ...planItems.filter((item) => !representedPlanIds.has(item.id)).map((item) => planToToothTreatment(item, catalog, locale))];
 
       syncChartTreatments(treatments);
       set({
@@ -215,6 +234,7 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
         acts: catalog.map((item) => toDentalAct(item, locale)),
         currentVisit: detail,
         treatments,
+        planItems,
         isLoading: false,
       });
     } catch (error) {
@@ -234,10 +254,12 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
     set({isSaving: true});
     try {
       const created = await addTreatmentActUseCase.execute({
+        treatmentPlanItemId: (await treatmentPlanRepository.create({clinicId, patientId: visit.patientId, actCatalogId: act.id, toothFdi: toothIdToFdi(toothId), createdVisitId: visit.id, createdBy: currentUserId})).id,
         visitId: visit.id,
         actCatalogId: act.id,
         toothFdi: toothIdToFdi(toothId),
         status: statusToDomain[act.defaultStatus],
+        actionType: "PLANNED",
         enteredBy: currentUserId,
         clinicId,
       });
@@ -248,11 +270,13 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
         position,
       };
 
+      const planItems = await treatmentPlanRepository.getByPatient(clinicId, visit.patientId);
       set((state) => {
         const treatments = [...state.treatments, treatment];
         syncChartTreatments(treatments);
         return {
           treatments,
+          planItems,
           isSaving: false,
           currentVisit: state.currentVisit
             ? {
@@ -270,6 +294,19 @@ export const useTreatmentStore = create<TreatmentStoreState>((set, get) => ({
       toast.error(getMessage(error, "Failed to add treatment act"));
       throw error;
     }
+  },
+
+  continuePlan: async (planItemId) => {
+    const visit = get().currentVisit;
+    const plan = get().planItems.find((item) => item.id === planItemId);
+    if (!visit || !plan) throw new Error("Open a visit and select a valid treatment plan first.");
+    set({isSaving: true});
+    try {
+      const created = await addTreatmentActUseCase.execute({clinicId, visitId: visit.id, actCatalogId: plan.actCatalogId, toothFdi: plan.toothFdi, surface: plan.surface, toothPart: plan.toothPart, dentition: plan.dentition, status: "IN_PROGRESS", actionType: "PERFORMED", enteredBy: currentUserId, treatmentPlanItemId: plan.id});
+      const treatment = toToothTreatment(created, get().catalog, "en");
+      const planItems = await treatmentPlanRepository.getByPatient(clinicId, visit.patientId);
+      set((state) => { const treatments = [...state.treatments.filter((item) => item.planItemId !== plan.id || item.isCurrentVisit), treatment]; syncChartTreatments(treatments); return {treatments, planItems, isSaving: false}; });
+    } catch (error) { set({isSaving: false}); toast.error(getMessage(error, "Failed to continue treatment plan")); throw error; }
   },
 
   // Status changes stay optimistic in presentation state after the use case

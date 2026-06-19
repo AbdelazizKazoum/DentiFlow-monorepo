@@ -156,6 +156,58 @@ export interface TreatmentActReply {
   enteredBy: string;
   createdAt: string;
   updatedAt: string;
+  treatmentPlanItemId: string;
+  actionType: string;
+}
+
+export interface TreatmentPlanItemReply {
+  id: string;
+  clinicId: string;
+  patientId: string;
+  actCatalogId: string;
+  toothFdi: string;
+  surface: string;
+  toothPart: string;
+  dentition: string;
+  status: string;
+  diagnosisNotes: string;
+  createdVisitId: string;
+  completedVisitId: string;
+  createdBy: string;
+  completedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TreatmentPlanItemListReply {
+  items: TreatmentPlanItemReply[];
+  total: number;
+}
+
+export interface ListTreatmentPlanItemsRequest {
+  clinicId: string;
+  patientId: string;
+  includeCancelled?: boolean | undefined;
+}
+
+export interface CreateTreatmentPlanItemRequest {
+  clinicId: string;
+  patientId: string;
+  actCatalogId: string;
+  toothFdi?: string | undefined;
+  surface?: string | undefined;
+  toothPart?: string | undefined;
+  dentition?: string | undefined;
+  diagnosisNotes?: string | undefined;
+  createdVisitId: string;
+  createdBy: string;
+}
+
+export interface UpdateTreatmentPlanItemStatusRequest {
+  id: string;
+  status: string;
+  completedVisitId?: string | undefined;
+  completedBy?: string | undefined;
 }
 
 export interface TreatmentActListReply {
@@ -183,6 +235,8 @@ export interface AddTreatmentActRequest {
   status?: string | undefined;
   notes?: string | undefined;
   enteredBy: string;
+  treatmentPlanItemId?: string | undefined;
+  actionType?: string | undefined;
 }
 
 export interface UpdateTreatmentActRequest {
@@ -1543,6 +1597,8 @@ function createBaseTreatmentActReply(): TreatmentActReply {
     enteredBy: "",
     createdAt: "",
     updatedAt: "",
+    treatmentPlanItemId: "",
+    actionType: "",
   };
 }
 
@@ -1592,6 +1648,12 @@ export const TreatmentActReply: MessageFns<TreatmentActReply> = {
     }
     if (message.updatedAt !== "") {
       writer.uint32(122).string(message.updatedAt);
+    }
+    if (message.treatmentPlanItemId !== "") {
+      writer.uint32(130).string(message.treatmentPlanItemId);
+    }
+    if (message.actionType !== "") {
+      writer.uint32(138).string(message.actionType);
     }
     return writer;
   },
@@ -1721,6 +1783,554 @@ export const TreatmentActReply: MessageFns<TreatmentActReply> = {
           }
 
           message.updatedAt = reader.string();
+          continue;
+        }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          message.treatmentPlanItemId = reader.string();
+          continue;
+        }
+        case 17: {
+          if (tag !== 138) {
+            break;
+          }
+
+          message.actionType = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseTreatmentPlanItemReply(): TreatmentPlanItemReply {
+  return {
+    id: "",
+    clinicId: "",
+    patientId: "",
+    actCatalogId: "",
+    toothFdi: "",
+    surface: "",
+    toothPart: "",
+    dentition: "",
+    status: "",
+    diagnosisNotes: "",
+    createdVisitId: "",
+    completedVisitId: "",
+    createdBy: "",
+    completedBy: "",
+    createdAt: "",
+    updatedAt: "",
+  };
+}
+
+export const TreatmentPlanItemReply: MessageFns<TreatmentPlanItemReply> = {
+  encode(message: TreatmentPlanItemReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.clinicId !== "") {
+      writer.uint32(18).string(message.clinicId);
+    }
+    if (message.patientId !== "") {
+      writer.uint32(26).string(message.patientId);
+    }
+    if (message.actCatalogId !== "") {
+      writer.uint32(34).string(message.actCatalogId);
+    }
+    if (message.toothFdi !== "") {
+      writer.uint32(42).string(message.toothFdi);
+    }
+    if (message.surface !== "") {
+      writer.uint32(50).string(message.surface);
+    }
+    if (message.toothPart !== "") {
+      writer.uint32(58).string(message.toothPart);
+    }
+    if (message.dentition !== "") {
+      writer.uint32(66).string(message.dentition);
+    }
+    if (message.status !== "") {
+      writer.uint32(74).string(message.status);
+    }
+    if (message.diagnosisNotes !== "") {
+      writer.uint32(82).string(message.diagnosisNotes);
+    }
+    if (message.createdVisitId !== "") {
+      writer.uint32(90).string(message.createdVisitId);
+    }
+    if (message.completedVisitId !== "") {
+      writer.uint32(98).string(message.completedVisitId);
+    }
+    if (message.createdBy !== "") {
+      writer.uint32(106).string(message.createdBy);
+    }
+    if (message.completedBy !== "") {
+      writer.uint32(114).string(message.completedBy);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(122).string(message.createdAt);
+    }
+    if (message.updatedAt !== "") {
+      writer.uint32(130).string(message.updatedAt);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): TreatmentPlanItemReply {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTreatmentPlanItemReply();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.clinicId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.patientId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.actCatalogId = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.toothFdi = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.surface = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.toothPart = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.dentition = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.status = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.diagnosisNotes = reader.string();
+          continue;
+        }
+        case 11: {
+          if (tag !== 90) {
+            break;
+          }
+
+          message.createdVisitId = reader.string();
+          continue;
+        }
+        case 12: {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.completedVisitId = reader.string();
+          continue;
+        }
+        case 13: {
+          if (tag !== 106) {
+            break;
+          }
+
+          message.createdBy = reader.string();
+          continue;
+        }
+        case 14: {
+          if (tag !== 114) {
+            break;
+          }
+
+          message.completedBy = reader.string();
+          continue;
+        }
+        case 15: {
+          if (tag !== 122) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+        case 16: {
+          if (tag !== 130) {
+            break;
+          }
+
+          message.updatedAt = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseTreatmentPlanItemListReply(): TreatmentPlanItemListReply {
+  return { items: [], total: 0 };
+}
+
+export const TreatmentPlanItemListReply: MessageFns<TreatmentPlanItemListReply> = {
+  encode(message: TreatmentPlanItemListReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.items) {
+      TreatmentPlanItemReply.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int32(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): TreatmentPlanItemListReply {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTreatmentPlanItemListReply();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.items.push(TreatmentPlanItemReply.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.total = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseListTreatmentPlanItemsRequest(): ListTreatmentPlanItemsRequest {
+  return { clinicId: "", patientId: "" };
+}
+
+export const ListTreatmentPlanItemsRequest: MessageFns<ListTreatmentPlanItemsRequest> = {
+  encode(message: ListTreatmentPlanItemsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.clinicId !== "") {
+      writer.uint32(10).string(message.clinicId);
+    }
+    if (message.patientId !== "") {
+      writer.uint32(18).string(message.patientId);
+    }
+    if (message.includeCancelled !== undefined) {
+      writer.uint32(24).bool(message.includeCancelled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListTreatmentPlanItemsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListTreatmentPlanItemsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.clinicId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.patientId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.includeCancelled = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseCreateTreatmentPlanItemRequest(): CreateTreatmentPlanItemRequest {
+  return { clinicId: "", patientId: "", actCatalogId: "", createdVisitId: "", createdBy: "" };
+}
+
+export const CreateTreatmentPlanItemRequest: MessageFns<CreateTreatmentPlanItemRequest> = {
+  encode(message: CreateTreatmentPlanItemRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.clinicId !== "") {
+      writer.uint32(10).string(message.clinicId);
+    }
+    if (message.patientId !== "") {
+      writer.uint32(18).string(message.patientId);
+    }
+    if (message.actCatalogId !== "") {
+      writer.uint32(26).string(message.actCatalogId);
+    }
+    if (message.toothFdi !== undefined) {
+      writer.uint32(34).string(message.toothFdi);
+    }
+    if (message.surface !== undefined) {
+      writer.uint32(42).string(message.surface);
+    }
+    if (message.toothPart !== undefined) {
+      writer.uint32(50).string(message.toothPart);
+    }
+    if (message.dentition !== undefined) {
+      writer.uint32(58).string(message.dentition);
+    }
+    if (message.diagnosisNotes !== undefined) {
+      writer.uint32(66).string(message.diagnosisNotes);
+    }
+    if (message.createdVisitId !== "") {
+      writer.uint32(74).string(message.createdVisitId);
+    }
+    if (message.createdBy !== "") {
+      writer.uint32(82).string(message.createdBy);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateTreatmentPlanItemRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseCreateTreatmentPlanItemRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.clinicId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.patientId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.actCatalogId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.toothFdi = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.surface = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.toothPart = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.dentition = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.diagnosisNotes = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.createdVisitId = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.createdBy = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUpdateTreatmentPlanItemStatusRequest(): UpdateTreatmentPlanItemStatusRequest {
+  return { id: "", status: "" };
+}
+
+export const UpdateTreatmentPlanItemStatusRequest: MessageFns<UpdateTreatmentPlanItemStatusRequest> = {
+  encode(message: UpdateTreatmentPlanItemStatusRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.status !== "") {
+      writer.uint32(18).string(message.status);
+    }
+    if (message.completedVisitId !== undefined) {
+      writer.uint32(26).string(message.completedVisitId);
+    }
+    if (message.completedBy !== undefined) {
+      writer.uint32(34).string(message.completedBy);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateTreatmentPlanItemStatusRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateTreatmentPlanItemStatusRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.status = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.completedVisitId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.completedBy = reader.string();
           continue;
         }
       }
@@ -1894,6 +2504,12 @@ export const AddTreatmentActRequest: MessageFns<AddTreatmentActRequest> = {
     if (message.enteredBy !== "") {
       writer.uint32(90).string(message.enteredBy);
     }
+    if (message.treatmentPlanItemId !== undefined) {
+      writer.uint32(98).string(message.treatmentPlanItemId);
+    }
+    if (message.actionType !== undefined) {
+      writer.uint32(106).string(message.actionType);
+    }
     return writer;
   },
 
@@ -1990,6 +2606,22 @@ export const AddTreatmentActRequest: MessageFns<AddTreatmentActRequest> = {
           }
 
           message.enteredBy = reader.string();
+          continue;
+        }
+        case 12: {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.treatmentPlanItemId = reader.string();
+          continue;
+        }
+        case 13: {
+          if (tag !== 106) {
+            break;
+          }
+
+          message.actionType = reader.string();
           continue;
         }
       }
@@ -2291,6 +2923,12 @@ export interface TreatmentServiceClient {
   removeTreatmentAct(request: RemoveTreatmentActRequest): Observable<EmptyReply>;
 
   calculateVisitTotal(request: CalculateVisitTotalRequest): Observable<VisitTotalReply>;
+
+  listTreatmentPlanItems(request: ListTreatmentPlanItemsRequest): Observable<TreatmentPlanItemListReply>;
+
+  createTreatmentPlanItem(request: CreateTreatmentPlanItemRequest): Observable<TreatmentPlanItemReply>;
+
+  updateTreatmentPlanItemStatus(request: UpdateTreatmentPlanItemStatusRequest): Observable<TreatmentPlanItemReply>;
 }
 
 export interface TreatmentServiceController {
@@ -2353,6 +2991,18 @@ export interface TreatmentServiceController {
   calculateVisitTotal(
     request: CalculateVisitTotalRequest,
   ): Promise<VisitTotalReply> | Observable<VisitTotalReply> | VisitTotalReply;
+
+  listTreatmentPlanItems(
+    request: ListTreatmentPlanItemsRequest,
+  ): Promise<TreatmentPlanItemListReply> | Observable<TreatmentPlanItemListReply> | TreatmentPlanItemListReply;
+
+  createTreatmentPlanItem(
+    request: CreateTreatmentPlanItemRequest,
+  ): Promise<TreatmentPlanItemReply> | Observable<TreatmentPlanItemReply> | TreatmentPlanItemReply;
+
+  updateTreatmentPlanItemStatus(
+    request: UpdateTreatmentPlanItemStatusRequest,
+  ): Promise<TreatmentPlanItemReply> | Observable<TreatmentPlanItemReply> | TreatmentPlanItemReply;
 }
 
 export function TreatmentServiceControllerMethods() {
@@ -2377,6 +3027,9 @@ export function TreatmentServiceControllerMethods() {
       "updateTreatmentAct",
       "removeTreatmentAct",
       "calculateVisitTotal",
+      "listTreatmentPlanItems",
+      "createTreatmentPlanItem",
+      "updateTreatmentPlanItemStatus",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
@@ -2579,6 +3232,40 @@ export const TreatmentServiceService = {
     responseSerialize: (value: VisitTotalReply): Buffer => Buffer.from(VisitTotalReply.encode(value).finish()),
     responseDeserialize: (value: Buffer): VisitTotalReply => VisitTotalReply.decode(value),
   },
+  listTreatmentPlanItems: {
+    path: "/treatment.TreatmentService/ListTreatmentPlanItems" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListTreatmentPlanItemsRequest): Buffer =>
+      Buffer.from(ListTreatmentPlanItemsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListTreatmentPlanItemsRequest => ListTreatmentPlanItemsRequest.decode(value),
+    responseSerialize: (value: TreatmentPlanItemListReply): Buffer =>
+      Buffer.from(TreatmentPlanItemListReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): TreatmentPlanItemListReply => TreatmentPlanItemListReply.decode(value),
+  },
+  createTreatmentPlanItem: {
+    path: "/treatment.TreatmentService/CreateTreatmentPlanItem" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: CreateTreatmentPlanItemRequest): Buffer =>
+      Buffer.from(CreateTreatmentPlanItemRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): CreateTreatmentPlanItemRequest => CreateTreatmentPlanItemRequest.decode(value),
+    responseSerialize: (value: TreatmentPlanItemReply): Buffer =>
+      Buffer.from(TreatmentPlanItemReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): TreatmentPlanItemReply => TreatmentPlanItemReply.decode(value),
+  },
+  updateTreatmentPlanItemStatus: {
+    path: "/treatment.TreatmentService/UpdateTreatmentPlanItemStatus" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: UpdateTreatmentPlanItemStatusRequest): Buffer =>
+      Buffer.from(UpdateTreatmentPlanItemStatusRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): UpdateTreatmentPlanItemStatusRequest =>
+      UpdateTreatmentPlanItemStatusRequest.decode(value),
+    responseSerialize: (value: TreatmentPlanItemReply): Buffer =>
+      Buffer.from(TreatmentPlanItemReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): TreatmentPlanItemReply => TreatmentPlanItemReply.decode(value),
+  },
 } as const;
 
 export interface TreatmentServiceServer extends UntypedServiceImplementation {
@@ -2601,6 +3288,9 @@ export interface TreatmentServiceServer extends UntypedServiceImplementation {
   updateTreatmentAct: handleUnaryCall<UpdateTreatmentActRequest, TreatmentActReply>;
   removeTreatmentAct: handleUnaryCall<RemoveTreatmentActRequest, EmptyReply>;
   calculateVisitTotal: handleUnaryCall<CalculateVisitTotalRequest, VisitTotalReply>;
+  listTreatmentPlanItems: handleUnaryCall<ListTreatmentPlanItemsRequest, TreatmentPlanItemListReply>;
+  createTreatmentPlanItem: handleUnaryCall<CreateTreatmentPlanItemRequest, TreatmentPlanItemReply>;
+  updateTreatmentPlanItemStatus: handleUnaryCall<UpdateTreatmentPlanItemStatusRequest, TreatmentPlanItemReply>;
 }
 
 export interface MessageFns<T> {

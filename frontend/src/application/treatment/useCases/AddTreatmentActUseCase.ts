@@ -29,6 +29,7 @@ export class AddTreatmentActUseCase {
     const created = await this.treatmentActRepository.save({
       clinicId: command.clinicId,
       visitId: command.visitId,
+      treatmentPlanItemId: command.treatmentPlanItemId,
       actCatalogId: command.actCatalogId,
       toothFdi: command.toothFdi,
       quantity: command.quantity ?? 1,
@@ -37,6 +38,7 @@ export class AddTreatmentActUseCase {
       toothPart: command.toothPart,
       dentition: command.dentition ?? "PERMANENT",
       status: command.status ?? "DONE",
+      actionType: command.actionType ?? "PERFORMED",
       notes: command.notes,
       enteredBy: command.enteredBy,
     });

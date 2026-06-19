@@ -9,6 +9,7 @@ export interface TreatmentActDTO {
   id: string;
   clinic_id: string;
   visit_id: string;
+  treatment_plan_item_id?: string;
   act_catalog_id: string;
   tooth_fdi?: string | null;
   quantity: number;
@@ -17,6 +18,7 @@ export interface TreatmentActDTO {
   tooth_part?: ToothPart | null;
   dentition: Dentition;
   status: TreatmentActStatus;
+  action_type: "PLANNED" | "PERFORMED" | "AMENDED" | "CANCELLED";
   notes?: string | null;
   entered_by: string;
   created_at: string;
@@ -41,6 +43,8 @@ export interface CreateTreatmentActDTO {
   status?: TreatmentActStatus;
   notes?: string;
   entered_by: string;
+  treatment_plan_item_id?: string;
+  action_type?: "PLANNED" | "PERFORMED" | "AMENDED" | "CANCELLED";
 }
 
 export interface UpdateTreatmentActDTO {

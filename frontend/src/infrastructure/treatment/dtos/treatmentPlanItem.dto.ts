@@ -1,0 +1,3 @@
+import type {Dentition, ToothPart, ToothSurface, TreatmentActStatus} from "@/domain/treatment/entities/TreatmentAct";
+export interface TreatmentPlanItemDTO { id: string; clinic_id: string; patient_id: string; act_catalog_id: string; tooth_fdi?: string; surface?: ToothSurface; tooth_part?: ToothPart; dentition?: Dentition; status: TreatmentActStatus; diagnosis_notes?: string; created_visit_id: string; completed_visit_id?: string; created_by: string; completed_by?: string; created_at: string; updated_at: string; }
+export interface TreatmentPlanItemListDTO {items: TreatmentPlanItemDTO[]; total: number;}

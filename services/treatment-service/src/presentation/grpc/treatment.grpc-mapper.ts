@@ -1,6 +1,7 @@
 import {TreatmentProto} from "@lib/proto";
 import {ActCatalog} from "../../domain/entities/act-catalog";
 import {TreatmentAct} from "../../domain/entities/treatment-act";
+import {TreatmentPlanItem} from "../../domain/entities/treatment-plan-item";
 import {Visit} from "../../domain/entities/visit";
 
 export class TreatmentGrpcMapper {
@@ -65,6 +66,12 @@ export class TreatmentGrpcMapper {
       enteredBy: act.enteredBy,
       createdAt: act.createdAt.toISOString(),
       updatedAt: act.updatedAt.toISOString(),
+      treatmentPlanItemId: act.treatmentPlanItemId ?? "",
+      actionType: act.actionType,
     };
+  }
+
+  static toTreatmentPlanItemReply(item: TreatmentPlanItem): TreatmentProto.TreatmentPlanItemReply {
+    return {id: item.id, clinicId: item.clinicId, patientId: item.patientId, actCatalogId: item.actCatalogId, toothFdi: item.toothFdi ?? "", surface: item.surface ?? "", toothPart: item.toothPart ?? "", dentition: item.dentition ?? "", status: item.status, diagnosisNotes: item.diagnosisNotes ?? "", createdVisitId: item.createdVisitId, completedVisitId: item.completedVisitId ?? "", createdBy: item.createdBy, completedBy: item.completedBy ?? "", createdAt: item.createdAt.toISOString(), updatedAt: item.updatedAt.toISOString()};
   }
 }

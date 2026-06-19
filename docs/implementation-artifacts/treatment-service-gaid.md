@@ -86,6 +86,33 @@ export interface TreatmentAct {
 }
 ```
 
+### Treatment Plan Item Entity (Phase 2)
+
+`TreatmentPlanItem` is the patient-wide clinical record shown on the odontogram. `TreatmentAct` is no longer the source of truth for a tooth's cross-visit state; it is the visit execution record linked by `treatmentPlanItemId`.
+
+```typescript
+interface TreatmentPlanItem {
+  id: string;
+  clinicId: string;
+  patientId: string;
+  actCatalogId: string;
+  toothFdi?: string;
+  surface?: ToothSurface;
+  toothPart?: ToothPart;
+  dentition?: Dentition;
+  status: "PLANNED" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+  diagnosisNotes?: string;
+  createdVisitId: string;
+  completedVisitId?: string;
+  createdBy: string;
+  completedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+When a clinician starts work in a later visit, create a new `TreatmentAct` with that visit's `visitId` and the existing `treatmentPlanItemId`. Do not alter the original visit act. A plan item can therefore have many execution acts but only one current status.
+
 ---
 
 ## 2. Application Layer: Commands & Queries
@@ -297,10 +324,10 @@ export interface TreatmentActRepository {
 - **Output**: `Visit`
 - **Logic**:
   1. Fetch the visit.
-  2. Validate that visit has at least one DONE treatment act.
+  2. Allow consultation-only visits with no completed act; the doctor is signing off the encounter, not proving payment.
   3. Set status to CONFIRMED, confirmedAt, confirmedBy.
   4. Emit `visit.confirmed` event to outbox.
-- **Error Handling**: Throw if visit has no acts or visit is already CLOSED.
+- **Error Handling**: Throw if the visit is not OPEN or is already finalized.
 
 #### **CloseVisitUseCase**
 
@@ -530,6 +557,7 @@ The Treatment Service integrates into the workflow after a patient is seated in 
 - **Left Panel**: Visit details (patient name, doctor, appointment type, elapsed time).
 - **Center Panel**: Tooth diagram with FDI notation for quick tooth selection.
 - **Right Panel**: List of treatment acts recorded so far (with ability to edit/remove while OPEN).
+- **Patient Plan Summary**: Patient-wide counts for planned, in-progress, and completed plan items. This data is loaded independently of the current visit and gives the odontogram its cross-visit state.
 - **Top Bar**: Action buttons (Assign Assistant, Add Procedure, Confirm Visit, Close Visit).
 
 **Workflow**:
@@ -543,7 +571,7 @@ The Treatment Service integrates into the workflow after a patient is seated in 
    - Select procedure from `ActCatalog` (fetched via `GetActCatalogUseCase`).
    - Optionally select tooth (FDI), surface, toothPart, dentition.
    - Set initial status (e.g., PLANNED or IN_PROGRESS).
-   - Submit: Calls `AddTreatmentActUseCase`.
+   - Submit: creates a `TreatmentPlanItem` when this is a new clinical need, then records a linked visit act. When continuing existing work, it records only a new linked visit act.
    - Acts list updates in real-time.
    - Visit totalAmount recalculates automatically.
 
@@ -556,6 +584,7 @@ The Treatment Service integrates into the workflow after a patient is seated in 
    - While visit is OPEN, click "Edit" on any act to modify details.
    - Click "Remove" to delete an act (calls `RemoveTreatmentActUseCase`).
    - Total recalculates immediately.
+   - Do not edit a historical act from a previous confirmed visit. Record an amendment or a new execution act in the current visit instead.
 
 5. **Doctor Confirms**:
    - Doctor reviews all acts and clicks "Confirm Visit".

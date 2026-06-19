@@ -4,10 +4,12 @@ import {TreatmentProto} from "@lib/proto";
 import {ManageActCatalogUseCase} from "../../application/use-cases/manage-act-catalog.use-case";
 import {ManageTreatmentActsUseCase} from "../../application/use-cases/manage-treatment-acts.use-case";
 import {ManageVisitsUseCase} from "../../application/use-cases/manage-visits.use-case";
+import {ManageTreatmentPlansUseCase} from "../../application/use-cases/manage-treatment-plans.use-case";
 import {Dentition} from "../../domain/enums/dentition.enum";
 import {ToothPart} from "../../domain/enums/tooth-part.enum";
 import {ToothSurface} from "../../domain/enums/tooth-surface.enum";
 import {TreatmentActStatus} from "../../domain/enums/treatment-act-status.enum";
+import {TreatmentActionType} from "../../domain/enums/treatment-action-type.enum";
 import {TreatmentGrpcMapper} from "./treatment.grpc-mapper";
 import {rethrowAsRpc} from "./rpc-error.helper";
 
@@ -18,6 +20,7 @@ export class TreatmentGrpcController {
     private readonly catalogUC: ManageActCatalogUseCase,
     private readonly visitsUC: ManageVisitsUseCase,
     private readonly actsUC: ManageTreatmentActsUseCase,
+    private readonly plansUC: ManageTreatmentPlansUseCase,
   ) {}
 
   @GrpcMethod("TreatmentService", "GetVisit")
@@ -242,6 +245,8 @@ export class TreatmentGrpcController {
           : TreatmentActStatus.PLANNED,
         notes: data.notes ?? null,
         enteredBy: data.enteredBy,
+        treatmentPlanItemId: data.treatmentPlanItemId || null,
+        actionType: data.actionType ? (data.actionType as TreatmentActionType) : undefined,
       });
       return TreatmentGrpcMapper.toTreatmentActReply(act);
     } catch (error) {
@@ -286,5 +291,20 @@ export class TreatmentGrpcController {
     } catch (error) {
       rethrowAsRpc(error);
     }
+  }
+
+  @GrpcMethod("TreatmentService", "ListTreatmentPlanItems")
+  async listTreatmentPlanItems(data: TreatmentProto.ListTreatmentPlanItemsRequest): Promise<TreatmentProto.TreatmentPlanItemListReply> {
+    try { const items = await this.plansUC.listByPatient(data.clinicId, data.patientId, data.includeCancelled); return {items: items.map(TreatmentGrpcMapper.toTreatmentPlanItemReply), total: items.length}; } catch (error) { rethrowAsRpc(error); }
+  }
+
+  @GrpcMethod("TreatmentService", "CreateTreatmentPlanItem")
+  async createTreatmentPlanItem(data: TreatmentProto.CreateTreatmentPlanItemRequest) {
+    try { return TreatmentGrpcMapper.toTreatmentPlanItemReply(await this.plansUC.create({clinicId: data.clinicId, patientId: data.patientId, actCatalogId: data.actCatalogId, toothFdi: data.toothFdi || null, surface: data.surface ? data.surface as ToothSurface : null, toothPart: data.toothPart ? data.toothPart as ToothPart : null, dentition: data.dentition ? data.dentition as Dentition : null, diagnosisNotes: data.diagnosisNotes || null, createdVisitId: data.createdVisitId, createdBy: data.createdBy})); } catch (error) { rethrowAsRpc(error); }
+  }
+
+  @GrpcMethod("TreatmentService", "UpdateTreatmentPlanItemStatus")
+  async updateTreatmentPlanItemStatus(data: TreatmentProto.UpdateTreatmentPlanItemStatusRequest) {
+    try { return TreatmentGrpcMapper.toTreatmentPlanItemReply(await this.plansUC.changeStatus(data.id, data.status as TreatmentActStatus, data.completedVisitId || undefined, data.completedBy || undefined)); } catch (error) { rethrowAsRpc(error); }
   }
 }

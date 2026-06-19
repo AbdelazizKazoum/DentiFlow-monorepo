@@ -8,6 +8,7 @@ import {
   Plus,
   RotateCcw,
   Trash2,
+  Ban,
   X,
 } from "lucide-react";
 import type {DentalAct, TreatmentStatus} from "@/domain/treatment/entities/dentalAct";
@@ -175,6 +176,8 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
     void updateTreatmentStatus(treatment.id, status);
   };
   const previousStatus = PREVIOUS_STATUS[treatment.status];
+  const readOnly = treatment.isCurrentVisit === false;
+  const continuePlan = useTreatmentStore((state) => state.continuePlan);
 
   return (
     <article className="border border-ui-border bg-card p-4 shadow-sm">
@@ -200,6 +203,7 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
               >
                 {treatment.status.replace("_", " ")}
               </span>
+              {readOnly && <span className="border border-ui-border px-2 py-0.5 text-xs text-text-muted">patient history</span>}
             </div>
             <div className="mt-2 grid gap-2 text-xs text-text-muted sm:grid-cols-4">
               <span>Code: {meta.code}</span>
@@ -221,11 +225,12 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
       <textarea
         value={note}
         onChange={(event) => setNote(event.target.value)}
+        readOnly={readOnly}
         placeholder="Clinical note, material, shade, surface detail..."
         className="mt-4 min-h-20 w-full resize-none border border-ui-border bg-page px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-text-placeholder focus:border-primary"
       />
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      {!readOnly && <div className="mt-3 flex flex-wrap gap-2">
         {previousStatus && (
           <button
             type="button"
@@ -263,6 +268,16 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
               Start
             </button>
           )}
+        {treatment.status !== "cancelled" && treatment.status !== "completed" && (
+          <button
+            type="button"
+            onClick={() => updateStatus("cancelled")}
+            className="inline-flex items-center gap-1 border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+            title="Cancel this clinical act while retaining it in the audit history"
+          >
+            <Ban size={14} /> Cancel act
+          </button>
+        )}
         {hasUnsavedNote && (
           <button
             type="button"
@@ -278,9 +293,12 @@ function TreatmentRow({treatment}: {treatment: ToothTreatment}) {
           className="inline-flex items-center gap-1 border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/60 dark:hover:bg-red-950/30"
         >
           <Trash2 size={14} />
-          Remove
+          Remove draft
         </button>
-      </div>
+      </div>}
+      {readOnly && treatment.planItemId && treatment.status !== "completed" && treatment.status !== "cancelled" && (
+        <div className="mt-3"><button type="button" onClick={() => void continuePlan(treatment.planItemId!)} className="inline-flex items-center gap-1 border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"><RotateCcw size={14} /> Continue in this visit</button></div>
+      )}
     </article>
   );
 }

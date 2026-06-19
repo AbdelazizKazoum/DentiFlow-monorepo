@@ -1,0 +1,3 @@
+import type {TreatmentPlanItem} from "@/domain/treatment/entities/TreatmentPlanItem";
+import type {TreatmentPlanItemDTO} from "../dtos/treatmentPlanItem.dto";
+export const treatmentPlanItemToDomain = (dto: TreatmentPlanItemDTO): TreatmentPlanItem => ({id: dto.id, clinicId: dto.clinic_id, patientId: dto.patient_id, actCatalogId: dto.act_catalog_id, toothFdi: dto.tooth_fdi, surface: dto.surface, toothPart: dto.tooth_part, dentition: dto.dentition, status: dto.status, diagnosisNotes: dto.diagnosis_notes, createdVisitId: dto.created_visit_id, completedVisitId: dto.completed_visit_id, createdBy: dto.created_by, completedBy: dto.completed_by, createdAt: new Date(dto.created_at), updatedAt: new Date(dto.updated_at)});

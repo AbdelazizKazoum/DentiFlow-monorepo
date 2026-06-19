@@ -15,6 +15,7 @@ import {
   ActCatalogHttpRepository,
   TreatmentActHttpRepository,
   VisitHttpRepository,
+  TreatmentPlanHttpRepository,
 } from "./repositories";
 
 const useMockTreatmentRepository =
@@ -29,15 +30,14 @@ export const actCatalogRepository = useMockTreatmentRepository
 export const treatmentActRepository = useMockTreatmentRepository
   ? new InMemoryTreatmentActRepository()
   : new TreatmentActHttpRepository();
+// Plan persistence is API-only for now; mock treatment remains a legacy demo mode.
+export const treatmentPlanRepository = new TreatmentPlanHttpRepository();
 
 export const openVisitUseCase = new OpenVisitUseCase(visitRepository);
 export const assignAssistantUseCase = new AssignAssistantUseCase(
   visitRepository,
 );
-export const confirmVisitUseCase = new ConfirmVisitUseCase(
-  visitRepository,
-  treatmentActRepository,
-);
+export const confirmVisitUseCase = new ConfirmVisitUseCase(visitRepository);
 export const closeVisitUseCase = new CloseVisitUseCase(visitRepository);
 export const addTreatmentActUseCase = new AddTreatmentActUseCase(
   visitRepository,

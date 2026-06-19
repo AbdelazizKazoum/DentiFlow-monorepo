@@ -1,9 +1,11 @@
-import {Stethoscope} from "lucide-react";
+import {CheckCircle2, LockKeyhole, Stethoscope} from "lucide-react";
+import type {Visit} from "@/domain/treatment/entities/Visit";
 import {currencyFormatter} from "../treatmentConfig";
 import type {TreatmentTotals} from "../types";
 import {Metric} from "./Metric";
 
-export function TreatmentHeader({totals}: {totals: TreatmentTotals}) {
+export function TreatmentHeader({totals, visit, isSaving, onConfirm}: {totals: TreatmentTotals; visit: Visit | null; isSaving: boolean; onConfirm: () => void}) {
+  const isOpen = visit?.status === "OPEN";
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-ui-border bg-card px-5 py-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
       <div>
@@ -28,6 +30,17 @@ export function TreatmentHeader({totals}: {totals: TreatmentTotals}) {
           label="Estimate"
           value={currencyFormatter.format(totals.amount)}
         />
+      </div>
+
+      <div className="flex flex-col items-stretch gap-2 sm:items-end">
+        {isOpen ? (
+          <button type="button" onClick={onConfirm} disabled={isSaving} className="inline-flex h-11 items-center justify-center gap-2 bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
+            <CheckCircle2 size={17} /> {isSaving ? "Confirming…" : "Confirm clinical visit"}
+          </button>
+        ) : (
+          <span className="inline-flex items-center justify-center gap-2 border border-ui-border px-4 py-3 text-sm font-semibold text-text-muted"><LockKeyhole size={16} /> Visit {visit?.status?.toLowerCase() ?? "unavailable"}</span>
+        )}
+        <p className="max-w-xs text-right text-xs text-text-muted">Clinical sign-off locks this visit. Reception can then complete checkout or mark the queue entry done.</p>
       </div>
     </header>
   );

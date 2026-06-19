@@ -14,11 +14,13 @@ export type TreatmentActStatus =
   | "IN_PROGRESS"
   | "DONE"
   | "CANCELLED";
+export type TreatmentActionType = "PLANNED" | "PERFORMED" | "AMENDED" | "CANCELLED";
 
 export interface TreatmentAct {
   id: string;
   clinicId: string;
   visitId: string;
+  treatmentPlanItemId?: string;
   actCatalogId: string;
   toothFdi?: string;
   quantity: number;
@@ -27,6 +29,7 @@ export interface TreatmentAct {
   toothPart?: ToothPart;
   dentition: Dentition;
   status: TreatmentActStatus;
+  actionType: TreatmentActionType;
   notes?: string;
   enteredBy: string;
   createdAt: Date;

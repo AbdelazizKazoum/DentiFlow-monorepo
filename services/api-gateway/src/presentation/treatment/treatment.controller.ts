@@ -31,6 +31,7 @@ import {
   initTreatmentGrpcService,
   toNumber,
   treatmentActToHttp,
+  treatmentPlanItemToHttp,
   visitToHttp,
 } from "./treatment-grpc.helper";
 
@@ -238,6 +239,18 @@ export class TreatmentController implements OnModuleInit {
     }
   }
 
+  @Get("clinics/:id/patients/:patientId/treatment-plan")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
+  async listTreatmentPlanItems(@Param("id", ParseUUIDPipe) clinicId: string, @Param("patientId", ParseUUIDPipe) patientId: string, @CurrentUser() user: JwtPayload, @Query("include_cancelled") includeCancelled?: string) {
+    try { this.assertClinicAccess(clinicId, user.clinic_id); const result = await lastValueFrom(this.treatmentGrpcService.listTreatmentPlanItems({clinicId, patientId, includeCancelled: includeCancelled === "true"})); return {items: (result.items ?? []).map(treatmentPlanItemToHttp), total: result.total ?? 0}; } catch (err: unknown) { handleGrpcError(err); }
+  }
+
+  @Post("clinics/:id/patients/:patientId/treatment-plan")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
+  async createTreatmentPlanItem(@Param("id", ParseUUIDPipe) clinicId: string, @Param("patientId", ParseUUIDPipe) patientId: string, @CurrentUser() user: JwtPayload, @Body() body: {act_catalog_id?: string; tooth_fdi?: string; surface?: string; tooth_part?: string; dentition?: string; diagnosis_notes?: string; created_visit_id?: string}) {
+    try { this.assertClinicAccess(clinicId, user.clinic_id); const item = await lastValueFrom(this.treatmentGrpcService.createTreatmentPlanItem({clinicId, patientId, actCatalogId: body.act_catalog_id ?? "", toothFdi: body.tooth_fdi, surface: body.surface, toothPart: body.tooth_part, dentition: body.dentition, diagnosisNotes: body.diagnosis_notes, createdVisitId: body.created_visit_id ?? "", createdBy: user.user_id})); return treatmentPlanItemToHttp(item); } catch (err: unknown) { handleGrpcError(err); }
+  }
+
   @Post("treatment/visits/:visitId/acts")
   @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
   async addTreatmentAct(
@@ -254,6 +267,8 @@ export class TreatmentController implements OnModuleInit {
       status?: string;
       notes?: string;
       entered_by?: string;
+      treatment_plan_item_id?: string;
+      action_type?: string;
     },
   ) {
     try {
@@ -271,6 +286,8 @@ export class TreatmentController implements OnModuleInit {
           status: body.status,
           notes: body.notes,
           enteredBy: body.entered_by ?? user.user_id,
+          treatmentPlanItemId: body.treatment_plan_item_id,
+          actionType: body.action_type,
         }),
       );
       return treatmentActToHttp(act);

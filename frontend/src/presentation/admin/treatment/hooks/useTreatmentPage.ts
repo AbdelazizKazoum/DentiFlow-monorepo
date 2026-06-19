@@ -40,7 +40,10 @@ export function useTreatmentPage(visitId: string) {
 
   const acts = useTreatmentStore((state) => state.acts);
   const currentVisit = useTreatmentStore((state) => state.currentVisit);
+  const isSaving = useTreatmentStore((state) => state.isSaving);
+  const confirmVisit = useTreatmentStore((state) => state.confirmVisit);
   const treatments = useTreatmentStore((state) => state.treatments);
+  const planItems = useTreatmentStore((state) => state.planItems);
   const loadTreatmentWorkspace = useTreatmentStore((state) => state.loadWorkspace);
   const addTreatment = useTreatmentStore((state) => state.addTreatment);
   const patientId = currentVisit?.patientId;
@@ -140,6 +143,10 @@ export function useTreatmentPage(visitId: string) {
     groupedActs,
     isLoadingPatient,
     patient,
+    currentVisit,
+    isSaving,
+    confirmVisit,
+    planItems,
     patientError,
     query,
     sceneRef,

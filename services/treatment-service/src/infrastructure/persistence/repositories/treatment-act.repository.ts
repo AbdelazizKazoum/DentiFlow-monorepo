@@ -36,6 +36,7 @@ export class TreatmentActRepository implements ITreatmentActRepository {
     const saved = await this.repo.save({
       clinic_id: input.clinicId,
       visit_id: input.visitId,
+      treatment_plan_item_id: input.treatmentPlanItemId ?? null,
       act_catalog_id: input.actCatalogId,
       tooth_fdi: input.toothFdi ?? null,
       quantity: input.quantity ?? 1,
@@ -44,6 +45,7 @@ export class TreatmentActRepository implements ITreatmentActRepository {
       tooth_part: input.toothPart ?? null,
       dentition: input.dentition ?? null,
       status: input.status ?? TreatmentActStatus.PLANNED,
+      action_type: input.actionType,
       notes: input.notes ?? null,
       entered_by: input.enteredBy,
     });
@@ -63,6 +65,7 @@ export class TreatmentActRepository implements ITreatmentActRepository {
       ...(input.toothPart !== undefined ? {tooth_part: input.toothPart} : {}),
       ...(input.dentition !== undefined ? {dentition: input.dentition} : {}),
       ...(input.status !== undefined ? {status: input.status} : {}),
+      ...(input.actionType !== undefined ? {action_type: input.actionType} : {}),
       ...(input.notes !== undefined ? {notes: input.notes} : {}),
     });
     return TreatmentActMapper.toDomain(saved);

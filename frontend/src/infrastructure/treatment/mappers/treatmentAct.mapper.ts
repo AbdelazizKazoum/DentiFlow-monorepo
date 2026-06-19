@@ -12,6 +12,7 @@ export const treatmentActToDomain = (dto: TreatmentActDTO): TreatmentAct => ({
   id: dto.id,
   clinicId: dto.clinic_id,
   visitId: dto.visit_id,
+  treatmentPlanItemId: emptyToUndefined(dto.treatment_plan_item_id),
   actCatalogId: dto.act_catalog_id,
   toothFdi: emptyToUndefined(dto.tooth_fdi),
   quantity: dto.quantity,
@@ -20,6 +21,7 @@ export const treatmentActToDomain = (dto: TreatmentActDTO): TreatmentAct => ({
   toothPart: emptyToUndefined(dto.tooth_part),
   dentition: dto.dentition,
   status: dto.status,
+  actionType: dto.action_type,
   notes: emptyToUndefined(dto.notes),
   enteredBy: dto.entered_by,
   createdAt: new Date(dto.created_at),
@@ -31,6 +33,7 @@ export const treatmentActToCreateDTO = (
 ): CreateTreatmentActDTO => ({
   clinic_id: act.clinicId ?? "",
   visit_id: act.visitId ?? "",
+  ...(act.treatmentPlanItemId ? {treatment_plan_item_id: act.treatmentPlanItemId} : {}),
   act_catalog_id: act.actCatalogId ?? "",
   ...(act.toothFdi ? {tooth_fdi: act.toothFdi} : {}),
   ...(act.quantity !== undefined ? {quantity: act.quantity} : {}),
@@ -40,6 +43,7 @@ export const treatmentActToCreateDTO = (
   ...(act.status ? {status: act.status} : {}),
   ...(act.notes ? {notes: act.notes} : {}),
   entered_by: act.enteredBy ?? "",
+  ...(act.actionType ? {action_type: act.actionType} : {}),
 });
 
 export const treatmentActToUpdateDTO = (

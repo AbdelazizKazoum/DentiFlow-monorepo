@@ -41,14 +41,17 @@ export function filterTreatmentActs(
 export function calculateTreatmentTotals(
   treatments: ToothTreatment[],
 ): TreatmentTotals {
-  const planned = treatments.filter(
+  const activeTreatments = treatments.filter(
+    (treatment) => treatment.status !== "cancelled",
+  );
+  const planned = activeTreatments.filter(
     (treatment) => treatment.status !== "completed",
   );
 
   return {
-    teeth: new Set(treatments.map((treatment) => treatment.toothId)).size,
+    teeth: new Set(activeTreatments.map((treatment) => treatment.toothId)).size,
     planned: planned.length,
-    completed: treatments.filter((treatment) => treatment.status === "completed")
+    completed: activeTreatments.filter((treatment) => treatment.status === "completed")
       .length,
     amount: planned.reduce(
       (sum, treatment) => sum + getActMeta(treatment.actId).price,
