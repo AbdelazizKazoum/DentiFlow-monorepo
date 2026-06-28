@@ -15,6 +15,9 @@ const intlMiddleware = createIntlMiddleware({
   defaultLocale: "en",
 });
 
+const sessionCookieName =
+  process.env.NEXTAUTH_SESSION_COOKIE_NAME ?? "dentiflow-prod.session-token";
+
 export default withAuth(
   function middleware(req: NextRequest) {
     return intlMiddleware(req);
@@ -30,6 +33,11 @@ export default withAuth(
     },
     pages: {
       signIn: "/en/admin/login", // fallback; locale-aware redirect handled in authorized()
+    },
+    cookies: {
+      sessionToken: {
+        name: sessionCookieName,
+      },
     },
   },
 );

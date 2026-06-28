@@ -1,4 +1,4 @@
-version: "3.8"
+name: dentiflow-prod
 
 networks:
   dentiflow-network:
@@ -7,51 +7,129 @@ networks:
 volumes:
   db_data:
 
+x-db-env: &db-env
+  DB_HOST: db
+  DB_PORT: 3306
+  DB_USERNAME: ${DB_USERNAME:-root}
+  DB_PASSWORD: ${DB_PASSWORD:-${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}}
+
+x-migration-env: &migration-env
+  <<: *db-env
+  TS_NODE_TRANSPILE_ONLY: "true"
+
+x-service-common: &service-common
+  restart: unless-stopped
+  networks:
+    - dentiflow-network
+
 services:
   nats:
     image: nats:2.10-alpine
-    restart: unless-stopped
+    <<: *service-common
     command: ["-m", "8222"]
-    networks:
-      - dentiflow-network
+    expose:
+      - "4222"
+      - "8222"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   db:
     image: mysql:8.0
-    restart: unless-stopped
+    <<: *service-common
     environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      # MYSQL_DATABASE omitted — databases are created by the init script.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
       TZ: UTC
     volumes:
       - db_data:/var/lib/mysql
       - ./services/mysql/init:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "127.0.0.1:3306:3306"
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  auth-migrations:
+    build:
+      context: .
+      dockerfile: services/Dockerfile.migrations
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/migrations:${IMAGE_TAG:-prod}
+    restart: "no"
+    environment:
+      <<: *migration-env
+      DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      TS_NODE_PROJECT: auth-service/tsconfig.json
+    command: >
+      node -r ts-node/register -r tsconfig-paths/register
+      node_modules/typeorm/cli.js migration:run
+      -d auth-service/src/infrastructure/persistence/data-source.ts
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - dentiflow-network
 
-  api-gateway:
-    build:
-      context: .
-      dockerfile: services/api-gateway/Dockerfile
+  clinic-migrations:
+    image: dentiflow/migrations:${IMAGE_TAG:-prod}
+    restart: "no"
     environment:
-      NODE_ENV: production
-      PORT: 3001
-      LOG_LEVEL: info
-      JWT_SECRET: "${JWT_SECRET}"
-      JWT_EXPIRES_IN: 900
-      AUTH_SERVICE_URL: http://auth-service:3002
-      AUTH_SERVICE_GRPC_URL: auth-service:5001
-      CLINIC_SERVICE_GRPC_URL: clinic-service:5002
-      PATIENT_SERVICE_GRPC_URL: patient-service:5003
-      APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
-      NATS_URL: nats://nats:4222
-    ports:
-      - "127.0.0.1:3001:3001"
+      <<: *migration-env
+      DB_NAME: ${CLINIC_DB_NAME:-clinic_db}
+      TS_NODE_PROJECT: clinic-service/tsconfig.json
+    command: >
+      node -r ts-node/register -r tsconfig-paths/register
+      node_modules/typeorm/cli.js migration:run
+      -d clinic-service/src/infrastructure/persistence/data-source.ts
     depends_on:
-      - auth-service
-      - appointment-service
-      - nats
+      db:
+        condition: service_healthy
+      auth-migrations:
+        condition: service_completed_successfully
+    networks:
+      - dentiflow-network
+
+  patient-migrations:
+    image: dentiflow/migrations:${IMAGE_TAG:-prod}
+    restart: "no"
+    environment:
+      <<: *migration-env
+      DB_NAME: ${PATIENT_DB_NAME:-patient_db}
+      TS_NODE_PROJECT: patient-service/tsconfig.json
+    command: >
+      node -r ts-node/register -r tsconfig-paths/register
+      node_modules/typeorm/cli.js migration:run
+      -d patient-service/src/infrastructure/persistence/data-source.ts
+    depends_on:
+      db:
+        condition: service_healthy
+      clinic-migrations:
+        condition: service_completed_successfully
+    networks:
+      - dentiflow-network
+
+  appointment-migrations:
+    image: dentiflow/migrations:${IMAGE_TAG:-prod}
+    restart: "no"
+    environment:
+      <<: *migration-env
+      DB_NAME: ${APPOINTMENT_DB_NAME:-appointment_db}
+      TS_NODE_PROJECT: appointment-service/tsconfig.json
+    command: >
+      node -r ts-node/register -r tsconfig-paths/register
+      node_modules/typeorm/cli.js migration:run
+      -d appointment-service/src/infrastructure/persistence/data-source.ts
+    depends_on:
+      db:
+        condition: service_healthy
+      patient-migrations:
+        condition: service_completed_successfully
     networks:
       - dentiflow-network
 
@@ -59,54 +137,169 @@ services:
     build:
       context: .
       dockerfile: services/auth-service/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/auth-service:${IMAGE_TAG:-prod}
+    <<: *service-common
     environment:
+      <<: *db-env
       NODE_ENV: production
       PORT: 3002
-      LOG_LEVEL: info
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USERNAME: "${DB_USERNAME:-root}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      # Each service has its own env var to avoid naming conflicts.
-      DB_NAME: "${AUTH_DB_NAME:-auth_db}"
-      JWT_SECRET: "${JWT_SECRET}"
-      JWT_EXPIRES_IN: 900
-    ports:
-      - "127.0.0.1:3002:3002"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-900}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:?Set REFRESH_TOKEN_SECRET}
+      REFRESH_TOKEN_EXPIRES_IN: ${REFRESH_TOKEN_EXPIRES_IN:-604800}
+      GRPC_PORT: 5001
+    expose:
+      - "3002"
+      - "5001"
     depends_on:
-      - db
-    networks:
-      - dentiflow-network
+      auth-migrations:
+        condition: service_completed_successfully
+
+  clinic-service:
+    build:
+      context: .
+      dockerfile: services/clinic-service/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/clinic-service:${IMAGE_TAG:-prod}
+    <<: *service-common
+    environment:
+      <<: *db-env
+      NODE_ENV: production
+      PORT: 3003
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_NAME: ${CLINIC_DB_NAME:-clinic_db}
+      GRPC_PORT: 5002
+      AUTH_SERVICE_GRPC_URL: auth-service:5001
+    expose:
+      - "3003"
+      - "5002"
+    depends_on:
+      clinic-migrations:
+        condition: service_completed_successfully
+      auth-service:
+        condition: service_started
+
+  patient-service:
+    build:
+      context: .
+      dockerfile: services/patient-service/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/patient-service:${IMAGE_TAG:-prod}
+    <<: *service-common
+    environment:
+      <<: *db-env
+      NODE_ENV: production
+      PORT: 3004
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_NAME: ${PATIENT_DB_NAME:-patient_db}
+      GRPC_PORT: 5003
+    expose:
+      - "3004"
+      - "5003"
+    depends_on:
+      patient-migrations:
+        condition: service_completed_successfully
 
   appointment-service:
     build:
       context: .
       dockerfile: services/appointment-service/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/appointment-service:${IMAGE_TAG:-prod}
+    <<: *service-common
     environment:
+      <<: *db-env
       NODE_ENV: production
       PORT: 3005
-      LOG_LEVEL: info
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USERNAME: "${DB_USERNAME:-root}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      DB_NAME: "${APPOINTMENT_DB_NAME:-appointment_db}"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_NAME: ${APPOINTMENT_DB_NAME:-appointment_db}
       GRPC_PORT: 5004
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       NATS_URL: nats://nats:4222
-      OUTBOX_RELAY_INTERVAL_MS: 500
-    ports:
-      - "127.0.0.1:3005:3005"
+      OUTBOX_RELAY_INTERVAL_MS: ${OUTBOX_RELAY_INTERVAL_MS:-500}
+    expose:
+      - "3005"
+      - "5004"
     depends_on:
-      - db
-      - nats
-    networks:
-      - dentiflow-network
+      appointment-migrations:
+        condition: service_completed_successfully
+      nats:
+        condition: service_healthy
+      patient-service:
+        condition: service_started
+      clinic-service:
+        condition: service_started
 
-# Notes:
-# - Provide production secrets via environment or an external .env file when running.
-# - Each service uses its own DB_NAME variable (AUTH_DB_NAME, etc.) — Database-per-Service pattern.
-# - Example run:
-#     MYSQL_ROOT_PASSWORD=... DB_PASSWORD=... JWT_SECRET=... AUTH_DB_NAME=auth_db \
-#     docker compose -f docker-compose.prod.yml up --build -d
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/api-gateway:${IMAGE_TAG:-prod}
+    <<: *service-common
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-900}
+      AUTH_SERVICE_URL: http://auth-service:3002
+      AUTH_SERVICE_GRPC_URL: auth-service:5001
+      CLINIC_SERVICE_GRPC_URL: clinic-service:5002
+      PATIENT_SERVICE_GRPC_URL: patient-service:5003
+      APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      NATS_URL: nats://nats:4222
+    ports:
+      - "${PROD_BIND_ADDRESS:-127.0.0.1}:${PROD_API_PORT:-3001}:3001"
+    depends_on:
+      auth-service:
+        condition: service_started
+      clinic-service:
+        condition: service_started
+      patient-service:
+        condition: service_started
+      appointment-service:
+        condition: service_started
+      nats:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+        NEXT_PUBLIC_DEFAULT_CLINIC_ID: ${NEXT_PUBLIC_DEFAULT_CLINIC_ID:-00000000-0000-4000-8000-000000000001}
+    image: dentiflow/frontend:${IMAGE_TAG:-prod}
+    <<: *service-common
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?Set NEXTAUTH_SECRET}
+      NEXTAUTH_SESSION_COOKIE_NAME: ${NEXTAUTH_SESSION_COOKIE_NAME:-dentiflow-prod.session-token}
+      API_GATEWAY_INTERNAL_URL: http://api-gateway:3001
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      NEXT_PUBLIC_DEFAULT_CLINIC_ID: ${NEXT_PUBLIC_DEFAULT_CLINIC_ID:-00000000-0000-4000-8000-000000000001}
+    ports:
+      - "${PROD_BIND_ADDRESS:-127.0.0.1}:${PROD_FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      api-gateway:
+        condition: service_started

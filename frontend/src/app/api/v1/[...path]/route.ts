@@ -3,7 +3,7 @@
  *
  * Handles two concerns in one place (server-side only):
  *
- * 1. AUTH: reads backendAccessToken from the encrypted HttpOnly next-auth.session-token
+ * 1. AUTH: reads backendAccessToken from the encrypted HttpOnly session
  *    cookie via getToken(). The token is NEVER sent to the browser.
  *
  * 2. REFRESH: if backendTokenExpiry has passed, calls the API gateway /auth/refresh
@@ -20,11 +20,10 @@ const GATEWAY_URL =
 
 const SECRET = process.env.NEXTAUTH_SECRET!;
 
-// NextAuth v4 cookie names — mirrors the library's own naming convention
 const COOKIE_NAME =
-  process.env.NODE_ENV === "production"
-    ? "__Secure-next-auth.session-token"
-    : "next-auth.session-token";
+  process.env.NEXTAUTH_SESSION_COOKIE_NAME ?? "dentiflow-prod.session-token";
+const USE_SECURE_COOKIES =
+  process.env.NEXTAUTH_URL?.startsWith("https://") ?? false;
 
 // Must match session.maxAge in nextauth.config.ts (7 days)
 const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
@@ -164,10 +163,9 @@ async function forward(
     });
 
     if (refreshedCookie) {
-      const isProd = process.env.NODE_ENV === "production";
       response.cookies.set(COOKIE_NAME, refreshedCookie, {
         httpOnly: true,
-        secure: isProd,
+        secure: USE_SECURE_COOKIES,
         sameSite: "lax",
         path: "/",
         maxAge: SESSION_MAX_AGE_SECONDS,
@@ -189,10 +187,9 @@ async function forward(
 
   // Write the fresh session cookie so the browser has it for subsequent requests
   if (refreshedCookie) {
-    const isProd = process.env.NODE_ENV === "production";
     response.cookies.set(COOKIE_NAME, refreshedCookie, {
       httpOnly: true,
-      secure: isProd,
+      secure: USE_SECURE_COOKIES,
       sameSite: "lax",
       path: "/",
       maxAge: SESSION_MAX_AGE_SECONDS,

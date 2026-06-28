@@ -3,6 +3,10 @@ import type {NextAuthOptions} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import {adminLoginUseCase} from "@/infrastructure/container";
 
+const sessionCookieName =
+  process.env.NEXTAUTH_SESSION_COOKIE_NAME ?? "dentiflow-prod.session-token";
+const useSecureCookies = process.env.NEXTAUTH_URL?.startsWith("https://") ?? false;
+
 // NOTE: Token refresh is handled exclusively by the BFF proxy at
 // src/app/api/v1/[...path]/route.ts — NOT here. Doing it in both places
 // caused a race condition where NextAuth's session endpoint overwrote the
@@ -11,6 +15,17 @@ import {adminLoginUseCase} from "@/infrastructure/container";
 
 export const authOptions: NextAuthOptions = {
   session: {strategy: "jwt", maxAge: 7 * 24 * 60 * 60}, // session TTL matches refresh token (7 days)
+  cookies: {
+    sessionToken: {
+      name: sessionCookieName,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: useSecureCookies,
+      },
+    },
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",

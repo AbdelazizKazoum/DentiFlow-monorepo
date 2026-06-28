@@ -1,0 +1,17 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+ARG PNPM_FLAGS="--frozen-lockfile"
+
+COPY tsconfig.base.json ./
+COPY services/package.json services/pnpm-lock.yaml services/nest-cli.json services/tsconfig.json ./services/
+COPY services/lib/ ./services/lib/
+COPY services/auth-service/ ./services/auth-service/
+COPY services/clinic-service/ ./services/clinic-service/
+COPY services/patient-service/ ./services/patient-service/
+COPY services/appointment-service/ ./services/appointment-service/
+
+RUN npm install -g pnpm && pnpm install -C ./services $PNPM_FLAGS
+
+WORKDIR /app/services

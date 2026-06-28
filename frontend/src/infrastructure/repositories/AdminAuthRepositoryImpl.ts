@@ -12,9 +12,11 @@ import {UserRole} from "@/domain/auth/entities/AdminUser";
 interface AuthApiUser {
   id: string;
   email: string;
-  full_name: string;
+  full_name?: string;
+  fullName?: string;
   role: string;
-  clinic_id: string;
+  clinic_id?: string;
+  clinicId?: string;
 }
 
 interface AuthApiResponse {
@@ -24,8 +26,17 @@ interface AuthApiResponse {
 }
 
 export class AdminAuthRepositoryImpl implements AdminAuthRepository {
+  private getApiUrl(): string {
+    const isServer = typeof window === "undefined";
+    return isServer
+      ? (process.env.API_GATEWAY_INTERNAL_URL ??
+          process.env.NEXT_PUBLIC_API_URL ??
+          "http://localhost:3001")
+      : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
+  }
+
   async login(credentials: AdminLoginCredentials): Promise<AdminUser | null> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+    const apiUrl = this.getApiUrl();
 
     let res: Response;
     try {
@@ -47,7 +58,9 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
     }
 
     const body: AuthApiResponse = (await res.json()) as AuthApiResponse;
-    const nameParts = (body.user.full_name ?? "").split(" ");
+    const fullName = body.user.fullName ?? body.user.full_name ?? "";
+    const clinicId = body.user.clinicId ?? body.user.clinic_id ?? "";
+    const nameParts = fullName.split(" ");
     const firstName = nameParts[0] ?? "";
     const lastName = nameParts.slice(1).join(" ");
 
@@ -59,7 +72,7 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
       email: body.user.email,
       role: body.user.role as UserRole,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ...({clinic_id: body.user.clinic_id} as any),
+      ...({clinic_id: clinicId} as any),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...({backendAccessToken: body.accessToken} as any),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,7 +83,7 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
   async register(
     credentials: AdminRegisterCredentials,
   ): Promise<AdminUser | null> {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+    const apiUrl = this.getApiUrl();
 
     let res: Response;
     try {
@@ -99,7 +112,8 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
     }
 
     const body: AuthApiResponse = (await res.json()) as AuthApiResponse;
-    const nameParts = (body.user.full_name ?? "").split(" ");
+    const fullName = body.user.fullName ?? body.user.full_name ?? "";
+    const nameParts = fullName.split(" ");
     const firstName = nameParts[0] ?? "";
     const lastName = nameParts.slice(1).join(" ");
 

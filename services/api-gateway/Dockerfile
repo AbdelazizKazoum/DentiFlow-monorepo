@@ -40,5 +40,5 @@ RUN npm install -g pnpm && pnpm install --prod $PROD_PNPM_FLAGS
 
 USER appuser
 
-EXPOSE 3000
+EXPOSE 3001
 CMD ["node", "dist/api-gateway/src/main.js"]
