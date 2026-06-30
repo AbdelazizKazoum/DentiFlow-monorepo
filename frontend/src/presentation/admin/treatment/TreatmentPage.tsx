@@ -46,8 +46,15 @@ const EXTENDED_ACTS = [
     name: "Scaling and Polishing",
     category: "Preventive",
     price: 120,
+    groupableTeeth: true,
   },
-  { id: "a4", name: "Fluoride Treatment", category: "Preventive", price: 60 },
+  {
+    id: "a4",
+    name: "Fluoride Treatment",
+    category: "Preventive",
+    price: 60,
+    groupableTeeth: true,
+  },
   {
     id: "a5",
     name: "Composite Filling (1 Surface)",
@@ -139,6 +146,7 @@ const EXTENDED_ACTS = [
     name: "Teeth Whitening (In-Office)",
     category: "Aesthetic",
     price: 300,
+    groupableTeeth: true,
   },
   {
     id: "a20",
@@ -147,6 +155,154 @@ const EXTENDED_ACTS = [
     price: 80,
   },
 ];
+
+const ACT_VISUAL_STYLES = {
+  Consultation: { affectsTooth: false },
+  "Panoramic X-Ray": { affectsTooth: false },
+  "Scaling and Polishing": { affectsTooth: false },
+  "Fluoride Treatment": { affectsTooth: false },
+  "Teeth Whitening (In-Office)": { affectsTooth: false },
+  "Orthodontic Consultation": { affectsTooth: false },
+  "Bone Grafting": {
+    affectsTooth: true,
+    colors: {
+      planned: "#c084fc",
+      progress: "#a855f7",
+      completed: "#7e22ce",
+    },
+  },
+  "Composite Filling (1 Surface)": {
+    affectsTooth: true,
+    colors: {
+      planned: "#22c55e",
+      progress: "#16a34a",
+      completed: "#15803d",
+    },
+  },
+  "Composite Filling (2 Surfaces)": {
+    affectsTooth: true,
+    colors: {
+      planned: "#14b8a6",
+      progress: "#0d9488",
+      completed: "#0f766e",
+    },
+  },
+  "Composite Filling (3+ Surfaces)": {
+    affectsTooth: true,
+    colors: {
+      planned: "#06b6d4",
+      progress: "#0891b2",
+      completed: "#0e7490",
+    },
+  },
+  "Root Canal Treatment (Anterior)": {
+    affectsTooth: true,
+    colors: {
+      planned: "#f59e0b",
+      progress: "#d97706",
+      completed: "#b45309",
+    },
+  },
+  "Root Canal Treatment (Premolar)": {
+    affectsTooth: true,
+    colors: {
+      planned: "#f97316",
+      progress: "#ea580c",
+      completed: "#c2410c",
+    },
+  },
+  "Root Canal Treatment (Molar)": {
+    affectsTooth: true,
+    colors: {
+      planned: "#fb7185",
+      progress: "#e11d48",
+      completed: "#be123c",
+    },
+  },
+  "Simple Extraction": {
+    affectsTooth: true,
+    colors: {
+      planned: "#ef4444",
+      progress: "#dc2626",
+      completed: "#991b1b",
+    },
+  },
+  "Surgical Extraction": {
+    affectsTooth: true,
+    colors: {
+      planned: "#f43f5e",
+      progress: "#e11d48",
+      completed: "#9f1239",
+    },
+  },
+  "Wisdom Tooth Extraction": {
+    affectsTooth: true,
+    colors: {
+      planned: "#d946ef",
+      progress: "#c026d3",
+      completed: "#86198f",
+    },
+  },
+  "Ceramic Crown": {
+    affectsTooth: true,
+    colors: {
+      planned: "#eab308",
+      progress: "#ca8a04",
+      completed: "#a16207",
+    },
+  },
+  "Zirconia Crown": {
+    affectsTooth: true,
+    colors: {
+      planned: "#84cc16",
+      progress: "#65a30d",
+      completed: "#4d7c0f",
+    },
+  },
+  "Temporary Crown": {
+    affectsTooth: true,
+    colors: {
+      planned: "#facc15",
+      progress: "#eab308",
+      completed: "#a16207",
+    },
+  },
+  "Dental Implant Placement": {
+    affectsTooth: true,
+    colors: {
+      planned: "#38bdf8",
+      progress: "#0284c7",
+      completed: "#0369a1",
+    },
+  },
+};
+
+const getActVisualStyle = (actName) =>
+  ACT_VISUAL_STYLES[actName] ?? { affectsTooth: true };
+
+const getActVisualColor = (actName, state) => {
+  const visualStyle = getActVisualStyle(actName);
+  if (!visualStyle.affectsTooth) return null;
+
+  return (
+    visualStyle.colors?.[state] ||
+    {
+      planned: "#64748b",
+      progress: "#475569",
+      completed: "#334155",
+    }[state] ||
+    "#64748b"
+  );
+};
+
+const getTreatmentLocationLabel = (item) =>
+  item.toothIds?.length ? `Teeth ${item.toothIds.join(", ")}` : item.tooth;
+
+const getTreatmentAreaLabel = (item) => {
+  if (item.surfaces?.length) return item.surfaces.join(", ");
+  if (item.toothIds?.length) return "Full selected teeth";
+  return "Full tooth";
+};
 
 const DIAGNOSES_CATALOG = [
   "Dental Caries",
@@ -159,11 +315,50 @@ const DIAGNOSES_CATALOG = [
   "Bone Loss",
 ];
 
+const DIAGNOSIS_CERTAINTY_OPTIONS = ["Suspected", "Confirmed", "Ruled out"];
+const DIAGNOSIS_STATUS_OPTIONS = ["Active", "Resolved", "Monitoring"];
+const DIAGNOSIS_EVIDENCE_OPTIONS = [
+  "Visual exam",
+  "X-ray",
+  "Percussion test",
+  "Cold test",
+  "Periodontal probing",
+];
+const DIAGNOSIS_SYMPTOM_OPTIONS = [
+  "Pain",
+  "Sensitivity",
+  "Swelling",
+  "Bleeding",
+  "Mobility",
+];
+
 // FDI Notation for Adult Teeth
 const UPPER_RIGHT = [18, 17, 16, 15, 14, 13, 12, 11];
 const UPPER_LEFT = [21, 22, 23, 24, 25, 26, 27, 28];
 const LOWER_RIGHT = [48, 47, 46, 45, 44, 43, 42, 41];
 const LOWER_LEFT = [31, 32, 33, 34, 35, 36, 37, 38];
+
+// FDI Notation for Primary Teeth
+const PRIMARY_UPPER_RIGHT = [55, 54, 53, 52, 51];
+const PRIMARY_UPPER_LEFT = [61, 62, 63, 64, 65];
+const PRIMARY_LOWER_RIGHT = [85, 84, 83, 82, 81];
+const PRIMARY_LOWER_LEFT = [71, 72, 73, 74, 75];
+
+const DENTITION_MODES = [
+  { id: "adult", label: "Adult" },
+  { id: "child", label: "Child" },
+  { id: "mixed", label: "Mixed" },
+];
+
+const MOUTH_REGION_OPTIONS = [
+  { id: "whole_mouth", label: "Whole Mouth", hint: "All teeth" },
+  { id: "upper_arch", label: "Upper Arch", hint: "Top side" },
+  { id: "lower_arch", label: "Lower Arch", hint: "Bottom side" },
+  { id: "upper_right", label: "Upper Right", hint: "Quadrant 1" },
+  { id: "upper_left", label: "Upper Left", hint: "Quadrant 2" },
+  { id: "lower_left", label: "Lower Left", hint: "Quadrant 3" },
+  { id: "lower_right", label: "Lower Right", hint: "Quadrant 4" },
+];
 
 // Local contracts mirror the API entities that will replace this state later.
 // A treatment plan item survives across visits; a visit procedure records one
@@ -190,10 +385,11 @@ const TREATMENT_STATUSES = [
 
 export default function TreatmentPage() {
   const [activeTab, setActiveTab] = useState("session");
+  const [dentitionMode, setDentitionMode] = useState("adult");
 
   // Selection State
   const [selectedTeeth, setSelectedTeeth] = useState([]);
-  const [isWholeMouth, setIsWholeMouth] = useState(false);
+  const [selectedMouthRegion, setSelectedMouthRegion] = useState(null);
   const [dragHoverTooth, setDragHoverTooth] = useState(null);
 
   // Treatment Data State
@@ -293,12 +489,117 @@ export default function TreatmentPage() {
   const [diagnosisForm, setDiagnosisForm] = useState({
     diagnosis: "",
     severity: "Moderate",
+    certainty: "Confirmed",
+    status: "Active",
+    evidence: "Visual exam",
+    symptoms: [],
+    painLevel: 0,
     notes: "",
   });
   const [pendingConfirmation, setPendingConfirmation] = useState(false);
+  const [sessionActToComplete, setSessionActToComplete] = useState(null);
+  const selectedMouthRegionOption = MOUTH_REGION_OPTIONS.find(
+    (option) => option.id === selectedMouthRegion,
+  );
+  const isWholeMouth = selectedMouthRegion === "whole_mouth";
+  const hasTargetSelection =
+    selectedTeeth.length > 0 || Boolean(selectedMouthRegion);
+  const dentitionLabel =
+    DENTITION_MODES.find((mode) => mode.id === dentitionMode)?.label ?? "Adult";
+  const chartRows = useMemo(() => {
+    if (dentitionMode === "child") {
+      return {
+        upper: [
+          {
+            id: "primary-upper",
+            label: "Primary upper arch",
+            right: PRIMARY_UPPER_RIGHT,
+            left: PRIMARY_UPPER_LEFT,
+            compact: false,
+          },
+        ],
+        lower: [
+          {
+            id: "primary-lower",
+            label: "Primary lower arch",
+            right: PRIMARY_LOWER_RIGHT,
+            left: PRIMARY_LOWER_LEFT,
+            compact: false,
+          },
+        ],
+      };
+    }
+
+    if (dentitionMode === "mixed") {
+      return {
+        upper: [
+          {
+            id: "adult-upper",
+            label: "Permanent upper arch",
+            right: UPPER_RIGHT,
+            left: UPPER_LEFT,
+            compact: false,
+          },
+          {
+            id: "primary-upper",
+            label: "Primary upper arch",
+            right: PRIMARY_UPPER_RIGHT,
+            left: PRIMARY_UPPER_LEFT,
+            compact: true,
+          },
+        ],
+        lower: [
+          {
+            id: "primary-lower",
+            label: "Primary lower arch",
+            right: PRIMARY_LOWER_RIGHT,
+            left: PRIMARY_LOWER_LEFT,
+            compact: true,
+          },
+          {
+            id: "adult-lower",
+            label: "Permanent lower arch",
+            right: LOWER_RIGHT,
+            left: LOWER_LEFT,
+            compact: false,
+          },
+        ],
+      };
+    }
+
+    return {
+      upper: [
+        {
+          id: "adult-upper",
+          label: "Permanent upper arch",
+          right: UPPER_RIGHT,
+          left: UPPER_LEFT,
+          compact: false,
+        },
+      ],
+      lower: [
+        {
+          id: "adult-lower",
+          label: "Permanent lower arch",
+          right: LOWER_RIGHT,
+          left: LOWER_LEFT,
+          compact: false,
+        },
+      ],
+    };
+  }, [dentitionMode]);
+
+  const handleDentitionModeChange = (mode) => {
+    setDentitionMode(mode);
+    setSelectedTeeth([]);
+    setSelectedMouthRegion(null);
+    setActiveSurfaces([]);
+    setSurfacePickerTooth(null);
+    setPendingDroppedAct(null);
+  };
 
   const toggleToothSelection = (toothNumber) => {
-    setIsWholeMouth(false);
+    setSelectedMouthRegion(null);
     setSelectedTeeth((prev) =>
       prev.includes(toothNumber)
         ? prev.filter((t) => t !== toothNumber)
@@ -307,7 +608,7 @@ export default function TreatmentPage() {
   };
 
   const openSurfacePicker = (toothNumber) => {
-    setIsWholeMouth(false);
+    setSelectedMouthRegion(null);
     setActiveSurfaces(toothSurfaces[toothNumber] || []);
     setSurfacePickerTooth(toothNumber);
   };
@@ -319,9 +620,7 @@ export default function TreatmentPage() {
       ...prev,
       [surfacePickerTooth]: selectedSurfaces,
     }));
-    setSelectedTeeth((prev) =>
-      prev.includes(surfacePickerTooth) ? prev : [...prev, surfacePickerTooth],
-    );
+    setSelectedMouthRegion(null);
     if (pendingDroppedAct) {
       setTreatmentPlan((prev) => [
         ...prev,
@@ -340,10 +639,17 @@ export default function TreatmentPage() {
           visitProcedureIds: [],
           createdAt: new Date().toISOString(),
           createdBy: "provider_current",
+          dentition: dentitionMode,
         },
       ]);
-      setSelectedActId("");
       setPendingDroppedAct(null);
+      setSelectedTeeth([surfacePickerTooth]);
+    } else {
+      setSelectedTeeth((prev) =>
+        prev.includes(surfacePickerTooth)
+          ? prev
+          : [...prev, surfacePickerTooth],
+      );
     }
     setSurfacePickerTooth(null);
   };
@@ -352,9 +658,15 @@ export default function TreatmentPage() {
     setSurfacePickerTooth(null);
   };
 
-  const handleSelectWholeMouth = () => {
-    setIsWholeMouth(true);
+  const handleSelectMouthRegion = (regionId) => {
+    setSelectedMouthRegion(regionId);
     setSelectedTeeth([]);
+    setActiveSurfaces([]);
+    setSurfacePickerTooth(null);
+  };
+
+  const handleSelectWholeMouth = () => {
+    handleSelectMouthRegion("whole_mouth");
   };
 
   const toggleFormSurface = (surface) => {
@@ -365,35 +677,53 @@ export default function TreatmentPage() {
     );
   };
 
+  const toggleDiagnosisSymptom = (symptom) => {
+    setDiagnosisForm((prev) => ({
+      ...prev,
+      symptoms: prev.symptoms.includes(symptom)
+        ? prev.symptoms.filter((item) => item !== symptom)
+        : [...prev.symptoms, symptom],
+    }));
+  };
+
   const handleAddAct = () => {
     const actIdToUse = selectedActId;
     if (!actIdToUse) return;
 
     const actDetails = EXTENDED_ACTS.find((a) => a.id === actIdToUse);
     const targetTeeth = selectedTeeth;
-    const treatmentGroupId = !isWholeMouth && targetTeeth.length > 1
-      ? `group_${Date.now()}`
-      : null;
+    const targetRegionLabel = selectedMouthRegionOption?.label ?? "Whole Mouth";
+    const shouldGroupSelectedTeeth =
+      !selectedMouthRegion &&
+      targetTeeth.length > 1 &&
+      Boolean(actDetails?.groupableTeeth);
+    const treatmentGroupId =
+      shouldGroupSelectedTeeth
+        ? `group_${Date.now()}`
+        : null;
 
     if (treatmentGroupId) {
-      setTreatmentGroups((prev) => [...prev, {
-        id: treatmentGroupId,
-        patientId: PATIENT.id,
-        label: `${actDetails.name} — ${targetTeeth.length} teeth`,
-        act: actDetails.name,
-        toothIds: targetTeeth,
-        billingMode: "per_item",
-        createdAt: new Date().toISOString(),
-        createdBy: ACTIVE_VISIT.providerId,
-      }]);
+      setTreatmentGroups((prev) => [
+        ...prev,
+        {
+          id: treatmentGroupId,
+          patientId: PATIENT.id,
+          label: `${actDetails.name} — ${targetTeeth.length} teeth`,
+          act: actDetails.name,
+          toothIds: targetTeeth,
+          billingMode: "package",
+          createdAt: new Date().toISOString(),
+          createdBy: ACTIVE_VISIT.providerId,
+        },
+      ]);
     }
 
     let newActs = [];
 
-    if (isWholeMouth || targetTeeth.length === 0) {
+    if (selectedMouthRegion || targetTeeth.length === 0) {
       newActs.push({
         id: `act_${Date.now()}_gen`,
-        tooth: "Whole Mouth",
+        tooth: targetRegionLabel,
         surfaces: [],
         act: actDetails.name,
         status: "proposed",
@@ -407,6 +737,35 @@ export default function TreatmentPage() {
         createdAt: new Date().toISOString(),
         createdBy: "provider_current",
         treatmentGroupId,
+        dentition: dentitionMode,
+      });
+    } else if (shouldGroupSelectedTeeth) {
+      newActs.push({
+        id: `act_${Date.now()}_group`,
+        tooth: `${targetTeeth.length} teeth`,
+        toothIds: targetTeeth,
+        surfaces: [],
+        surfacesByTooth: targetTeeth.reduce(
+          (acc, tooth) => ({
+            ...acc,
+            [tooth]: toothSurfaces[tooth] || [],
+          }),
+          {},
+        ),
+        act: actDetails.name,
+        status: "proposed",
+        priority: actForm.priority,
+        price: actDetails.price,
+        notes: actForm.notes,
+        date: new Date().toISOString().split("T")[0],
+        estimatedVisits: 1,
+        completedVisits: 0,
+        visitProcedureIds: [],
+        createdAt: new Date().toISOString(),
+        createdBy: "provider_current",
+        treatmentGroupId,
+        isGroupedTeeth: true,
+        dentition: dentitionMode,
       });
     } else {
       newActs = targetTeeth.map((tooth) => ({
@@ -424,7 +783,7 @@ export default function TreatmentPage() {
         visitProcedureIds: [],
         createdAt: new Date().toISOString(),
         createdBy: "provider_current",
-        treatmentGroupId,
+        dentition: dentitionMode,
       }));
     }
 
@@ -441,14 +800,21 @@ export default function TreatmentPage() {
     if (!diagnosisForm.diagnosis) return;
 
     let newDiag = [];
-    if (isWholeMouth || selectedTeeth.length === 0) {
+    if (selectedMouthRegion || selectedTeeth.length === 0) {
       newDiag.push({
         id: `d_${Date.now()}_gen`,
-        tooth: "Whole Mouth",
+        tooth: selectedMouthRegionOption?.label ?? "Whole Mouth",
         surfaces: [],
         diagnosis: diagnosisForm.diagnosis,
         severity: diagnosisForm.severity,
+        certainty: diagnosisForm.certainty,
+        status: diagnosisForm.status,
+        evidence: diagnosisForm.evidence,
+        symptoms: diagnosisForm.symptoms,
+        painLevel: diagnosisForm.painLevel,
+        notes: diagnosisForm.notes,
         date: new Date().toISOString().split("T")[0],
+        dentition: dentitionMode,
       });
     } else {
       newDiag = selectedTeeth.map((tooth) => ({
@@ -457,31 +823,65 @@ export default function TreatmentPage() {
         surfaces: toothSurfaces[tooth] || [],
         diagnosis: diagnosisForm.diagnosis,
         severity: diagnosisForm.severity,
+        certainty: diagnosisForm.certainty,
+        status: diagnosisForm.status,
+        evidence: diagnosisForm.evidence,
+        symptoms: diagnosisForm.symptoms,
+        painLevel: diagnosisForm.painLevel,
+        notes: diagnosisForm.notes,
         date: new Date().toISOString().split("T")[0],
+        dentition: dentitionMode,
       }));
     }
 
     setDiagnoses((prev) => [...prev, ...newDiag]);
-    setDiagnosisForm({ diagnosis: "", severity: "Moderate", notes: "" });
+    setDiagnosisForm({
+      diagnosis: "",
+      severity: "Moderate",
+      certainty: "Confirmed",
+      status: "Active",
+      evidence: "Visual exam",
+      symptoms: [],
+      painLevel: 0,
+      notes: "",
+    });
     setActiveSurfaces([]);
   };
 
   const handleStartTreatment = (tpItem) => {
-    setTreatmentPlan((prev) => prev.map((item) => item.id === tpItem.id ? {
-      ...item,
-      status: "in_progress",
-      startedAt: item.startedAt || new Date().toISOString(),
-    } : item));
-    setCurrentSession((prev) => [...prev, {
-      ...tpItem,
-      id: `vp_${Date.now()}`,
-      treatmentPlanItemId: tpItem.id,
-      visitId: ACTIVE_VISIT.id,
-      action: tpItem.status === "in_progress" ? "continued" : "started",
-      status: "in-progress",
-      performedAt: new Date().toISOString(),
-      providerId: ACTIVE_VISIT.providerId,
-    }]);
+    const existingActiveProcedure = currentSession.find(
+      (item) =>
+        item.treatmentPlanItemId === tpItem.id && item.status !== "completed",
+    );
+    if (existingActiveProcedure) {
+      setActiveTab("session");
+      return;
+    }
+
+    setTreatmentPlan((prev) =>
+      prev.map((item) =>
+        item.id === tpItem.id
+          ? {
+              ...item,
+              status: "in_progress",
+              startedAt: item.startedAt || new Date().toISOString(),
+            }
+          : item,
+      ),
+    );
+    setCurrentSession((prev) => [
+      ...prev,
+      {
+        ...tpItem,
+        id: `vp_${Date.now()}`,
+        treatmentPlanItemId: tpItem.id,
+        visitId: ACTIVE_VISIT.id,
+        action: tpItem.status === "in_progress" ? "continued" : "started",
+        status: "in-progress",
+        performedAt: new Date().toISOString(),
+        providerId: ACTIVE_VISIT.providerId,
+      },
+    ]);
     setActiveTab("session");
   };
 
@@ -489,26 +889,54 @@ export default function TreatmentPage() {
     const procedure = currentSession.find((item) => item.id === id);
     setCurrentSession((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, status: "completed", action: "completed", completedAt: new Date().toISOString() } : item,
+        item.id === id
+          ? {
+              ...item,
+              status: "completed",
+              action: "completed",
+              completedAt: new Date().toISOString(),
+            }
+          : item,
       ),
     );
     if (procedure?.treatmentPlanItemId) {
-      setTreatmentPlan((prev) => prev.map((item) => item.id === procedure.treatmentPlanItemId ? {
-        ...item,
-        completedVisits: (item.completedVisits || 0) + 1,
-        status: (item.completedVisits || 0) + 1 >= (item.estimatedVisits || 1) ? "completed" : "in_progress",
-      } : item));
+      setTreatmentPlan((prev) =>
+        prev.map((item) =>
+          item.id === procedure.treatmentPlanItemId
+            ? {
+                ...item,
+                completedVisits: (item.completedVisits || 0) + 1,
+                status:
+                  (item.completedVisits || 0) + 1 >= (item.estimatedVisits || 1)
+                    ? "completed"
+                    : "in_progress",
+              }
+            : item,
+        ),
+      );
     }
   };
 
+  const handleConfirmCompleteSessionAct = () => {
+    if (!sessionActToComplete) return;
+    handleCompleteSessionAct(sessionActToComplete.id);
+    setSessionActToComplete(null);
+  };
+
   const changePlanStatus = (id, status, reason = "") => {
-    setTreatmentPlan((prev) => prev.map((item) => item.id === id ? {
-      ...item,
-      status,
-      statusReason: reason,
-      statusChangedAt: new Date().toISOString(),
-      statusChangedBy: ACTIVE_VISIT.providerId,
-    } : item));
+    setTreatmentPlan((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status,
+              statusReason: reason,
+              statusChangedAt: new Date().toISOString(),
+              statusChangedBy: ACTIVE_VISIT.providerId,
+            }
+          : item,
+      ),
+    );
   };
 
   const onDragStart = (e, act) => {
@@ -531,14 +959,13 @@ export default function TreatmentPage() {
     const actData = e.dataTransfer.getData("application/json");
     if (actData) {
       const act = JSON.parse(actData);
-      // The tooth enters the selection list only after the dentist confirms its area.
-      setIsWholeMouth(false);
+      setSelectedMouthRegion(null);
+      setSelectedTeeth([toothNumber]);
       // Select the act in the right panel context
       setSelectedActId(act.id);
       setInspectorMode("act");
       // Reset surfaces so dentist can specify them manually
       setActiveSurfaces([]);
-      setToothSurfaces({});
       setPendingDroppedAct(act);
       setSurfacePickerTooth(toothNumber);
     }
@@ -560,8 +987,20 @@ export default function TreatmentPage() {
         .filter((d) => d.tooth === toothNumber)
         .map((d) => ({ ...d, type: "pathology" })),
       ...treatmentPlan
-        .filter((a) => a.tooth === toothNumber && !["cancelled", "voided", "declined"].includes(a.status))
-        .map((a) => ({ ...a, type: a.status === "completed" ? "completed" : a.status === "in_progress" ? "progress" : "planned" })),
+        .filter(
+          (a) =>
+            a.tooth === toothNumber &&
+            !["cancelled", "voided", "declined"].includes(a.status),
+        )
+        .map((a) => ({
+          ...a,
+          type:
+            a.status === "completed"
+              ? "completed"
+              : a.status === "in_progress"
+                ? "progress"
+                : "planned",
+        })),
       ...currentSession
         .filter((a) => a.tooth === toothNumber && a.status === "in-progress")
         .map((a) => ({ ...a, type: "progress" })),
@@ -571,10 +1010,12 @@ export default function TreatmentPage() {
     ];
 
     allEvents.forEach((event) => {
-      let color = "#ef4444"; // Red (Pathology) default
-      if (event.type === "planned") color = "#f97316"; // Orange
-      if (event.type === "progress") color = "#3b82f6"; // Blue
-      if (event.type === "completed") color = "#0ea5e9"; // Bright Blue/Cyan
+      const color =
+        event.type === "pathology"
+          ? "#ef4444"
+          : getActVisualColor(event.act, event.type);
+
+      if (!color) return;
 
       // Ensure Root color inherits the status color correctly
       if (event.surfaces?.includes("R")) {
@@ -607,8 +1048,20 @@ export default function TreatmentPage() {
 
       const allEvents = [
         ...treatmentPlan
-          .filter((a) => a.tooth === number && !["cancelled", "voided", "declined"].includes(a.status))
-          .map((a) => ({ ...a, type: a.status === "completed" ? "completed" : a.status === "in_progress" ? "progress" : "planned" })),
+          .filter(
+            (a) =>
+              a.tooth === number &&
+              !["cancelled", "voided", "declined"].includes(a.status),
+          )
+          .map((a) => ({
+            ...a,
+            type:
+              a.status === "completed"
+                ? "completed"
+                : a.status === "in_progress"
+                  ? "progress"
+                  : "planned",
+          })),
         ...currentSession
           .filter((a) => a.tooth === number && a.status === "in-progress")
           .map((a) => ({ ...a, type: "progress" })),
@@ -618,24 +1071,21 @@ export default function TreatmentPage() {
       ];
 
       allEvents.forEach((event) => {
-        let color = "#f97316"; // Planned Orange
-        if (event.type === "progress") color = "#3b82f6"; // In-Progress Blue
-        if (event.type === "completed") color = "#0ea5e9"; // Completed Cyan
-
         const actBase = EXTENDED_ACTS.find((a) => a.name === event.act);
-        if (actBase) {
-          if (actBase.visualType === "extraction") {
-            modifiers.isExtracted = true;
-            modifiers.extColor = color;
-          }
-          if (actBase.visualType === "implant") {
-            modifiers.isImplanted = true;
-            modifiers.impColor = color;
-          }
-          if (actBase.visualType === "crown") {
-            modifiers.isCrowned = true;
-            modifiers.crownColor = color;
-          }
+        const color = getActVisualColor(event.act, event.type);
+        if (!actBase || !color) return;
+
+        if (actBase.visualType === "extraction") {
+          modifiers.isExtracted = true;
+          modifiers.extColor = color;
+        }
+        if (actBase.visualType === "implant") {
+          modifiers.isImplanted = true;
+          modifiers.impColor = color;
+        }
+        if (actBase.visualType === "crown") {
+          modifiers.isCrowned = true;
+          modifiers.crownColor = color;
         }
       });
       return modifiers;
@@ -650,18 +1100,26 @@ export default function TreatmentPage() {
       crownColor,
     } = getToothModifiers();
 
-    const isUpper = number <= 28;
+    const isPrimaryTooth = number >= 51 && number <= 85;
+    const isUpper =
+      (!isPrimaryTooth && number <= 28) ||
+      (isPrimaryTooth && number >= 51 && number <= 65);
     const isRight =
-      (number >= 11 && number <= 18) || (number >= 41 && number <= 48);
+      (number >= 11 && number <= 18) ||
+      (number >= 41 && number <= 48) ||
+      (number >= 51 && number <= 55) ||
+      (number >= 81 && number <= 85);
 
     // Determine tooth anatomy based on number
-    const toothType = [18, 17, 16, 26, 27, 28, 38, 37, 36, 46, 47, 48].includes(
-      number,
-    )
-      ? "molar"
-      : [15, 14, 24, 25, 35, 34, 44, 45].includes(number)
-        ? "premolar"
-        : "anterior";
+    const toothType =
+      [
+        18, 17, 16, 26, 27, 28, 38, 37, 36, 46, 47, 48, 55, 54, 64, 65, 75,
+        74, 84, 85,
+      ].includes(number)
+        ? "molar"
+        : [15, 14, 24, 25, 35, 34, 44, 45].includes(number)
+          ? "premolar"
+          : "anterior";
 
     let rootCount = 1;
     if (isUpper && toothType === "molar") rootCount = 3;
@@ -974,7 +1432,11 @@ export default function TreatmentPage() {
           stateLabel: "Diagnosis",
         })),
       ...treatmentPlan
-        .filter((a) => selectedTeeth.includes(a.tooth))
+        .filter(
+          (a) =>
+            selectedTeeth.includes(a.tooth) ||
+            a.toothIds?.some((tooth) => selectedTeeth.includes(tooth)),
+        )
         .map((a) => ({
           ...a,
           type: "planned",
@@ -982,7 +1444,11 @@ export default function TreatmentPage() {
           stateLabel: "Planned",
         })),
       ...currentSession
-        .filter((a) => selectedTeeth.includes(a.tooth))
+        .filter(
+          (a) =>
+            selectedTeeth.includes(a.tooth) ||
+            a.toothIds?.some((tooth) => selectedTeeth.includes(tooth)),
+        )
         .map((a) => ({
           ...a,
           type: "progress",
@@ -1052,10 +1518,27 @@ export default function TreatmentPage() {
           {/* Dental Chart Section */}
           <div className="bg-white m-4 rounded-xl border border-slate-200 shadow-sm p-5 select-none">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <Stethoscope size={20} className="text-primary" />
-                Odontogram (Adult)
-              </h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Stethoscope size={20} className="text-primary" />
+                  Odontogram ({dentitionLabel})
+                </h2>
+                <div className="flex rounded-lg border border-ui-border bg-card p-0.5">
+                  {DENTITION_MODES.map((mode) => (
+                    <button
+                      key={mode.id}
+                      onClick={() => handleDentitionModeChange(mode.id)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${
+                        dentitionMode === mode.id
+                          ? "bg-primary text-white shadow-sm"
+                          : "text-slate-500 hover:bg-surface-hover"
+                      }`}
+                    >
+                      {mode.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <button
                 onClick={handleSelectWholeMouth}
@@ -1066,16 +1549,16 @@ export default function TreatmentPage() {
 
               <div className="flex gap-4 text-xs font-medium text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-orange-500 rounded-sm"></div>{" "}
-                  Planned
+                  <div className="w-3 h-3 bg-emerald-500 rounded-sm"></div>{" "}
+                  Filling
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-blue-400 rounded-sm"></div> In
-                  Progress
+                  <div className="w-3 h-3 bg-rose-500 rounded-sm"></div> Root
+                  Canal
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 bg-sky-500 rounded-sm"></div>{" "}
-                  Completed
+                  <div className="w-3 h-3 bg-yellow-500 rounded-sm"></div>{" "}
+                  Crown
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-red-500 rounded-sm"></div>{" "}
@@ -1084,21 +1567,31 @@ export default function TreatmentPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-12 items-center py-4">
-              {/* Upper Arch */}
-              <div className="flex gap-6">
-                <div className="flex gap-2">
-                  {UPPER_RIGHT.map((num) => (
-                    <AnatomicalTooth key={num} number={num} />
-                  ))}
+            <div className="flex flex-col gap-10 items-center py-4">
+              {chartRows.upper.map((row) => (
+                <div key={row.id} className="flex flex-col items-center gap-2">
+                  {dentitionMode === "mixed" && (
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      {row.label}
+                    </p>
+                  )}
+                  <div
+                    className={`flex gap-6 ${row.compact ? "scale-90 origin-center" : ""}`}
+                  >
+                    <div className="flex gap-2">
+                      {row.right.map((num) => (
+                        <AnatomicalTooth key={`${row.id}-${num}`} number={num} />
+                      ))}
+                    </div>
+                    <div className="w-px bg-slate-300 mx-2"></div>
+                    <div className="flex gap-2">
+                      {row.left.map((num) => (
+                        <AnatomicalTooth key={`${row.id}-${num}`} number={num} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="w-px bg-slate-300 mx-2"></div>
-                <div className="flex gap-2">
-                  {UPPER_LEFT.map((num) => (
-                    <AnatomicalTooth key={num} number={num} />
-                  ))}
-                </div>
-              </div>
+              ))}
 
               <div className="w-full max-w-4xl h-px bg-slate-200 relative">
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-slate-400 font-bold uppercase tracking-widest rounded-full border border-slate-100">
@@ -1106,20 +1599,30 @@ export default function TreatmentPage() {
                 </div>
               </div>
 
-              {/* Lower Arch */}
-              <div className="flex gap-6">
-                <div className="flex gap-2">
-                  {LOWER_RIGHT.map((num) => (
-                    <AnatomicalTooth key={num} number={num} />
-                  ))}
+              {chartRows.lower.map((row) => (
+                <div key={row.id} className="flex flex-col items-center gap-2">
+                  {dentitionMode === "mixed" && (
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      {row.label}
+                    </p>
+                  )}
+                  <div
+                    className={`flex gap-6 ${row.compact ? "scale-90 origin-center" : ""}`}
+                  >
+                    <div className="flex gap-2">
+                      {row.right.map((num) => (
+                        <AnatomicalTooth key={`${row.id}-${num}`} number={num} />
+                      ))}
+                    </div>
+                    <div className="w-px bg-slate-300 mx-2"></div>
+                    <div className="flex gap-2">
+                      {row.left.map((num) => (
+                        <AnatomicalTooth key={`${row.id}-${num}`} number={num} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="w-px bg-slate-300 mx-2"></div>
-                <div className="flex gap-2">
-                  {LOWER_LEFT.map((num) => (
-                    <AnatomicalTooth key={num} number={num} />
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -1173,8 +1676,21 @@ export default function TreatmentPage() {
               {activeTab === "session" && (
                 <div className="p-4">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary-soft px-4 py-3">
-                    <div><p className="text-sm font-bold text-foreground">Open visit · Chair 01</p><p className="text-xs text-text-muted">Visit {ACTIVE_VISIT.id} · Started {new Date(ACTIVE_VISIT.startedAt).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}</p></div>
-                    <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-white">In progress</span>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">
+                        Open visit · Chair 01
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        Visit {ACTIVE_VISIT.id} · Started{" "}
+                        {new Date(ACTIVE_VISIT.startedAt).toLocaleTimeString(
+                          [],
+                          { hour: "2-digit", minute: "2-digit" },
+                        )}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-white">
+                      In progress
+                    </span>
                   </div>
                   {currentSession.length === 0 ? (
                     <div className="text-center py-8 text-slate-500 flex flex-col items-center">
@@ -1206,9 +1722,9 @@ export default function TreatmentPage() {
                             <tr key={item.id} className="hover:bg-slate-50">
                               <td className="px-4 py-3 flex items-center gap-2">
                                 <span
-                                  className={`inline-flex items-center justify-center h-7 px-2 ${item.tooth === "Whole Mouth" ? "bg-indigo-50 text-indigo-700" : "bg-slate-100 text-slate-700"} rounded font-bold border border-slate-200`}
+                                  className={`inline-flex items-center justify-center h-7 px-2 ${item.tooth === "Whole Mouth" || item.toothIds?.length ? "bg-indigo-50 text-indigo-700" : "bg-slate-100 text-slate-700"} rounded font-bold border border-slate-200`}
                                 >
-                                  {item.tooth}
+                                  {getTreatmentLocationLabel(item)}
                                 </span>
                                 {item.surfaces?.length > 0 && (
                                   <div className="flex gap-1">
@@ -1244,7 +1760,7 @@ export default function TreatmentPage() {
                                 {item.status !== "completed" && (
                                   <button
                                     onClick={() =>
-                                      handleCompleteSessionAct(item.id)
+                                      setSessionActToComplete(item)
                                     }
                                     className="px-3 py-1.5 text-xs font-semibold text-white bg-sky-500 hover:bg-sky-600 rounded transition-colors shadow-sm"
                                   >
@@ -1264,14 +1780,48 @@ export default function TreatmentPage() {
               {/* TREATMENT PLAN TAB */}
               {activeTab === "plan" && (
                 <div className="p-4">
-                  {treatmentGroups.filter((group) => treatmentPlan.some((item) => item.treatmentGroupId === group.id && !["cancelled", "voided", "declined", "completed"].includes(item.status))).map((group) => {
-                    const items = treatmentPlan.filter((item) => item.treatmentGroupId === group.id);
-                    const completed = items.filter((item) => item.status === "completed").length;
-                    return <div key={group.id} className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary-soft px-4 py-3">
-                      <div><p className="text-sm font-bold text-foreground">{group.label}</p><p className="text-xs text-text-muted">Bulk treatment group · {group.billingMode === "per_item" ? "Billed per tooth" : "Package billing"}</p></div>
-                      <span className="rounded-full bg-card px-2.5 py-1 text-xs font-bold text-primary">{completed}/{items.length} completed</span>
-                    </div>;
-                  })}
+                  {treatmentGroups
+                    .filter((group) =>
+                      treatmentPlan.some(
+                        (item) =>
+                          item.treatmentGroupId === group.id &&
+                          ![
+                            "cancelled",
+                            "voided",
+                            "declined",
+                            "completed",
+                          ].includes(item.status),
+                      ),
+                    )
+                    .map((group) => {
+                      const items = treatmentPlan.filter(
+                        (item) => item.treatmentGroupId === group.id,
+                      );
+                      const completed = items.filter(
+                        (item) => item.status === "completed",
+                      ).length;
+                      return (
+                        <div
+                          key={group.id}
+                          className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary-soft px-4 py-3"
+                        >
+                          <div>
+                            <p className="text-sm font-bold text-foreground">
+                              {group.label}
+                            </p>
+                            <p className="text-xs text-text-muted">
+                              Bulk treatment group ·{" "}
+                              {group.billingMode === "per_item"
+                                ? "Billed per tooth"
+                                : "Package billing"}
+                            </p>
+                          </div>
+                          <span className="rounded-full bg-card px-2.5 py-1 text-xs font-bold text-primary">
+                            {completed}/{items.length} completed
+                          </span>
+                        </div>
+                      );
+                    })}
                   <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
@@ -1288,56 +1838,100 @@ export default function TreatmentPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {treatmentPlan.filter((item) => !["cancelled", "voided", "declined", "completed"].includes(item.status)).map((item) => (
-                          <tr key={item.id} className="hover:bg-slate-50">
-                            <td className="px-4 py-3 flex items-center gap-2">
-                              <span className="inline-flex items-center justify-center h-7 px-2 bg-slate-100 rounded font-bold text-slate-700 border border-slate-200">
-                                {item.tooth}
-                              </span>
-                              {item.surfaces?.length > 0 && (
-                                <div className="flex gap-1">
-                                  {item.surfaces.map((s) => (
-                                    <span
-                                      key={s}
-                                      className="px-1.5 py-0.5 text-[10px] font-bold bg-white border border-slate-300 rounded text-slate-600"
-                                    >
-                                      {s}
+                        {treatmentPlan
+                          .filter(
+                            (item) =>
+                              ![
+                                "cancelled",
+                                "voided",
+                                "declined",
+                                "completed",
+                              ].includes(item.status),
+                          )
+                          .map((item) => (
+                            <tr key={item.id} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 flex items-center gap-2">
+                                <span className="inline-flex items-center justify-center h-7 px-2 bg-slate-100 rounded font-bold text-slate-700 border border-slate-200">
+                                  {getTreatmentLocationLabel(item)}
+                                </span>
+                                {item.surfaces?.length > 0 && (
+                                  <div className="flex gap-1">
+                                    {item.surfaces.map((s) => (
+                                      <span
+                                        key={s}
+                                        className="px-1.5 py-0.5 text-[10px] font-bold bg-white border border-slate-300 rounded text-slate-600"
+                                      >
+                                        {s}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 font-medium text-slate-800">
+                                <div>{item.act}</div>
+                                <div className="mt-1 flex items-center gap-2 text-[11px] text-text-muted">
+                                  <span className="rounded-full bg-primary-soft px-2 py-0.5 font-semibold text-primary">
+                                    {item.status.replace("_", " ")}
+                                  </span>
+                                  <span>
+                                    {item.completedVisits || 0}/
+                                    {item.estimatedVisits || 1} visits
+                                  </span>
+                                  {item.treatmentGroupId && (
+                                    <span className="rounded-full border border-primary/20 bg-card px-2 py-0.5 font-semibold text-primary">
+                                      Grouped teeth
                                     </span>
-                                  ))}
+                                  )}
                                 </div>
-                              )}
-                            </td>
-                            <td className="px-4 py-3 font-medium text-slate-800">
-                              <div>{item.act}</div>
-                              <div className="mt-1 flex items-center gap-2 text-[11px] text-text-muted">
-                                <span className="rounded-full bg-primary-soft px-2 py-0.5 font-semibold text-primary">{item.status.replace("_", " ")}</span>
-                                <span>{item.completedVisits || 0}/{item.estimatedVisits || 1} visits</span>
-                                {item.treatmentGroupId && <span className="rounded-full border border-primary/20 bg-card px-2 py-0.5 font-semibold text-primary">Grouped</span>}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border
+                              </td>
+                              <td className="px-4 py-3">
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border
                                  ${item.priority === "High" ? "bg-red-50 text-red-700 border-red-200" : "bg-slate-100 text-slate-700 border-slate-200"}`}
-                              >
-                                {item.priority}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-slate-600">
-                              ${item.price.toFixed(2)}
-                            </td>
-                            <td className="px-4 py-3 text-right flex justify-end gap-2">
-                              <button
-                                onClick={() => handleStartTreatment(item)}
-                                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-primary bg-primary-soft hover:bg-primary/15 border border-primary/25 rounded transition-colors"
-                              >
-                                <Play size={12} fill="currentColor" /> {item.status === "in_progress" ? "Continue" : "Start"}
-                              </button>
-                              <button onClick={() => changePlanStatus(item.id, "cancelled", "Cancelled from treatment plan")} className="px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200 bg-amber-50 rounded transition-colors">Cancel</button>
-                              <button onClick={() => changePlanStatus(item.id, "voided", "Entered in error")} className="px-2.5 py-1 text-xs font-semibold text-red-700 border border-red-200 bg-red-50 rounded transition-colors">Void</button>
-                            </td>
-                          </tr>
-                        ))}
+                                >
+                                  {item.priority}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-slate-600">
+                                ${item.price.toFixed(2)}
+                              </td>
+                              <td className="px-4 py-3 text-right flex justify-end gap-2">
+                                <button
+                                  onClick={() => handleStartTreatment(item)}
+                                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-primary bg-primary-soft hover:bg-primary/15 border border-primary/25 rounded transition-colors"
+                                >
+                                  <Play size={12} fill="currentColor" />{" "}
+                                  {item.status === "in_progress"
+                                    ? "Continue"
+                                    : "Start"}
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    changePlanStatus(
+                                      item.id,
+                                      "cancelled",
+                                      "Cancelled from treatment plan",
+                                    )
+                                  }
+                                  className="px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200 bg-amber-50 rounded transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    changePlanStatus(
+                                      item.id,
+                                      "voided",
+                                      "Entered in error",
+                                    )
+                                  }
+                                  className="px-2.5 py-1 text-xs font-semibold text-red-700 border border-red-200 bg-red-50 rounded transition-colors"
+                                >
+                                  Void
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -1348,22 +1942,70 @@ export default function TreatmentPage() {
               {activeTab === "history" && (
                 <div className="p-4">
                   <div className="mb-3 rounded-md border border-ui-border bg-page px-3 py-2 text-xs text-text-muted">
-                    This is the clinical audit trail. Cancelled and voided items remain here and cannot be silently removed.
+                    This is the clinical audit trail. Cancelled and voided items
+                    remain here and cannot be silently removed.
                   </div>
                   <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
                     <table className="w-full text-left text-sm">
                       <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
-                        <tr><th className="px-4 py-3 font-semibold">Location</th><th className="px-4 py-3 font-semibold">Treatment</th><th className="px-4 py-3 font-semibold">Final status</th><th className="px-4 py-3 font-semibold">Reason / audit note</th></tr>
+                        <tr>
+                          <th className="px-4 py-3 font-semibold">Location</th>
+                          <th className="px-4 py-3 font-semibold">Treatment</th>
+                          <th className="px-4 py-3 font-semibold">
+                            Final status
+                          </th>
+                          <th className="px-4 py-3 font-semibold">
+                            Reason / audit note
+                          </th>
+                        </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {treatmentPlan.filter((item) => ["cancelled", "voided", "declined", "completed"].includes(item.status)).map((item) => (
-                          <tr key={item.id} className="hover:bg-slate-50">
-                            <td className="px-4 py-3 font-bold text-slate-700">Tooth {item.tooth}</td>
-                            <td className="px-4 py-3"><div className="font-semibold text-slate-800">{item.act}</div><div className="mt-1 text-xs text-slate-500">{item.surfaces?.length ? item.surfaces.join(", ") : "Full tooth"}</div></td>
-                            <td className="px-4 py-3"><span className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${item.status === "voided" ? "border-red-200 bg-red-50 text-red-700" : item.status === "cancelled" ? "border-amber-200 bg-amber-50 text-amber-800" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>{item.status}</span></td>
-                            <td className="px-4 py-3 text-slate-500">{item.statusReason || "Completed clinical treatment"}<div className="mt-1 text-[11px] text-slate-400">{item.statusChangedAt ? new Date(item.statusChangedAt).toLocaleString() : ""}</div></td>
-                          </tr>
-                        ))}
+                        {treatmentPlan
+                          .filter((item) =>
+                            [
+                              "cancelled",
+                              "voided",
+                              "declined",
+                              "completed",
+                            ].includes(item.status),
+                          )
+                          .map((item) => (
+                            <tr key={item.id} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 font-bold text-slate-700">
+                                {item.toothIds?.length
+                                  ? getTreatmentLocationLabel(item)
+                                  : typeof item.tooth === "number"
+                                    ? `Tooth ${item.tooth}`
+                                    : item.tooth}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="font-semibold text-slate-800">
+                                  {item.act}
+                                </div>
+                                <div className="mt-1 text-xs text-slate-500">
+                                  {getTreatmentAreaLabel(item)}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span
+                                  className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${item.status === "voided" ? "border-red-200 bg-red-50 text-red-700" : item.status === "cancelled" ? "border-amber-200 bg-amber-50 text-amber-800" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}
+                                >
+                                  {item.status}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-slate-500">
+                                {item.statusReason ||
+                                  "Completed clinical treatment"}
+                                <div className="mt-1 text-[11px] text-slate-400">
+                                  {item.statusChangedAt
+                                    ? new Date(
+                                        item.statusChangedAt,
+                                      ).toLocaleString()
+                                    : ""}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -1383,13 +2025,13 @@ export default function TreatmentPage() {
             </div>
 
             <div className="flex gap-2 flex-wrap min-h-[32px] items-center">
-              {isWholeMouth ? (
+              {selectedMouthRegionOption ? (
                 <span className="inline-flex items-center gap-1 bg-primary text-white text-sm font-bold px-3 py-1 rounded shadow-sm">
-                  Whole Mouth Selected
+                  {selectedMouthRegionOption.label} Selected
                   <X
                     size={14}
                     className="cursor-pointer ml-1 opacity-80 hover:opacity-100"
-                    onClick={() => setIsWholeMouth(false)}
+                    onClick={() => setSelectedMouthRegion(null)}
                   />
                 </span>
               ) : selectedTeeth.length > 0 ? (
@@ -1413,9 +2055,33 @@ export default function TreatmentPage() {
                 ))
               ) : (
                 <div className="text-sm text-slate-500 italic flex items-center gap-2">
-                  <Info size={16} /> Select teeth or 'Whole Mouth'
+                  <Info size={16} /> Select teeth or a mouth region
                 </div>
               )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {MOUTH_REGION_OPTIONS.map((region) => {
+                const selected = selectedMouthRegion === region.id;
+                return (
+                  <button
+                    key={region.id}
+                    onClick={() => handleSelectMouthRegion(region.id)}
+                    className={`rounded-md border px-3 py-2 text-left transition-colors ${
+                      selected
+                        ? "border-primary bg-primary-soft text-primary"
+                        : "border-ui-border bg-white text-slate-600 hover:bg-surface-hover"
+                    }`}
+                  >
+                    <span className="block text-xs font-bold">
+                      {region.label}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      {region.hint}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -1523,10 +2189,7 @@ export default function TreatmentPage() {
 
                   <button
                     onClick={() => setPendingConfirmation(true)}
-                    disabled={
-                      !selectedActId ||
-                      (selectedTeeth.length === 0 && !isWholeMouth)
-                    }
+                    disabled={!selectedActId || !hasTargetSelection}
                     className="w-full mt-1 flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-md text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 shadow-sm"
                   >
                     <Plus size={18} /> Apply Treatment Plan
@@ -1581,12 +2244,139 @@ export default function TreatmentPage() {
                   </select>
                 </div>
 
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Certainty
+                    </label>
+                    <select
+                      value={diagnosisForm.certainty}
+                      onChange={(e) =>
+                        setDiagnosisForm({
+                          ...diagnosisForm,
+                          certainty: e.target.value,
+                        })
+                      }
+                      className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
+                    >
+                      {DIAGNOSIS_CERTAINTY_OPTIONS.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={diagnosisForm.status}
+                      onChange={(e) =>
+                        setDiagnosisForm({
+                          ...diagnosisForm,
+                          status: e.target.value,
+                        })
+                      }
+                      className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
+                    >
+                      {DIAGNOSIS_STATUS_OPTIONS.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Diagnostic Evidence
+                  </label>
+                  <select
+                    value={diagnosisForm.evidence}
+                    onChange={(e) =>
+                      setDiagnosisForm({
+                        ...diagnosisForm,
+                        evidence: e.target.value,
+                      })
+                    }
+                    className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
+                  >
+                    {DIAGNOSIS_EVIDENCE_OPTIONS.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-2">
+                    Symptoms
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIAGNOSIS_SYMPTOM_OPTIONS.map((symptom) => {
+                      const selected =
+                        diagnosisForm.symptoms.includes(symptom);
+                      return (
+                        <button
+                          key={symptom}
+                          type="button"
+                          onClick={() => toggleDiagnosisSymptom(symptom)}
+                          className={`rounded-md border px-3 py-2 text-left text-xs font-semibold transition ${
+                            selected
+                              ? "border-red-300 bg-red-50 text-red-700"
+                              : "border-ui-border text-text-muted hover:bg-surface-hover"
+                          }`}
+                        >
+                          {symptom}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Pain Level
+                    </label>
+                    <span className="text-xs font-bold text-slate-500">
+                      {diagnosisForm.painLevel}/10
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    value={diagnosisForm.painLevel}
+                    onChange={(e) =>
+                      setDiagnosisForm({
+                        ...diagnosisForm,
+                        painLevel: Number(e.target.value),
+                      })
+                    }
+                    className="w-full accent-red-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Clinical Notes
+                  </label>
+                  <textarea
+                    value={diagnosisForm.notes}
+                    onChange={(e) =>
+                      setDiagnosisForm({
+                        ...diagnosisForm,
+                        notes: e.target.value,
+                      })
+                    }
+                    rows={4}
+                    placeholder="Add clinical observations, test response, radiographic notes..."
+                    className="w-full resize-none border border-slate-300 rounded-md p-2 text-sm bg-white focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+
                 <button
                   onClick={handleAddDiagnosis}
-                  disabled={
-                    !diagnosisForm.diagnosis ||
-                    (selectedTeeth.length === 0 && !isWholeMouth)
-                  }
+                  disabled={!diagnosisForm.diagnosis || !hasTargetSelection}
                   className="w-full mt-4 flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-md text-sm font-bold hover:bg-red-700 disabled:opacity-50 shadow-md"
                 >
                   <Plus size={18} /> Record Diagnosis
@@ -1634,12 +2424,54 @@ export default function TreatmentPage() {
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <span className="font-semibold text-slate-700 border border-slate-200 px-1 rounded">
-                            T{ev.tooth}
+                            {ev.toothIds?.length
+                              ? getTreatmentLocationLabel(ev)
+                              : `T${ev.tooth}`}
                           </span>
                           {ev.surfaces?.length > 0 && (
                             <span>Surfaces: {ev.surfaces.join(", ")}</span>
                           )}
                         </div>
+                        {ev.type === "pathology" && (
+                          <div className="mt-3 space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className="rounded bg-red-50 px-2 py-1 font-semibold text-red-700">
+                                {ev.severity}
+                              </span>
+                              {ev.certainty && (
+                                <span className="rounded bg-slate-100 px-2 py-1 font-semibold text-slate-700">
+                                  {ev.certainty}
+                                </span>
+                              )}
+                              {ev.status && (
+                                <span className="rounded bg-slate-100 px-2 py-1 font-semibold text-slate-700">
+                                  {ev.status}
+                                </span>
+                              )}
+                              {typeof ev.painLevel === "number" && (
+                                <span className="rounded bg-slate-100 px-2 py-1 font-semibold text-slate-700">
+                                  Pain {ev.painLevel}/10
+                                </span>
+                              )}
+                            </div>
+                            {ev.evidence && (
+                              <p>
+                                <strong>Evidence:</strong> {ev.evidence}
+                              </p>
+                            )}
+                            {ev.symptoms?.length > 0 && (
+                              <p>
+                                <strong>Symptoms:</strong>{" "}
+                                {ev.symptoms.join(", ")}
+                              </p>
+                            )}
+                            {ev.notes && (
+                              <p className="leading-relaxed">
+                                <strong>Note:</strong> {ev.notes}
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1753,11 +2585,14 @@ export default function TreatmentPage() {
               </p>
               <p>
                 <strong>Target:</strong>{" "}
-                {isWholeMouth
-                  ? "Whole Mouth"
+                {selectedMouthRegionOption
+                  ? selectedMouthRegionOption.label
                   : `Tooth ${selectedTeeth.join(", ")}`}
               </p>
-              {!isWholeMouth &&
+              <p>
+                <strong>Dentition:</strong> {dentitionLabel}
+              </p>
+              {!selectedMouthRegion &&
                 selectedTeeth.map((tooth) => (
                   <p key={tooth}>
                     <strong>Tooth {tooth}:</strong>{" "}
@@ -1785,6 +2620,54 @@ export default function TreatmentPage() {
                 className="px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-primary-dark rounded-md transition-colors shadow-sm flex items-center gap-2"
               >
                 <CheckCircle size={16} /> Confirm & Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* COMPLETE SESSION ACT CONFIRMATION */}
+      {sessionActToComplete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[420px] max-w-[90%] border border-slate-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
+                <CheckCircle size={20} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">
+                Mark Treatment Done?
+              </h3>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm text-slate-700 flex flex-col gap-2">
+              <p>
+                <strong>Act:</strong> {sessionActToComplete.act}
+              </p>
+              <p>
+                <strong>Location:</strong>{" "}
+                {getTreatmentLocationLabel(sessionActToComplete)}
+              </p>
+              <p>
+                <strong>Area:</strong> {getTreatmentAreaLabel(sessionActToComplete)}
+              </p>
+              <p className="text-slate-500">
+                This will mark the current session procedure as completed and
+                update the linked treatment plan progress.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setSessionActToComplete(null)}
+                className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmCompleteSessionAct}
+                className="px-4 py-2 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
+              >
+                <CheckCircle size={16} /> Confirm Done
               </button>
             </div>
           </div>
