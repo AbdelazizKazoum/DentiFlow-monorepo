@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import {
   AlertTriangle,
   Calendar,
@@ -384,6 +385,10 @@ const TREATMENT_STATUSES = [
 ];
 
 export default function TreatmentPage() {
+  const router = useRouter();
+  const params = useParams();
+  const locale = params?.locale || "en";
+  const waitingRoomPath = `/${locale}/admin/waiting-room`;
   const [activeTab, setActiveTab] = useState("session");
   const [dentitionMode, setDentitionMode] = useState("adult");
 
@@ -426,6 +431,7 @@ export default function TreatmentPage() {
     },
   ]);
   const [treatmentGroups, setTreatmentGroups] = useState([]);
+  const [treatmentCharges, setTreatmentCharges] = useState([]);
 
   const [currentSession, setCurrentSession] = useState([
     {
@@ -457,6 +463,13 @@ export default function TreatmentPage() {
       providerId: "provider_current",
     },
   ]);
+  const [visitHandoffNote, setVisitHandoffNote] = useState("");
+  const [visitHandoffRecord, setVisitHandoffRecord] = useState(null);
+  const [visitCodingStatus, setVisitCodingStatus] = useState("structured"); // structured | draft_note | needs_coding | coded
+  const [visitLifecycleStatus, setVisitLifecycleStatus] = useState("open"); // open | needs_coding | closed
+  const [isSendAssistantModalOpen, setIsSendAssistantModalOpen] =
+    useState(false);
+  const [isCloseVisitModalOpen, setIsCloseVisitModalOpen] = useState(false);
 
   const [diagnoses, setDiagnoses] = useState([
     {
@@ -642,6 +655,7 @@ export default function TreatmentPage() {
           createdAt: new Date().toISOString(),
           createdBy: "provider_current",
           dentition: dentitionMode,
+          billingStatus: "not_charged",
         },
       ]);
       setPendingDroppedAct(null);
@@ -736,6 +750,47 @@ export default function TreatmentPage() {
     event.target.value = "";
   };
 
+  const saveVisitHandoffNote = (status = "draft_note") => {
+    const note = visitHandoffNote.trim();
+    if (!note) return;
+
+    setVisitHandoffRecord({
+      id: visitHandoffRecord?.id || `handoff_${ACTIVE_VISIT.id}`,
+      visitId: ACTIVE_VISIT.id,
+      patientId: PATIENT.id,
+      text: note,
+      status,
+      authoredBy: ACTIVE_VISIT.providerId,
+      savedAt: new Date().toISOString(),
+    });
+    setVisitCodingStatus(status);
+  };
+
+  const confirmSendToAssistant = () => {
+    saveVisitHandoffNote("needs_coding");
+    setVisitLifecycleStatus("needs_coding");
+    setIsSendAssistantModalOpen(false);
+    router.push(waitingRoomPath);
+  };
+
+  const markVisitCodingComplete = () => {
+    if (!visitHandoffRecord) return;
+    setVisitHandoffRecord((prev) => ({
+      ...prev,
+      status: "coded",
+      codedAt: new Date().toISOString(),
+      codedBy: ACTIVE_VISIT.providerId,
+    }));
+    setVisitCodingStatus("coded");
+    setVisitLifecycleStatus("open");
+  };
+
+  const confirmCloseVisit = () => {
+    setVisitLifecycleStatus("closed");
+    setIsCloseVisitModalOpen(false);
+    router.push(waitingRoomPath);
+  };
+
   const handleAddAct = () => {
     const actIdToUse = selectedActId;
     if (!actIdToUse) return;
@@ -788,6 +843,7 @@ export default function TreatmentPage() {
         createdBy: "provider_current",
         treatmentGroupId,
         dentition: dentitionMode,
+        billingStatus: "not_charged",
       });
     } else if (shouldGroupSelectedTeeth) {
       newActs.push({
@@ -816,6 +872,7 @@ export default function TreatmentPage() {
         treatmentGroupId,
         isGroupedTeeth: true,
         dentition: dentitionMode,
+        billingStatus: "not_charged",
       });
     } else {
       newActs = targetTeeth.map((tooth) => ({
@@ -834,6 +891,7 @@ export default function TreatmentPage() {
         createdAt: new Date().toISOString(),
         createdBy: "provider_current",
         dentition: dentitionMode,
+        billingStatus: "not_charged",
       }));
     }
 
@@ -911,6 +969,31 @@ export default function TreatmentPage() {
     setActiveSurfaces([]);
   };
 
+  const buildTreatmentCharge = (treatmentItem, chargeId) => ({
+    id: chargeId,
+    patientId: PATIENT.id,
+    visitId: ACTIVE_VISIT.id,
+    sourceType: "treatment_plan_item",
+    sourceId: treatmentItem.id,
+    label: treatmentItem.act,
+    location: getTreatmentLocationLabel(treatmentItem),
+    originalAmount: treatmentItem.price,
+    paidAmount: 0,
+    remainingAmount: treatmentItem.price,
+    status: "unpaid",
+    createdAt: new Date().toISOString(),
+    createdBy: ACTIVE_VISIT.providerId,
+  });
+
+  const shouldPostChargeForTreatment = (treatmentItem) =>
+    treatmentItem?.price > 0 &&
+    !treatmentItem.chargeId &&
+    !treatmentCharges.some(
+      (charge) =>
+        charge.sourceType === "treatment_plan_item" &&
+        charge.sourceId === treatmentItem.id,
+    );
+
   const handleStartTreatment = (tpItem) => {
     const existingActiveProcedure = currentSession.find(
       (item) =>
@@ -921,6 +1004,18 @@ export default function TreatmentPage() {
       return;
     }
 
+    const shouldPostTreatmentCharge = shouldPostChargeForTreatment(tpItem);
+    const chargeId = shouldPostTreatmentCharge
+      ? `charge_${tpItem.id}`
+      : tpItem.chargeId;
+
+    if (shouldPostTreatmentCharge) {
+      setTreatmentCharges((prev) => [
+        ...prev,
+        buildTreatmentCharge(tpItem, chargeId),
+      ]);
+    }
+
     setTreatmentPlan((prev) =>
       prev.map((item) =>
         item.id === tpItem.id
@@ -928,6 +1023,10 @@ export default function TreatmentPage() {
               ...item,
               status: "in_progress",
               startedAt: item.startedAt || new Date().toISOString(),
+              billingStatus: item.chargeId || shouldPostTreatmentCharge
+                ? "charged"
+                : item.billingStatus || "not_charged",
+              chargeId: item.chargeId || chargeId,
             }
           : item,
       ),
@@ -1484,6 +1583,11 @@ export default function TreatmentPage() {
   const filteredActs = EXTENDED_ACTS.filter((a) =>
     a.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+  const pendingTreatmentChargeTotal = treatmentCharges.reduce(
+    (sum, charge) => sum + charge.remainingAmount,
+    0,
+  );
+  const totalPatientAmountDue = PATIENT.balance + pendingTreatmentChargeTotal;
 
   // Get all active events for currently selected teeth
   const selectedTeethEvents = useMemo(() => {
@@ -1571,15 +1675,18 @@ export default function TreatmentPage() {
           <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-md transition-colors">
             <Printer size={16} /> Print Report
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-md transition-colors shadow-sm">
-            <CreditCard size={16} /> Checkout ($
-            {currentSession.reduce(
-              (sum, act) =>
-                act.status === "completed" ? sum + act.price : sum,
-              0,
-            )}
-            )
-          </button>
+          <div className="flex items-center gap-2 rounded-md border border-teal-200 bg-teal-50 px-4 py-2 text-sm text-teal-800">
+            <CreditCard size={16} />
+            <div>
+              <p className="font-bold">
+                Amount due ${totalPatientAmountDue.toFixed(2)}
+              </p>
+              <p className="text-[11px] font-semibold text-teal-700">
+                ${pendingTreatmentChargeTotal.toFixed(2)} new treatment charges
+                posted for cashier
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -1760,9 +1867,101 @@ export default function TreatmentPage() {
                       </p>
                     </div>
                     <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-white">
-                      In progress
+                      {visitLifecycleStatus === "closed"
+                        ? "Closed"
+                        : visitCodingStatus === "needs_coding"
+                        ? "Needs coding"
+                        : "In progress"}
                     </span>
                   </div>
+
+                  <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">
+                          Doctor handoff note
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          Free-text visit summary for assistant coding before
+                          the visit is closed.
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                          visitCodingStatus === "needs_coding"
+                            ? "bg-amber-100 text-amber-800"
+                            : visitCodingStatus === "coded"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : visitCodingStatus === "draft_note"
+                                ? "bg-slate-100 text-slate-700"
+                                : "bg-primary-soft text-primary"
+                        }`}
+                      >
+                        {visitCodingStatus === "needs_coding"
+                          ? "Needs assistant coding"
+                          : visitCodingStatus === "coded"
+                            ? "Structured"
+                            : visitCodingStatus === "draft_note"
+                              ? "Draft saved"
+                              : "Structured workflow"}
+                      </span>
+                    </div>
+
+                    <textarea
+                      value={visitHandoffNote}
+                      onChange={(event) => {
+                        setVisitHandoffNote(event.target.value);
+                        if (event.target.value.trim()) {
+                          setVisitCodingStatus((prev) =>
+                            prev === "needs_coding" ? prev : "draft_note",
+                          );
+                        }
+                      }}
+                      rows={3}
+                      placeholder="Example: Worked on tooth 16, canal cleaned, temporary filling placed. Patient still sensitive; continue RCT next visit."
+                      className="w-full resize-none rounded-md border border-slate-300 bg-page p-3 text-sm text-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/25"
+                    />
+
+                    {visitHandoffRecord && (
+                      <div className="mt-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
+                        Saved by {visitHandoffRecord.authoredBy} ·{" "}
+                        {new Date(visitHandoffRecord.savedAt).toLocaleString()}
+                      </div>
+                    )}
+
+                    <div className="mt-3 flex flex-wrap justify-end gap-2">
+                      <button
+                        onClick={() => saveVisitHandoffNote("draft_note")}
+                        disabled={!visitHandoffNote.trim()}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                      >
+                        <Save size={14} /> Save Draft
+                      </button>
+                      <button
+                        onClick={() => setIsSendAssistantModalOpen(true)}
+                        disabled={!visitHandoffNote.trim()}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-100 disabled:opacity-50"
+                      >
+                        <FileText size={14} /> Send to Assistant
+                      </button>
+                      {visitHandoffRecord && (
+                        <button
+                          onClick={markVisitCodingComplete}
+                          className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                        >
+                          <CheckCircle size={14} /> Mark Structured
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setIsCloseVisitModalOpen(true)}
+                        disabled={visitCodingStatus === "needs_coding"}
+                        className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        <X size={14} /> Close Visit
+                      </button>
+                    </div>
+                  </div>
+
                   {currentSession.length === 0 ? (
                     <div className="text-center py-8 text-slate-500 flex flex-col items-center">
                       <Stethoscope size={32} className="text-slate-300 mb-2" />
@@ -1943,6 +2142,17 @@ export default function TreatmentPage() {
                                 <div className="mt-1 flex items-center gap-2 text-[11px] text-text-muted">
                                   <span className="rounded-full bg-primary-soft px-2 py-0.5 font-semibold text-primary">
                                     {item.status.replace("_", " ")}
+                                  </span>
+                                  <span
+                                    className={`rounded-full px-2 py-0.5 font-semibold ${
+                                      item.chargeId
+                                        ? "bg-teal-50 text-teal-700"
+                                        : "bg-slate-100 text-slate-500"
+                                    }`}
+                                  >
+                                    {item.chargeId
+                                      ? "Charge posted"
+                                      : "Not charged"}
                                   </span>
                                   <span>
                                     {item.completedVisits || 0}/
@@ -2131,28 +2341,28 @@ export default function TreatmentPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              {MOUTH_REGION_OPTIONS.map((region) => {
-                const selected = selectedMouthRegion === region.id;
-                return (
-                  <button
-                    key={region.id}
-                    onClick={() => handleSelectMouthRegion(region.id)}
-                    className={`rounded-md border px-3 py-2 text-left transition-colors ${
-                      selected
-                        ? "border-primary bg-primary-soft text-primary"
-                        : "border-ui-border bg-white text-slate-600 hover:bg-surface-hover"
-                    }`}
-                  >
-                    <span className="block text-xs font-bold">
-                      {region.label}
-                    </span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      {region.hint}
-                    </span>
-                  </button>
-                );
-              })}
+            <div>
+              <label className="mb-1 block text-xs font-bold text-slate-700">
+                Mouth Region
+              </label>
+              <select
+                value={selectedMouthRegion || ""}
+                onChange={(event) => {
+                  if (event.target.value) {
+                    handleSelectMouthRegion(event.target.value);
+                  } else {
+                    setSelectedMouthRegion(null);
+                  }
+                }}
+                className="w-full rounded-md border border-ui-border bg-white px-3 py-2 text-sm font-semibold text-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/25"
+              >
+                <option value="">Select a mouth region</option>
+                {MOUTH_REGION_OPTIONS.map((region) => (
+                  <option key={region.id} value={region.id}>
+                    {region.label} - {region.hint}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -2836,6 +3046,89 @@ export default function TreatmentPage() {
                 className="px-4 py-2 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
               >
                 <CheckCircle size={16} /> Confirm Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SEND TO ASSISTANT CONFIRMATION */}
+      {isSendAssistantModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[440px] max-w-[90%] border border-slate-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+                <FileText size={20} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">
+                Send Visit to Assistant?
+              </h3>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm text-slate-700">
+              <p className="font-semibold text-slate-800">
+                The visit will be marked as needing assistant coding.
+              </p>
+              <p className="mt-2 text-slate-500">
+                Your handoff note will be saved, and you will be redirected to
+                the waiting room to select the next patient.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsSendAssistantModalOpen(false)}
+                className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSendToAssistant}
+                className="px-4 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
+              >
+                <FileText size={16} /> Confirm & Return
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CLOSE VISIT CONFIRMATION */}
+      {isCloseVisitModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-[440px] max-w-[90%] border border-slate-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                <CheckCircle size={20} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">
+                Close Visit?
+              </h3>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm text-slate-700">
+              <p className="font-semibold text-slate-800">
+                This visit will be marked as closed.
+              </p>
+              <p className="mt-2 text-slate-500">
+                Structured treatments and posted charges will remain available
+                for the cashier workflow. You will be redirected to the waiting
+                room.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsCloseVisitModalOpen(false)}
+                className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmCloseVisit}
+                className="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
+              >
+                <CheckCircle size={16} /> Close & Return
               </button>
             </div>
           </div>
