@@ -476,6 +476,7 @@ export default function TreatmentPage() {
       date: "2026-06-15",
     },
   ]);
+  const [clinicalAttachments, setClinicalAttachments] = useState([]);
 
   // Inspector State
   const [inspectorMode, setInspectorMode] = useState("act"); // 'act' | 'diagnosis' | 'details'
@@ -491,7 +492,8 @@ export default function TreatmentPage() {
     severity: "Moderate",
     certainty: "Confirmed",
     status: "Active",
-    evidence: "Visual exam",
+    evidence: ["Visual exam"],
+    attachmentIds: [],
     symptoms: [],
     painLevel: 0,
     notes: "",
@@ -686,6 +688,54 @@ export default function TreatmentPage() {
     }));
   };
 
+  const toggleDiagnosisEvidence = (evidence) => {
+    setDiagnosisForm((prev) => ({
+      ...prev,
+      evidence: prev.evidence.includes(evidence)
+        ? prev.evidence.filter((item) => item !== evidence)
+        : [...prev.evidence, evidence],
+    }));
+  };
+
+  const toggleDiagnosisAttachment = (attachmentId) => {
+    setDiagnosisForm((prev) => ({
+      ...prev,
+      attachmentIds: prev.attachmentIds.includes(attachmentId)
+        ? prev.attachmentIds.filter((id) => id !== attachmentId)
+        : [...prev.attachmentIds, attachmentId],
+    }));
+  };
+
+  const handleUploadRadiologyFiles = (event) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const uploadedAt = new Date().toISOString();
+    const newAttachments = files.map((file) => ({
+      id: `scan_${Date.now()}_${file.name}`,
+      type: "radiology",
+      title: file.name,
+      fileName: file.name,
+      fileUrl: URL.createObjectURL(file),
+      visitId: ACTIVE_VISIT.id,
+      uploadedAt,
+      uploadedBy: ACTIVE_VISIT.providerId,
+    }));
+
+    setClinicalAttachments((prev) => [...prev, ...newAttachments]);
+    setDiagnosisForm((prev) => ({
+      ...prev,
+      evidence: prev.evidence.includes("X-ray")
+        ? prev.evidence
+        : [...prev.evidence, "X-ray"],
+      attachmentIds: [
+        ...prev.attachmentIds,
+        ...newAttachments.map((attachment) => attachment.id),
+      ],
+    }));
+    event.target.value = "";
+  };
+
   const handleAddAct = () => {
     const actIdToUse = selectedActId;
     if (!actIdToUse) return;
@@ -799,38 +849,50 @@ export default function TreatmentPage() {
   const handleAddDiagnosis = () => {
     if (!diagnosisForm.diagnosis) return;
 
+    const diagnosisDetails = {
+      diagnosis: diagnosisForm.diagnosis,
+      severity: diagnosisForm.severity,
+      certainty: diagnosisForm.certainty,
+      status: diagnosisForm.status,
+      evidence: diagnosisForm.evidence,
+      attachmentIds: diagnosisForm.attachmentIds,
+      symptoms: diagnosisForm.symptoms,
+      painLevel: diagnosisForm.painLevel,
+      notes: diagnosisForm.notes,
+      date: new Date().toISOString().split("T")[0],
+      dentition: dentitionMode,
+    };
+
     let newDiag = [];
     if (selectedMouthRegion || selectedTeeth.length === 0) {
       newDiag.push({
         id: `d_${Date.now()}_gen`,
         tooth: selectedMouthRegionOption?.label ?? "Whole Mouth",
         surfaces: [],
-        diagnosis: diagnosisForm.diagnosis,
-        severity: diagnosisForm.severity,
-        certainty: diagnosisForm.certainty,
-        status: diagnosisForm.status,
-        evidence: diagnosisForm.evidence,
-        symptoms: diagnosisForm.symptoms,
-        painLevel: diagnosisForm.painLevel,
-        notes: diagnosisForm.notes,
-        date: new Date().toISOString().split("T")[0],
-        dentition: dentitionMode,
+        ...diagnosisDetails,
+      });
+    } else if (selectedTeeth.length > 1) {
+      newDiag.push({
+        id: `d_${Date.now()}_group`,
+        tooth: `${selectedTeeth.length} teeth`,
+        toothIds: selectedTeeth,
+        surfaces: [],
+        surfacesByTooth: selectedTeeth.reduce(
+          (acc, tooth) => ({
+            ...acc,
+            [tooth]: toothSurfaces[tooth] || [],
+          }),
+          {},
+        ),
+        isGroupedTeeth: true,
+        ...diagnosisDetails,
       });
     } else {
       newDiag = selectedTeeth.map((tooth) => ({
         id: `d_${Date.now()}_${tooth}`,
         tooth,
         surfaces: toothSurfaces[tooth] || [],
-        diagnosis: diagnosisForm.diagnosis,
-        severity: diagnosisForm.severity,
-        certainty: diagnosisForm.certainty,
-        status: diagnosisForm.status,
-        evidence: diagnosisForm.evidence,
-        symptoms: diagnosisForm.symptoms,
-        painLevel: diagnosisForm.painLevel,
-        notes: diagnosisForm.notes,
-        date: new Date().toISOString().split("T")[0],
-        dentition: dentitionMode,
+        ...diagnosisDetails,
       }));
     }
 
@@ -840,7 +902,8 @@ export default function TreatmentPage() {
       severity: "Moderate",
       certainty: "Confirmed",
       status: "Active",
-      evidence: "Visual exam",
+      evidence: ["Visual exam"],
+      attachmentIds: [],
       symptoms: [],
       painLevel: 0,
       notes: "",
@@ -984,7 +1047,11 @@ export default function TreatmentPage() {
 
     const allEvents = [
       ...diagnoses
-        .filter((d) => d.tooth === toothNumber)
+        .filter(
+          (d) =>
+            d.tooth === toothNumber ||
+            d.toothIds?.some((tooth) => tooth === toothNumber),
+        )
         .map((d) => ({ ...d, type: "pathology" })),
       ...treatmentPlan
         .filter(
@@ -1424,7 +1491,11 @@ export default function TreatmentPage() {
 
     return [
       ...diagnoses
-        .filter((d) => selectedTeeth.includes(d.tooth))
+        .filter(
+          (d) =>
+            selectedTeeth.includes(d.tooth) ||
+            d.toothIds?.some((tooth) => selectedTeeth.includes(tooth)),
+        )
         .map((d) => ({
           ...d,
           type: "pathology",
@@ -2287,24 +2358,95 @@ export default function TreatmentPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-700 mb-2">
                     Diagnostic Evidence
                   </label>
-                  <select
-                    value={diagnosisForm.evidence}
-                    onChange={(e) =>
-                      setDiagnosisForm({
-                        ...diagnosisForm,
-                        evidence: e.target.value,
-                      })
-                    }
-                    className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
-                  >
-                    {DIAGNOSIS_EVIDENCE_OPTIONS.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIAGNOSIS_EVIDENCE_OPTIONS.map((option) => {
+                      const selected = diagnosisForm.evidence.includes(option);
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => toggleDiagnosisEvidence(option)}
+                          className={`rounded-md border px-3 py-2 text-left text-xs font-semibold transition ${
+                            selected
+                              ? "border-red-300 bg-red-50 text-red-700"
+                              : "border-ui-border text-text-muted hover:bg-surface-hover"
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
+
+                {diagnosisForm.evidence.includes("X-ray") && (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-bold text-slate-700">
+                          Radiology Attachments
+                        </p>
+                        <p className="text-[11px] text-slate-500">
+                          Upload once, then link to one or more diagnoses.
+                        </p>
+                      </div>
+                      <label className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100">
+                        <Paperclip size={13} />
+                        Upload
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          multiple
+                          onChange={handleUploadRadiologyFiles}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {clinicalAttachments.filter(
+                      (attachment) => attachment.type === "radiology",
+                    ).length === 0 ? (
+                      <p className="rounded-md border border-dashed border-slate-300 bg-white p-2 text-xs text-slate-500">
+                        No X-ray files attached yet.
+                      </p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {clinicalAttachments
+                          .filter(
+                            (attachment) => attachment.type === "radiology",
+                          )
+                          .map((attachment) => {
+                            const selected =
+                              diagnosisForm.attachmentIds.includes(
+                                attachment.id,
+                              );
+                            return (
+                              <button
+                                key={attachment.id}
+                                type="button"
+                                onClick={() =>
+                                  toggleDiagnosisAttachment(attachment.id)
+                                }
+                                className={`flex items-center justify-between gap-2 rounded-md border px-2.5 py-2 text-left text-xs transition ${
+                                  selected
+                                    ? "border-red-300 bg-red-50 text-red-700"
+                                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                                }`}
+                              >
+                                <span className="min-w-0 truncate font-semibold">
+                                  {attachment.title}
+                                </span>
+                                {selected && <CheckCircle size={14} />}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-2">
@@ -2454,10 +2596,36 @@ export default function TreatmentPage() {
                                 </span>
                               )}
                             </div>
-                            {ev.evidence && (
+                            {ev.evidence?.length > 0 && (
                               <p>
-                                <strong>Evidence:</strong> {ev.evidence}
+                                <strong>Evidence:</strong>{" "}
+                                {Array.isArray(ev.evidence)
+                                  ? ev.evidence.join(", ")
+                                  : ev.evidence}
                               </p>
+                            )}
+                            {ev.attachmentIds?.length > 0 && (
+                              <div>
+                                <strong>Attachments:</strong>
+                                <div className="mt-1 flex flex-col gap-1">
+                                  {ev.attachmentIds.map((attachmentId) => {
+                                    const attachment =
+                                      clinicalAttachments.find(
+                                        (item) => item.id === attachmentId,
+                                      );
+                                    return (
+                                      <span
+                                        key={attachmentId}
+                                        className="inline-flex items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 font-semibold text-slate-600"
+                                      >
+                                        <Paperclip size={12} />
+                                        {attachment?.title ||
+                                          "Unavailable attachment"}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
                             )}
                             {ev.symptoms?.length > 0 && (
                               <p>
