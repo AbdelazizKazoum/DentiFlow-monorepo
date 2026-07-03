@@ -19,6 +19,7 @@ import type {
 import type {
   TreatmentRepository,
   TreatmentWorkspace,
+  VisitWorkflowRepository,
 } from "@/domain/treatment/repositories";
 import {
   TREATMENT_DEMO_ACTIVE_VISIT,
@@ -133,7 +134,7 @@ function cloneHandoff(handoff: VisitHandoff): VisitHandoff {
 }
 
 export class InMemoryTreatmentWorkspaceRepository
-  implements TreatmentRepository
+  implements TreatmentRepository, VisitWorkflowRepository
 {
   private visits: Visit[] = [
     {
@@ -253,6 +254,18 @@ export class InMemoryTreatmentWorkspaceRepository
   }
 
   async createVisit(command: CreateVisitFromQueueCommand) {
+    const existingForQueue = await this.getVisitByQueueEntry(
+      command.clinicId,
+      command.queueEntryId,
+    );
+    if (existingForQueue) return existingForQueue;
+
+    const activeForPatient = await this.getActiveVisitByPatient(
+      command.clinicId,
+      command.patientId,
+    );
+    if (activeForPatient) return activeForPatient;
+
     const visit: Visit = {
       id: `visit_${command.queueEntryId}`,
       clinicId: command.clinicId,

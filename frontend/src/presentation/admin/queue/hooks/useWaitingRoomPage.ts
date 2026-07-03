@@ -138,6 +138,26 @@ export function useWaitingRoomPage() {
     setMenuEntry(null);
   }, []);
 
+  const startTreatment = useCallback(
+    async (entry: QueueEntry) => {
+      const seatedEntry =
+        entry.status === "IN_CHAIR" ? entry : await seatPatient(entry.id);
+      const visit = await createTreatmentVisitFromQueueUseCase.execute({
+        clinicId: seatedEntry.clinicId,
+        patientId: seatedEntry.patientId,
+        queueEntryId: seatedEntry.id,
+        appointmentId: seatedEntry.appointmentId,
+        chairId: "chair-01",
+        providerId: seatedEntry.doctorId,
+        startedAt: seatedEntry.seatedAt ?? new Date(),
+      });
+      router.push(
+        `/${locale}/admin/patients/${seatedEntry.patientId}/treatment?visitId=${visit.id}&queueEntryId=${seatedEntry.id}`,
+      );
+    },
+    [locale, router, seatPatient],
+  );
+
   const requestStatusChange = useCallback(
     async (entry: QueueEntry, status: QueueStatus) => {
       closeMenu();
@@ -153,25 +173,13 @@ export function useWaitingRoomPage() {
       }
 
       if (status === "IN_CHAIR") {
-        const seatedEntry = await seatPatient(entry.id);
-        const visit = await createTreatmentVisitFromQueueUseCase.execute({
-          clinicId: seatedEntry.clinicId,
-          patientId: seatedEntry.patientId,
-          queueEntryId: seatedEntry.id,
-          appointmentId: seatedEntry.appointmentId,
-          chairId: "chair-01",
-          providerId: seatedEntry.doctorId,
-          startedAt: seatedEntry.seatedAt ?? new Date(),
-        });
-        router.push(
-          `/${locale}/admin/patients/${seatedEntry.patientId}/treatment?visitId=${visit.id}&queueEntryId=${seatedEntry.id}`,
-        );
+        await startTreatment(entry);
         return;
       }
 
       await changeStatus(entry.id, status);
     },
-    [changeStatus, closeMenu, locale, router, seatPatient],
+    [changeStatus, closeMenu, startTreatment],
   );
 
   const submitCorrection = useCallback(async () => {
@@ -244,6 +252,7 @@ export function useWaitingRoomPage() {
     setNotesState,
     setSortMode,
     sortMode,
+    startTreatment,
     submitCorrection,
     submitNotes,
   };

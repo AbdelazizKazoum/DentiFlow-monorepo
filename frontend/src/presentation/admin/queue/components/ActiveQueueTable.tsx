@@ -27,6 +27,7 @@ import {
   Loader2,
   MoreVertical,
   Phone,
+  Play,
   RotateCcw,
   User,
 } from "lucide-react";
@@ -49,6 +50,7 @@ interface ActiveQueueTableProps {
   onReorder: (ids: string[]) => void;
   onResetOrder: () => void;
   onSortModeChange: (mode: QueueSortMode) => void;
+  onStartTreatment: (entry: QueueEntry) => void;
 }
 
 interface SortableQueueRowProps {
@@ -57,6 +59,7 @@ interface SortableQueueRowProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
+  onStartTreatment: (entry: QueueEntry) => void;
 }
 
 interface MobileQueueItemProps {
@@ -65,6 +68,7 @@ interface MobileQueueItemProps {
   isUpdated: boolean;
   now: Date;
   onOpenMenu: (event: React.MouseEvent<HTMLElement>, entry: QueueEntry) => void;
+  onStartTreatment: (entry: QueueEntry) => void;
 }
 
 interface QueueDragOverlayProps {
@@ -84,6 +88,7 @@ function SortableQueueRow({
   isUpdated,
   now,
   onOpenMenu,
+  onStartTreatment,
 }: SortableQueueRowProps) {
   const {
     attributes,
@@ -212,15 +217,27 @@ function SortableQueueRow({
         <StatusChip status={entry.status} />
       </td>
 
-      <td className="px-6 py-4 whitespace-nowrap text-right">
-        <button
-          type="button"
-          onClick={(event) => onOpenMenu(event, entry)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-          style={{color: "var(--text-muted)"}}
-        >
-          <MoreVertical size={16} />
-        </button>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center justify-end gap-2">
+          {entry.status === "IN_CHAIR" && (
+            <button
+              type="button"
+              onClick={() => onStartTreatment(entry)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-dark"
+            >
+              <Play size={13} fill="currentColor" />
+              Start Treatment
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={(event) => onOpenMenu(event, entry)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            style={{color: "var(--text-muted)"}}
+          >
+            <MoreVertical size={16} />
+          </button>
+        </div>
       </td>
     </motion.tr>
   );
@@ -232,6 +249,7 @@ function MobileQueueItem({
   isUpdated,
   now,
   onOpenMenu,
+  onStartTreatment,
 }: MobileQueueItemProps) {
   const {
     attributes,
@@ -358,6 +376,17 @@ function MobileQueueItem({
               <span className="min-w-0 break-words">{entry.notes}</span>
             </div>
           )}
+
+          {entry.status === "IN_CHAIR" && (
+            <button
+              type="button"
+              onClick={() => onStartTreatment(entry)}
+              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-dark"
+            >
+              <Play size={14} fill="currentColor" />
+              Start Treatment
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
@@ -464,6 +493,7 @@ export function ActiveQueueTable({
   onReorder,
   onResetOrder,
   onSortModeChange,
+  onStartTreatment,
 }: ActiveQueueTableProps) {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const isDragEnabled = canReorder && sortMode === "POLICY";
@@ -576,6 +606,7 @@ export function ActiveQueueTable({
                       isUpdated={entry.id === lastUpdatedId}
                       now={now}
                       onOpenMenu={onOpenMenu}
+                      onStartTreatment={onStartTreatment}
                     />
                   ))}
                 </AnimatePresence>
@@ -618,6 +649,7 @@ export function ActiveQueueTable({
                           isUpdated={entry.id === lastUpdatedId}
                           now={now}
                           onOpenMenu={onOpenMenu}
+                          onStartTreatment={onStartTreatment}
                         />
                       ))}
                     </AnimatePresence>

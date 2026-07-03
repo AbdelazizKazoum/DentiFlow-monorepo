@@ -40,6 +40,7 @@ export default function WaitingRoomPage() {
           onReorder={hook.setManualOrder}
           onResetOrder={hook.resetManualOrder}
           onSortModeChange={hook.setSortMode}
+          onStartTreatment={hook.startTreatment}
           sortMode={hook.sortMode}
         />
         <CompletedQueueList
