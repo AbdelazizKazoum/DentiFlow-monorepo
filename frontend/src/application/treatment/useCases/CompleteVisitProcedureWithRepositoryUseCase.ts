@@ -8,6 +8,17 @@ export class CompleteVisitProcedureWithRepositoryUseCase {
   constructor(private readonly repository: TreatmentRepository) {}
 
   async execute(command: CompleteVisitProcedureCommand) {
+    const completeWithResult = (
+      this.repository as TreatmentRepository & {
+        completeVisitProcedureWithResult?: (
+          command: CompleteVisitProcedureCommand,
+        ) => Promise<unknown>;
+      }
+    ).completeVisitProcedureWithResult;
+    if (completeWithResult) {
+      return completeWithResult.call(this.repository, command) as Promise<any>;
+    }
+
     const workspace = await this.repository.getWorkspace({
       clinicId: command.clinicId,
       patientId: command.patientId ?? "",

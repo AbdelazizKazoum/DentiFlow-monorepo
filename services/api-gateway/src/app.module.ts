@@ -13,6 +13,7 @@ import {AuthModule} from "./presentation/auth/auth.module";
 import {ClinicModule} from "./presentation/clinic/clinic.module";
 import {PatientModule} from "./presentation/patient/patient.module";
 import {AppointmentModule} from "./presentation/appointment/appointment.module";
+import {TreatmentModule} from "./presentation/treatment/treatment.module";
 import {NatsModule} from "./infrastructure/nats/nats.module";
 
 @Module({
@@ -49,6 +50,7 @@ import {NatsModule} from "./infrastructure/nats/nats.module";
     ClinicModule,
     PatientModule,
     AppointmentModule,
+    TreatmentModule,
   ],
   providers: [JwtStrategy],
 })

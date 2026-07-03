@@ -43,6 +43,10 @@ CREATE DATABASE IF NOT EXISTS `appointment_db`
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 GRANT ALL PRIVILEGES ON `appointment_db`.* TO 'root'@'%';
 
+CREATE DATABASE IF NOT EXISTS `treatment_db`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON `treatment_db`.* TO 'root'@'%';
+
 -- CREATE DATABASE IF NOT EXISTS `notification_db`
 --   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- GRANT ALL PRIVILEGES ON `notification_db`.* TO 'root'@'%';

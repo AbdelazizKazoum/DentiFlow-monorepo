@@ -1,0 +1,326 @@
+syntax = "proto3";
+package treatment;
+
+service TreatmentService {
+  rpc CreateVisitFromQueue (CreateVisitFromQueueRequest) returns (VisitReply);
+  rpc GetTreatmentWorkspace (GetTreatmentWorkspaceRequest) returns (TreatmentWorkspaceReply);
+  rpc CreateTreatmentPlanItems (CreateTreatmentPlanItemsRequest) returns (TreatmentPlanItemsReply);
+  rpc CreateDiagnosis (CreateDiagnosisRequest) returns (DiagnosisReply);
+  rpc StartTreatment (StartTreatmentRequest) returns (StartTreatmentReply);
+  rpc CompleteVisitProcedure (CompleteVisitProcedureRequest) returns (CompleteVisitProcedureReply);
+  rpc ChangeTreatmentStatus (ChangeTreatmentStatusRequest) returns (TreatmentPlanItemReply);
+  rpc SaveVisitHandoff (SaveVisitHandoffRequest) returns (VisitHandoffReply);
+  rpc SaveClinicalAttachments (SaveClinicalAttachmentsRequest) returns (ClinicalAttachmentsReply);
+  rpc CloseVisit (CloseVisitRequest) returns (CloseVisitReply);
+}
+
+message TreatmentLocationMessage {
+  optional int32 tooth = 1;
+  repeated int32 tooth_ids = 2;
+  optional string mouth_region_id = 3;
+  string label = 4;
+  repeated string surfaces = 5;
+  string surfaces_by_tooth_json = 6;
+  string dentition = 7;
+}
+
+message TreatmentActReply {
+  string id = 1;
+  string clinic_id = 2;
+  string name = 3;
+  string category = 4;
+  double price = 5;
+  bool groupable_teeth = 6;
+  bool affects_tooth = 7;
+  string visual_type = 8;
+  repeated string default_surfaces = 9;
+  bool active = 10;
+}
+
+message VisitReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string queue_entry_id = 4;
+  string appointment_id = 5;
+  string chair_id = 6;
+  string provider_id = 7;
+  string status = 8;
+  string source = 9;
+  string started_at = 10;
+  string closed_at = 11;
+  string cancelled_at = 12;
+  string cancellation_reason = 13;
+}
+
+message TreatmentPlanItemReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string act_id = 4;
+  string act_name = 5;
+  double price = 6;
+  string priority = 7;
+  string status = 8;
+  TreatmentLocationMessage location = 9;
+  string notes = 10;
+  string treatment_group_id = 11;
+  repeated string visit_procedure_ids = 12;
+  string charge_id = 13;
+  string billing_status = 14;
+  string created_at = 15;
+  string created_by = 16;
+  string started_at = 17;
+  string completed_at = 18;
+  string cancelled_at = 19;
+  string cancellation_reason = 20;
+  string voided_at = 21;
+  string void_reason = 22;
+}
+
+message VisitProcedureReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string visit_id = 4;
+  string treatment_plan_item_id = 5;
+  string act_id = 6;
+  string act_name = 7;
+  TreatmentLocationMessage location = 8;
+  string status = 9;
+  string action = 10;
+  string notes = 11;
+  string performed_at = 12;
+  string completed_at = 13;
+  string provider_id = 14;
+}
+
+message DiagnosisReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string diagnosis = 4;
+  TreatmentLocationMessage location = 5;
+  string severity = 6;
+  string certainty = 7;
+  string status = 8;
+  repeated string evidence = 9;
+  repeated string attachment_ids = 10;
+  repeated string symptoms = 11;
+  int32 pain_level = 12;
+  string notes = 13;
+  string created_at = 14;
+  string created_by = 15;
+}
+
+message ClinicalAttachmentReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string visit_id = 4;
+  string type = 5;
+  string title = 6;
+  string file_name = 7;
+  string mime_type = 8;
+  string file_url = 9;
+  string uploaded_at = 10;
+  string uploaded_by = 11;
+}
+
+message TreatmentChargeReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string visit_id = 4;
+  string source_type = 5;
+  string source_id = 6;
+  string label = 7;
+  string location_label = 8;
+  double original_amount = 9;
+  double paid_amount = 10;
+  double remaining_amount = 11;
+  string status = 12;
+  string created_at = 13;
+  string created_by = 14;
+}
+
+message VisitHandoffReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string visit_id = 4;
+  string treatment_plan_item_id = 5;
+  string text = 6;
+  string status = 7;
+  string authored_by = 8;
+  string saved_at = 9;
+  string coded_at = 10;
+  string coded_by = 11;
+}
+
+message FollowUpRequestReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string visit_id = 4;
+  string treatment_plan_item_id = 5;
+  string reason = 6;
+  string preferred_date = 7;
+  string urgency = 8;
+  string status = 9;
+  string requested_at = 10;
+  string requested_by = 11;
+}
+
+message MedicalDocumentRequestReply {
+  string id = 1;
+  string clinic_id = 2;
+  string patient_id = 3;
+  string visit_id = 4;
+  string treatment_plan_item_id = 5;
+  string type = 6;
+  string reason = 7;
+  string status = 8;
+  string requested_at = 9;
+  string requested_by = 10;
+}
+
+message TreatmentWorkspaceReply {
+  optional VisitReply active_visit = 1;
+  repeated TreatmentActReply acts = 2;
+  repeated TreatmentPlanItemReply treatment_plan = 3;
+  repeated VisitProcedureReply current_session = 4;
+  repeated DiagnosisReply diagnoses = 5;
+  repeated ClinicalAttachmentReply attachments = 6;
+  repeated TreatmentChargeReply charges = 7;
+  repeated VisitHandoffReply handoffs = 8;
+  repeated FollowUpRequestReply follow_up_requests = 9;
+  repeated MedicalDocumentRequestReply document_requests = 10;
+}
+
+message CreateVisitFromQueueRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string queue_entry_id = 3;
+  string appointment_id = 4;
+  string chair_id = 5;
+  string provider_id = 6;
+  string started_at = 7;
+}
+
+message GetTreatmentWorkspaceRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string active_visit_id = 3;
+}
+
+message CreateTreatmentPlanItemsRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string act_id = 3;
+  repeated int32 selected_teeth = 4;
+  string mouth_region_id = 5;
+  string surfaces_by_tooth_json = 6;
+  string priority = 7;
+  string notes = 8;
+  string dentition = 9;
+  string provider_id = 10;
+}
+
+message TreatmentPlanItemsReply {
+  repeated TreatmentPlanItemReply items = 1;
+}
+
+message CreateDiagnosisRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string diagnosis = 3;
+  repeated int32 selected_teeth = 4;
+  string mouth_region_id = 5;
+  string surfaces_by_tooth_json = 6;
+  string severity = 7;
+  string certainty = 8;
+  string status = 9;
+  repeated string evidence = 10;
+  repeated string attachment_ids = 11;
+  repeated string symptoms = 12;
+  int32 pain_level = 13;
+  string notes = 14;
+  string dentition = 15;
+  string provider_id = 16;
+}
+
+message StartTreatmentRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string visit_id = 3;
+  string treatment_plan_item_id = 4;
+  string provider_id = 5;
+}
+
+message StartTreatmentReply {
+  TreatmentPlanItemReply treatment_item = 1;
+  VisitProcedureReply procedure = 2;
+  optional TreatmentChargeReply charge = 3;
+  bool reused_existing_procedure = 4;
+}
+
+message CompleteVisitProcedureRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string visit_procedure_id = 3;
+  string provider_id = 4;
+}
+
+message CompleteVisitProcedureReply {
+  VisitProcedureReply procedure = 1;
+  optional TreatmentPlanItemReply treatment_item = 2;
+}
+
+message ChangeTreatmentStatusRequest {
+  string clinic_id = 1;
+  string treatment_plan_item_id = 2;
+  string status = 3;
+  string reason = 4;
+  string provider_id = 5;
+}
+
+message SaveVisitHandoffRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string visit_id = 3;
+  string text = 4;
+  string status = 5;
+  string provider_id = 6;
+  string treatment_plan_item_id = 7;
+}
+
+message SaveClinicalAttachmentsRequest {
+  repeated ClinicalAttachmentReply attachments = 1;
+}
+
+message ClinicalAttachmentsReply {
+  repeated ClinicalAttachmentReply attachments = 1;
+}
+
+message CloseVisitRequest {
+  string clinic_id = 1;
+  string patient_id = 2;
+  string visit_id = 3;
+  string provider_id = 4;
+  bool has_follow_up_request = 5;
+  string follow_up_treatment_plan_item_id = 6;
+  string follow_up_reason = 7;
+  string follow_up_preferred_date = 8;
+  string follow_up_urgency = 9;
+  bool has_document_request = 10;
+  string document_treatment_plan_item_id = 11;
+  string document_type = 12;
+  string document_reason = 13;
+}
+
+message CloseVisitReply {
+  VisitReply visit = 1;
+  optional FollowUpRequestReply follow_up_request = 2;
+  optional MedicalDocumentRequestReply document_request = 3;
+}

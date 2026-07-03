@@ -8,6 +8,15 @@ export class StartTreatmentWithRepositoryUseCase {
   constructor(private readonly repository: TreatmentRepository) {}
 
   async execute(command: StartTreatmentCommand) {
+    const startWithResult = (
+      this.repository as TreatmentRepository & {
+        startTreatmentWithResult?: (command: StartTreatmentCommand) => Promise<unknown>;
+      }
+    ).startTreatmentWithResult;
+    if (startWithResult) {
+      return startWithResult.call(this.repository, command) as Promise<any>;
+    }
+
     const [workspace, treatmentItem] = await Promise.all([
       this.repository.getWorkspace({
         clinicId: command.clinicId,

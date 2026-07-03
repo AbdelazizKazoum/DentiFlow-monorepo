@@ -18,8 +18,13 @@ import {
   StartTreatmentWithRepositoryUseCase,
 } from "@/application/treatment/useCases";
 import {InMemoryTreatmentWorkspaceRepository} from "./inMemory";
+import {ApiTreatmentRepository} from "./api";
 
-const treatmentWorkspaceRepository = new InMemoryTreatmentWorkspaceRepository();
+const treatmentWorkspaceRepository =
+  process.env.NEXT_PUBLIC_USE_IN_MEMORY_TREATMENT === "true" ||
+  process.env.NODE_ENV === "test"
+    ? new InMemoryTreatmentWorkspaceRepository()
+    : new ApiTreatmentRepository();
 
 export const addTreatmentPlanItemUseCase = new AddTreatmentPlanItemUseCase();
 export const addTreatmentDiagnosisUseCase = new AddDiagnosisUseCase();

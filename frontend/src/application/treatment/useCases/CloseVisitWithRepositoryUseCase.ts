@@ -8,6 +8,15 @@ export class CloseVisitWithRepositoryUseCase {
   constructor(private readonly repository: TreatmentRepository) {}
 
   async execute(command: CloseVisitCommand) {
+    const closeWithResult = (
+      this.repository as TreatmentRepository & {
+        closeVisitWithResult?: (command: CloseVisitCommand) => Promise<unknown>;
+      }
+    ).closeVisitWithResult;
+    if (closeWithResult) {
+      return closeWithResult.call(this.repository, command) as Promise<any>;
+    }
+
     const result = this.closer.execute(command);
     const [followUpRequest, documentRequest] = await Promise.all([
       result.followUpRequest

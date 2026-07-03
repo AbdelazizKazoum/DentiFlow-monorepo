@@ -1,0 +1,1 @@
+export {ApiTreatmentRepository} from "./ApiTreatmentRepository";
