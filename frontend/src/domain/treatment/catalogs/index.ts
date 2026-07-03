@@ -1,0 +1,23 @@
+export {TREATMENT_ACTS} from "./treatmentCatalog";
+export {
+  DIAGNOSES_CATALOG,
+  DIAGNOSIS_CERTAINTY_OPTIONS,
+  DIAGNOSIS_EVIDENCE_OPTIONS,
+  DIAGNOSIS_SEVERITY_OPTIONS,
+  DIAGNOSIS_STATUS_OPTIONS,
+  DIAGNOSIS_SYMPTOM_OPTIONS,
+} from "./diagnosisCatalog";
+export {
+  DENTITION_MODES,
+  LOWER_LEFT,
+  LOWER_RIGHT,
+  MOUTH_REGION_OPTIONS,
+  PRIMARY_LOWER_LEFT,
+  PRIMARY_LOWER_RIGHT,
+  PRIMARY_UPPER_LEFT,
+  PRIMARY_UPPER_RIGHT,
+  UPPER_LEFT,
+  UPPER_RIGHT,
+} from "./odontogramCatalog";
+export {DOCUMENT_REQUEST_TYPES} from "./coordinationCatalog";
+export {getToothFdi, getToothLabel, TOOTH_NAMES} from "./toothNamesCatalog";

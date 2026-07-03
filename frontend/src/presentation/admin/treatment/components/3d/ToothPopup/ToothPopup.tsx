@@ -5,8 +5,8 @@ import {motion} from "framer-motion";
 import {Plus, X} from "lucide-react";
 import {AddTreatmentUseCase} from "@/application/useCases/admin/treatment/addTreatmentUseCase";
 import {useDentalChartStore} from "@/presentation/stores/dentalChartStore";
-import {DENTAL_ACTS} from "../../data/dentalActs.data";
-import {getToothFdi, getToothLabel} from "../../data/toothNames.data";
+import {DENTAL_ACTS} from "../../../data/dentalActs.data";
+import {getToothFdi, getToothLabel} from "../../../data/toothNames.data";
 import {TreatmentListItem} from "./TreatmentListItem";
 
 export function ToothPopup() {

@@ -2,7 +2,7 @@
 
 import {useMemo, useState} from "react";
 import {ChevronDown, ChevronUp} from "lucide-react";
-import {DENTAL_ACTS} from "../../data/dentalActs.data";
+import {DENTAL_ACTS} from "../../../data/dentalActs.data";
 import {ActCard} from "./ActCard";
 
 interface TreatmentPaletteProps {

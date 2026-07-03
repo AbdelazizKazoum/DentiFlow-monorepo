@@ -48,3 +48,23 @@ export {
   updateQueueNotesUseCase,
   updateQueueStatusUseCase,
 } from "@/infrastructure/queue/container";
+
+export {
+  addTreatmentDiagnosisUseCase,
+  addTreatmentPlanItemUseCase,
+  changeTreatmentStatusUseCase,
+  changeTreatmentStatusWithRepositoryUseCase,
+  closeTreatmentVisitUseCase,
+  closeVisitWithRepositoryUseCase,
+  completeVisitProcedureUseCase,
+  completeVisitProcedureWithRepositoryUseCase,
+  createTreatmentDiagnosisUseCase,
+  createTreatmentPlanItemsUseCase,
+  createTreatmentVisitFromQueueUseCase,
+  getTreatmentWorkspaceUseCase,
+  saveClinicalAttachmentsUseCase,
+  saveVisitHandoffUseCase,
+  saveVisitHandoffWithRepositoryUseCase,
+  startTreatmentUseCase,
+  startTreatmentWithRepositoryUseCase,
+} from "@/infrastructure/treatment/container";

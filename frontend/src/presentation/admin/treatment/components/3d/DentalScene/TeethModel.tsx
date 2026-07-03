@@ -5,8 +5,8 @@ import {Html, useGLTF} from "@react-three/drei";
 import type {ThreeEvent} from "@react-three/fiber";
 import * as THREE from "three";
 import {useDentalChartStore} from "@/presentation/stores/dentalChartStore";
-import {getToothLabel} from "../../data/toothNames.data";
-import {useToothMaterials} from "../../hooks/useToothMaterials";
+import {getToothLabel} from "../../../data/toothNames.data";
+import {useToothMaterials} from "../../../hooks/useToothMaterials";
 
 const MODEL_PATH = "/models/Teeth.glb";
 

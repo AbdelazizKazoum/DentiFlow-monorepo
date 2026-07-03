@@ -3,7 +3,7 @@
 import {useCallback} from "react";
 import type {DragEndEvent} from "@dnd-kit/core";
 import * as THREE from "three";
-import type {DentalSceneHandle} from "../components/DentalScene/SceneExposer";
+import type {DentalSceneHandle} from "../components/3d/DentalScene/SceneExposer";
 
 interface DropResult {
   toothId: string;

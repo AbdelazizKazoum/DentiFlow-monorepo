@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
 import type React from "react";
+import {useParams, useRouter} from "next/navigation";
 import {useSession} from "next-auth/react";
 import type {
   QueueEntry,
@@ -10,6 +11,7 @@ import {
   sortQueueEntries,
 } from "@/domain/queue/services/queuePolicy";
 import {useQueueStore} from "@/presentation/stores/queueStore";
+import {createTreatmentVisitFromQueueUseCase} from "@/infrastructure/container";
 import {QUEUE_CLINIC_ID} from "../queueConfig";
 import {useQueueStream} from "./useQueueStream";
 
@@ -28,6 +30,10 @@ interface CorrectionState {
 }
 
 export function useWaitingRoomPage() {
+  const router = useRouter();
+  const params = useParams();
+  const rawLocale = params?.locale;
+  const locale = Array.isArray(rawLocale) ? rawLocale[0] : rawLocale || "en";
   const {data: session} = useSession();
   const {
     entries,
@@ -147,13 +153,25 @@ export function useWaitingRoomPage() {
       }
 
       if (status === "IN_CHAIR") {
-        await seatPatient(entry.id);
+        const seatedEntry = await seatPatient(entry.id);
+        const visit = await createTreatmentVisitFromQueueUseCase.execute({
+          clinicId: seatedEntry.clinicId,
+          patientId: seatedEntry.patientId,
+          queueEntryId: seatedEntry.id,
+          appointmentId: seatedEntry.appointmentId,
+          chairId: "chair-01",
+          providerId: seatedEntry.doctorId,
+          startedAt: seatedEntry.seatedAt ?? new Date(),
+        });
+        router.push(
+          `/${locale}/admin/patients/${seatedEntry.patientId}/treatment?visitId=${visit.id}&queueEntryId=${seatedEntry.id}`,
+        );
         return;
       }
 
       await changeStatus(entry.id, status);
     },
-    [changeStatus, closeMenu, seatPatient],
+    [changeStatus, closeMenu, locale, router, seatPatient],
   );
 
   const submitCorrection = useCallback(async () => {
