@@ -459,6 +459,33 @@ Les étapes principales sont :
 
 Cette automatisation permet de détecter rapidement les erreurs avant le déploiement.
 
+### 3.1 Stage Docker build
+
+L'étape de construction des images Docker consiste à préparer une image dédiée pour chaque microservice NestJS et pour l'application frontend Next.js. Contrairement à une application Java basée sur un fichier JAR, DentiFlow s'appuie sur un environnement Node.js, un build TypeScript et des images multi-stage afin de produire des conteneurs plus légers et reproductibles.
+
+Les étapes de création des images Docker pour les microservices NestJS sont les suivantes :
+
+- construire une image basée sur Node.js ;
+- installer les dépendances du monorepo avec `pnpm` ;
+- copier le code source du service concerné et les bibliothèques partagées ;
+- compiler le microservice NestJS en JavaScript dans le dossier `dist` ;
+- créer une image de production contenant uniquement les dépendances nécessaires ;
+- démarrer le service avec la commande `node dist/.../main.js` ;
+- exposer le port HTTP ou gRPC utilisé par le service ;
+- vérifier l'état de santé du service à travers un endpoint de health check.
+
+Pour le frontend Next.js, le stage Docker build suit une logique similaire, mais adaptée au rendu web :
+
+- installer les dépendances de l'application Next.js ;
+- exécuter le build de production avec `next build` ;
+- générer une sortie optimisée, par exemple avec le mode `standalone` ;
+- copier uniquement les fichiers nécessaires au démarrage de l'application ;
+- lancer le serveur Next.js avec Node.js ;
+- exposer le port `3000` ;
+- vérifier l'accessibilité de l'interface à travers un health check.
+
+Cette étape garantit que chaque composant de DentiFlow peut être exécuté de manière isolée, avec la même configuration entre l'environnement d'intégration continue, Docker Compose et Kubernetes.
+
 ## 4. Déploiement Kubernetes
 
 ### 4.1 Architecture logique Kubernetes
