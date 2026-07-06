@@ -1,6 +1,6 @@
-import {withAuth} from "next-auth/middleware";
 import createIntlMiddleware from "next-intl/middleware";
-import type {NextRequest} from "next/server";
+import {NextResponse, type NextRequest} from "next/server";
+import {getToken} from "next-auth/jwt";
 
 const ADMIN_ROUTES = /^\/(ar|en|fr)\/admin(?!\/(login|register))(\/.*)?$/;
 const ALLOWED_ADMIN_ROLES = [
@@ -18,29 +18,29 @@ const intlMiddleware = createIntlMiddleware({
 const sessionCookieName =
   process.env.NEXTAUTH_SESSION_COOKIE_NAME ?? "dentiflow-prod.session-token";
 
-export default withAuth(
-  function middleware(req: NextRequest) {
-    return intlMiddleware(req);
-  },
-  {
-    callbacks: {
-      authorized({req, token}) {
-        if (ADMIN_ROUTES.test(req.nextUrl.pathname)) {
-          return !!token && ALLOWED_ADMIN_ROLES.includes(token.role as string);
-        }
-        return true; // non-admin routes always pass auth
-      },
-    },
-    pages: {
-      signIn: "/en/admin/login", // fallback; locale-aware redirect handled in authorized()
-    },
-    cookies: {
-      sessionToken: {
-        name: sessionCookieName,
-      },
-    },
-  },
-);
+export default async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+
+  if (ADMIN_ROUTES.test(pathname)) {
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      cookieName: sessionCookieName,
+    });
+
+    if (!token || !ALLOWED_ADMIN_ROLES.includes(token.role as string)) {
+      const locale = pathname.split("/")[1] || "en";
+      const loginUrl = new URL(`/${locale}/admin/login`, req.url);
+      loginUrl.searchParams.set(
+        "callbackUrl",
+        `${pathname}${req.nextUrl.search}`,
+      );
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  return intlMiddleware(req);
+}
 
 export const config = {
   matcher: ["/((?!api|_next|.*\\..*).*)"],

@@ -15,12 +15,21 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const configService = app.get(ConfigService);
-  const frontendUrl =
-    // configService.get<string>("FRONTEND_URL") ?? "http://localhost:3000";
-    configService.get<string>("FRONTEND_URL") ?? "http://192.168.130.95:3000";
+  const frontendUrls = (
+    configService.get<string>("FRONTEND_URL") ?? "http://localhost:3000"
+  )
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   app.enableCors({
-    origin: frontendUrl,
+    origin(origin, callback) {
+      if (!origin || frontendUrls.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

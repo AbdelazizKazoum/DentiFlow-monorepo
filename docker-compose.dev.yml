@@ -59,8 +59,7 @@ services:
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
       TREATMENT_SERVICE_GRPC_URL: treatment-service:5005
-      # FRONTEND_URL: http://localhost:3000
-      FRONTEND_URL: http://192.168.130.95:3000
+      FRONTEND_URL: http://localhost:3000,http://127.0.0.1:3000,http://192.168.130.95:3000
       NATS_URL: nats://nats:4222
     ports:
       - "127.0.0.1:3001:3001"
@@ -236,7 +235,7 @@ services:
     build:
       context: .
       dockerfile: services/treatment-service/Dockerfile
-      target: builder
+      target: build
       args:
         PNPM_FLAGS: "--no-frozen-lockfile"
     image: dentiflow/treatment-service:dev

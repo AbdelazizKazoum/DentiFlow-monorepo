@@ -84,6 +84,39 @@ async function forward(
   ctx: RouteContext,
 ): Promise<NextResponse> {
   const { path } = await ctx.params;
+  const pathName = path.join("/");
+  const isPublicAuthRoute =
+    pathName === "auth/login" || pathName === "auth/register";
+
+  if (isPublicAuthRoute) {
+    const target = new URL(`/api/v1/${pathName}`, GATEWAY_URL);
+    target.search = req.nextUrl.search;
+
+    const headers = new Headers();
+    const contentType = req.headers.get("content-type");
+    if (contentType) headers.set("content-type", contentType);
+
+    const body =
+      req.method !== "GET" && req.method !== "HEAD"
+        ? await req.arrayBuffer()
+        : undefined;
+
+    const upstream = await fetch(target.toString(), {
+      method: req.method,
+      headers,
+      ...(body !== undefined && {body}),
+    });
+
+    const responseData = await upstream.arrayBuffer();
+    const resHeaders = new Headers();
+    const ct = upstream.headers.get("content-type");
+    if (ct) resHeaders.set("content-type", ct);
+
+    return new NextResponse(responseData, {
+      status: upstream.status,
+      headers: resHeaders,
+    });
+  }
 
   const token = await getToken({
     req,
@@ -123,7 +156,6 @@ async function forward(
     // but the access token itself still has its 1-minute grace window left.
   }
 
-  const pathName = path.join("/");
   const isEventStream = pathName === "events/queue";
 
   // Forward the request to the API gateway. The gateway keeps SSE outside the

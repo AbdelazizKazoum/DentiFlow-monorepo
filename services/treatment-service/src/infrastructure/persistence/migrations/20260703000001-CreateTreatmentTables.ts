@@ -229,31 +229,6 @@ export class CreateTreatmentTables20260703000001 implements MigrationInterface {
         INDEX idx_outbox_unpublished (published, created_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
-    await queryRunner.query(`
-      INSERT INTO treatment_acts
-        (id, clinic_id, name, category, price, groupable_teeth, visual_type, affects_tooth, default_surfaces, active)
-      VALUES
-        ('a1', NULL, 'Consultation', 'GENERAL', 50.00, 0, NULL, 0, NULL, 1),
-        ('a2', NULL, 'Panoramic X-Ray', 'RADIOGRAPHY', 80.00, 0, NULL, 0, NULL, 1),
-        ('a3', NULL, 'Scaling and Polishing', 'PREVENTIVE', 120.00, 1, NULL, 0, NULL, 1),
-        ('a4', NULL, 'Fluoride Treatment', 'PREVENTIVE', 60.00, 1, NULL, 0, NULL, 1),
-        ('a5', NULL, 'Composite Filling (1 Surface)', 'RESTORATIVE', 80.00, 0, 'filling', 1, NULL, 1),
-        ('a6', NULL, 'Composite Filling (2 Surfaces)', 'RESTORATIVE', 120.00, 0, 'filling', 1, NULL, 1),
-        ('a7', NULL, 'Composite Filling (3+ Surfaces)', 'RESTORATIVE', 160.00, 0, 'filling', 1, NULL, 1),
-        ('a8', NULL, 'Root Canal Treatment (Anterior)', 'ENDODONTICS', 250.00, 0, 'root_canal', 1, NULL, 1),
-        ('a9', NULL, 'Root Canal Treatment (Premolar)', 'ENDODONTICS', 350.00, 0, 'root_canal', 1, NULL, 1),
-        ('a10', NULL, 'Root Canal Treatment (Molar)', 'ENDODONTICS', 450.00, 0, 'root_canal', 1, NULL, 1),
-        ('a11', NULL, 'Simple Extraction', 'SURGERY', 100.00, 0, 'extraction', 1, NULL, 1),
-        ('a12', NULL, 'Surgical Extraction', 'SURGERY', 250.00, 0, 'extraction', 1, NULL, 1),
-        ('a13', NULL, 'Wisdom Tooth Extraction', 'SURGERY', 350.00, 0, 'extraction', 1, NULL, 1),
-        ('a14', NULL, 'Ceramic Crown', 'PROSTHETICS', 600.00, 0, 'crown', 1, NULL, 1),
-        ('a15', NULL, 'Zirconia Crown', 'PROSTHETICS', 800.00, 0, 'crown', 1, NULL, 1),
-        ('a16', NULL, 'Temporary Crown', 'PROSTHETICS', 150.00, 0, 'crown', 1, NULL, 1),
-        ('a17', NULL, 'Dental Implant Placement', 'SURGERY', 1200.00, 0, 'implant', 1, NULL, 1),
-        ('a18', NULL, 'Bone Grafting', 'SURGERY', 400.00, 0, 'graft', 1, NULL, 1),
-        ('a19', NULL, 'Teeth Whitening (In-Office)', 'AESTHETIC', 300.00, 1, NULL, 0, NULL, 1),
-        ('a20', NULL, 'Orthodontic Consultation', 'ORTHODONTICS', 80.00, 0, NULL, 0, NULL, 1)
-    `);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
