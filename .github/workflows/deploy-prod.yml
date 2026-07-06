@@ -9,6 +9,7 @@ on:
 
 env:
   IMAGE_TAG: ${{ github.sha }}
+  DOCKERHUB_USERNAME: abdelazizkazoum2
   PROD_NEXT_PUBLIC_API_URL: ${{ vars.PROD_NEXT_PUBLIC_API_URL || 'http://localhost:3001' }}
   PROD_NEXT_PUBLIC_DEFAULT_CLINIC_ID: ${{ vars.PROD_NEXT_PUBLIC_DEFAULT_CLINIC_ID || '00000000-0000-4000-8000-000000000001' }}
 
@@ -28,7 +29,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push migrations image
@@ -38,8 +39,8 @@ jobs:
           file: services/Dockerfile.migrations
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-migrations:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-migrations:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-migrations:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-migrations:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
 
@@ -50,8 +51,8 @@ jobs:
           file: services/auth-service/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-auth-service:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-auth-service:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-auth-service:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-auth-service:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
@@ -63,8 +64,8 @@ jobs:
           file: services/clinic-service/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-clinic-service:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-clinic-service:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-clinic-service:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-clinic-service:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
@@ -76,8 +77,8 @@ jobs:
           file: services/patient-service/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-patient-service:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-patient-service:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-patient-service:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-patient-service:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
@@ -89,8 +90,8 @@ jobs:
           file: services/appointment-service/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-appointment-service:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-appointment-service:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-appointment-service:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-appointment-service:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
@@ -102,8 +103,8 @@ jobs:
           file: services/treatment-service/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-treatment-service:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-treatment-service:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-treatment-service:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-treatment-service:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
@@ -115,8 +116,8 @@ jobs:
           file: services/api-gateway/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-api-gateway:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-api-gateway:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-api-gateway:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-api-gateway:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
@@ -128,8 +129,8 @@ jobs:
           file: frontend/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-frontend:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/dentiflow-frontend:latest
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-frontend:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/dentiflow-frontend:latest
           build-args: |
             PNPM_FLAGS=--frozen-lockfile
             PROD_PNPM_FLAGS=--frozen-lockfile
