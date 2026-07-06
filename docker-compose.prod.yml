@@ -54,6 +54,30 @@ services:
       retries: 20
       start_period: 30s
 
+  db-bootstrap:
+    image: mysql:8.0
+    restart: "no"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+    command: >
+      sh -c 'mysql -h db -uroot -p"$$MYSQL_ROOT_PASSWORD" -e "
+      CREATE DATABASE IF NOT EXISTS auth_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE DATABASE IF NOT EXISTS clinic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE DATABASE IF NOT EXISTS patient_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE DATABASE IF NOT EXISTS appointment_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE DATABASE IF NOT EXISTS treatment_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      GRANT ALL PRIVILEGES ON auth_db.* TO '\''root'\''@'\''%'\'';
+      GRANT ALL PRIVILEGES ON clinic_db.* TO '\''root'\''@'\''%'\'';
+      GRANT ALL PRIVILEGES ON patient_db.* TO '\''root'\''@'\''%'\'';
+      GRANT ALL PRIVILEGES ON appointment_db.* TO '\''root'\''@'\''%'\'';
+      GRANT ALL PRIVILEGES ON treatment_db.* TO '\''root'\''@'\''%'\'';
+      FLUSH PRIVILEGES;"'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dentiflow-network
+
   auth-migrations:
     build:
       context: .
@@ -66,13 +90,18 @@ services:
       <<: *migration-env
       DB_NAME: ${AUTH_DB_NAME:-auth_db}
       TS_NODE_PROJECT: auth-service/tsconfig.json
+      DENTIFLOW_SEED_DEFAULT_ADMIN: ${DENTIFLOW_SEED_DEFAULT_ADMIN:-true}
+      DEFAULT_ADMIN_CLINIC_ID: ${DEFAULT_ADMIN_CLINIC_ID:-00000000-0000-4000-8000-000000000001}
+      DEFAULT_ADMIN_EMAIL: ${DEFAULT_ADMIN_EMAIL:-admin@dentiflow.local}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-Admin123!}
+      DEFAULT_ADMIN_FULL_NAME: ${DEFAULT_ADMIN_FULL_NAME:-DentiFlow Admin}
     command: >
       node -r ts-node/register -r tsconfig-paths/register
       node_modules/typeorm/cli.js migration:run
       -d auth-service/src/infrastructure/persistence/data-source.ts
     depends_on:
-      db:
-        condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
     networks:
       - dentiflow-network
 
@@ -88,8 +117,8 @@ services:
       node_modules/typeorm/cli.js migration:run
       -d clinic-service/src/infrastructure/persistence/data-source.ts
     depends_on:
-      db:
-        condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
       auth-migrations:
         condition: service_completed_successfully
     networks:
@@ -107,8 +136,8 @@ services:
       node_modules/typeorm/cli.js migration:run
       -d patient-service/src/infrastructure/persistence/data-source.ts
     depends_on:
-      db:
-        condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
       clinic-migrations:
         condition: service_completed_successfully
     networks:
@@ -126,9 +155,28 @@ services:
       node_modules/typeorm/cli.js migration:run
       -d appointment-service/src/infrastructure/persistence/data-source.ts
     depends_on:
-      db:
-        condition: service_healthy
+      db-bootstrap:
+        condition: service_completed_successfully
       patient-migrations:
+        condition: service_completed_successfully
+    networks:
+      - dentiflow-network
+
+  treatment-migrations:
+    image: dentiflow/migrations:${IMAGE_TAG:-prod}
+    restart: "no"
+    environment:
+      <<: *migration-env
+      DB_NAME: ${TREATMENT_DB_NAME:-treatment_db}
+      TS_NODE_PROJECT: treatment-service/tsconfig.json
+    command: >
+      node -r ts-node/register -r tsconfig-paths/register
+      node_modules/typeorm/cli.js migration:run
+      -d treatment-service/src/infrastructure/persistence/data-source.ts
+    depends_on:
+      db-bootstrap:
+        condition: service_completed_successfully
+      appointment-migrations:
         condition: service_completed_successfully
     networks:
       - dentiflow-network
@@ -242,6 +290,33 @@ services:
       clinic-service:
         condition: service_started
 
+  treatment-service:
+    build:
+      context: .
+      dockerfile: services/treatment-service/Dockerfile
+      args:
+        PNPM_FLAGS: ${PNPM_FLAGS:---frozen-lockfile}
+        PROD_PNPM_FLAGS: ${PROD_PNPM_FLAGS:---frozen-lockfile}
+    image: dentiflow/treatment-service:${IMAGE_TAG:-prod}
+    <<: *service-common
+    environment:
+      <<: *db-env
+      NODE_ENV: production
+      PORT: 3006
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DB_NAME: ${TREATMENT_DB_NAME:-treatment_db}
+      GRPC_PORT: 5005
+      NATS_URL: nats://nats:4222
+      OUTBOX_RELAY_INTERVAL_MS: ${OUTBOX_RELAY_INTERVAL_MS:-500}
+    expose:
+      - "3006"
+      - "5005"
+    depends_on:
+      treatment-migrations:
+        condition: service_completed_successfully
+      nats:
+        condition: service_healthy
+
   api-gateway:
     build:
       context: .
@@ -262,6 +337,7 @@ services:
       CLINIC_SERVICE_GRPC_URL: clinic-service:5002
       PATIENT_SERVICE_GRPC_URL: patient-service:5003
       APPOINTMENT_SERVICE_GRPC_URL: appointment-service:5004
+      TREATMENT_SERVICE_GRPC_URL: treatment-service:5005
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       NATS_URL: nats://nats:4222
     ports:
@@ -274,6 +350,8 @@ services:
       patient-service:
         condition: service_started
       appointment-service:
+        condition: service_started
+      treatment-service:
         condition: service_started
       nats:
         condition: service_healthy

@@ -211,13 +211,13 @@ export const documentToHttp = (dto: TreatmentProto.MedicalDocumentRequestReply) 
 
 export const workspaceToHttp = (dto: TreatmentProto.TreatmentWorkspaceReply) => ({
   activeVisit: dto.activeVisit ? visitToHttp(dto.activeVisit) : undefined,
-  acts: dto.acts.map(actToHttp),
-  treatmentPlan: dto.treatmentPlan.map(planItemToHttp),
-  currentSession: dto.currentSession.map(procedureToHttp),
-  diagnoses: dto.diagnoses.map(diagnosisToHttp),
-  attachments: dto.attachments.map(attachmentToHttp),
-  charges: dto.charges.map(chargeToHttp),
-  handoffs: dto.handoffs.map(handoffToHttp),
-  followUpRequests: dto.followUpRequests.map(followUpToHttp),
-  documentRequests: dto.documentRequests.map(documentToHttp),
+  acts: (dto.acts ?? []).map(actToHttp),
+  treatmentPlan: (dto.treatmentPlan ?? []).map(planItemToHttp),
+  currentSession: (dto.currentSession ?? []).map(procedureToHttp),
+  diagnoses: (dto.diagnoses ?? []).map(diagnosisToHttp),
+  attachments: (dto.attachments ?? []).map(attachmentToHttp),
+  charges: (dto.charges ?? []).map(chargeToHttp),
+  handoffs: (dto.handoffs ?? []).map(handoffToHttp),
+  followUpRequests: (dto.followUpRequests ?? []).map(followUpToHttp),
+  documentRequests: (dto.documentRequests ?? []).map(documentToHttp),
 });
