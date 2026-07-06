@@ -59,7 +59,7 @@ export class TreatmentController implements OnModuleInit {
       return visitToHttp(
         await lastValueFrom(
           this.treatmentGrpcService.createVisitFromQueue({
-            clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+            clinicId: user.clinic_id,
             patientId: body.patientId ?? body.patient_id ?? "",
             queueEntryId: body.queueEntryId ?? body.queue_entry_id ?? "",
             appointmentId: body.appointmentId ?? body.appointment_id ?? "",
@@ -84,7 +84,7 @@ export class TreatmentController implements OnModuleInit {
       return workspaceToHttp(
         await lastValueFrom(
           this.treatmentGrpcService.getTreatmentWorkspace({
-            clinicId: query.clinicId ?? user.clinic_id,
+            clinicId: user.clinic_id,
             patientId: query.patientId ?? "",
             activeVisitId: query.activeVisitId ?? "",
           }),
@@ -101,7 +101,7 @@ export class TreatmentController implements OnModuleInit {
     try {
       const result = await lastValueFrom(
         this.treatmentGrpcService.createTreatmentPlanItems({
-          clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+          clinicId: user.clinic_id,
           patientId: body.patientId ?? body.patient_id ?? "",
           actId: body.actId ?? body.act_id ?? "",
           selectedTeeth: body.selectedTeeth ?? body.selected_teeth ?? [],
@@ -126,7 +126,7 @@ export class TreatmentController implements OnModuleInit {
       return diagnosisToHttp(
         await lastValueFrom(
           this.treatmentGrpcService.createDiagnosis({
-            clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+            clinicId: user.clinic_id,
             patientId: body.patientId ?? body.patient_id ?? "",
             diagnosis: body.diagnosis ?? "",
             selectedTeeth: body.selectedTeeth ?? body.selected_teeth ?? [],
@@ -156,7 +156,7 @@ export class TreatmentController implements OnModuleInit {
     try {
       const result = await lastValueFrom(
         this.treatmentGrpcService.startTreatment({
-          clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+          clinicId: user.clinic_id,
           patientId: body.patientId ?? body.patient_id ?? "",
           visitId: body.visitId ?? body.visit_id ?? "",
           treatmentPlanItemId: body.treatmentPlanItemId ?? body.treatment_plan_item_id ?? "",
@@ -183,7 +183,7 @@ export class TreatmentController implements OnModuleInit {
     try {
       const result = await lastValueFrom(
         this.treatmentGrpcService.completeVisitProcedure({
-          clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+          clinicId: user.clinic_id,
           patientId: body.patientId ?? body.patient_id ?? "",
           visitProcedureId: id,
           providerId: body.providerId ?? body.provider_id ?? user.user_id,
@@ -209,7 +209,7 @@ export class TreatmentController implements OnModuleInit {
       return planItemToHttp(
         await lastValueFrom(
           this.treatmentGrpcService.changeTreatmentStatus({
-            clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+            clinicId: user.clinic_id,
             treatmentPlanItemId: id,
             status: body.status ?? "",
             reason: body.reason ?? "",
@@ -229,7 +229,7 @@ export class TreatmentController implements OnModuleInit {
       return handoffToHttp(
         await lastValueFrom(
           this.treatmentGrpcService.saveVisitHandoff({
-            clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+            clinicId: user.clinic_id,
             patientId: body.patientId ?? body.patient_id ?? "",
             visitId: body.visitId ?? body.visit_id ?? "",
             text: body.text ?? "",
@@ -246,14 +246,14 @@ export class TreatmentController implements OnModuleInit {
 
   @Post("attachments")
   @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
-  async saveAttachments(@Body() body: JsonBody) {
+  async saveAttachments(@Body() body: JsonBody, @CurrentUser() user: JwtPayload) {
     try {
       const attachments = body.attachments ?? [];
       const result = await lastValueFrom(
         this.treatmentGrpcService.saveClinicalAttachments({
           attachments: attachments.map((item: JsonBody) => ({
             id: item.id ?? "",
-            clinicId: item.clinicId ?? item.clinic_id ?? "",
+            clinicId: user.clinic_id,
             patientId: item.patientId ?? item.patient_id ?? "",
             visitId: item.visitId ?? item.visit_id ?? "",
             type: item.type ?? "DOCUMENT",
@@ -284,7 +284,7 @@ export class TreatmentController implements OnModuleInit {
       const documentRequest = body.documentRequest ?? body.document_request;
       const result = await lastValueFrom(
         this.treatmentGrpcService.closeVisit({
-          clinicId: body.clinicId ?? body.clinic_id ?? user.clinic_id,
+          clinicId: user.clinic_id,
           patientId: body.patientId ?? body.patient_id ?? "",
           visitId: id,
           providerId: body.providerId ?? body.provider_id ?? user.user_id,

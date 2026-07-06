@@ -20,11 +20,17 @@ export class ClinicScopeGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{
       user: JwtPayload;
       params: Record<string, string>;
+      route?: {path?: string};
     }>();
 
-    const clinicIdParam = request.params?.id;
+    const routePath = request.route?.path ?? "";
+    const clinicIdParam =
+      request.params?.clinicId ??
+      request.params?.clinic_id ??
+      (routePath.includes("clinics/:id") ? request.params?.id : undefined);
 
-    // No :id in the route (e.g. POST /clinics) — nothing to scope-check
+    // No clinic id in the route (e.g. POST /clinics or /treatment/procedures/:id)
+    // — nothing to scope-check here. Route handlers can still scope body/query data.
     if (!clinicIdParam) {
       return true;
     }

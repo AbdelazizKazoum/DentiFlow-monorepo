@@ -338,6 +338,25 @@ export function TreatmentWorkspace() {
     workspacePatientId,
   ]);
 
+  useEffect(() => {
+    if (!visitHandoffRecord) {
+      setVisitHandoffNote("");
+      setVisitCodingStatus("structured");
+      setVisitLifecycleStatus("open");
+      return;
+    }
+
+    setVisitHandoffNote(visitHandoffRecord.text);
+    setVisitCodingStatus(visitHandoffRecord.status);
+    setVisitLifecycleStatus(
+      visitHandoffRecord.status === "needs_coding" ? "needs_coding" : "open",
+    );
+  }, [
+    visitHandoffRecord?.id,
+    visitHandoffRecord?.status,
+    visitHandoffRecord?.text,
+  ]);
+
   const selectedMouthRegionOption = MOUTH_REGION_OPTIONS.find(
     (option) => option.id === selectedMouthRegion,
   );

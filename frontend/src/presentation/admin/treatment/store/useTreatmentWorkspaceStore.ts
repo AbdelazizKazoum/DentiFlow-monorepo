@@ -235,9 +235,7 @@ export const useTreatmentWorkspaceStore = create<TreatmentWorkspaceStoreState>(
           treatmentCharges: workspace.charges.map(fromDomainTreatmentCharge),
           visitHandoffRecord:
             workspace.handoffs.length > 0
-              ? fromDomainVisitHandoff(
-                  workspace.handoffs[workspace.handoffs.length - 1],
-                )
+              ? fromDomainVisitHandoff(workspace.handoffs[0])
               : null,
           followUpRequests: workspace.followUpRequests.map((request) => ({
             id: request.id,
