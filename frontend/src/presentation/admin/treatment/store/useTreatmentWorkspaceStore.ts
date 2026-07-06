@@ -16,11 +16,13 @@ import {
   completeVisitProcedureWithRepositoryUseCase,
   createTreatmentDiagnosisUseCase,
   createTreatmentPlanItemsUseCase,
+  getPatientByIdUseCase,
   getTreatmentWorkspaceUseCase,
   saveClinicalAttachmentsUseCase,
   saveVisitHandoffWithRepositoryUseCase,
   startTreatmentWithRepositoryUseCase,
 } from "@/infrastructure/container";
+import type {Patient} from "@/domain/patient/entities/patient";
 import {
   fromDomainDentalAct,
   fromDomainClinicalAttachment,
@@ -55,6 +57,33 @@ import {TREATMENT_DEMO_PATIENT} from "@/infrastructure/treatment/inMemory";
 export type TreatmentWorkspaceTab = "session" | "plan" | "history";
 export type TreatmentInspectorMode = "act" | "diagnosis" | "details";
 export type TreatmentDentitionMode = "adult" | "child" | "mixed";
+
+const calculateAge = (dateOfBirth?: Date): number => {
+  if (!dateOfBirth) return 0;
+
+  const today = new Date();
+  let age = today.getFullYear() - dateOfBirth.getFullYear();
+  const hasBirthdayPassed =
+    today.getMonth() > dateOfBirth.getMonth() ||
+    (today.getMonth() === dateOfBirth.getMonth() &&
+      today.getDate() >= dateOfBirth.getDate());
+
+  if (!hasBirthdayPassed) age -= 1;
+
+  return Math.max(age, 0);
+};
+
+const toTreatmentPatient = (patient: Patient): TreatmentPagePatientDTO => ({
+  id: patient.id,
+  name: patient.fullName,
+  age: calculateAge(patient.dateOfBirth),
+  gender: patient.gender
+    ? patient.gender.charAt(0) + patient.gender.slice(1).toLowerCase()
+    : "Unknown",
+  phone: patient.phone ?? "No phone",
+  alerts: patient.allergies ? [`Allergies: ${patient.allergies}`] : [],
+  balance: 0,
+});
 
 interface TreatmentWorkspaceStoreState {
   patient: TreatmentPagePatientDTO;
@@ -100,6 +129,7 @@ interface TreatmentWorkspaceStoreState {
     patientId: string;
     activeVisitId?: string;
   }) => Promise<void>;
+  loadPatient: (patientId: string) => Promise<void>;
   addTreatmentPlanItem: (
     command: AddTreatmentPlanItemCommand,
     act: TreatmentPageDentalActDTO,
@@ -242,6 +272,35 @@ export const useTreatmentWorkspaceStore = create<TreatmentWorkspaceStoreState>(
           error instanceof Error
             ? error.message
             : "Failed to load treatment workspace",
+        );
+      }
+    },
+    loadPatient: async (patientId) => {
+      set((state) => ({
+        patient:
+          state.patient.id === patientId
+            ? state.patient
+            : {
+                ...state.patient,
+                id: patientId,
+                name: "Loading patient",
+                age: 0,
+                gender: "Unknown",
+                phone: "",
+                alerts: [],
+              },
+      }));
+      try {
+        const patient = await getPatientByIdUseCase.execute(patientId);
+
+        if (patient) {
+          set({patient: toTreatmentPatient(patient)});
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Failed to load patient details",
         );
       }
     },

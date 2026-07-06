@@ -202,7 +202,9 @@ const DIAGNOSIS_EVIDENCE_DISPLAY_OPTIONS = fromDomainEvidence(
   DIAGNOSIS_EVIDENCE_OPTIONS,
 );
 
-const TREATMENT_CLINIC_ID = "clinic_demo";
+const TREATMENT_CLINIC_ID =
+  process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ??
+  "00000000-0000-4000-8000-000000000001";
 
 export function TreatmentWorkspace() {
   const router = useRouter();
@@ -249,6 +251,7 @@ export function TreatmentWorkspace() {
     setIsSendAssistantModalOpen,
     isCloseVisitModalOpen,
     setIsCloseVisitModalOpen,
+    loadPatient,
     loadWorkspace,
     addTreatmentPlanItem,
     addDiagnosis,
@@ -321,12 +324,19 @@ export function TreatmentWorkspace() {
     useState<TreatmentPlanItem | null>(null);
 
   useEffect(() => {
+    void loadPatient(workspacePatientId);
     void loadWorkspace({
       clinicId: TREATMENT_CLINIC_ID,
       patientId: workspacePatientId,
       activeVisitId: routeVisitId ?? activeVisit.id,
     });
-  }, [activeVisit.id, loadWorkspace, routeVisitId, workspacePatientId]);
+  }, [
+    activeVisit.id,
+    loadPatient,
+    loadWorkspace,
+    routeVisitId,
+    workspacePatientId,
+  ]);
 
   const selectedMouthRegionOption = MOUTH_REGION_OPTIONS.find(
     (option) => option.id === selectedMouthRegion,

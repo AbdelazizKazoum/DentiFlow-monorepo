@@ -11,6 +11,7 @@ import {DeletePatientInsurance} from "@/application/patient/useCases/DeletePatie
 import {GetInsuranceProviders} from "@/application/patient/useCases/GetInsuranceProviders";
 import {GetInsuranceTemplates} from "@/application/patient/useCases/GetInsuranceTemplates";
 import {GetPatientDocuments} from "@/application/patient/useCases/GetPatientDocuments";
+import {GetPatientById} from "@/application/patient/useCases/GetPatientById";
 import {GetPatientInsurances} from "@/application/patient/useCases/GetPatientInsurances";
 import {GetPatientsByClinic} from "@/application/patient/useCases/GetPatientsByClinic";
 import {SearchPatients} from "@/application/patient/useCases/SearchPatients";
@@ -47,6 +48,7 @@ export const searchPatientsUseCase = new SearchPatients(
   patientRepository,
   clinicId,
 );
+export const getPatientByIdUseCase = new GetPatientById(patientRepository);
 export const createPatientUseCase = new CreatePatient(patientRepository);
 export const updatePatientUseCase = new UpdatePatient(patientRepository);
 export const deletePatientUseCase = new DeletePatient(patientRepository);

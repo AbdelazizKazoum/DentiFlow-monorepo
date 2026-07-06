@@ -235,7 +235,7 @@ services:
     build:
       context: .
       dockerfile: services/treatment-service/Dockerfile
-      target: build
+      target: builder
       args:
         PNPM_FLAGS: "--no-frozen-lockfile"
     image: dentiflow/treatment-service:dev

@@ -192,15 +192,15 @@ export class TreatmentRepository implements ITreatmentRepository {
       treatment_plan_item_id: procedure.treatmentPlanItemId,
       act_id: procedure.actId,
       act_name: procedure.actName,
-      location: procedure.location,
+      location: procedure.location as unknown as Record<string, unknown>,
       status: procedure.status,
       action: procedure.action,
       notes: procedure.notes ?? null,
       performed_at: procedure.performedAt,
       completed_at: procedure.completedAt ?? null,
       provider_id: procedure.providerId,
-    });
-    return TreatmentMapper.procedure(saved);
+    } as Partial<VisitProcedureTypeOrmEntity>);
+    return TreatmentMapper.procedure(saved as VisitProcedureTypeOrmEntity);
   }
 
   async getVisitProcedure(id: string): Promise<VisitProcedure | null> {
@@ -221,7 +221,7 @@ export class TreatmentRepository implements ITreatmentRepository {
       clinic_id: diagnosis.clinicId,
       patient_id: diagnosis.patientId,
       diagnosis: diagnosis.diagnosis,
-      location: diagnosis.location,
+      location: diagnosis.location as unknown as Record<string, unknown>,
       severity: diagnosis.severity,
       certainty: diagnosis.certainty,
       status: diagnosis.status,
@@ -232,8 +232,8 @@ export class TreatmentRepository implements ITreatmentRepository {
       notes: diagnosis.notes ?? null,
       created_at: diagnosis.createdAt,
       created_by: diagnosis.createdBy,
-    });
-    return TreatmentMapper.diagnosis(saved);
+    } as Partial<DiagnosisTypeOrmEntity>);
+    return TreatmentMapper.diagnosis(saved as DiagnosisTypeOrmEntity);
   }
 
   async saveClinicalAttachments(items: ClinicalAttachment[]): Promise<ClinicalAttachment[]> {
@@ -285,7 +285,7 @@ export class TreatmentRepository implements ITreatmentRepository {
       price: String(item.price),
       priority: item.priority,
       status: item.status,
-      location: item.location,
+      location: item.location as unknown as Record<string, unknown>,
       notes: item.notes ?? null,
       treatment_group_id: item.treatmentGroupId ?? null,
       visit_procedure_ids: item.visitProcedureIds,
