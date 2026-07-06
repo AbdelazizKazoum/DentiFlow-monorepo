@@ -32,7 +32,7 @@ export class AdminAuthRepositoryImpl implements AdminAuthRepository {
       ? (process.env.API_GATEWAY_INTERNAL_URL ??
           process.env.NEXT_PUBLIC_API_URL ??
           "http://localhost:3001")
-      : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
+      : "";
   }
 
   async login(credentials: AdminLoginCredentials): Promise<AdminUser | null> {

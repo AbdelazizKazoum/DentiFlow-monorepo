@@ -12,6 +12,7 @@ export {
 
 export {
   getPatientsByClinicUseCase,
+  getPatientByIdUseCase,
   searchPatientsUseCase,
   createPatientUseCase,
   updatePatientUseCase,
