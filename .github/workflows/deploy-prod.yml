@@ -3,7 +3,7 @@ name: Build and Deploy Production
 on:
   push:
     branches:
-      - main
+      - treatment-imp
   workflow_dispatch:
 
 env:
