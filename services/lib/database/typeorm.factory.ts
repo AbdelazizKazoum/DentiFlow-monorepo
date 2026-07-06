@@ -5,6 +5,7 @@ export function typeormOptionsFactory(
   configService: ConfigService,
 ): TypeOrmModuleOptions {
   const isProduction = configService.get<string>("NODE_ENV") === "production";
+  const dbLogging = configService.get<string>("DB_LOGGING");
 
   return {
     type: "mysql",
@@ -16,7 +17,7 @@ export function typeormOptionsFactory(
     autoLoadEntities: true, // picks up all entities registered via forFeature()
     synchronize: !isProduction, // auto-create/update tables in dev; use migrations in prod
     migrationsRun: false,
-    logging: !isProduction,
+    logging: dbLogging === undefined ? !isProduction : dbLogging === "true",
     charset: "utf8mb4", // supports Arabic and all Unicode characters
     timezone: "Z", // store all timestamps as UTC
   };

@@ -20,6 +20,7 @@ import type {
   TreatmentWorkspace,
   VisitWorkflowRepository,
 } from "@/domain/treatment/repositories";
+import {getLocationToothIds} from "@/domain/treatment/services";
 import {axiosClient} from "@/infrastructure/http/axiosClient";
 import {BaseRepository} from "@/infrastructure/http/BaseRepository";
 
@@ -177,13 +178,35 @@ export class ApiTreatmentRepository
   ): Promise<TreatmentPlanItem[]> {
     return this.execute(async () => {
       if (!items[0]) return [];
+      const selectedTeeth = [
+        ...new Set(items.flatMap((item) => getLocationToothIds(item.location))),
+      ];
+      const surfacesByTooth = items.reduce<Record<number, string[]>>(
+        (acc, item) => {
+          if (item.location.surfacesByTooth) {
+            Object.entries(item.location.surfacesByTooth).forEach(
+              ([tooth, surfaces]) => {
+                acc[Number(tooth)] = surfaces;
+              },
+            );
+          }
+          if (
+            typeof item.location.tooth === "number" &&
+            item.location.surfaces.length > 0
+          ) {
+            acc[item.location.tooth] = item.location.surfaces;
+          }
+          return acc;
+        },
+        {},
+      );
       const {data} = await axiosClient.post("/api/v1/treatment/plan-items", {
         clinicId: items[0].clinicId,
         patientId: items[0].patientId,
         actId: items[0].actId,
-        selectedTeeth: items[0].location.toothIds ?? [],
+        selectedTeeth,
         mouthRegionId: items[0].location.mouthRegionId,
-        surfacesByTooth: items[0].location.surfacesByTooth ?? {},
+        surfacesByTooth,
         priority: items[0].priority,
         notes: items[0].notes,
         dentition: items[0].location.dentition,

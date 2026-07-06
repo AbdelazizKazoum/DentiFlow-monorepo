@@ -12,6 +12,7 @@ const treatmentEnvSchema = baseSchema.concat(
     DB_USERNAME: Joi.string().required(),
     DB_PASSWORD: Joi.string().required(),
     DB_NAME: Joi.string().required(),
+    DB_LOGGING: Joi.string().valid("true", "false").default("false"),
     NATS_URL: Joi.string().allow("").optional(),
     OUTBOX_RELAY_INTERVAL_MS: Joi.number().default(500),
   }),

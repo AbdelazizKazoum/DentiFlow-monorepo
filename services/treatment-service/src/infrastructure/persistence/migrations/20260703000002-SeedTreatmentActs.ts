@@ -27,6 +27,13 @@ export class SeedTreatmentActs20260703000002 implements MigrationInterface {
   name = "SeedTreatmentActs20260703000002";
 
   async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      UPDATE treatment_acts
+      SET active = 0
+      WHERE clinic_id IS NOT NULL
+        AND TRIM(name) = ''
+    `);
+
     for (const [
       id,
       name,
