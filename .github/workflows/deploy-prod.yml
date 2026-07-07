@@ -170,5 +170,9 @@ jobs:
             export IMAGE_TAG=${{ env.IMAGE_TAG }}
             docker compose --env-file .env.prod -f docker-compose.deploy.yml pull
             docker compose --env-file .env.prod -f docker-compose.deploy.yml rm -f db-bootstrap auth-migrations clinic-migrations patient-migrations appointment-migrations treatment-migrations || true
-            docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --no-build --remove-orphans
+            if ! docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --no-build --remove-orphans; then
+              docker compose --env-file .env.prod -f docker-compose.deploy.yml ps -a
+              docker compose --env-file .env.prod -f docker-compose.deploy.yml logs --no-color db db-bootstrap auth-migrations clinic-migrations patient-migrations appointment-migrations treatment-migrations
+              exit 1
+            fi
             docker image prune -af --filter "until=168h"

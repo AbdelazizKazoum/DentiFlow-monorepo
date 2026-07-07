@@ -60,18 +60,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
     command: >
-      sh -c 'mysql -h db -uroot -p"$$MYSQL_ROOT_PASSWORD" -e "
+      sh -c 'until mysql -h db -uroot -p"$$MYSQL_ROOT_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; do
+      echo "Waiting for MySQL remote connection...";
+      sleep 2;
+      done;
+      mysql -h db -uroot -p"$$MYSQL_ROOT_PASSWORD" -e "
       CREATE DATABASE IF NOT EXISTS auth_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
       CREATE DATABASE IF NOT EXISTS clinic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
       CREATE DATABASE IF NOT EXISTS patient_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
       CREATE DATABASE IF NOT EXISTS appointment_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-      CREATE DATABASE IF NOT EXISTS treatment_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-      GRANT ALL PRIVILEGES ON auth_db.* TO '\''root'\''@'\''%'\'';
-      GRANT ALL PRIVILEGES ON clinic_db.* TO '\''root'\''@'\''%'\'';
-      GRANT ALL PRIVILEGES ON patient_db.* TO '\''root'\''@'\''%'\'';
-      GRANT ALL PRIVILEGES ON appointment_db.* TO '\''root'\''@'\''%'\'';
-      GRANT ALL PRIVILEGES ON treatment_db.* TO '\''root'\''@'\''%'\'';
-      FLUSH PRIVILEGES;"'
+      CREATE DATABASE IF NOT EXISTS treatment_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"'
     depends_on:
       db:
         condition: service_healthy
