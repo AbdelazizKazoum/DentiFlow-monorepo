@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import {useTranslations} from "next-intl";
 import {
   Search,
   CalendarDays,
@@ -13,9 +14,7 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
-import { STATUS_CONFIG } from "../patientConfig";
 import type { FilterState, DateRange } from "../types";
-import { PatientStatus } from "@/domain/patient/entities/patient";
 
 interface PatientToolbarProps {
   viewMode: "list" | "grid";
@@ -68,6 +67,12 @@ export function PatientToolbar({
   onRemoveGenderFilter,
   onResetAll,
 }: PatientToolbarProps) {
+  const t = useTranslations("admin.patients");
+  const getDatePresetLabel = (preset: string | null) => {
+    if (!preset) return t("datePresets.custom_range");
+    const key = preset.toLowerCase().replace(/\s+/g, "_");
+    return t(`datePresets.${key}`);
+  };
   const hasAnyFilter =
     search ||
     filters.status !== "all" ||
@@ -149,7 +154,7 @@ export function PatientToolbar({
           />
           <input
             type="text"
-            placeholder="Search by name, email, phone, CNIE..."
+            placeholder={t("toolbar.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
@@ -242,7 +247,7 @@ export function PatientToolbar({
             whiteSpace: "nowrap",
           }}
         >
-          <SlidersHorizontal size={14} /> Filter
+          <SlidersHorizontal size={14} /> {t("toolbar.filter")}
           {activeFilterCount > 0 && (
             <span
               style={{
@@ -289,7 +294,7 @@ export function PatientToolbar({
             flexShrink: 0,
           }}
         >
-          <Download size={14} /> Export
+          <Download size={14} /> {t("toolbar.export")}
         </button>
         {/* Add Patient */}
         <button
@@ -320,7 +325,7 @@ export function PatientToolbar({
             e.currentTarget.style.boxShadow = "0 2px 6px rgba(30,86,208,0.25)";
           }}
         >
-          <Plus size={14} /> Add Patient
+          <Plus size={14} /> {t("toolbar.addPatient")}
         </button>
       </div>
       {/* Info Row */}
@@ -337,8 +342,8 @@ export function PatientToolbar({
       >
         <span className="text-text-placeholder" style={{ fontSize: 12 }}>
           {someSelected
-            ? `${selectedCount} selected`
-            : `${filteredCount} patient${filteredCount !== 1 ? "s" : ""}`}
+            ? t("toolbar.selectedCount", {count: selectedCount})
+            : t("toolbar.patientCount", {count: filteredCount})}
         </span>
         {someSelected && (
           <button
@@ -354,7 +359,7 @@ export function PatientToolbar({
               cursor: "pointer",
             }}
           >
-            Delete Selected
+            {t("toolbar.deleteSelected")}
           </button>
         )}
         {filters.status !== "all" && (
@@ -371,7 +376,7 @@ export function PatientToolbar({
               fontWeight: 600,
             }}
           >
-            {STATUS_CONFIG[filters.status as PatientStatus].label}
+            {t(`status.${filters.status}`)}
             <button
               onClick={onRemoveStatusFilter}
               style={{
@@ -402,7 +407,7 @@ export function PatientToolbar({
               fontWeight: 600,
             }}
           >
-            {filters.gender}
+            {t(`gender.${filters.gender}`)}
             <button
               onClick={onRemoveGenderFilter}
               style={{
@@ -433,7 +438,7 @@ export function PatientToolbar({
               fontWeight: 600,
             }}
           >
-            {datePreset || "Custom range"}
+            {getDatePresetLabel(datePreset)}
             <button
               onClick={onRemoveDateFilter}
               style={{
@@ -467,7 +472,7 @@ export function PatientToolbar({
               color: "var(--text-muted)",
             }}
           >
-            <RefreshCw size={12} /> Reset
+            <RefreshCw size={12} /> {t("toolbar.reset")}
           </button>
         )}
       </div>

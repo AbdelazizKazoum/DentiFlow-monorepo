@@ -1,4 +1,5 @@
 import React from "react";
+import {useTranslations} from "next-intl";
 import {
   FormControl,
   InputLabel,
@@ -30,6 +31,8 @@ export function InsuranceSection({
   insuranceProviders,
   onRemoveInsurance,
 }: InsuranceSectionProps) {
+  const t = useTranslations("admin.patients.insurance");
+  const common = useTranslations("admin.patients");
   const providerName = (id: string) =>
     insuranceProviders.find((p) => p.id === id)?.name ?? "";
 
@@ -58,7 +61,7 @@ export function InsuranceSection({
               {providerName(insurance.insuranceProviderId)}
             </Typography>
             <Chip
-              label={insurance.isActive ? "Active" : "Inactive"}
+              label={insurance.isActive ? common("status.ACTIVE") : common("status.INACTIVE")}
               size="small"
               sx={{
                 height: 20,
@@ -76,7 +79,7 @@ export function InsuranceSection({
             onClick={onRemoveInsurance}
             sx={{ ...outlinedBtnSx, padding: "4px 12px", fontSize: "0.75rem" }}
           >
-            Change
+            {t("change")}
           </Button>
         </div>
         {(insurance.policyNumber || insurance.memberId) && (
@@ -96,7 +99,7 @@ export function InsuranceSection({
                     mb: "3px",
                   }}
                 >
-                  Policy Number
+                  {t("policyNumber")}
                 </Typography>
                 <Typography
                   sx={{
@@ -121,7 +124,7 @@ export function InsuranceSection({
                     mb: "3px",
                   }}
                 >
-                  Member ID
+                  {t("memberId")}
                 </Typography>
                 <Typography
                   sx={{
@@ -143,9 +146,9 @@ export function InsuranceSection({
   return (
     <div className="flex flex-col gap-4">
       <FormControl fullWidth sx={TF_SX}>
-        <InputLabel>Insurance Provider *</InputLabel>
+        <InputLabel>{t("providerRequired")}</InputLabel>
         <Select
-          label="Insurance Provider *"
+          label={t("providerRequired")}
           value={insurance.insuranceProviderId}
           onChange={(e) =>
             setInsurance((s) => ({ ...s, insuranceProviderId: e.target.value }))
@@ -153,7 +156,7 @@ export function InsuranceSection({
         >
           <MenuItem value="">
             <em style={{ fontSize: 13, color: "var(--text-placeholder)" }}>
-              Select a provider
+              {t("selectProvider")}
             </em>
           </MenuItem>
           {insuranceProviders.map((p) => (
@@ -165,24 +168,24 @@ export function InsuranceSection({
       </FormControl>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <TextField
-          label="Policy Number"
+          label={t("policyNumber")}
           fullWidth
           value={insurance.policyNumber}
           onChange={(e) =>
             setInsurance((s) => ({ ...s, policyNumber: e.target.value }))
           }
           sx={TF_SX}
-          placeholder="e.g. POL-12345"
+          placeholder={t("policyPlaceholder")}
         />
         <TextField
-          label="Member ID"
+          label={t("memberId")}
           fullWidth
           value={insurance.memberId}
           onChange={(e) =>
             setInsurance((s) => ({ ...s, memberId: e.target.value }))
           }
           sx={TF_SX}
-          placeholder="e.g. MBR-67890"
+          placeholder={t("memberPlaceholder")}
         />
       </div>
       <button
@@ -225,15 +228,15 @@ export function InsuranceSection({
               color: insurance.isActive ? "#279C41" : "var(--foreground)",
             }}
           >
-            Coverage is Active
+            {t("coverageActive")}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
-            Insurance is currently valid and accepted for billing
+            {t("coverageDescription")}
           </Typography>
         </div>
         {insurance.isActive && (
           <Chip
-            label="Active"
+            label={common("status.ACTIVE")}
             size="small"
             sx={{
               ml: "auto",

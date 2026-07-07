@@ -1,4 +1,5 @@
 import {Radio} from "lucide-react";
+import {useTranslations} from "next-intl";
 import {formatLastUpdated} from "../utils";
 
 interface LivePulseProps {
@@ -7,6 +8,8 @@ interface LivePulseProps {
 }
 
 export function LivePulse({lastUpdatedAt, now}: LivePulseProps) {
+  const t = useTranslations("admin.waitingRoom.live");
+
   return (
     <div
       className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-semibold"
@@ -21,12 +24,17 @@ export function LivePulse({lastUpdatedAt, now}: LivePulseProps) {
         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
       </span>
       <Radio size={15} className="text-emerald-500" />
-      <span>Live</span>
+      <span>{t("label")}</span>
       <span
         className="hidden sm:inline text-xs font-medium"
         style={{color: "var(--text-muted)"}}
       >
-        {formatLastUpdated(lastUpdatedAt, now)}
+        {formatLastUpdated(lastUpdatedAt, now, {
+          notSynced: t("notSynced"),
+          justNow: t("justNow"),
+          secondsAgo: (count) => t("secondsAgo", {count}),
+          minutesAgo: (count) => t("minutesAgo", {count}),
+        })}
       </span>
     </div>
   );

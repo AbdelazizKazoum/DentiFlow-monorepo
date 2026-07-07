@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Checkbox } from "@mui/material";
+import {useTranslations} from "next-intl";
 import {
   PhoneCall,
   CalendarDays,
@@ -47,6 +48,8 @@ export function PatientTable({
   onOpenMenu,
   onSetPage,
 }: PatientTableProps) {
+  const t = useTranslations("admin.patients");
+
   return (
     <div
       style={{
@@ -83,12 +86,12 @@ export function PatientTable({
                 />
               </th>
               {[
-                "Patient",
-                "Contact",
-                "Personal",
-                "Medical",
-                "Status",
-                "Actions",
+                t("table.patient"),
+                t("table.contact"),
+                t("table.personal"),
+                t("table.medical"),
+                t("table.status"),
+                t("table.actions"),
               ].map((h) => (
                 <th
                   key={h}
@@ -196,7 +199,7 @@ export function PatientTable({
                                 letterSpacing: "0.06em",
                               }}
                             >
-                              New
+                              {t("badges.new")}
                             </span>
                           )}
                         </div>
@@ -204,7 +207,9 @@ export function PatientTable({
                           className="text-text-placeholder"
                           style={{ fontSize: 11 }}
                         >
-                          Registered {formatRelativeDate(p.createdAt)}
+                          {t("table.registered", {
+                            date: formatRelativeDate(p.createdAt),
+                          })}
                         </div>
                       </div>
                     </div>
@@ -264,7 +269,9 @@ export function PatientTable({
                       }}
                     >
                       {p.dateOfBirth
-                        ? `${calculateAge(p.dateOfBirth)} yr`
+                        ? t("table.ageYears", {
+                            age: calculateAge(p.dateOfBirth),
+                          })
                         : "—"}
                     </div>
                     <div
@@ -272,7 +279,7 @@ export function PatientTable({
                       style={{ fontSize: 12 }}
                     >
                       {p.gender
-                        ? p.gender.charAt(0) + p.gender.slice(1).toLowerCase()
+                        ? t(`gender.${p.gender}`)
                         : "—"}
                     </div>
                   </td>
@@ -298,7 +305,7 @@ export function PatientTable({
                         className="text-text-placeholder"
                         style={{ fontSize: 12 }}
                       >
-                        No allergies
+                        {t("table.noAllergies")}
                       </span>
                     )}
                     {p.chronicConditions && (
@@ -342,7 +349,7 @@ export function PatientTable({
                           flexShrink: 0,
                         }}
                       />
-                      {cfg.label}
+                      {t(`status.${p.status}`)}
                     </span>
                   </td>
                   <td style={{ padding: "12px 14px" }}>
@@ -350,7 +357,7 @@ export function PatientTable({
                       style={{ display: "flex", alignItems: "center", gap: 4 }}
                     >
                       <button
-                        title="Call"
+                        title={t("actions.call")}
                         style={{
                           background: "none",
                           border: "none",
@@ -370,7 +377,7 @@ export function PatientTable({
                         <PhoneCall size={15} />
                       </button>
                       <button
-                        title="Schedule"
+                        title={t("actions.schedule")}
                         style={{
                           background: "none",
                           border: "none",

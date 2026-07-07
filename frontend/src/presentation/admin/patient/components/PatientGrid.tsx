@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import {useTranslations} from "next-intl";
 import {
   PhoneCall,
   CalendarDays,
@@ -39,6 +40,8 @@ export function PatientGrid({
   onEdit,
   onSetPage,
 }: PatientGridProps) {
+  const t = useTranslations("admin.patients");
+
   return (
     <div
       style={{
@@ -167,7 +170,7 @@ export function PatientGrid({
                           flexShrink: 0,
                         }}
                       />
-                      {cfg.label}
+                      {t(`status.${p.status}`)}
                     </span>
                     {isNew && (
                       <span
@@ -183,7 +186,7 @@ export function PatientGrid({
                           letterSpacing: "0.06em",
                         }}
                       >
-                        New
+                        {t("badges.new")}
                       </span>
                     )}
                   </div>
@@ -203,7 +206,9 @@ export function PatientGrid({
                     <span
                       style={{ fontWeight: 600, color: "var(--foreground)" }}
                     >
-                      {calculateAge(p.dateOfBirth)} yr
+                      {t("table.ageYears", {
+                        age: calculateAge(p.dateOfBirth),
+                      })}
                     </span>
                     <span
                       style={{
@@ -218,7 +223,7 @@ export function PatientGrid({
                 )}
                 {p.gender && (
                   <span>
-                    {p.gender.charAt(0) + p.gender.slice(1).toLowerCase()}
+                    {t(`gender.${p.gender}`)}
                   </span>
                 )}
                 {p.cnie && (
@@ -304,7 +309,7 @@ export function PatientGrid({
                       whiteSpace: "nowrap",
                     }}
                   >
-                    Allergy: {p.allergies}
+                    {t("table.allergy", {allergies: p.allergies})}
                   </span>
                 </div>
               )}
@@ -316,11 +321,13 @@ export function PatientGrid({
                   borderTop: "1px solid var(--border-ui)",
                 }}
               >
-                Registered {formatRelativeDate(p.createdAt)}
+                {t("table.registered", {
+                  date: formatRelativeDate(p.createdAt),
+                })}
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button
-                  title="Call"
+                  title={t("actions.call")}
                   style={{
                     flex: 1,
                     padding: "7px 0",
@@ -337,7 +344,7 @@ export function PatientGrid({
                   <PhoneCall size={13} />
                 </button>
                 <button
-                  title="Schedule"
+                  title={t("actions.schedule")}
                   style={{
                     flex: 1,
                     padding: "7px 0",
@@ -371,7 +378,7 @@ export function PatientGrid({
                     gap: 4,
                   }}
                 >
-                  <Edit2 size={12} /> Edit
+                  <Edit2 size={12} /> {t("actions.edit")}
                 </button>
               </div>
             </div>

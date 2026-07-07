@@ -31,6 +31,7 @@ import {
   RotateCcw,
   User,
 } from "lucide-react";
+import {useLocale, useTranslations} from "next-intl";
 import {useMemo, useState} from "react";
 import type {QueueEntry} from "@/domain/queue/entities/queueEntry";
 import type {QueueSortMode} from "@/domain/queue/services/queuePolicy";
@@ -90,6 +91,8 @@ function SortableQueueRow({
   onOpenMenu,
   onStartTreatment,
 }: SortableQueueRowProps) {
+  const locale = useLocale();
+  const t = useTranslations("admin.waitingRoom.table");
   const {
     attributes,
     listeners,
@@ -133,7 +136,7 @@ function SortableQueueRow({
           <button
             ref={setActivatorNodeRef}
             type="button"
-            aria-label={`Reorder ${entry.patientName}`}
+            aria-label={t("reorder", {patient: entry.patientName})}
             className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-grab active:cursor-grabbing"
             style={{color: "var(--text-muted)"}}
             {...attributes}
@@ -167,7 +170,7 @@ function SortableQueueRow({
               style={{color: "var(--text-muted)"}}
             >
               <Phone size={12} />
-              <span>{entry.patientPhone ?? "No phone"}</span>
+              <span>{entry.patientPhone ?? t("noPhone")}</span>
             </div>
             {entry.notes && (
               <div className="flex items-center gap-1 text-[11px] mt-1 text-amber-600 font-medium">
@@ -183,7 +186,7 @@ function SortableQueueRow({
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs text-foreground font-semibold">
             <Calendar size={12} style={{color: "var(--text-muted)"}} />
-            <span>{entry.appointmentType ?? "Visit"}</span>
+            <span>{entry.appointmentType ?? t("visit")}</span>
           </div>
           <div
             className="flex items-center gap-1.5 text-xs"
@@ -201,10 +204,16 @@ function SortableQueueRow({
             className="text-xs font-bold"
             style={{color: "var(--brand-primary)"}}
           >
-            {formatElapsed(entry.arrivedAt, now)} elapsed
+            {t("elapsed", {
+              duration: formatElapsed(entry.arrivedAt, now, {
+                minutes: (count) => t("time.minutes", {count}),
+                hoursMinutes: (hours, minutes) =>
+                  t("time.hoursMinutes", {hours, minutes}),
+              }),
+            })}
           </p>
           <p className="text-xs" style={{color: "var(--text-muted)"}}>
-            Arr: {formatClockTime(entry.arrivedAt)}
+            {t("arrivedShort", {time: formatClockTime(entry.arrivedAt, locale)})}
           </p>
         </div>
       </td>
@@ -226,7 +235,7 @@ function SortableQueueRow({
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-dark"
             >
               <Play size={13} fill="currentColor" />
-              Start Treatment
+              {t("startTreatment")}
             </button>
           )}
           <button
@@ -251,6 +260,8 @@ function MobileQueueItem({
   onOpenMenu,
   onStartTreatment,
 }: MobileQueueItemProps) {
+  const locale = useLocale();
+  const t = useTranslations("admin.waitingRoom.table");
   const {
     attributes,
     listeners,
@@ -296,7 +307,7 @@ function MobileQueueItem({
             <button
               ref={setActivatorNodeRef}
               type="button"
-              aria-label={`Reorder ${entry.patientName}`}
+              aria-label={t("reorder", {patient: entry.patientName})}
               className="rounded-lg p-1.5 transition-colors hover:bg-gray-100 cursor-grab active:cursor-grabbing"
               style={{color: "var(--text-muted)"}}
               {...attributes}
@@ -331,7 +342,7 @@ function MobileQueueItem({
               >
                 <Phone size={12} className="shrink-0" />
                 <span className="truncate">
-                  {entry.patientPhone ?? "No phone"}
+                  {entry.patientPhone ?? t("noPhone")}
                 </span>
               </div>
             </div>
@@ -354,9 +365,9 @@ function MobileQueueItem({
             <div className="flex items-center gap-1.5 text-foreground">
               <Calendar size={12} style={{color: "var(--text-muted)"}} />
               <span className="font-semibold">
-                {entry.appointmentType ?? "Visit"}
+                {entry.appointmentType ?? t("visit")}
               </span>
-              <span style={{color: "var(--text-muted)"}}>with</span>
+              <span style={{color: "var(--text-muted)"}}>{t("with")}</span>
               <span className="min-w-0 truncate">{entry.doctorName}</span>
             </div>
             <div style={{color: "var(--text-muted)"}}>
@@ -364,9 +375,15 @@ function MobileQueueItem({
                 className="font-bold"
                 style={{color: "var(--brand-primary)"}}
               >
-                {formatElapsed(entry.arrivedAt, now)}
+                {formatElapsed(entry.arrivedAt, now, {
+                  minutes: (count) => t("time.minutes", {count}),
+                  hoursMinutes: (hours, minutes) =>
+                    t("time.hoursMinutes", {hours, minutes}),
+                })}
               </span>{" "}
-              elapsed - arrived {formatClockTime(entry.arrivedAt)}
+              {t("elapsedArrived", {
+                time: formatClockTime(entry.arrivedAt, locale),
+              })}
             </div>
           </div>
 
@@ -384,7 +401,7 @@ function MobileQueueItem({
               className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-dark"
             >
               <Play size={14} fill="currentColor" />
-              Start Treatment
+              {t("startTreatment")}
             </button>
           )}
         </div>
@@ -394,6 +411,8 @@ function MobileQueueItem({
 }
 
 function QueueDragOverlay({entry, now}: QueueDragOverlayProps) {
+  const t = useTranslations("admin.waitingRoom.table");
+
   return (
     <div
       className="w-[min(420px,calc(100vw-32px))] rounded-lg border bg-card p-4 shadow-2xl"
@@ -420,7 +439,7 @@ function QueueDragOverlay({entry, now}: QueueDragOverlayProps) {
                 {entry.patientName}
               </p>
               <p className="mt-0.5 truncate text-xs" style={{color: "var(--text-muted)"}}>
-                {entry.doctorName} - {entry.appointmentType ?? "Visit"}
+                {entry.doctorName} - {entry.appointmentType ?? t("visit")}
               </p>
             </div>
             <StatusChip status={entry.status} />
@@ -431,7 +450,11 @@ function QueueDragOverlay({entry, now}: QueueDragOverlayProps) {
               className="text-xs font-bold"
               style={{color: "var(--brand-primary)"}}
             >
-              {formatElapsed(entry.arrivedAt, now)}
+              {formatElapsed(entry.arrivedAt, now, {
+                minutes: (count) => t("time.minutes", {count}),
+                hoursMinutes: (hours, minutes) =>
+                  t("time.hoursMinutes", {hours, minutes}),
+              })}
             </span>
           </div>
         </div>
@@ -441,6 +464,8 @@ function QueueDragOverlay({entry, now}: QueueDragOverlayProps) {
 }
 
 function QueueLoadingState() {
+  const t = useTranslations("admin.waitingRoom.table");
+
   return (
     <div className="p-4 sm:p-6">
       <div
@@ -448,7 +473,7 @@ function QueueLoadingState() {
         style={{color: "var(--text-muted)"}}
       >
         <Loader2 size={16} className="animate-spin" />
-        Loading queue...
+        {t("loading")}
       </div>
       <div className="space-y-3">
         {[0, 1, 2].map((item) => (
@@ -471,11 +496,13 @@ function QueueLoadingState() {
 }
 
 function QueueEmptyState() {
+  const t = useTranslations("admin.waitingRoom.table");
+
   return (
     <div className="p-12 flex flex-col items-center gap-3">
       <ClipboardList size={40} style={{color: "var(--text-muted)"}} />
       <p className="text-sm font-medium" style={{color: "var(--text-muted)"}}>
-        No patients in the queue right now
+        {t("empty")}
       </p>
     </div>
   );
@@ -495,6 +522,7 @@ export function ActiveQueueTable({
   onSortModeChange,
   onStartTreatment,
 }: ActiveQueueTableProps) {
+  const t = useTranslations("admin.waitingRoom.table");
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const isDragEnabled = canReorder && sortMode === "POLICY";
   const isMobile = useMediaQuery("(max-width: 767px)", {noSsr: true});
@@ -502,8 +530,23 @@ export function ActiveQueueTable({
     useSensor(PointerSensor, {activationConstraint: {distance: 6}}),
   );
   const headings = isDragEnabled
-    ? ["", "Patient", "Visit", "Elapsed", "Priority", "Status", ""]
-    : ["Patient", "Visit", "Elapsed", "Priority", "Status", ""];
+    ? [
+        "",
+        t("headings.patient"),
+        t("headings.visit"),
+        t("headings.elapsed"),
+        t("headings.priority"),
+        t("headings.status"),
+        "",
+      ]
+    : [
+        t("headings.patient"),
+        t("headings.visit"),
+        t("headings.elapsed"),
+        t("headings.priority"),
+        t("headings.status"),
+        "",
+      ];
   const activeDragEntry = useMemo(
     () => entries.find((entry) => entry.id === activeDragId) ?? null,
     [activeDragId, entries],
@@ -537,7 +580,7 @@ export function ActiveQueueTable({
         <div className="flex items-center gap-2">
           <Clock size={18} style={{color: "var(--brand-primary)"}} />
           <h2 className="text-base font-semibold text-foreground">
-            Active Queue
+            {t("title")}
           </h2>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -552,7 +595,7 @@ export function ActiveQueueTable({
               }}
             >
               <RotateCcw size={13} />
-              Reset
+              {t("reset")}
             </button>
           )}
           <select
@@ -566,15 +609,15 @@ export function ActiveQueueTable({
               color: "var(--foreground)",
             }}
           >
-            <option value="POLICY">Smart sort</option>
-            <option value="ARRIVED_AT">Walk-in time</option>
+            <option value="POLICY">{t("sort.smart")}</option>
+            <option value="ARRIVED_AT">{t("sort.arrivedAt")}</option>
           </select>
           <div
             className="hidden sm:flex items-center gap-2 text-xs font-semibold"
             style={{color: "var(--text-muted)"}}
           >
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live updates on
+            {t("liveUpdates")}
           </div>
         </div>
       </div>

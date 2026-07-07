@@ -7,11 +7,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import {useTranslations} from "next-intl";
 import type {
   QueueEntry,
   QueueStatus,
 } from "@/domain/queue/entities/queueEntry";
-import {QUEUE_STATUS_CONFIG} from "../queueConfig";
 
 interface CorrectionReasonDialogProps {
   open: boolean;
@@ -36,9 +36,11 @@ export function CorrectionReasonDialog({
   onReasonChange,
   onSubmit,
 }: CorrectionReasonDialogProps) {
+  const t = useTranslations("admin.waitingRoom.correctionDialog");
+  const statusT = useTranslations("admin.waitingRoom.status");
   const targetLabel = targetStatus
-    ? QUEUE_STATUS_CONFIG[targetStatus].label
-    : "previous status";
+    ? statusT(targetStatus)
+    : t("previousStatus");
 
   return (
     <Dialog
@@ -57,11 +59,11 @@ export function CorrectionReasonDialog({
     >
       <DialogTitle>
         <Typography component="span" variant="h6" sx={{fontWeight: 700}}>
-          Correction Reason Required
+          {t("title")}
         </Typography>
         {entry && (
           <p className="text-xs mt-1" style={{color: "var(--text-muted)"}}>
-            Move {entry.patientName} back to {targetLabel}
+            {t("moveBack", {patient: entry.patientName, status: targetLabel})}
           </p>
         )}
       </DialogTitle>
@@ -75,10 +77,10 @@ export function CorrectionReasonDialog({
           fullWidth
           multiline
           minRows={3}
-          label="Correction reason"
+          label={t("label")}
           value={reason}
           onChange={(event) => onReasonChange(event.target.value)}
-          placeholder="Explain why this patient is being moved backward..."
+          placeholder={t("placeholder")}
         />
       </DialogContent>
       <DialogActions sx={{px: 3, pb: 2}}>
@@ -86,7 +88,7 @@ export function CorrectionReasonDialog({
           onClick={onClose}
           sx={{textTransform: "none", fontWeight: 600}}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           onClick={onSubmit}
@@ -100,7 +102,7 @@ export function CorrectionReasonDialog({
             "&:hover": {backgroundColor: "var(--brand-primary-dark)"},
           }}
         >
-          {isSaving ? "Saving..." : "Save Correction"}
+          {isSaving ? t("saving") : t("save")}
         </Button>
       </DialogActions>
     </Dialog>

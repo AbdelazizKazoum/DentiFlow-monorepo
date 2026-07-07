@@ -586,6 +586,118 @@
         }
       }
     },
+    "waitingRoom": {
+      "header": {
+        "title": "Salle d'attente",
+        "subtitle": "Gérez la file des patients et le suivi des statuts en temps réel",
+        "inQueue": "{count, plural, one {# en file} other {# en file}}",
+        "completed": "{count, plural, one {# terminé} other {# terminés}}"
+      },
+      "summary": {
+        "activeQueue": "File active",
+        "waiting": "En attente",
+        "inChair": "Au fauteuil",
+        "completed": "Terminés"
+      },
+      "live": {
+        "label": "Direct",
+        "notSynced": "Pas encore synchronisé",
+        "justNow": "Mis à jour à l'instant",
+        "secondsAgo": "Mis à jour il y a {count}s",
+        "minutesAgo": "Mis à jour il y a {count} min"
+      },
+      "status": {
+        "ARRIVED": "Arrivé",
+        "WAITING": "En attente",
+        "IN_CHAIR": "Au fauteuil",
+        "DONE": "Terminé"
+      },
+      "priority": {
+        "NORMAL": "Normale",
+        "URGENT": "Urgente",
+        "EMERGENCY": "Urgence"
+      },
+      "table": {
+        "title": "File active",
+        "loading": "Chargement de la file...",
+        "empty": "Aucun patient dans la file pour le moment",
+        "reset": "Réinitialiser",
+        "liveUpdates": "Mises à jour en direct",
+        "noPhone": "Aucun téléphone",
+        "visit": "Visite",
+        "with": "avec",
+        "elapsed": "{duration} écoulé",
+        "elapsedArrived": "écoulé - arrivé à {time}",
+        "arrivedShort": "Arr. : {time}",
+        "startTreatment": "Démarrer le traitement",
+        "reorder": "Réordonner {patient}",
+        "headings": {
+          "patient": "Patient",
+          "visit": "Visite",
+          "elapsed": "Temps écoulé",
+          "priority": "Priorité",
+          "status": "Statut"
+        },
+        "sort": {
+          "smart": "Tri intelligent",
+          "arrivedAt": "Heure d'arrivée"
+        },
+        "time": {
+          "minutes": "{count} min",
+          "hoursMinutes": "{hours} h {minutes} min"
+        }
+      },
+      "completed": {
+        "title": "Terminés aujourd'hui",
+        "timeRange": "{start} à {end}",
+        "openActions": "Ouvrir les actions pour {patient}"
+      },
+      "actions": {
+        "correctToArrived": "Corriger vers Arrivé",
+        "markWaiting": "Marquer en attente",
+        "markInChair": "Marquer au fauteuil",
+        "markDone": "Marquer terminé",
+        "editNotes": "Modifier les notes",
+        "addViewNotes": "Ajouter / voir les notes"
+      },
+      "notesDialog": {
+        "title": "Notes patient",
+        "hint": "Notes de réception pour cette session d'attente",
+        "placeholder": "Ajoutez des notes ou consignes particulières...",
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "save": "Enregistrer les notes"
+      },
+      "correctionDialog": {
+        "title": "Motif de correction requis",
+        "previousStatus": "statut précédent",
+        "moveBack": "Ramener {patient} vers {status}",
+        "label": "Motif de correction",
+        "placeholder": "Expliquez pourquoi ce patient est reculé dans le flux...",
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "save": "Enregistrer la correction"
+      }
+    },
+    "patients": {
+      "summary": {"total": "Total patients", "active": "Patients actifs", "newThisMonth": "Nouveaux ce mois-ci", "inactiveArchived": "Inactifs / archivés"},
+      "empty": {"title": "Aucun patient trouvé", "description": "Essayez d'ajuster la recherche ou les filtres"},
+      "toolbar": {"searchPlaceholder": "Rechercher par nom, email, téléphone, CNIE...", "filter": "Filtrer", "export": "Exporter", "addPatient": "Ajouter un patient", "selectedCount": "{count} sélectionné(s)", "patientCount": "{count, plural, one {# patient} other {# patients}}", "deleteSelected": "Supprimer la sélection", "reset": "Réinitialiser"},
+      "table": {"patient": "Patient", "contact": "Contact", "personal": "Personnel", "medical": "Médical", "status": "Statut", "actions": "Actions", "registered": "Inscrit {date}", "ageYears": "{age} ans", "noAllergies": "Aucune allergie", "allergy": "Allergie : {allergies}"},
+      "badges": {"new": "Nouveau"},
+      "status": {"ACTIVE": "Actif", "INACTIVE": "Inactif", "ARCHIVED": "Archivé"},
+      "gender": {"MALE": "Homme", "FEMALE": "Femme", "OTHER": "Autre", "all": "Tous"},
+      "sort": {"lastAdded": "Dernier ajouté", "name": "Nom (A-Z)", "status": "Statut", "gender": "Genre"},
+      "datePresets": {"today": "Aujourd'hui", "yesterday": "Hier", "this_week": "Cette semaine", "last_week": "Semaine dernière", "this_month": "Ce mois-ci", "last_month": "Mois dernier", "this_year": "Cette année", "last_year": "Année dernière", "all_time": "Tout", "custom_range": "Plage personnalisée"},
+      "filters": {"title": "Filtres", "status": "Statut", "gender": "Genre", "allStatuses": "Tous les statuts", "allGenders": "Tous les genres", "hasAllergies": "Avec allergies", "hasChronicConditions": "Avec maladies chroniques", "any": "Tous", "yes": "Oui", "no": "Non", "clearAll": "Tout effacer", "apply": "Appliquer"},
+      "dateRange": {"quickSelect": "Sélection rapide", "title": "Sélectionner une plage", "apply": "Appliquer"},
+      "actions": {"call": "Appeler", "schedule": "Planifier", "edit": "Modifier", "delete": "Supprimer", "cancel": "Annuler", "clearFilters": "Effacer les filtres"},
+      "deleteModal": {"title": "Supprimer le patient", "fallbackPatient": "ce patient", "message": "Voulez-vous vraiment supprimer <name></name> ? Cette action est irréversible.", "cancel": "Annuler", "delete": "Supprimer", "deleting": "Suppression..."},
+      "drawer": {"patientRecord": "Dossier patient", "insurance": "Assurance", "documents": "Documents", "step1": "Étape 1 sur 3 - Infos patient", "step2": "Étape 2 sur 3 - Assurance", "step3": "Étape 3 sur 3 - Documents", "newRegistration": "Nouveau patient", "required": "Obligatoire", "optional": "Facultatif", "insuranceCoverage": "Couverture assurance", "insuranceDescription": "Liez éventuellement un assureur pour la facturation et les réclamations.", "saveInsurance": "Enregistrer l'assurance", "patientDocuments": "Documents patient", "documentsDescription": "Téléversez cartes d'identité, polices d'assurance, dossiers médicaux ou documents utiles.", "noInfoRecorded": "Aucune information", "savePatientRecord": "Enregistrer le dossier", "insuranceOnFile": "Assurance enregistrée", "noInsuranceOnFile": "Aucune assurance", "documentsOnFile": "{count, plural, one {# document enregistré} other {# documents enregistrés}}", "noDocumentsUploaded": "Aucun document téléversé", "back": "Retour", "registerPatient": "Enregistrer le patient", "skip": "Ignorer", "continue": "Continuer", "saveAndContinue": "Enregistrer et continuer", "finish": "Terminer", "deletePatient": "Supprimer le patient", "close": "Fermer"},
+      "form": {"personalInformation": "Informations personnelles", "firstName": "Prénom", "firstNamePlaceholder": "ex. Fatima", "lastName": "Nom", "lastNamePlaceholder": "ex. Benali", "dateOfBirth": "Date de naissance", "gender": "Genre", "notSpecified": "Non spécifié", "cnie": "CNIE", "cniePlaceholder": "ex. MR-12345", "contactDetails": "Coordonnées", "email": "Adresse email", "emailPlaceholder": "ex. fatima@email.com", "phone": "Téléphone", "phonePlaceholder": "+212 6XX-XXXXXX", "address": "Adresse", "addressPlaceholder": "Rue, ville, code postal", "patientStatus": "Statut patient", "status": "Statut", "statusDescriptions": {"active": "Actif - reçoit actuellement des soins", "inactive": "Inactif - temporairement inactif", "archived": "Archivé - dossier archivé"}, "medicalInformation": "Informations médicales", "allergies": "Allergies connues", "allergiesPlaceholder": "ex. Pénicilline, latex, aspirine", "allergiesHelper": "Listez les allergies connues, séparées par des virgules", "chronicConditions": "Maladies chroniques", "chronicConditionsPlaceholder": "ex. Diabète type 2", "currentMedications": "Médicaments actuels", "currentMedicationsPlaceholder": "ex. Metformine 500 mg", "medicalNotes": "Notes médicales", "medicalNotesPlaceholder": "Notes médicales complémentaires...", "administrativeNotes": "Notes administratives", "notes": "Notes", "notesPlaceholder": "Notes administratives non médicales..."},
+      "insurance": {"change": "Changer", "policyNumber": "Numéro de police", "memberId": "ID membre", "providerRequired": "Assureur *", "selectProvider": "Sélectionner un assureur", "policyPlaceholder": "ex. POL-12345", "memberPlaceholder": "ex. MBR-67890", "coverageActive": "Couverture active", "coverageDescription": "L'assurance est valide et acceptée pour la facturation"},
+      "documents": {"insuranceTemplates": "Modèles d'assurance", "download": "Télécharger", "empty": "Aucun document téléversé", "document": "Document", "documentType": "Type de document", "titleOptional": "Titre (facultatif)", "titlePlaceholder": "ex. Carte d'assurance", "changeFile": "Cliquez pour changer le fichier", "uploadFile": "Cliquez pour téléverser un fichier", "fileHint": "PDF, JPG, PNG, DOC - jusqu'à 10 Mo", "cancel": "Annuler", "uploadDocument": "Téléverser le document", "addDocument": "Ajouter un document", "types": {"GENERAL": "Général", "INSURANCE": "Assurance", "MEDICAL": "Médical", "OTHER": "Autre"}}
+    },
     "appointments": {
       "page": {
         "title": "Rendez-vous",

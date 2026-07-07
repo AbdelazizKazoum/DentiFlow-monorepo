@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Drawer } from "@mui/material";
 import { X, ChevronDown } from "lucide-react";
+import {useTranslations} from "next-intl";
 import {
   PatientStatus,
   PatientGender,
@@ -22,6 +23,7 @@ export function FilterDrawer({
   onApply,
   onClose,
 }: FilterDrawerProps) {
+  const t = useTranslations("admin.patients");
   const [local, setLocal] = useState<FilterState>(filters);
   React.useEffect(() => {
     if (open) setLocal(filters);
@@ -78,7 +80,7 @@ export function FilterDrawer({
         }}
       >
         <span className="text-foreground font-bold" style={{ fontSize: 16 }}>
-          Filters
+          {t("filters.title")}
         </span>
         <button
           onClick={onClose}
@@ -104,17 +106,17 @@ export function FilterDrawer({
         }}
       >
         <div>
-          <label style={labelSty}>Status</label>
+          <label style={labelSty}>{t("filters.status")}</label>
           <div style={{ position: "relative" }}>
             <select
               value={local.status}
               onChange={sel("status")}
               style={selSty}
             >
-              <option value="all">All Statuses</option>
-              <option value={PatientStatus.ACTIVE}>Active</option>
-              <option value={PatientStatus.INACTIVE}>Inactive</option>
-              <option value={PatientStatus.ARCHIVED}>Archived</option>
+              <option value="all">{t("filters.allStatuses")}</option>
+              <option value={PatientStatus.ACTIVE}>{t("status.ACTIVE")}</option>
+              <option value={PatientStatus.INACTIVE}>{t("status.INACTIVE")}</option>
+              <option value={PatientStatus.ARCHIVED}>{t("status.ARCHIVED")}</option>
             </select>
             <ChevronDown
               size={14}
@@ -130,17 +132,17 @@ export function FilterDrawer({
           </div>
         </div>
         <div>
-          <label style={labelSty}>Gender</label>
+          <label style={labelSty}>{t("filters.gender")}</label>
           <div style={{ position: "relative" }}>
             <select
               value={local.gender}
               onChange={sel("gender")}
               style={selSty}
             >
-              <option value="all">All Genders</option>
-              <option value={PatientGender.MALE}>Male</option>
-              <option value={PatientGender.FEMALE}>Female</option>
-              <option value={PatientGender.OTHER}>Other</option>
+              <option value="all">{t("filters.allGenders")}</option>
+              <option value={PatientGender.MALE}>{t("gender.MALE")}</option>
+              <option value={PatientGender.FEMALE}>{t("gender.FEMALE")}</option>
+              <option value={PatientGender.OTHER}>{t("gender.OTHER")}</option>
             </select>
             <ChevronDown
               size={14}
@@ -156,12 +158,12 @@ export function FilterDrawer({
           </div>
         </div>
         <div>
-          <label style={labelSty}>Has Allergies</label>
+          <label style={labelSty}>{t("filters.hasAllergies")}</label>
           <div style={{ position: "relative" }}>
             <select style={selSty} defaultValue="all">
-              <option value="all">Any</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
+              <option value="all">{t("filters.any")}</option>
+              <option value="yes">{t("filters.yes")}</option>
+              <option value="no">{t("filters.no")}</option>
             </select>
             <ChevronDown
               size={14}
@@ -177,12 +179,12 @@ export function FilterDrawer({
           </div>
         </div>
         <div>
-          <label style={labelSty}>Has Chronic Conditions</label>
+          <label style={labelSty}>{t("filters.hasChronicConditions")}</label>
           <div style={{ position: "relative" }}>
             <select style={selSty} defaultValue="all">
-              <option value="all">Any</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
+              <option value="all">{t("filters.any")}</option>
+              <option value="yes">{t("filters.yes")}</option>
+              <option value="no">{t("filters.no")}</option>
             </select>
             <ChevronDown
               size={14}
@@ -220,7 +222,7 @@ export function FilterDrawer({
             color: "var(--foreground)",
           }}
         >
-          Clear All
+          {t("filters.clearAll")}
         </button>
         <button
           onClick={() => {
@@ -239,7 +241,7 @@ export function FilterDrawer({
             cursor: "pointer",
           }}
         >
-          Apply Filters
+          {t("filters.apply")}
         </button>
       </div>
     </Drawer>

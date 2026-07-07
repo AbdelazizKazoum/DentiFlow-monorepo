@@ -1,5 +1,6 @@
 import {CheckCircle2, Clock, FileText, RotateCcw, UserCheck} from "lucide-react";
 import {Menu, MenuItem} from "@mui/material";
+import {useTranslations} from "next-intl";
 import type {
   QueueEntry,
   QueueStatus,
@@ -20,6 +21,8 @@ export function QueueActionMenu({
   onNotes,
   onStatusChange,
 }: QueueActionMenuProps) {
+  const t = useTranslations("admin.waitingRoom.actions");
+
   return (
     <Menu
       anchorEl={anchor}
@@ -45,7 +48,7 @@ export function QueueActionMenu({
               sx={{fontSize: "0.875rem", py: 1.5}}
             >
               <RotateCcw size={16} className="mr-3 text-primary" />
-              Correct to Arrived
+              {t("correctToArrived")}
             </MenuItem>
           )}
           {entry.status !== "WAITING" && (
@@ -54,7 +57,7 @@ export function QueueActionMenu({
               sx={{fontSize: "0.875rem", py: 1.5}}
             >
               <Clock size={16} className="mr-3 text-amber-500" />
-              Mark as Waiting
+              {t("markWaiting")}
             </MenuItem>
           )}
           {entry.status !== "IN_CHAIR" && (
@@ -63,7 +66,7 @@ export function QueueActionMenu({
               sx={{fontSize: "0.875rem", py: 1.5}}
             >
               <UserCheck size={16} className="mr-3 text-brand-accent" />
-              Mark as In Chair
+              {t("markInChair")}
             </MenuItem>
           )}
           {entry.status !== "DONE" && (
@@ -72,7 +75,7 @@ export function QueueActionMenu({
               sx={{fontSize: "0.875rem", py: 1.5}}
             >
               <CheckCircle2 size={16} className="mr-3 text-green-500" />
-              Mark as Done
+              {t("markDone")}
             </MenuItem>
           )}
           <MenuItem
@@ -80,7 +83,7 @@ export function QueueActionMenu({
             sx={{fontSize: "0.875rem", py: 1.5}}
           >
             <FileText size={16} className="mr-3 text-gray-500" />
-            {entry.notes ? "Edit Notes" : "Add/View Notes"}
+            {entry.notes ? t("editNotes") : t("addViewNotes")}
           </MenuItem>
         </>
       )}

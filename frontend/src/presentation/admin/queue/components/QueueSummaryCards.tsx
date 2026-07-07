@@ -1,5 +1,6 @@
 import {motion} from "framer-motion";
 import {CheckCircle2, Clock, ClipboardList, UserCheck} from "lucide-react";
+import {useTranslations} from "next-intl";
 
 interface QueueSummaryCardsProps {
   active: number;
@@ -14,30 +15,31 @@ export function QueueSummaryCards({
   inChair,
   completed,
 }: QueueSummaryCardsProps) {
+  const t = useTranslations("admin.waitingRoom.summary");
   const cards = [
     {
-      label: "Active Queue",
+      label: t("activeQueue"),
       value: active,
       Icon: ClipboardList,
       color: "#0f8aa3",
       bg: "#eff6ff",
     },
     {
-      label: "Waiting",
+      label: t("waiting"),
       value: waiting,
       Icon: Clock,
       color: "#f59e0b",
       bg: "#fef3c7",
     },
     {
-      label: "In Chair",
+      label: t("inChair"),
       value: inChair,
       Icon: UserCheck,
       color: "#7c3aed",
       bg: "#f5f3ff",
     },
     {
-      label: "Completed",
+      label: t("completed"),
       value: completed,
       Icon: CheckCircle2,
       color: "#279C41",

@@ -586,6 +586,301 @@
         }
       }
     },
+    "waitingRoom": {
+      "header": {
+        "title": "Waiting Room",
+        "subtitle": "Manage real-time patient queue and status tracking",
+        "inQueue": "{count, plural, one {# in queue} other {# in queue}}",
+        "completed": "{count, plural, one {# completed} other {# completed}}"
+      },
+      "summary": {
+        "activeQueue": "Active Queue",
+        "waiting": "Waiting",
+        "inChair": "In Chair",
+        "completed": "Completed"
+      },
+      "live": {
+        "label": "Live",
+        "notSynced": "Not synced yet",
+        "justNow": "Updated just now",
+        "secondsAgo": "Updated {count}s ago",
+        "minutesAgo": "Updated {count}m ago"
+      },
+      "status": {
+        "ARRIVED": "Arrived",
+        "WAITING": "Waiting",
+        "IN_CHAIR": "In Chair",
+        "DONE": "Done"
+      },
+      "priority": {
+        "NORMAL": "Normal",
+        "URGENT": "Urgent",
+        "EMERGENCY": "Emergency"
+      },
+      "table": {
+        "title": "Active Queue",
+        "loading": "Loading queue...",
+        "empty": "No patients in the queue right now",
+        "reset": "Reset",
+        "liveUpdates": "Live updates on",
+        "noPhone": "No phone",
+        "visit": "Visit",
+        "with": "with",
+        "elapsed": "{duration} elapsed",
+        "elapsedArrived": "elapsed - arrived {time}",
+        "arrivedShort": "Arr: {time}",
+        "startTreatment": "Start Treatment",
+        "reorder": "Reorder {patient}",
+        "headings": {
+          "patient": "Patient",
+          "visit": "Visit",
+          "elapsed": "Elapsed",
+          "priority": "Priority",
+          "status": "Status"
+        },
+        "sort": {
+          "smart": "Smart sort",
+          "arrivedAt": "Walk-in time"
+        },
+        "time": {
+          "minutes": "{count} min",
+          "hoursMinutes": "{hours}h {minutes}m"
+        }
+      },
+      "completed": {
+        "title": "Completed Today",
+        "timeRange": "{start} to {end}",
+        "openActions": "Open actions for {patient}"
+      },
+      "actions": {
+        "correctToArrived": "Correct to Arrived",
+        "markWaiting": "Mark as Waiting",
+        "markInChair": "Mark as In Chair",
+        "markDone": "Mark as Done",
+        "editNotes": "Edit Notes",
+        "addViewNotes": "Add/View Notes"
+      },
+      "notesDialog": {
+        "title": "Patient Notes",
+        "hint": "Reception notes for this waiting session",
+        "placeholder": "Add any notes or special instructions...",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save Notes"
+      },
+      "correctionDialog": {
+        "title": "Correction Reason Required",
+        "previousStatus": "previous status",
+        "moveBack": "Move {patient} back to {status}",
+        "label": "Correction reason",
+        "placeholder": "Explain why this patient is being moved backward...",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save Correction"
+      }
+    },
+    "patients": {
+      "summary": {
+        "total": "Total Patients",
+        "active": "Active Patients",
+        "newThisMonth": "New This Month",
+        "inactiveArchived": "Inactive / Archived"
+      },
+      "empty": {
+        "title": "No patients found",
+        "description": "Try adjusting your search or filter criteria"
+      },
+      "toolbar": {
+        "searchPlaceholder": "Search by name, email, phone, CNIE...",
+        "filter": "Filter",
+        "export": "Export",
+        "addPatient": "Add Patient",
+        "selectedCount": "{count} selected",
+        "patientCount": "{count, plural, one {# patient} other {# patients}}",
+        "deleteSelected": "Delete Selected",
+        "reset": "Reset"
+      },
+      "table": {
+        "patient": "Patient",
+        "contact": "Contact",
+        "personal": "Personal",
+        "medical": "Medical",
+        "status": "Status",
+        "actions": "Actions",
+        "registered": "Registered {date}",
+        "ageYears": "{age} yr",
+        "noAllergies": "No allergies",
+        "allergy": "Allergy: {allergies}"
+      },
+      "badges": {
+        "new": "New"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "ARCHIVED": "Archived"
+      },
+      "gender": {
+        "MALE": "Male",
+        "FEMALE": "Female",
+        "OTHER": "Other",
+        "all": "All"
+      },
+      "sort": {
+        "lastAdded": "Last Added",
+        "name": "Name (A-Z)",
+        "status": "Status",
+        "gender": "Gender"
+      },
+      "datePresets": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "this_week": "This week",
+        "last_week": "Last week",
+        "this_month": "This month",
+        "last_month": "Last month",
+        "this_year": "This year",
+        "last_year": "Last year",
+        "all_time": "All time",
+        "custom_range": "Custom range"
+      },
+      "filters": {
+        "title": "Filters",
+        "status": "Status",
+        "gender": "Gender",
+        "allStatuses": "All Statuses",
+        "allGenders": "All Genders",
+        "hasAllergies": "Has Allergies",
+        "hasChronicConditions": "Has Chronic Conditions",
+        "any": "Any",
+        "yes": "Yes",
+        "no": "No",
+        "clearAll": "Clear All",
+        "apply": "Apply Filters"
+      },
+      "dateRange": {
+        "quickSelect": "Quick Select",
+        "title": "Select Date Range",
+        "apply": "Apply"
+      },
+      "actions": {
+        "call": "Call",
+        "schedule": "Schedule",
+        "edit": "Edit",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "clearFilters": "Clear Filters"
+      },
+      "deleteModal": {
+        "title": "Delete Patient",
+        "fallbackPatient": "this patient",
+        "message": "Are you sure you want to delete <name></name>? This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleting": "Deleting..."
+      },
+      "drawer": {
+        "patientRecord": "Patient Record",
+        "insurance": "Insurance",
+        "documents": "Documents",
+        "step1": "Step 1 of 3 - Patient Info",
+        "step2": "Step 2 of 3 - Insurance",
+        "step3": "Step 3 of 3 - Documents",
+        "newRegistration": "New Patient Registration",
+        "required": "Required",
+        "optional": "Optional",
+        "insuranceCoverage": "Insurance Coverage",
+        "insuranceDescription": "Optionally link a health insurance provider for billing and claims processing.",
+        "saveInsurance": "Save Insurance",
+        "patientDocuments": "Patient Documents",
+        "documentsDescription": "Upload ID cards, insurance policies, medical records, or any relevant documents.",
+        "noInfoRecorded": "No info recorded",
+        "savePatientRecord": "Save Patient Record",
+        "insuranceOnFile": "Insurance on file",
+        "noInsuranceOnFile": "No insurance on file",
+        "documentsOnFile": "{count, plural, one {# document on file} other {# documents on file}}",
+        "noDocumentsUploaded": "No documents uploaded",
+        "back": "Back",
+        "registerPatient": "Register Patient",
+        "skip": "Skip",
+        "continue": "Continue",
+        "saveAndContinue": "Save & Continue",
+        "finish": "Finish",
+        "deletePatient": "Delete Patient",
+        "close": "Close"
+      },
+      "form": {
+        "personalInformation": "Personal Information",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "e.g. Fatima",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "e.g. Benali",
+        "dateOfBirth": "Date of Birth",
+        "gender": "Gender",
+        "notSpecified": "Not specified",
+        "cnie": "CNIE (National Identity Number)",
+        "cniePlaceholder": "e.g. MR-12345",
+        "contactDetails": "Contact Details",
+        "email": "Email Address",
+        "emailPlaceholder": "e.g. fatima@email.com",
+        "phone": "Phone Number",
+        "phonePlaceholder": "+212 6XX-XXXXXX",
+        "address": "Address",
+        "addressPlaceholder": "Street, City, Postal Code",
+        "patientStatus": "Patient Status",
+        "status": "Status",
+        "statusDescriptions": {
+          "active": "Active - Currently receiving care",
+          "inactive": "Inactive - Temporarily inactive",
+          "archived": "Archived - Record archived"
+        },
+        "medicalInformation": "Medical Information",
+        "allergies": "Known Allergies",
+        "allergiesPlaceholder": "e.g. Penicillin, Latex, Aspirin",
+        "allergiesHelper": "List all known allergies, separated by commas",
+        "chronicConditions": "Chronic Conditions",
+        "chronicConditionsPlaceholder": "e.g. Diabetes Type 2",
+        "currentMedications": "Current Medications",
+        "currentMedicationsPlaceholder": "e.g. Metformin 500mg",
+        "medicalNotes": "Medical Notes",
+        "medicalNotesPlaceholder": "Additional medical notes from doctors...",
+        "administrativeNotes": "Administrative Notes",
+        "notes": "Notes",
+        "notesPlaceholder": "Administrative notes (non-medical)..."
+      },
+      "insurance": {
+        "change": "Change",
+        "policyNumber": "Policy Number",
+        "memberId": "Member ID",
+        "providerRequired": "Insurance Provider *",
+        "selectProvider": "Select a provider",
+        "policyPlaceholder": "e.g. POL-12345",
+        "memberPlaceholder": "e.g. MBR-67890",
+        "coverageActive": "Coverage is Active",
+        "coverageDescription": "Insurance is currently valid and accepted for billing"
+      },
+      "documents": {
+        "insuranceTemplates": "Insurance Templates",
+        "download": "Download",
+        "empty": "No documents uploaded yet",
+        "document": "Document",
+        "documentType": "Document Type",
+        "titleOptional": "Title (optional)",
+        "titlePlaceholder": "e.g. Insurance Card",
+        "changeFile": "Click to change file",
+        "uploadFile": "Click to upload a file",
+        "fileHint": "PDF, JPG, PNG, DOC - up to 10 MB",
+        "cancel": "Cancel",
+        "uploadDocument": "Upload Document",
+        "addDocument": "Add Document",
+        "types": {
+          "GENERAL": "General",
+          "INSURANCE": "Insurance",
+          "MEDICAL": "Medical",
+          "OTHER": "Other"
+        }
+      }
+    },
     "appointments": {
       "page": {
         "title": "Appointments",

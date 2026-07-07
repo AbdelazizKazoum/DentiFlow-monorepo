@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import {FileText, X} from "lucide-react";
+import {useTranslations} from "next-intl";
 import type {QueueEntry} from "@/domain/queue/entities/queueEntry";
 
 interface QueueNotesDialogProps {
@@ -30,6 +31,8 @@ export function QueueNotesDialog({
   onNotesChange,
   onSave,
 }: QueueNotesDialogProps) {
+  const t = useTranslations("admin.waitingRoom.notesDialog");
+
   return (
     <Dialog
       open={open}
@@ -54,7 +57,7 @@ export function QueueNotesDialog({
               variant="h6"
               sx={{fontWeight: 700, fontSize: "1.125rem"}}
             >
-              Patient Notes
+              {t("title")}
             </Typography>
             {entry && (
               <p className="text-xs mt-1" style={{color: "var(--text-muted)"}}>
@@ -70,7 +73,7 @@ export function QueueNotesDialog({
       <DialogContent sx={{pb: 2}}>
         <div className="flex items-center gap-2 text-xs mb-2 text-amber-600 font-semibold">
           <FileText size={14} />
-          Reception notes for this waiting session
+          {t("hint")}
         </div>
         <TextField
           fullWidth
@@ -78,7 +81,7 @@ export function QueueNotesDialog({
           rows={4}
           value={notes}
           onChange={(event) => onNotesChange(event.target.value)}
-          placeholder="Add any notes or special instructions..."
+          placeholder={t("placeholder")}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "12px",
@@ -95,7 +98,7 @@ export function QueueNotesDialog({
             fontWeight: 600,
           }}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           onClick={onSave}
@@ -113,7 +116,7 @@ export function QueueNotesDialog({
             },
           }}
         >
-          {isSaving ? "Saving..." : "Save Notes"}
+          {isSaving ? t("saving") : t("save")}
         </Button>
       </DialogActions>
     </Dialog>

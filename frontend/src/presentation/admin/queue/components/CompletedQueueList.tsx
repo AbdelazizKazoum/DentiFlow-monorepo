@@ -1,5 +1,6 @@
 import type React from "react";
 import {CheckCircle2, MoreVertical} from "lucide-react";
+import {useLocale, useTranslations} from "next-intl";
 import type {QueueEntry} from "@/domain/queue/entities/queueEntry";
 import {StatusChip} from "./StatusChip";
 import {formatClockTime, getInitials} from "../utils";
@@ -13,6 +14,9 @@ export function CompletedQueueList({
   entries,
   onOpenMenu,
 }: CompletedQueueListProps) {
+  const locale = useLocale();
+  const t = useTranslations("admin.waitingRoom.completed");
+
   if (entries.length === 0) return null;
 
   return (
@@ -26,7 +30,7 @@ export function CompletedQueueList({
       >
         <CheckCircle2 size={18} className="text-green-600" />
         <h2 className="text-base font-semibold text-foreground">
-          Completed Today
+          {t("title")}
         </h2>
       </div>
       <div className="md:hidden">
@@ -52,8 +56,10 @@ export function CompletedQueueList({
                     <span>{entry.doctorName}</span>
                     <span> - </span>
                     <span>
-                      {formatClockTime(entry.arrivedAt)} to{" "}
-                      {formatClockTime(entry.completedAt)}
+                      {t("timeRange", {
+                        start: formatClockTime(entry.arrivedAt, locale),
+                        end: formatClockTime(entry.completedAt, locale),
+                      })}
                     </span>
                   </div>
                 </div>
@@ -65,7 +71,7 @@ export function CompletedQueueList({
                   onClick={(event) => onOpenMenu(event, entry)}
                   className="rounded-lg p-1.5 transition-colors hover:bg-gray-100"
                   style={{color: "var(--text-muted)"}}
-                  aria-label={`Open actions for ${entry.patientName}`}
+                  aria-label={t("openActions", {patient: entry.patientName})}
                 >
                   <MoreVertical size={16} />
                 </button>
@@ -99,8 +105,10 @@ export function CompletedQueueList({
                         <span>{entry.doctorName}</span>
                         <span>-</span>
                         <span>
-                          {formatClockTime(entry.arrivedAt)} to{" "}
-                          {formatClockTime(entry.completedAt)}
+                          {t("timeRange", {
+                            start: formatClockTime(entry.arrivedAt, locale),
+                            end: formatClockTime(entry.completedAt, locale),
+                          })}
                         </span>
                       </div>
                     </div>
@@ -114,7 +122,7 @@ export function CompletedQueueList({
                       onClick={(event) => onOpenMenu(event, entry)}
                       className="rounded-lg p-1.5 transition-colors hover:bg-gray-100"
                       style={{color: "var(--text-muted)"}}
-                      aria-label={`Open actions for ${entry.patientName}`}
+                      aria-label={t("openActions", {patient: entry.patientName})}
                     >
                       <MoreVertical size={16} />
                     </button>

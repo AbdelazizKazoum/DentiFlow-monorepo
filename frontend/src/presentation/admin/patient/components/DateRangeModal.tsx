@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Dialog } from "@mui/material";
 import { X } from "lucide-react";
+import {useTranslations} from "next-intl";
 import { MiniCalendar } from "./MiniCalendar";
 import { formatDateDisplay, buildPresets } from "../utils/patientHelpers";
 import type { DateRange } from "../types";
@@ -20,6 +21,7 @@ export function DateRangeModal({
   onApply,
   onClose,
 }: DateRangeModalProps) {
+  const t = useTranslations("admin.patients");
   const presets = buildPresets();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -47,6 +49,13 @@ export function DateRangeModal({
       setActivePreset(null);
     }
   };
+  const getPresetLabel = (label: string) => {
+    const key = label
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+    return t(`datePresets.${key}`);
+  };
+
   const handlePreset = (p: { label: string; range: DateRange }) => {
     setLocalStart(p.range.from);
     setLocalEnd(p.range.to);
@@ -103,7 +112,7 @@ export function DateRangeModal({
               letterSpacing: "0.07em",
             }}
           >
-            Quick Select
+            {t("dateRange.quickSelect")}
           </div>
           {presets.map((p) => (
             <button
@@ -125,7 +134,7 @@ export function DateRangeModal({
                 transition: "background 0.1s",
               }}
             >
-              {p.label}
+              {getPresetLabel(p.label)}
             </button>
           ))}
         </div>
@@ -143,7 +152,7 @@ export function DateRangeModal({
               className="text-foreground font-bold"
               style={{ fontSize: 15 }}
             >
-              Select Date Range
+              {t("dateRange.title")}
             </span>
             <button
               onClick={onClose}
@@ -249,7 +258,7 @@ export function DateRangeModal({
                   color: "var(--foreground)",
                 }}
               >
-                Cancel
+                {t("actions.cancel")}
               </button>
               <button
                 onClick={() => {
@@ -270,7 +279,7 @@ export function DateRangeModal({
                   cursor: "pointer",
                 }}
               >
-                Apply
+                {t("dateRange.apply")}
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import {useTranslations} from "next-intl";
 import { Drawer, Button, IconButton, Typography, Divider } from "@mui/material";
 import {
   X,
@@ -44,9 +45,9 @@ interface PatientFormDrawerProps {
 }
 
 const CREATE_STEPS = [
-  { id: 1 as const, label: "Patient Record" },
-  { id: 2 as const, label: "Insurance" },
-  { id: 3 as const, label: "Documents" },
+  { id: 1 as const, labelKey: "patientRecord" },
+  { id: 2 as const, labelKey: "insurance" },
+  { id: 3 as const, labelKey: "documents" },
 ];
 
 export function PatientFormDrawer({
@@ -61,6 +62,8 @@ export function PatientFormDrawer({
   onDelete,
   onChange,
 }: PatientFormDrawerProps) {
+  const t = useTranslations("admin.patients.drawer");
+  const common = useTranslations("admin.patients");
   const avatarInitials = isEdit
     ? (form.firstName.charAt(0) || "").toUpperCase() +
       (form.lastName.charAt(0) || "").toUpperCase()
@@ -241,12 +244,12 @@ export function PatientFormDrawer({
                 }}
               >
                 {isEdit
-                  ? "Patient Record"
+                  ? t("patientRecord")
                   : createStep === 1
-                  ? "Step 1 of 3 — Patient Info"
+                  ? t("step1")
                   : createStep === 2
-                  ? "Step 2 of 3 — Insurance"
-                  : "Step 3 of 3 — Documents"}
+                  ? t("step2")
+                  : t("step3")}
               </Typography>
               <Typography
                 component="h2"
@@ -259,7 +262,7 @@ export function PatientFormDrawer({
               >
                 {isEdit && (form.firstName || form.lastName)
                   ? `${form.firstName} ${form.lastName}`.trim()
-                  : "New Patient Registration"}
+                  : t("newRegistration")}
               </Typography>
               {isEdit && form.id && (
                 <Typography
@@ -366,7 +369,7 @@ export function PatientFormDrawer({
                           : "var(--text-placeholder)",
                     }}
                   >
-                    {step.label}
+                    {t(step.labelKey)}
                   </Typography>
                   <Typography
                     sx={{
@@ -376,10 +379,8 @@ export function PatientFormDrawer({
                     }}
                   >
                     {step.id === 1
-                      ? "Required"
-                      : step.id === 2
-                      ? "Optional"
-                      : "Optional"}
+                      ? t("required")
+                      : t("optional")}
                   </Typography>
                 </div>
               </div>
@@ -452,11 +453,10 @@ export function PatientFormDrawer({
                         mb: "2px",
                       }}
                     >
-                      Insurance Coverage
+                      {t("insuranceCoverage")}
                     </Typography>
                     <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Optionally link a health insurance provider for billing
-                      and claims processing.
+                      {t("insuranceDescription")}
                     </Typography>
                   </div>
                 </div>
@@ -476,7 +476,7 @@ export function PatientFormDrawer({
                       startIcon={<Shield size={13} />}
                       sx={primaryBtnSx}
                     >
-                      Save Insurance
+                      {t("saveInsurance")}
                     </Button>
                   </div>
                 )}
@@ -520,11 +520,10 @@ export function PatientFormDrawer({
                         mb: "2px",
                       }}
                     >
-                      Patient Documents
+                      {t("patientDocuments")}
                     </Typography>
                     <Typography sx={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Upload ID cards, insurance policies, medical records, or
-                      any relevant documents.
+                      {t("documentsDescription")}
                     </Typography>
                   </div>
                 </div>
@@ -540,7 +539,7 @@ export function PatientFormDrawer({
         ) : (
           <div className="flex flex-col gap-3">
             <AccordionSection
-              title="Patient Record"
+              title={t("patientRecord")}
               icon={<User />}
               iconColor="#0f8aa3"
               iconBg="#eff6ff"
@@ -549,7 +548,7 @@ export function PatientFormDrawer({
                 form.firstName || form.lastName
                   ? `${form.firstName} ${form.lastName}`.trim() +
                     (form.email ? ` · ${form.email}` : "")
-                  : "No info recorded"
+                  : t("noInfoRecorded")
               }
               summaryMuted={!form.firstName && !form.lastName}
               open={openAccordion === "patient"}
@@ -569,13 +568,13 @@ export function PatientFormDrawer({
                   startIcon={<Edit2 size={13} />}
                   sx={primaryBtnSx}
                 >
-                  Save Patient Record
+                  {t("savePatientRecord")}
                 </Button>
               </div>
             </AccordionSection>
 
             <AccordionSection
-              title="Insurance Coverage"
+              title={t("insuranceCoverage")}
               icon={<Shield />}
               iconColor="#0891b2"
               iconBg="#ecfeff"
@@ -583,9 +582,11 @@ export function PatientFormDrawer({
               summary={
                 insuranceSaved
                   ? (providerName(insurance.insuranceProviderId) ||
-                      "Insurance on file") +
-                    (insurance.isActive ? " · Active" : " · Inactive")
-                  : "No insurance on file"
+                      t("insuranceOnFile")) +
+                    (insurance.isActive
+                      ? ` · ${common("status.ACTIVE")}`
+                      : ` · ${common("status.INACTIVE")}`)
+                  : t("noInsuranceOnFile")
               }
               summaryMuted={!insuranceSaved}
               open={openAccordion === "insurance"}
@@ -612,7 +613,7 @@ export function PatientFormDrawer({
                       startIcon={<Shield size={13} />}
                       sx={primaryBtnSx}
                     >
-                      Save Insurance
+                      {t("saveInsurance")}
                     </Button>
                   </div>
                 )}
@@ -620,14 +621,14 @@ export function PatientFormDrawer({
             </AccordionSection>
 
             <AccordionSection
-              title="Documents"
+              title={t("documents")}
               icon={<FolderOpen />}
               iconColor="#7c3aed"
               iconBg="#f5f3ff"
               summary={
                 documents.length > 0
-                  ? `${documents.length} document${documents.length > 1 ? "s" : ""} on file`
-                  : "No documents uploaded"
+                  ? t("documentsOnFile", {count: documents.length})
+                  : t("noDocumentsUploaded")
               }
               summaryMuted={documents.length === 0}
               open={openAccordion === "documents"}
@@ -666,7 +667,7 @@ export function PatientFormDrawer({
             <div>
               {createStep === 1 ? (
                 <Button variant="outlined" onClick={onClose} sx={outlinedBtnSx}>
-                  Cancel
+                  {common("actions.cancel")}
                 </Button>
               ) : (
                 <Button
@@ -675,7 +676,7 @@ export function PatientFormDrawer({
                   startIcon={<ChevronLeft size={14} />}
                   sx={outlinedBtnSx}
                 >
-                  Back
+                  {t("back")}
                 </Button>
               )}
             </div>
@@ -687,7 +688,7 @@ export function PatientFormDrawer({
                   startIcon={<Plus size={14} />}
                   sx={primaryBtnSx}
                 >
-                  Register Patient
+                  {t("registerPatient")}
                 </Button>
               )}
               {createStep === 2 && (
@@ -697,7 +698,7 @@ export function PatientFormDrawer({
                     onClick={() => setCreateStep(3)}
                     sx={{ ...outlinedBtnSx, color: "var(--text-muted)" }}
                   >
-                    Skip
+                    {t("skip")}
                   </Button>
                   <Button
                     variant="contained"
@@ -709,7 +710,7 @@ export function PatientFormDrawer({
                     endIcon={<ChevronRight size={14} />}
                     sx={primaryBtnSx}
                   >
-                    {insuranceSaved ? "Continue" : "Save & Continue"}
+                    {insuranceSaved ? t("continue") : t("saveAndContinue")}
                   </Button>
                 </>
               )}
@@ -728,7 +729,7 @@ export function PatientFormDrawer({
                     boxShadow: "0 2px 8px rgba(39,156,65,0.28)",
                   }}
                 >
-                  Finish
+                  {t("finish")}
                 </Button>
               )}
             </div>
@@ -752,10 +753,10 @@ export function PatientFormDrawer({
                 "&:hover": { borderColor: "#f87171", background: "#fee2e2" },
               }}
             >
-              Delete Patient
+              {t("deletePatient")}
             </Button>
             <Button variant="outlined" onClick={onClose} sx={outlinedBtnSx}>
-              Close
+              {t("close")}
             </Button>
           </>
         )}

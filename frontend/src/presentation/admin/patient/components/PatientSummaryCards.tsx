@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Users, Activity, UserPlus, Archive } from "lucide-react";
+import {useTranslations} from "next-intl";
 import { Patient, PatientStatus } from "@/domain/patient/entities/patient";
 import { isNewPatient } from "../utils/patientHelpers";
 
@@ -10,30 +11,31 @@ interface PatientSummaryCardsProps {
 }
 
 export function PatientSummaryCards({ patients }: PatientSummaryCardsProps) {
+  const t = useTranslations("admin.patients.summary");
   const cards = [
     {
-      label: "Total Patients",
+      label: t("total"),
       value: patients.length,
       Icon: Users,
       color: "var(--brand-primary)",
       bg: "#eff6ff",
     },
     {
-      label: "Active Patients",
+      label: t("active"),
       value: patients.filter((p) => p.status === PatientStatus.ACTIVE).length,
       Icon: Activity,
       color: "#279C41",
       bg: "#E8F8EC",
     },
     {
-      label: "New This Month",
+      label: t("newThisMonth"),
       value: patients.filter((p) => isNewPatient(p.createdAt)).length,
       Icon: UserPlus,
       color: "#7c3aed",
       bg: "#f5f3ff",
     },
     {
-      label: "Inactive / Archived",
+      label: t("inactiveArchived"),
       value: patients.filter(
         (p) =>
           p.status === PatientStatus.INACTIVE ||

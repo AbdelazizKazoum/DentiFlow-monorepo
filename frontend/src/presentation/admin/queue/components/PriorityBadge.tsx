@@ -1,3 +1,4 @@
+import {useTranslations} from "next-intl";
 import {QUEUE_PRIORITY_CONFIG} from "../queueConfig";
 import type {QueuePriority} from "@/domain/queue/entities/queueEntry";
 
@@ -6,6 +7,7 @@ interface PriorityBadgeProps {
 }
 
 export function PriorityBadge({priority}: PriorityBadgeProps) {
+  const t = useTranslations("admin.waitingRoom.priority");
   const config = QUEUE_PRIORITY_CONFIG[priority];
   return (
     <span
@@ -16,7 +18,7 @@ export function PriorityBadge({priority}: PriorityBadgeProps) {
       }}
     >
       {config.icon}
-      {config.label}
+      {t(priority)}
     </span>
   );
 }

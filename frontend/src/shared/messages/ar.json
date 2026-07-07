@@ -586,6 +586,118 @@
         }
       }
     },
+    "waitingRoom": {
+      "header": {
+        "title": "غرفة الانتظار",
+        "subtitle": "إدارة قائمة انتظار المرضى وتتبع الحالات في الوقت الحقيقي",
+        "inQueue": "{count, plural, one {# في القائمة} other {# في القائمة}}",
+        "completed": "{count, plural, one {# مكتمل} other {# مكتمل}}"
+      },
+      "summary": {
+        "activeQueue": "القائمة النشطة",
+        "waiting": "في الانتظار",
+        "inChair": "على الكرسي",
+        "completed": "مكتمل"
+      },
+      "live": {
+        "label": "مباشر",
+        "notSynced": "لم تتم المزامنة بعد",
+        "justNow": "تم التحديث الآن",
+        "secondsAgo": "تم التحديث منذ {count}ث",
+        "minutesAgo": "تم التحديث منذ {count}د"
+      },
+      "status": {
+        "ARRIVED": "وصل",
+        "WAITING": "في الانتظار",
+        "IN_CHAIR": "على الكرسي",
+        "DONE": "مكتمل"
+      },
+      "priority": {
+        "NORMAL": "عادية",
+        "URGENT": "عاجلة",
+        "EMERGENCY": "طارئة"
+      },
+      "table": {
+        "title": "القائمة النشطة",
+        "loading": "جار تحميل القائمة...",
+        "empty": "لا يوجد مرضى في القائمة حالياً",
+        "reset": "إعادة ضبط",
+        "liveUpdates": "التحديثات المباشرة مفعلة",
+        "noPhone": "لا يوجد هاتف",
+        "visit": "زيارة",
+        "with": "مع",
+        "elapsed": "مرّ {duration}",
+        "elapsedArrived": "منقضية - وصل {time}",
+        "arrivedShort": "وصل: {time}",
+        "startTreatment": "بدء العلاج",
+        "reorder": "إعادة ترتيب {patient}",
+        "headings": {
+          "patient": "المريض",
+          "visit": "الزيارة",
+          "elapsed": "الوقت المنقضي",
+          "priority": "الأولوية",
+          "status": "الحالة"
+        },
+        "sort": {
+          "smart": "ترتيب ذكي",
+          "arrivedAt": "وقت الوصول"
+        },
+        "time": {
+          "minutes": "{count} د",
+          "hoursMinutes": "{hours} س {minutes} د"
+        }
+      },
+      "completed": {
+        "title": "مكتمل اليوم",
+        "timeRange": "{start} إلى {end}",
+        "openActions": "فتح الإجراءات لـ {patient}"
+      },
+      "actions": {
+        "correctToArrived": "تصحيح إلى وصل",
+        "markWaiting": "تعليم كمنتظر",
+        "markInChair": "تعليم على الكرسي",
+        "markDone": "تعليم كمكتمل",
+        "editNotes": "تعديل الملاحظات",
+        "addViewNotes": "إضافة / عرض الملاحظات"
+      },
+      "notesDialog": {
+        "title": "ملاحظات المريض",
+        "hint": "ملاحظات الاستقبال لهذه جلسة الانتظار",
+        "placeholder": "أضف أي ملاحظات أو تعليمات خاصة...",
+        "cancel": "إلغاء",
+        "saving": "جار الحفظ...",
+        "save": "حفظ الملاحظات"
+      },
+      "correctionDialog": {
+        "title": "سبب التصحيح مطلوب",
+        "previousStatus": "الحالة السابقة",
+        "moveBack": "إرجاع {patient} إلى {status}",
+        "label": "سبب التصحيح",
+        "placeholder": "اشرح سبب إرجاع هذا المريض إلى مرحلة سابقة...",
+        "cancel": "إلغاء",
+        "saving": "جار الحفظ...",
+        "save": "حفظ التصحيح"
+      }
+    },
+    "patients": {
+      "summary": {"total": "إجمالي المرضى", "active": "المرضى النشطون", "newThisMonth": "جدد هذا الشهر", "inactiveArchived": "غير نشطين / مؤرشفين"},
+      "empty": {"title": "لم يتم العثور على مرضى", "description": "جرّب تعديل البحث أو الفلاتر"},
+      "toolbar": {"searchPlaceholder": "ابحث بالاسم أو البريد أو الهاتف أو CNIE...", "filter": "فلترة", "export": "تصدير", "addPatient": "إضافة مريض", "selectedCount": "{count} محدد", "patientCount": "{count, plural, one {# مريض} other {# مرضى}}", "deleteSelected": "حذف المحدد", "reset": "إعادة ضبط"},
+      "table": {"patient": "المريض", "contact": "الاتصال", "personal": "شخصي", "medical": "طبي", "status": "الحالة", "actions": "إجراءات", "registered": "مسجل {date}", "ageYears": "{age} سنة", "noAllergies": "لا توجد حساسية", "allergy": "حساسية: {allergies}"},
+      "badges": {"new": "جديد"},
+      "status": {"ACTIVE": "نشط", "INACTIVE": "غير نشط", "ARCHIVED": "مؤرشف"},
+      "gender": {"MALE": "ذكر", "FEMALE": "أنثى", "OTHER": "آخر", "all": "الكل"},
+      "sort": {"lastAdded": "الأحدث إضافة", "name": "الاسم (أ-ي)", "status": "الحالة", "gender": "الجنس"},
+      "datePresets": {"today": "اليوم", "yesterday": "أمس", "this_week": "هذا الأسبوع", "last_week": "الأسبوع الماضي", "this_month": "هذا الشهر", "last_month": "الشهر الماضي", "this_year": "هذه السنة", "last_year": "السنة الماضية", "all_time": "كل الوقت", "custom_range": "نطاق مخصص"},
+      "filters": {"title": "الفلاتر", "status": "الحالة", "gender": "الجنس", "allStatuses": "كل الحالات", "allGenders": "كل الأجناس", "hasAllergies": "لديه حساسية", "hasChronicConditions": "لديه أمراض مزمنة", "any": "أي", "yes": "نعم", "no": "لا", "clearAll": "مسح الكل", "apply": "تطبيق الفلاتر"},
+      "dateRange": {"quickSelect": "اختيار سريع", "title": "اختيار نطاق التاريخ", "apply": "تطبيق"},
+      "actions": {"call": "اتصال", "schedule": "جدولة", "edit": "تعديل", "delete": "حذف", "cancel": "إلغاء", "clearFilters": "مسح الفلاتر"},
+      "deleteModal": {"title": "حذف المريض", "fallbackPatient": "هذا المريض", "message": "هل أنت متأكد أنك تريد حذف <name></name>؟ لا يمكن التراجع عن هذا الإجراء.", "cancel": "إلغاء", "delete": "حذف", "deleting": "جار الحذف..."},
+      "drawer": {"patientRecord": "ملف المريض", "insurance": "التأمين", "documents": "الوثائق", "step1": "الخطوة 1 من 3 - معلومات المريض", "step2": "الخطوة 2 من 3 - التأمين", "step3": "الخطوة 3 من 3 - الوثائق", "newRegistration": "تسجيل مريض جديد", "required": "مطلوب", "optional": "اختياري", "insuranceCoverage": "تغطية التأمين", "insuranceDescription": "يمكن ربط مزود تأمين صحي للفوترة ومعالجة المطالبات.", "saveInsurance": "حفظ التأمين", "patientDocuments": "وثائق المريض", "documentsDescription": "ارفع بطاقات الهوية أو وثائق التأمين أو الملفات الطبية أو أي وثائق ذات صلة.", "noInfoRecorded": "لا توجد معلومات", "savePatientRecord": "حفظ ملف المريض", "insuranceOnFile": "تأمين مسجل", "noInsuranceOnFile": "لا يوجد تأمين", "documentsOnFile": "{count, plural, one {# وثيقة مسجلة} other {# وثائق مسجلة}}", "noDocumentsUploaded": "لا توجد وثائق مرفوعة", "back": "رجوع", "registerPatient": "تسجيل المريض", "skip": "تخطي", "continue": "متابعة", "saveAndContinue": "حفظ ومتابعة", "finish": "إنهاء", "deletePatient": "حذف المريض", "close": "إغلاق"},
+      "form": {"personalInformation": "المعلومات الشخصية", "firstName": "الاسم الأول", "firstNamePlaceholder": "مثال: فاطمة", "lastName": "اسم العائلة", "lastNamePlaceholder": "مثال: بنعلي", "dateOfBirth": "تاريخ الميلاد", "gender": "الجنس", "notSpecified": "غير محدد", "cnie": "رقم الهوية الوطنية", "cniePlaceholder": "مثال: MR-12345", "contactDetails": "بيانات الاتصال", "email": "البريد الإلكتروني", "emailPlaceholder": "مثال: fatima@email.com", "phone": "رقم الهاتف", "phonePlaceholder": "+212 6XX-XXXXXX", "address": "العنوان", "addressPlaceholder": "الشارع، المدينة، الرمز البريدي", "patientStatus": "حالة المريض", "status": "الحالة", "statusDescriptions": {"active": "نشط - يتلقى الرعاية حالياً", "inactive": "غير نشط - متوقف مؤقتاً", "archived": "مؤرشف - تم أرشفة الملف"}, "medicalInformation": "المعلومات الطبية", "allergies": "الحساسيات المعروفة", "allergiesPlaceholder": "مثال: بنسلين، لاتكس، أسبرين", "allergiesHelper": "اذكر كل الحساسيات المعروفة مفصولة بفواصل", "chronicConditions": "الأمراض المزمنة", "chronicConditionsPlaceholder": "مثال: سكري النوع 2", "currentMedications": "الأدوية الحالية", "currentMedicationsPlaceholder": "مثال: ميتفورمين 500mg", "medicalNotes": "ملاحظات طبية", "medicalNotesPlaceholder": "ملاحظات طبية إضافية من الأطباء...", "administrativeNotes": "ملاحظات إدارية", "notes": "ملاحظات", "notesPlaceholder": "ملاحظات إدارية غير طبية..."},
+      "insurance": {"change": "تغيير", "policyNumber": "رقم الوثيقة", "memberId": "رقم العضو", "providerRequired": "مزود التأمين *", "selectProvider": "اختر مزود التأمين", "policyPlaceholder": "مثال: POL-12345", "memberPlaceholder": "مثال: MBR-67890", "coverageActive": "التغطية نشطة", "coverageDescription": "التأمين صالح حالياً ومقبول للفوترة"},
+      "documents": {"insuranceTemplates": "قوالب التأمين", "download": "تحميل", "empty": "لا توجد وثائق مرفوعة بعد", "document": "وثيقة", "documentType": "نوع الوثيقة", "titleOptional": "العنوان (اختياري)", "titlePlaceholder": "مثال: بطاقة التأمين", "changeFile": "انقر لتغيير الملف", "uploadFile": "انقر لرفع ملف", "fileHint": "PDF, JPG, PNG, DOC - حتى 10 MB", "cancel": "إلغاء", "uploadDocument": "رفع الوثيقة", "addDocument": "إضافة وثيقة", "types": {"GENERAL": "عام", "INSURANCE": "تأمين", "MEDICAL": "طبي", "OTHER": "آخر"}}
+    },
     "appointments": {
       "page": {
         "title": "المواعيد",

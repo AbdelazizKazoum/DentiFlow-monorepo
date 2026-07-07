@@ -2,6 +2,7 @@
 
 import React from "react";
 import {Users} from "lucide-react";
+import {useTranslations} from "next-intl";
 import {usePatientPage} from "./hooks/usePatientPage";
 import {PatientSummaryCards} from "./components/PatientSummaryCards";
 import {PatientToolbar} from "./components/PatientToolbar";
@@ -16,6 +17,7 @@ import type {SortOption} from "./types";
 
 export default function PatientPage() {
   const hook = usePatientPage();
+  const t = useTranslations("admin.patients");
 
   return (
     <>
@@ -168,10 +170,10 @@ export default function PatientPage() {
                   margin: "0 0 4px",
                 }}
               >
-                No patients found
+                {t("empty.title")}
               </p>
               <p style={{fontSize: 13, color: "var(--text-muted)", margin: 0}}>
-                Try adjusting your search or filter criteria
+                {t("empty.description")}
               </p>
             </div>
             <button
@@ -188,7 +190,7 @@ export default function PatientPage() {
                 boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
               }}
             >
-              Clear Filters
+              {t("actions.clearFilters")}
             </button>
           </div>
         ) : hook.viewMode === "list" ? (

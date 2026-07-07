@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import {useTranslations} from "next-intl";
 import {
   Typography,
   Chip,
@@ -29,6 +30,7 @@ export function DocumentsSection({
   setDocuments,
   insuranceTemplates,
 }: DocumentsSectionProps) {
+  const t = useTranslations("admin.patients.documents");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showDocForm, setShowDocForm] = useState(false);
   const [docForm, setDocForm] = useState<{
@@ -110,7 +112,7 @@ export function DocumentsSection({
           >
             <Shield size={13} color="#0891b2" />
             <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#0891b2" }}>
-              Insurance Templates
+              {t("insuranceTemplates")}
             </Typography>
             <Chip
               label={insuranceTemplates.length}
@@ -189,7 +191,7 @@ export function DocumentsSection({
                     flexShrink: 0,
                   }}
                 >
-                  Download
+                  {t("download")}
                 </Button>
               </div>
             ))}
@@ -219,7 +221,7 @@ export function DocumentsSection({
               fontWeight: 500,
             }}
           >
-            No documents uploaded yet
+            {t("empty")}
           </Typography>
         </div>
       )}
@@ -264,11 +266,11 @@ export function DocumentsSection({
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {doc.title || doc.fileUrl.split("/").pop() || "Document"}
+                    {doc.title || doc.fileUrl.split("/").pop() || t("document")}
                   </Typography>
                   <div className="flex items-center gap-2 mt-0.5">
                     <Chip
-                      label={dtCfg?.label ?? doc.type}
+                      label={dtCfg ? t(`types.${doc.type}`) : doc.type}
                       size="small"
                       sx={{
                         height: 18,
@@ -313,9 +315,9 @@ export function DocumentsSection({
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormControl fullWidth sx={TF_SX}>
-              <InputLabel>Document Type</InputLabel>
+              <InputLabel>{t("documentType")}</InputLabel>
               <Select
-                label="Document Type"
+                label={t("documentType")}
                 value={docForm.type}
                 onChange={(e) =>
                   setDocForm((f) => ({
@@ -324,8 +326,8 @@ export function DocumentsSection({
                   }))
                 }
               >
-                {Object.values(DocumentType).map((t) => (
-                  <MenuItem key={t} value={t} sx={{ fontSize: "0.875rem" }}>
+                {Object.values(DocumentType).map((type) => (
+                  <MenuItem key={type} value={type} sx={{ fontSize: "0.875rem" }}>
                     <span className="flex items-center gap-2">
                       <span
                         style={{
@@ -334,27 +336,28 @@ export function DocumentsSection({
                           height: 8,
                           borderRadius: "50%",
                           background:
-                            DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]
+                            DOC_TYPE_CONFIG[type as keyof typeof DOC_TYPE_CONFIG]
                               ?.color ?? "#64748b",
                           flexShrink: 0,
                         }}
                       />
-                      {DOC_TYPE_CONFIG[t as keyof typeof DOC_TYPE_CONFIG]
-                        ?.label ?? t}
+                      {DOC_TYPE_CONFIG[type as keyof typeof DOC_TYPE_CONFIG]
+                        ? t(`types.${type}`)
+                        : type}
                     </span>
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
             <TextField
-              label="Title (optional)"
+              label={t("titleOptional")}
               fullWidth
               value={docForm.title}
               onChange={(e) =>
                 setDocForm((f) => ({ ...f, title: e.target.value }))
               }
               sx={TF_SX}
-              placeholder="e.g. Insurance Card"
+              placeholder={t("titlePlaceholder")}
             />
           </div>
           <input
@@ -407,7 +410,7 @@ export function DocumentsSection({
                   {docForm.fileName}
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  Click to change file
+                  {t("changeFile")}
                 </Typography>
               </>
             ) : (
@@ -419,10 +422,10 @@ export function DocumentsSection({
                     color: "var(--foreground)",
                   }}
                 >
-                  Click to upload a file
+                  {t("uploadFile")}
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  PDF, JPG, PNG, DOC — up to 10 MB
+                  {t("fileHint")}
                 </Typography>
               </>
             )}
@@ -442,7 +445,7 @@ export function DocumentsSection({
               }}
               sx={outlinedBtnSx}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               variant="contained"
@@ -452,7 +455,7 @@ export function DocumentsSection({
               startIcon={<Upload size={13} />}
               sx={primaryBtnSx}
             >
-              Upload Document
+              {t("uploadDocument")}
             </Button>
           </div>
         </div>
@@ -474,7 +477,7 @@ export function DocumentsSection({
             },
           }}
         >
-          Add Document
+          {t("addDocument")}
         </Button>
       )}
     </div>

@@ -11,6 +11,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { X } from "lucide-react";
+import {useTranslations} from "next-intl";
 import { Patient } from "@/domain/patient/entities/patient";
 import { getFullName } from "../utils/patientHelpers";
 
@@ -31,10 +32,11 @@ export function DeleteConfirmModal({
   onClose,
   onConfirm,
 }: DeleteConfirmModalProps) {
+  const t = useTranslations("admin.patients.deleteModal");
   const patient = patients.find((x) => x.id === deleteTargetId);
   const name = patient
     ? getFullName(patient.firstName, patient.lastName)
-    : "this patient";
+    : t("fallbackPatient");
 
   return (
     <Dialog
@@ -65,7 +67,7 @@ export function DeleteConfirmModal({
           variant="h6"
           sx={{ fontWeight: 700, color: "var(--foreground)" }}
         >
-          Delete Patient
+          {t("title")}
         </Typography>
         <IconButton size="small" onClick={onClose}>
           <X size={20} />
@@ -79,9 +81,9 @@ export function DeleteConfirmModal({
             lineHeight: 1.6,
           }}
         >
-          Are you sure you want to delete{" "}
-          <strong className="text-primary">{name}</strong>? This action cannot
-          be undone.
+          {t.rich("message", {
+            name: () => <strong className="text-primary">{name}</strong>,
+          })}
         </Typography>
       </DialogContent>
       <DialogActions
@@ -93,7 +95,7 @@ export function DeleteConfirmModal({
           disabled={isLoading}
           sx={{ textTransform: "none", fontWeight: 600, flex: 1 }}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           variant="contained"
@@ -108,7 +110,7 @@ export function DeleteConfirmModal({
             "&:hover": { background: "#b91c1c" },
           }}
         >
-          {isLoading ? "Deleting..." : "Delete"}
+          {isLoading ? t("deleting") : t("delete")}
         </Button>
       </DialogActions>
     </Dialog>

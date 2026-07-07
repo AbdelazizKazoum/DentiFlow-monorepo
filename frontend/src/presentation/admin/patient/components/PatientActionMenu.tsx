@@ -3,6 +3,7 @@
 import React from "react";
 import { Menu, MenuItem } from "@mui/material";
 import { Edit2, Trash2 } from "lucide-react";
+import {useTranslations} from "next-intl";
 import { Patient } from "@/domain/patient/entities/patient";
 import { SORT_OPTIONS } from "../patientConfig";
 import type { SortOption } from "../types";
@@ -34,6 +35,8 @@ export function PatientActionMenu({
   onDelete,
   onMenuClose,
 }: PatientActionMenuProps) {
+  const t = useTranslations("admin.patients");
+
   return (
     <>
       <Menu
@@ -65,7 +68,7 @@ export function PatientActionMenu({
                 sort === o.value ? "var(--brand-primary)" : "var(--foreground)",
             }}
           >
-            {o.label}
+            {t(`sort.${o.value}`)}
           </MenuItem>
         ))}
       </Menu>
@@ -92,7 +95,7 @@ export function PatientActionMenu({
           }}
           sx={{ fontSize: "0.875rem", gap: 1 }}
         >
-          <Edit2 size={15} /> Edit
+          <Edit2 size={15} /> {t("actions.edit")}
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -100,7 +103,7 @@ export function PatientActionMenu({
           }}
           sx={{ fontSize: "0.875rem", gap: 1, color: "#e53e3e" }}
         >
-          <Trash2 size={15} /> Delete
+          <Trash2 size={15} /> {t("actions.delete")}
         </MenuItem>
       </Menu>
     </>
