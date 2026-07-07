@@ -8,6 +8,7 @@ export interface PaginatedAppointments {
 }
 
 export interface AppointmentRepository {
+  //test
   getById(id: string): Promise<Appointment>;
   getByRange(
     clinicId: string,
