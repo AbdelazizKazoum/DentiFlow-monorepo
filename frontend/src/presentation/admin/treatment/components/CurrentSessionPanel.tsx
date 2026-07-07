@@ -1,3 +1,4 @@
+import {useEffect, useState} from "react";
 import {
   Calendar,
   CheckCircle,
@@ -57,6 +58,7 @@ interface CurrentSessionPanelProps<TProcedure extends VisitProcedureView> {
   visitHandoffRecord: VisitHandoffView | null;
   visitLifecycleStatus: VisitLifecycleStatus;
   getTreatmentLocationLabel: (item: TProcedure) => string;
+  getTreatmentActLabel: (act: string) => string;
   onChangeHandoffNote: (note: string) => void;
   onSaveHandoffDraft: () => void;
   onSendToAssistant: () => void;
@@ -82,6 +84,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
   visitHandoffRecord,
   visitLifecycleStatus,
   getTreatmentLocationLabel,
+  getTreatmentActLabel,
   onChangeHandoffNote,
   onSaveHandoffDraft,
   onSendToAssistant,
@@ -92,6 +95,15 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
 }: CurrentSessionPanelProps<TProcedure>) {
   const locale = useLocale();
   const t = useTranslations("admin.treatment.currentSession");
+  const [isHydrated, setIsHydrated] = useState(false);
+  const canSubmitHandoff = isHydrated ? Boolean(visitHandoffNote.trim()) : true;
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    // Keep SSR and the first client render aligned, then enable live form gating.
+    setIsHydrated(true);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div className="p-4">
@@ -207,14 +219,14 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
         <div className="mt-3 flex flex-wrap justify-end gap-2">
           <button
             onClick={onSaveHandoffDraft}
-            disabled={!visitHandoffNote.trim()}
+            disabled={!canSubmitHandoff}
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
           >
             <Save size={14} /> {t("saveDraft")}
           </button>
           <button
             onClick={onSendToAssistant}
-            disabled={!visitHandoffNote.trim()}
+            disabled={!canSubmitHandoff}
             className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-100 disabled:opacity-50"
           >
             <FileText size={14} /> {t("sendToAssistant")}
@@ -283,7 +295,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
                     )}
                   </td>
                   <td className="px-4 py-3 font-medium text-slate-800">
-                    {item.act}
+                    {getTreatmentActLabel(item.act)}
                   </td>
                   <td className="px-4 py-3 text-slate-500">
                     {item.notes || "-"}

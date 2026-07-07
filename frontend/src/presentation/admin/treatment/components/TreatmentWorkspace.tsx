@@ -49,7 +49,6 @@ import {
   fromDomainDiagnosisStatus,
   fromDomainDocumentType,
   fromDomainEvidence,
-  getTreatmentAreaLabel,
   getTreatmentLocationLabel,
   toDomainDentition,
   toDomainDiagnosisCertainty,
@@ -186,6 +185,14 @@ type MouthRegionId =
   | "lower_left"
   | "lower_right";
 
+const toTranslationKey = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/\+/g, " plus ")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
 const ACTIVE_VISIT = TREATMENT_DEMO_ACTIVE_VISIT;
 const EXTENDED_ACTS = TREATMENT_ACTS.map(fromDomainDentalAct);
 const PRIOR_VISIT_PROCEDURES = TREATMENT_DEMO_PRIOR_VISIT_PROCEDURES;
@@ -210,6 +217,67 @@ const TREATMENT_CLINIC_ID =
 
 export function TreatmentWorkspace() {
   const tx = useTranslations("admin.treatment.workspace");
+  const tp = useTranslations("admin.treatment.plan");
+  const translate = (
+    key: string,
+    fallback: string,
+    values?: Record<string, string | number>,
+    translator: typeof tx = tx,
+  ) => {
+    if (!key || key.endsWith(".")) return fallback;
+
+    try {
+      return translator(key, values);
+    } catch {
+      return fallback;
+    }
+  };
+  const getActLabel = (act: string) =>
+    act
+      ? translate(`acts.names.${toTranslationKey(act)}`, act)
+      : "";
+  const getActCategoryLabel = (category: string) =>
+    category
+      ? translate(`acts.categories.${toTranslationKey(category)}`, category)
+      : "";
+  const getDiagnosisLabel = (diagnosis: string) =>
+    diagnosis
+      ? translate(`diagnoses.names.${toTranslationKey(diagnosis)}`, diagnosis)
+      : "";
+  const getSeverityLabel = (severity: string) =>
+    severity
+      ? translate(`diagnoses.severity.${toTranslationKey(severity)}`, severity)
+      : "";
+  const getCertaintyLabel = (certainty: string) =>
+    certainty
+      ? translate(`diagnoses.certainty.${toTranslationKey(certainty)}`, certainty)
+      : "";
+  const getDiagnosisStatusLabel = (status: string) =>
+    status
+      ? translate(`diagnoses.status.${toTranslationKey(status)}`, status)
+      : "";
+  const getEvidenceLabel = (evidence: string) =>
+    evidence
+      ? translate(`diagnoses.evidence.${toTranslationKey(evidence)}`, evidence)
+      : "";
+  const getSymptomLabel = (symptom: string) =>
+    symptom
+      ? translate(`diagnoses.symptoms.${toTranslationKey(symptom)}`, symptom)
+      : "";
+  const getPriorityLabel = (priority: string) =>
+    translate(`priorities.${priority}`, priority);
+  const getProcedureStatusLabel = (status: string) =>
+    translate(`procedureStatus.${toTranslationKey(status)}`, status);
+  const getToothName = (tooth: number | string) =>
+    typeof tooth === "number"
+      ? translate(`teeth.tooth_${tooth}`, tx("tooth", {tooth}))
+      : String(tooth);
+  const getMouthRegionLabel = (regionId: string) =>
+    translate(`mouthRegions.${regionId}.label`, regionId);
+  const getMouthRegionHint = (regionId: string) =>
+    translate(`mouthRegions.${regionId}.hint`, "");
+  const getSurfaceLabel = (surface: string) =>
+    translate(`surfaces.${surface}`, surface);
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -279,6 +347,19 @@ export function TreatmentWorkspace() {
       patientId: workspacePatientId,
     });
   const availableActs = acts.length > 0 ? acts : EXTENDED_ACTS;
+  const localizedDentitionModes = DENTITION_MODES.map((mode) => ({
+    ...mode,
+    label: translate(`dentition.${mode.id}`, mode.label),
+  }));
+  const localizedMouthRegionOptions = MOUTH_REGION_OPTIONS.map((region) => ({
+    ...region,
+    label: getMouthRegionLabel(region.id),
+    hint: getMouthRegionHint(region.id),
+  }));
+  const localizedDocumentRequestTypes = DOCUMENT_REQUEST_TYPES.map((type) => ({
+    ...type,
+    label: translate(`documents.${type.id}`, type.label),
+  }));
   const selectedMouthRegion = selectedMouthRegionValue as MouthRegionId | null;
   const [dragHoverTooth, setDragHoverTooth] = useState<number | null>(null);
   const [visitHandoffNote, setVisitHandoffNote] = useState("");
@@ -359,21 +440,46 @@ export function TreatmentWorkspace() {
   }, [visitHandoffRecord]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const selectedMouthRegionOption = MOUTH_REGION_OPTIONS.find(
+  const selectedMouthRegionOption = localizedMouthRegionOptions.find(
     (option) => option.id === selectedMouthRegion,
   );
-  const isWholeMouth = selectedMouthRegion === "whole_mouth";
   const hasTargetSelection =
     selectedTeeth.length > 0 || Boolean(selectedMouthRegion);
   const dentitionLabel =
-    DENTITION_MODES.find((mode) => mode.id === dentitionMode)?.label ?? "Adult";
+    localizedDentitionModes.find((mode) => mode.id === dentitionMode)?.label ??
+    translate("dentition.adult", "Adult");
+  const getLocalizedTreatmentLocationLabel = (item: TreatmentBase): string => {
+    if (item.toothIds?.length) {
+      return tx("location.teeth", {teeth: item.toothIds.join(", ")});
+    }
+
+    if (typeof item.tooth === "number") {
+      return getToothName(item.tooth);
+    }
+
+    if (typeof item.tooth === "string") {
+      const region = localizedMouthRegionOptions.find(
+        (option) => option.id === item.tooth,
+      );
+      return region?.label ?? item.tooth;
+    }
+
+    return getTreatmentLocationLabel(item);
+  };
+  const getLocalizedTreatmentAreaLabel = (item: TreatmentBase): string => {
+    if (item.surfaces?.length) {
+      return item.surfaces.map(getSurfaceLabel).join(", ");
+    }
+    if (item.toothIds?.length) return tx("location.fullSelectedTeeth");
+    return tx("fullTooth");
+  };
   const chartRows = useMemo<ChartRows>(() => {
     if (dentitionMode === "child") {
       return {
         upper: [
           {
             id: "primary-upper",
-            label: "Primary upper arch",
+            label: tx("chart.primaryUpperArch"),
             right: PRIMARY_UPPER_RIGHT,
             left: PRIMARY_UPPER_LEFT,
             compact: false,
@@ -382,7 +488,7 @@ export function TreatmentWorkspace() {
         lower: [
           {
             id: "primary-lower",
-            label: "Primary lower arch",
+            label: tx("chart.primaryLowerArch"),
             right: PRIMARY_LOWER_RIGHT,
             left: PRIMARY_LOWER_LEFT,
             compact: false,
@@ -396,14 +502,14 @@ export function TreatmentWorkspace() {
         upper: [
           {
             id: "adult-upper",
-            label: "Permanent upper arch",
+            label: tx("chart.permanentUpperArch"),
             right: UPPER_RIGHT,
             left: UPPER_LEFT,
             compact: false,
           },
           {
             id: "primary-upper",
-            label: "Primary upper arch",
+            label: tx("chart.primaryUpperArch"),
             right: PRIMARY_UPPER_RIGHT,
             left: PRIMARY_UPPER_LEFT,
             compact: true,
@@ -412,14 +518,14 @@ export function TreatmentWorkspace() {
         lower: [
           {
             id: "primary-lower",
-            label: "Primary lower arch",
+            label: tx("chart.primaryLowerArch"),
             right: PRIMARY_LOWER_RIGHT,
             left: PRIMARY_LOWER_LEFT,
             compact: true,
           },
           {
             id: "adult-lower",
-            label: "Permanent lower arch",
+            label: tx("chart.permanentLowerArch"),
             right: LOWER_RIGHT,
             left: LOWER_LEFT,
             compact: false,
@@ -432,7 +538,7 @@ export function TreatmentWorkspace() {
       upper: [
         {
           id: "adult-upper",
-          label: "Permanent upper arch",
+          label: tx("chart.permanentUpperArch"),
           right: UPPER_RIGHT,
           left: UPPER_LEFT,
           compact: false,
@@ -441,14 +547,14 @@ export function TreatmentWorkspace() {
       lower: [
         {
           id: "adult-lower",
-          label: "Permanent lower arch",
+          label: tx("chart.permanentLowerArch"),
           right: LOWER_RIGHT,
           left: LOWER_LEFT,
           compact: false,
         },
       ],
     };
-  }, [dentitionMode]);
+  }, [dentitionMode, tx]);
 
   const handleDentitionModeChange = (mode: DentitionMode) => {
     setDentitionMode(mode);
@@ -516,10 +622,6 @@ export function TreatmentWorkspace() {
     setSelectedTeeth([]);
     setActiveSurfaces([]);
     setSurfacePickerTooth(null);
-  };
-
-  const handleSelectWholeMouth = () => {
-    handleSelectMouthRegion("whole_mouth");
   };
 
   const toggleFormSurface = (surface: SurfaceCode) => {
@@ -1013,6 +1115,8 @@ export function TreatmentWorkspace() {
     return (
       <div
         className="flex flex-col items-center gap-1 cursor-pointer group relative"
+        title={getToothName(number)}
+        aria-label={getToothName(number)}
         onClick={() => openSurfacePicker(number)}
         onDragOver={(e) => onDragOverTooth(e, number)}
         onDragLeave={onDragLeaveTooth}
@@ -1282,9 +1386,18 @@ export function TreatmentWorkspace() {
     );
   };
 
-  const filteredActs = availableActs.filter((a) =>
-    a.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredActs = availableActs.filter((act) => {
+    const query = searchTerm.toLowerCase();
+    return [
+      act.name,
+      act.category,
+      getActLabel(act.name),
+      getActCategoryLabel(act.category),
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(query);
+  });
   const pendingTreatmentChargeTotal = treatmentCharges.reduce(
     (sum, charge) => sum + charge.remainingAmount,
     0,
@@ -1292,7 +1405,7 @@ export function TreatmentWorkspace() {
   const totalPatientAmountDue = patient.balance + pendingTreatmentChargeTotal;
 
   // Get all active events for currently selected teeth
-  const selectedTeethEvents = useMemo<ClinicalEvent[]>(() => {
+  const selectedTeethEvents: ClinicalEvent[] = (() => {
     if (selectedTeeth.length === 0) return [];
 
     return [
@@ -1305,8 +1418,8 @@ export function TreatmentWorkspace() {
         .map((d) => ({
           ...d,
           type: "pathology" as const,
-          label: d.diagnosis,
-          stateLabel: "Diagnosis",
+          label: getDiagnosisLabel(d.diagnosis),
+          stateLabel: tx("eventStates.diagnosis"),
         })),
       ...treatmentPlan
         .filter(
@@ -1317,8 +1430,8 @@ export function TreatmentWorkspace() {
         .map((a) => ({
           ...a,
           type: "planned" as const,
-          label: a.act,
-          stateLabel: "Planned",
+          label: getActLabel(a.act),
+          stateLabel: tx("eventStates.planned"),
         })),
       ...currentSession
         .filter(
@@ -1332,11 +1445,14 @@ export function TreatmentWorkspace() {
             a.status === "completed"
               ? ("completed" as const)
               : ("progress" as const),
-          label: a.act,
-          stateLabel: a.status === "completed" ? "Completed" : "In Progress",
+          label: getActLabel(a.act),
+          stateLabel:
+            a.status === "completed"
+              ? tx("eventStates.completed")
+              : tx("eventStates.inProgress"),
         })),
     ];
-  }, [selectedTeeth, diagnoses, treatmentPlan, currentSession]);
+  })();
 
   const getTreatmentToothIds = (item: TreatmentBase): number[] => {
     if (item?.toothIds?.length) return item.toothIds;
@@ -1420,11 +1536,19 @@ export function TreatmentWorkspace() {
             chartRows={chartRows}
             dentitionLabel={dentitionLabel}
             dentitionMode={dentitionMode}
-            dentitionModes={DENTITION_MODES}
-            isWholeMouth={isWholeMouth}
+            dentitionModes={localizedDentitionModes}
             ToothComponent={AnatomicalTooth}
+            labels={{
+              title: tx("odontogram.title"),
+              midline: tx("odontogram.midline"),
+              legend: {
+                filling: tx("odontogram.legend.filling"),
+                rootCanal: tx("odontogram.legend.rootCanal"),
+                crown: tx("odontogram.legend.crown"),
+                pathology: tx("odontogram.legend.pathology"),
+              },
+            }}
             onDentitionModeChange={handleDentitionModeChange}
-            onSelectWholeMouth={handleSelectWholeMouth}
           />
 
           {/* Bottom Tabs Area */}
@@ -1443,14 +1567,15 @@ export function TreatmentWorkspace() {
                   activeVisit={activeVisit}
                   currentSession={currentSession}
                   documentRequests={documentRequests}
-                  documentRequestTypes={DOCUMENT_REQUEST_TYPES}
+                  documentRequestTypes={localizedDocumentRequestTypes}
                   followUpRequests={followUpRequests}
                   pendingCoordinationCount={pendingCoordinationCount}
                   visitCodingStatus={visitCodingStatus}
                   visitHandoffNote={visitHandoffNote}
                   visitHandoffRecord={visitHandoffRecord}
                   visitLifecycleStatus={visitLifecycleStatus}
-                  getTreatmentLocationLabel={getTreatmentLocationLabel}
+                  getTreatmentLocationLabel={getLocalizedTreatmentLocationLabel}
+                  getTreatmentActLabel={getActLabel}
                   onChangeHandoffNote={setVisitHandoffNote}
                   onSaveHandoffDraft={() => saveVisitHandoffNote("draft_note")}
                   onSendToAssistant={() => setIsSendAssistantModalOpen(true)}
@@ -1466,7 +1591,8 @@ export function TreatmentWorkspace() {
                 <TreatmentPlanPanel
                   treatmentPlan={treatmentPlan}
                   treatmentGroups={treatmentGroups}
-                  getTreatmentLocationLabel={getTreatmentLocationLabel}
+                  getTreatmentLocationLabel={getLocalizedTreatmentLocationLabel}
+                  getTreatmentActLabel={getActLabel}
                   onStartTreatment={handleStartTreatment}
                   onOpenDetails={setTreatmentDetailsItem}
                   onChangeStatus={changePlanStatus}
@@ -1511,7 +1637,7 @@ export function TreatmentWorkspace() {
                             <tr key={item.id} className="hover:bg-slate-50">
                               <td className="px-4 py-3 font-bold text-slate-700">
                                 {item.toothIds?.length
-                                  ? getTreatmentLocationLabel(item)
+                                  ? getLocalizedTreatmentLocationLabel(item)
                                   : typeof item.tooth === "number"
                                     ? tx("tooth", {tooth: item.tooth})
                                     : item.tooth}
@@ -1521,7 +1647,7 @@ export function TreatmentWorkspace() {
                                   {item.act}
                                 </div>
                                 <div className="mt-1 text-xs text-slate-500">
-                                  {getTreatmentAreaLabel(item)}
+                                  {getLocalizedTreatmentAreaLabel(item)}
                                 </div>
                               </td>
                               <td className="px-4 py-3">
@@ -1578,7 +1704,7 @@ export function TreatmentWorkspace() {
                     key={t}
                     className="inline-flex items-center gap-1 bg-primary-soft text-primary text-sm font-bold px-2.5 py-1 rounded border border-primary/25 shadow-sm"
                   >
-                    <span>{tx("tooth", {tooth: t})}</span>
+                    <span>{getToothName(t)}</span>
                     <span className="border-l border-primary/25 pl-1.5 text-[11px] font-semibold">
                       {toothSurfaces[t]?.length
                         ? toothSurfaces[t].join(", ")
@@ -1616,7 +1742,7 @@ export function TreatmentWorkspace() {
                 className="w-full rounded-md border border-ui-border bg-white px-3 py-2 text-sm font-semibold text-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/25"
               >
                 <option value="">{tx("selectMouthRegion")}</option>
-                {MOUTH_REGION_OPTIONS.map((region) => (
+                {localizedMouthRegionOptions.map((region) => (
                   <option key={region.id} value={region.id}>
                     {region.label} - {region.hint}
                   </option>
@@ -1688,10 +1814,10 @@ export function TreatmentWorkspace() {
                             <p
                               className={`text-sm font-semibold ${selectedActId === act.id ? "text-primary" : "text-foreground"}`}
                             >
-                              {act.name}
+                              {getActLabel(act.name)}
                             </p>
                             <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-                              {act.category}
+                              {getActCategoryLabel(act.category)}
                             </p>
                           </div>
                         </div>
@@ -1761,7 +1887,7 @@ export function TreatmentWorkspace() {
                     <option value="">{tx("choose")}</option>
                     {DIAGNOSES_CATALOG.map((d) => (
                       <option key={d} value={d}>
-                        {d}
+                        {getDiagnosisLabel(d)}
                       </option>
                     ))}
                   </select>
@@ -1769,7 +1895,7 @@ export function TreatmentWorkspace() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Severity
+                    {tx("diagnoses.labels.severity")}
                   </label>
                   <select
                     value={diagnosisForm.severity}
@@ -1781,16 +1907,18 @@ export function TreatmentWorkspace() {
                     }
                     className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
                   >
-                    <option>Mild</option>
-                    <option>Moderate</option>
-                    <option>Severe</option>
+                    <option value="Mild">{getSeverityLabel("Mild")}</option>
+                    <option value="Moderate">
+                      {getSeverityLabel("Moderate")}
+                    </option>
+                    <option value="Severe">{getSeverityLabel("Severe")}</option>
                   </select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Certainty
+                      {tx("diagnoses.labels.certainty")}
                     </label>
                     <select
                       value={diagnosisForm.certainty}
@@ -1803,14 +1931,16 @@ export function TreatmentWorkspace() {
                       className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
                     >
                       {DIAGNOSIS_CERTAINTY_DISPLAY_OPTIONS.map((option) => (
-                        <option key={option}>{option}</option>
+                        <option key={option} value={option}>
+                          {getCertaintyLabel(option)}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Status
+                      {tx("diagnoses.labels.status")}
                     </label>
                     <select
                       value={diagnosisForm.status}
@@ -1823,7 +1953,9 @@ export function TreatmentWorkspace() {
                       className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
                     >
                       {DIAGNOSIS_STATUS_DISPLAY_OPTIONS.map((option) => (
-                        <option key={option}>{option}</option>
+                        <option key={option} value={option}>
+                          {getDiagnosisStatusLabel(option)}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -1831,7 +1963,7 @@ export function TreatmentWorkspace() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-2">
-                    Diagnostic Evidence
+                    {tx("diagnoses.labels.evidence")}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {DIAGNOSIS_EVIDENCE_DISPLAY_OPTIONS.map((option) => {
@@ -1847,7 +1979,7 @@ export function TreatmentWorkspace() {
                               : "border-ui-border text-text-muted hover:bg-surface-hover"
                           }`}
                         >
-                          {option}
+                          {getEvidenceLabel(option)}
                         </button>
                       );
                     })}
@@ -1859,15 +1991,15 @@ export function TreatmentWorkspace() {
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <div>
                         <p className="text-xs font-bold text-slate-700">
-                          Radiology Attachments
+                          {tx("diagnoses.radiology.title")}
                         </p>
                         <p className="text-[11px] text-slate-500">
-                          Upload once, then link to one or more diagnoses.
+                          {tx("diagnoses.radiology.description")}
                         </p>
                       </div>
                       <label className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100">
                         <Paperclip size={13} />
-                        Upload
+                        {tx("diagnoses.radiology.upload")}
                         <input
                           type="file"
                           accept="image/*,.pdf"
@@ -1882,7 +2014,7 @@ export function TreatmentWorkspace() {
                       (attachment) => attachment.type === "radiology",
                     ).length === 0 ? (
                       <p className="rounded-md border border-dashed border-slate-300 bg-white p-2 text-xs text-slate-500">
-                        No X-ray files attached yet.
+                        {tx("diagnoses.radiology.empty")}
                       </p>
                     ) : (
                       <div className="flex flex-col gap-2">
@@ -1922,7 +2054,7 @@ export function TreatmentWorkspace() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-2">
-                    Symptoms
+                    {tx("diagnoses.labels.symptoms")}
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     {DIAGNOSIS_SYMPTOM_OPTIONS.map((symptom) => {
@@ -1938,7 +2070,7 @@ export function TreatmentWorkspace() {
                               : "border-ui-border text-text-muted hover:bg-surface-hover"
                           }`}
                         >
-                          {symptom}
+                          {getSymptomLabel(symptom)}
                         </button>
                       );
                     })}
@@ -1948,7 +2080,7 @@ export function TreatmentWorkspace() {
                 <div>
                   <div className="mb-1 flex items-center justify-between">
                     <label className="block text-xs font-bold text-slate-700">
-                      Pain Level
+                      {tx("diagnoses.labels.painLevel")}
                     </label>
                     <span className="text-xs font-bold text-slate-500">
                       {diagnosisForm.painLevel}/10
@@ -1971,7 +2103,7 @@ export function TreatmentWorkspace() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Clinical Notes
+                    {tx("diagnoses.labels.clinicalNotes")}
                   </label>
                   <textarea
                     value={diagnosisForm.notes}
@@ -1982,7 +2114,7 @@ export function TreatmentWorkspace() {
                       })
                     }
                     rows={4}
-                    placeholder="Add clinical observations, test response, radiographic notes..."
+                    placeholder={tx("diagnoses.notesPlaceholder")}
                     className="w-full resize-none border border-slate-300 rounded-md p-2 text-sm bg-white focus:ring-2 focus:ring-red-500"
                   />
                 </div>
@@ -1992,7 +2124,7 @@ export function TreatmentWorkspace() {
                   disabled={!diagnosisForm.diagnosis || !hasTargetSelection}
                   className="w-full mt-4 flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-md text-sm font-bold hover:bg-red-700 disabled:opacity-50 shadow-md"
                 >
-                  <Plus size={18} /> Record Diagnosis
+                  <Plus size={18} /> {tx("diagnoses.record")}
                 </button>
               </div>
             )}
@@ -2002,12 +2134,11 @@ export function TreatmentWorkspace() {
               <div className="p-4 flex-1 bg-slate-50">
                 {selectedTeeth.length === 0 ? (
                   <p className="text-sm text-slate-500 text-center mt-10">
-                    Select a tooth to view its specific history and active
-                    treatments.
+                    {tx("details.selectTooth")}
                   </p>
                 ) : selectedTeethEvents.length === 0 ? (
                   <p className="text-sm text-slate-500 text-center mt-10">
-                    No records found for the selected teeth.
+                    {tx("details.noRecords")}
                   </p>
                 ) : (
                   <div className="flex flex-col gap-3">
@@ -2038,47 +2169,59 @@ export function TreatmentWorkspace() {
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <span className="font-semibold text-slate-700 border border-slate-200 px-1 rounded">
                             {ev.toothIds?.length
-                              ? getTreatmentLocationLabel(ev)
-                              : `T${ev.tooth}`}
+                              ? tx("location.teeth", {
+                                  teeth: ev.toothIds.join(", "),
+                                })
+                              : typeof ev.tooth === "number"
+                                ? getToothName(ev.tooth)
+                                : ev.tooth}
                           </span>
                           {(ev.surfaces?.length ?? 0) > 0 && ev.surfaces && (
-                            <span>Surfaces: {ev.surfaces.join(", ")}</span>
+                            <span>
+                              {tx("details.surfaces", {
+                                surfaces: ev.surfaces
+                                  .map(getSurfaceLabel)
+                                  .join(", "),
+                              })}
+                            </span>
                           )}
                         </div>
                         {ev.type === "pathology" && (
                           <div className="mt-3 space-y-2 border-t border-slate-100 pt-3 text-xs text-slate-600">
                             <div className="flex flex-wrap gap-1.5">
-                              <span className="rounded bg-red-50 px-2 py-1 font-semibold text-red-700">
-                                {ev.severity}
-                              </span>
+                              {ev.severity && (
+                                <span className="rounded bg-red-50 px-2 py-1 font-semibold text-red-700">
+                                  {getSeverityLabel(ev.severity)}
+                                </span>
+                              )}
                               {ev.certainty && (
                                 <span className="rounded bg-slate-100 px-2 py-1 font-semibold text-slate-700">
-                                  {ev.certainty}
+                                  {getCertaintyLabel(ev.certainty)}
                                 </span>
                               )}
                               {ev.status && (
                                 <span className="rounded bg-slate-100 px-2 py-1 font-semibold text-slate-700">
-                                  {ev.status}
+                                  {getDiagnosisStatusLabel(ev.status)}
                                 </span>
                               )}
                               {typeof ev.painLevel === "number" && (
                                 <span className="rounded bg-slate-100 px-2 py-1 font-semibold text-slate-700">
-                                  Pain {ev.painLevel}/10
+                                  {tx("details.pain", {
+                                    level: ev.painLevel,
+                                  })}
                                 </span>
                               )}
                             </div>
                             {(ev.evidence?.length ?? 0) > 0 && (
                               <p>
-                                <strong>Evidence:</strong>{" "}
-                                {Array.isArray(ev.evidence)
-                                  ? ev.evidence.join(", ")
-                                  : ev.evidence}
+                                <strong>{tx("details.evidence")}:</strong>{" "}
+                                {ev.evidence?.map(getEvidenceLabel).join(", ")}
                               </p>
                             )}
                             {(ev.attachmentIds?.length ?? 0) > 0 &&
                               ev.attachmentIds && (
                                 <div>
-                                  <strong>Attachments:</strong>
+                                  <strong>{tx("details.attachments")}:</strong>
                                   <div className="mt-1 flex flex-col gap-1">
                                     {ev.attachmentIds.map((attachmentId) => {
                                       const attachment =
@@ -2092,7 +2235,7 @@ export function TreatmentWorkspace() {
                                         >
                                           <Paperclip size={12} />
                                           {attachment?.title ||
-                                            "Unavailable attachment"}
+                                            tx("details.unavailableAttachment")}
                                         </span>
                                       );
                                     })}
@@ -2101,13 +2244,14 @@ export function TreatmentWorkspace() {
                               )}
                             {(ev.symptoms?.length ?? 0) > 0 && ev.symptoms && (
                               <p>
-                                <strong>Symptoms:</strong>{" "}
-                                {ev.symptoms.join(", ")}
+                                <strong>{tx("details.symptoms")}:</strong>{" "}
+                                {ev.symptoms.map(getSymptomLabel).join(", ")}
                               </p>
                             )}
                             {ev.notes && (
                               <p className="leading-relaxed">
-                                <strong>Note:</strong> {ev.notes}
+                                <strong>{tx("details.note")}:</strong>{" "}
+                                {ev.notes}
                               </p>
                             )}
                           </div>
@@ -2126,6 +2270,7 @@ export function TreatmentWorkspace() {
         tooth={surfacePickerTooth}
         activeSurfaces={activeSurfaces}
         pendingDroppedAct={pendingDroppedAct}
+        getActLabel={getActLabel}
         onClearSurfaces={() => setActiveSurfaces([])}
         onClose={closeSurfacePicker}
         onConfirm={saveToothSurfaces}
@@ -2134,11 +2279,13 @@ export function TreatmentWorkspace() {
 
       <ConfirmTreatmentDialog
         open={pendingConfirmation}
-        actName={availableActs.find((act) => act.id === selectedActId)?.name}
+        actName={getActLabel(
+          availableActs.find((act) => act.id === selectedActId)?.name ?? "",
+        )}
         targetLabel={
           selectedMouthRegionOption
             ? selectedMouthRegionOption.label
-            : tx("tooth", {tooth: selectedTeeth.join(", ")})
+            : selectedTeeth.map(getToothName).join(", ")
         }
         dentitionLabel={dentitionLabel}
         selectedMouthRegion={selectedMouthRegion}
@@ -2158,7 +2305,7 @@ export function TreatmentWorkspace() {
                 <div className="min-w-0">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-primary-soft px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-                      Treatment details
+                      {tx("details.treatmentDetails")}
                     </span>
                     <span
                       className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${
@@ -2179,16 +2326,16 @@ export function TreatmentWorkspace() {
                       }`}
                     >
                       {treatmentDetailsItem.chargeId
-                        ? "Charge posted"
-                        : "Not charged"}
+                        ? tx("details.chargePosted")
+                        : tx("details.notCharged")}
                     </span>
                   </div>
                   <h3 className="truncate text-xl font-bold text-slate-900">
-                    {treatmentDetailsItem.act}
+                    {getActLabel(treatmentDetailsItem.act)}
                   </h3>
                   <p className="mt-1 text-sm font-semibold text-slate-500">
-                    {getTreatmentLocationLabel(treatmentDetailsItem)} ·{" "}
-                    {getTreatmentAreaLabel(treatmentDetailsItem)}
+                    {getLocalizedTreatmentLocationLabel(treatmentDetailsItem)} ·{" "}
+                    {getLocalizedTreatmentAreaLabel(treatmentDetailsItem)}
                   </p>
                 </div>
                 <button
@@ -2204,15 +2351,20 @@ export function TreatmentWorkspace() {
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    Clinical status
+                    {tx("details.clinicalStatus")}
                   </p>
                   <p className="mt-1 text-sm font-bold text-slate-800">
-                    {treatmentDetailsItem.status.replace("_", " ")}
+                    {translate(
+                      `statuses.${treatmentDetailsItem.status}`,
+                      treatmentDetailsItem.status.replace("_", " "),
+                      undefined,
+                      tp,
+                    )}
                   </p>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    Price
+                    {tx("details.price")}
                   </p>
                   <p className="mt-1 text-sm font-bold text-slate-800">
                     ${treatmentDetailsItem.price.toFixed(2)}
@@ -2220,20 +2372,20 @@ export function TreatmentWorkspace() {
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    Priority
+                    {tx("details.priority")}
                   </p>
                   <p className="mt-1 text-sm font-bold text-slate-800">
-                    {treatmentDetailsItem.priority}
+                    {getPriorityLabel(treatmentDetailsItem.priority)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    Billing
+                    {tx("details.billing")}
                   </p>
                   <p className="mt-1 text-sm font-bold text-slate-800">
                     {treatmentDetailsItem.chargeId
-                      ? "Charge posted"
-                      : "Not charged"}
+                      ? tx("details.chargePosted")
+                      : tx("details.notCharged")}
                   </p>
                 </div>
               </div>
@@ -2244,7 +2396,7 @@ export function TreatmentWorkspace() {
                 <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <h4 className="text-sm font-bold text-slate-800">
-                      Linked requests
+                      {tx("details.linkedRequests")}
                     </h4>
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
                       {getTreatmentDocumentRequests(treatmentDetailsItem)
@@ -2263,9 +2415,9 @@ export function TreatmentWorkspace() {
                           <div className="flex items-center justify-between gap-2">
                             <span className="flex items-center gap-2 font-bold">
                               <FileText size={14} />
-                              {DOCUMENT_REQUEST_TYPES.find(
+                              {localizedDocumentRequestTypes.find(
                                 (type) => type.id === request.type,
-                              )?.label || "Document"}
+                              )?.label || tx("details.document")}
                             </span>
                             <span className="rounded-full bg-white px-2 py-0.5 font-bold">
                               {request.status}
@@ -2288,14 +2440,14 @@ export function TreatmentWorkspace() {
                           <div className="flex items-center justify-between gap-2">
                             <span className="flex items-center gap-2 font-bold">
                               <Calendar size={14} />
-                              Follow-up
+                              {tx("details.followUp")}
                             </span>
                             <span className="rounded-full bg-white px-2 py-0.5 font-bold">
                               {request.urgency}
                             </span>
                           </div>
                           <p className="mt-2 text-blue-700">
-                            {request.preferredDate || "No date selected"}
+                            {request.preferredDate || tx("details.noDate")}
                             {request.reason ? ` · ${request.reason}` : ""}
                           </p>
                         </div>
@@ -2312,9 +2464,11 @@ export function TreatmentWorkspace() {
                       <CreditCard size={18} />
                     </div>
                     <div>
-                      <p className="font-bold">Posted cashier charge</p>
+                      <p className="font-bold">
+                        {tx("details.postedCashierCharge")}
+                      </p>
                       <p className="mt-0.5 text-xs font-semibold text-teal-700">
-                        Handled outside the clinical workflow.
+                        {tx("details.cashierWorkflow")}
                       </p>
                     </div>
                   </div>
@@ -2330,7 +2484,7 @@ export function TreatmentWorkspace() {
                       {getTreatmentCharge(
                         treatmentDetailsItem,
                       )?.remainingAmount.toFixed(2)}{" "}
-                      remaining
+                      {tx("details.remaining")}
                     </p>
                   </div>
                 </div>
@@ -2340,7 +2494,7 @@ export function TreatmentWorkspace() {
                 <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <h4 className="text-sm font-bold text-slate-800">
-                      Related diagnoses
+                      {tx("details.relatedDiagnoses")}
                     </h4>
                     <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-bold text-red-700">
                       {
@@ -2353,7 +2507,7 @@ export function TreatmentWorkspace() {
                     {getRelatedTreatmentDiagnoses(treatmentDetailsItem)
                       .length === 0 ? (
                       <p className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500">
-                        No diagnosis linked to this location yet.
+                        {tx("details.noLinkedDiagnosis")}
                       </p>
                     ) : (
                       getRelatedTreatmentDiagnoses(treatmentDetailsItem).map(
@@ -2364,19 +2518,23 @@ export function TreatmentWorkspace() {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <p className="font-bold text-slate-800">
-                                {diagnosis.diagnosis}
+                                {getDiagnosisLabel(diagnosis.diagnosis)}
                               </p>
                               <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-bold text-red-700">
-                                {diagnosis.severity}
+                                {getSeverityLabel(diagnosis.severity)}
                               </span>
                             </div>
                             <p className="mt-2 text-xs text-slate-500">
                               <span className="font-bold text-slate-600">
-                                Evidence:
+                                {tx("details.evidence")}:
                               </span>{" "}
                               {Array.isArray(diagnosis.evidence)
-                                ? diagnosis.evidence.join(", ")
-                                : diagnosis.evidence || "Not specified"}
+                                ? diagnosis.evidence
+                                    .map(getEvidenceLabel)
+                                    .join(", ")
+                                : diagnosis.evidence
+                                  ? getEvidenceLabel(diagnosis.evidence)
+                                  : tx("details.notSpecified")}
                             </p>
                             {diagnosis.notes && (
                               <p className="mt-2 text-xs leading-relaxed text-slate-600">
@@ -2393,7 +2551,7 @@ export function TreatmentWorkspace() {
                 <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="flex items-center justify-between gap-3">
                     <h4 className="text-sm font-bold text-slate-800">
-                      Visit notes and handoff
+                      {tx("details.visitNotes")}
                     </h4>
                     <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
                       {getTreatmentHandoffNotes(treatmentDetailsItem).length}
@@ -2403,7 +2561,7 @@ export function TreatmentWorkspace() {
                     {getTreatmentHandoffNotes(treatmentDetailsItem).length ===
                     0 ? (
                       <p className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500">
-                        No handoff notes recorded for this treatment.
+                        {tx("details.noHandoff")}
                       </p>
                     ) : (
                       getTreatmentHandoffNotes(treatmentDetailsItem).map(
@@ -2434,7 +2592,7 @@ export function TreatmentWorkspace() {
               <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
                   <h4 className="text-sm font-bold text-slate-800">
-                    Procedure timeline
+                    {tx("details.procedureTimeline")}
                   </h4>
                   <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-700">
                     {getTreatmentProcedureTimeline(treatmentDetailsItem).length}
@@ -2444,7 +2602,7 @@ export function TreatmentWorkspace() {
                   {getTreatmentProcedureTimeline(treatmentDetailsItem)
                     .length === 0 ? (
                     <p className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500">
-                      No clinical sessions recorded yet.
+                      {tx("details.noClinicalSessions")}
                     </p>
                   ) : (
                     <div className="relative ml-2 border-l border-slate-200 pl-5">
@@ -2465,7 +2623,13 @@ export function TreatmentWorkspace() {
                               <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div>
                                   <p className="text-sm font-bold text-slate-800">
-                                    {procedure.action || procedure.status}
+                                    {procedure.action
+                                      ? getProcedureStatusLabel(
+                                          procedure.action,
+                                        )
+                                      : getProcedureStatusLabel(
+                                          procedure.status,
+                                        )}
                                   </p>
                                   <p className="mt-1 text-xs font-semibold text-slate-500">
                                     {procedure.visitId} ·{" "}
@@ -2473,7 +2637,7 @@ export function TreatmentWorkspace() {
                                       ? new Date(
                                           procedure.performedAt,
                                         ).toLocaleString()
-                                      : "Time not recorded"}
+                                      : tx("details.timeNotRecorded")}
                                   </p>
                                 </div>
                                 <span
@@ -2483,7 +2647,7 @@ export function TreatmentWorkspace() {
                                       : "bg-blue-100 text-blue-700"
                                   }`}
                                 >
-                                  {procedure.status}
+                                  {getProcedureStatusLabel(procedure.status)}
                                 </span>
                               </div>
                               {procedure.notes && (
@@ -2531,6 +2695,9 @@ export function TreatmentWorkspace() {
 
       <CompleteSessionActDialog
         procedure={sessionActToComplete}
+        getActLabel={getActLabel}
+        getLocationLabel={getLocalizedTreatmentLocationLabel}
+        getAreaLabel={getLocalizedTreatmentAreaLabel}
         onCancel={() => setSessionActToComplete(null)}
         onConfirm={handleConfirmCompleteSessionAct}
       />
@@ -2726,7 +2893,7 @@ export function TreatmentWorkspace() {
                           }
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                         >
-                          {DOCUMENT_REQUEST_TYPES.map((type) => (
+                          {localizedDocumentRequestTypes.map((type) => (
                             <option key={type.id} value={type.id}>
                               {type.label}
                             </option>
@@ -2758,7 +2925,8 @@ export function TreatmentWorkspace() {
                             )
                             .map((item) => (
                               <option key={item.id} value={item.id}>
-                                {item.act} · {getTreatmentLocationLabel(item)}
+                                {getActLabel(item.act)} ·{" "}
+                                {getLocalizedTreatmentLocationLabel(item)}
                               </option>
                             ))}
                         </select>

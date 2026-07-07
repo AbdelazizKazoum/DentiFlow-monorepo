@@ -24,10 +24,18 @@ interface OdontogramPanelProps {
   dentitionLabel: string;
   dentitionMode: "adult" | "child" | "mixed";
   dentitionModes: readonly DentitionModeOption[];
-  isWholeMouth: boolean;
   ToothComponent: ComponentType<{number: number}>;
+  labels: {
+    title: string;
+    midline: string;
+    legend: {
+      filling: string;
+      rootCanal: string;
+      crown: string;
+      pathology: string;
+    };
+  };
   onDentitionModeChange: (mode: "adult" | "child" | "mixed") => void;
-  onSelectWholeMouth: () => void;
 }
 
 export function OdontogramPanel({
@@ -35,10 +43,9 @@ export function OdontogramPanel({
   dentitionLabel,
   dentitionMode,
   dentitionModes,
-  isWholeMouth,
   ToothComponent,
+  labels,
   onDentitionModeChange,
-  onSelectWholeMouth,
 }: OdontogramPanelProps) {
   return (
     <div className="bg-white m-4 rounded-xl border border-slate-200 shadow-sm p-5 select-none">
@@ -46,7 +53,7 @@ export function OdontogramPanel({
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Stethoscope size={20} className="text-primary" />
-            Odontogram ({dentitionLabel})
+            {labels.title} ({dentitionLabel})
           </h2>
           <div className="flex rounded-lg border border-ui-border bg-card p-0.5">
             {dentitionModes.map((mode) => (
@@ -65,22 +72,11 @@ export function OdontogramPanel({
           </div>
         </div>
 
-        <button
-          onClick={onSelectWholeMouth}
-          className={`px-4 py-1.5 rounded-full text-sm font-bold transition-colors border ${
-            isWholeMouth
-              ? "bg-primary-soft text-primary border-primary/30"
-              : "bg-card text-text-muted hover:bg-surface-hover border-ui-border"
-          }`}
-        >
-          {isWholeMouth ? "✓ Whole Mouth Selected" : "Select Whole Mouth"}
-        </button>
-
         <div className="flex gap-4 text-xs font-medium text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
-          <LegendSwatch colorClass="bg-emerald-500" label="Filling" />
-          <LegendSwatch colorClass="bg-rose-500" label="Root Canal" />
-          <LegendSwatch colorClass="bg-yellow-500" label="Crown" />
-          <LegendSwatch colorClass="bg-red-500" label="Pathology" />
+          <LegendSwatch colorClass="bg-emerald-500" label={labels.legend.filling} />
+          <LegendSwatch colorClass="bg-rose-500" label={labels.legend.rootCanal} />
+          <LegendSwatch colorClass="bg-yellow-500" label={labels.legend.crown} />
+          <LegendSwatch colorClass="bg-red-500" label={labels.legend.pathology} />
         </div>
       </div>
 
@@ -96,7 +92,7 @@ export function OdontogramPanel({
 
         <div className="w-full max-w-4xl h-px bg-slate-200 relative">
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-slate-400 font-bold uppercase tracking-widest rounded-full border border-slate-100">
-            Maxillary / Mandibular
+            {labels.midline}
           </div>
         </div>
 

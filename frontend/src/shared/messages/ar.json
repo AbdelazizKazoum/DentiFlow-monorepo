@@ -142,6 +142,212 @@
         "applyTreatmentPlan": "تطبيق خطة العلاج",
         "selectDiagnosis": "حدد التشخيص *",
         "choose": "-- اختر --",
+        "odontogram": {
+          "title": "مخطط الأسنان",
+          "midline": "الفك العلوي / الفك السفلي",
+          "legend": {
+            "filling": "حشوة",
+            "rootCanal": "علاج عصب",
+            "crown": "تاج",
+            "pathology": "مرض"
+          }
+        },
+        "dentition": {
+          "adult": "بالغ",
+          "child": "طفل",
+          "mixed": "مختلط"
+        },
+        "chart": {
+          "primaryUpperArch": "القوس العلوي اللبني",
+          "primaryLowerArch": "القوس السفلي اللبني",
+          "permanentUpperArch": "القوس العلوي الدائم",
+          "permanentLowerArch": "القوس السفلي الدائم"
+        },
+        "location": {
+          "teeth": "الأسنان {teeth}",
+          "fullSelectedTeeth": "الأسنان المحددة بالكامل"
+        },
+        "mouthRegions": {
+          "whole_mouth": {"label": "الفم بالكامل", "hint": "كل الأسنان"},
+          "upper_arch": {"label": "القوس العلوي", "hint": "الجهة العليا"},
+          "lower_arch": {"label": "القوس السفلي", "hint": "الجهة السفلى"},
+          "upper_right": {"label": "علوي أيمن", "hint": "الربع 1"},
+          "upper_left": {"label": "علوي أيسر", "hint": "الربع 2"},
+          "lower_left": {"label": "سفلي أيسر", "hint": "الربع 3"},
+          "lower_right": {"label": "سفلي أيمن", "hint": "الربع 4"}
+        },
+        "surfaces": {
+          "V": "دهليزي",
+          "L": "لساني",
+          "P": "حنكي",
+          "M": "أنسي",
+          "D": "وحشي",
+          "O": "إطباقي",
+          "R": "جذر / قناة"
+        },
+        "documents": {
+          "prescription": "وصفة طبية",
+          "medical_certificate": "شهادة طبية",
+          "clinical_report": "تقرير سريري"
+        },
+        "acts": {
+          "categories": {
+            "general": "عام",
+            "radiography": "تصوير شعاعي",
+            "preventive": "وقائي",
+            "restorative": "ترميمي",
+            "endodontics": "علاج العصب",
+            "surgery": "جراحة",
+            "prosthetics": "تعويضات",
+            "aesthetic": "تجميلي",
+            "orthodontics": "تقويم"
+          },
+          "names": {
+            "consultation": "استشارة",
+            "panoramic_x_ray": "أشعة بانورامية",
+            "scaling_and_polishing": "تنظيف وتلميع",
+            "fluoride_treatment": "علاج بالفلورايد",
+            "composite_filling_1_surface": "حشوة كومبوزيت (سطح واحد)",
+            "composite_filling_2_surfaces": "حشوة كومبوزيت (سطحان)",
+            "composite_filling_3_plus_surfaces": "حشوة كومبوزيت (3+ أسطح)",
+            "root_canal_treatment_anterior": "علاج عصب (أمامي)",
+            "root_canal_treatment_premolar": "علاج عصب (ضاحك)",
+            "root_canal_treatment_molar": "علاج عصب (ضرس)",
+            "simple_extraction": "خلع بسيط",
+            "surgical_extraction": "خلع جراحي",
+            "wisdom_tooth_extraction": "خلع ضرس العقل",
+            "ceramic_crown": "تاج خزفي",
+            "zirconia_crown": "تاج زركونيا",
+            "temporary_crown": "تاج مؤقت",
+            "dental_implant_placement": "وضع زرعة سنية",
+            "bone_grafting": "ترقيع عظمي",
+            "teeth_whitening_in_office": "تبييض الأسنان في العيادة",
+            "orthodontic_consultation": "استشارة تقويم"
+          }
+        },
+        "diagnoses": {
+          "labels": {
+            "severity": "الشدة",
+            "certainty": "درجة التأكد",
+            "status": "الحالة",
+            "evidence": "أدلة التشخيص",
+            "symptoms": "الأعراض",
+            "painLevel": "مستوى الألم",
+            "clinicalNotes": "ملاحظات سريرية"
+          },
+          "names": {
+            "dental_caries": "تسوس الأسنان",
+            "pulpitis": "التهاب اللب",
+            "gingivitis": "التهاب اللثة",
+            "periodontitis": "التهاب دواعم السن",
+            "fractured_tooth": "سن مكسور",
+            "impacted_tooth": "سن مطمور",
+            "abscess": "خراج",
+            "bone_loss": "فقدان عظمي"
+          },
+          "severity": {
+            "mild": "خفيفة",
+            "moderate": "متوسطة",
+            "severe": "شديدة"
+          },
+          "certainty": {
+            "suspected": "مشتبه",
+            "confirmed": "مؤكد",
+            "ruled_out": "مستبعد"
+          },
+          "status": {
+            "active": "نشط",
+            "resolved": "محلول",
+            "monitoring": "تحت المراقبة"
+          },
+          "evidence": {
+            "visual_exam": "فحص بصري",
+            "x_ray": "أشعة",
+            "percussion_test": "اختبار القرع",
+            "cold_test": "اختبار البرودة",
+            "periodontal_probing": "فحص دواعم السن"
+          },
+          "symptoms": {
+            "pain": "ألم",
+            "sensitivity": "حساسية",
+            "swelling": "تورم",
+            "bleeding": "نزيف",
+            "mobility": "حركة"
+          },
+          "radiology": {
+            "title": "مرفقات الأشعة",
+            "description": "ارفع الملف مرة واحدة ثم اربطه بتشخيص واحد أو أكثر.",
+            "upload": "رفع",
+            "empty": "لا توجد ملفات أشعة مرفقة بعد."
+          },
+          "notesPlaceholder": "أضف الملاحظات السريرية، استجابة الاختبارات، وملاحظات الأشعة...",
+          "record": "تسجيل التشخيص"
+        },
+        "eventStates": {
+          "diagnosis": "تشخيص",
+          "planned": "مخطط",
+          "completed": "مكتمل",
+          "inProgress": "قيد التنفيذ"
+        },
+        "procedureStatus": {
+          "completed": "مكتمل",
+          "in_progress": "قيد التنفيذ",
+          "in_progress_form": "قيد التنفيذ"
+        },
+        "teeth": {
+          "tooth_11": "11 - القاطع المركزي العلوي الأيمن",
+          "tooth_12": "12 - القاطع الجانبي العلوي الأيمن",
+          "tooth_13": "13 - الناب العلوي الأيمن",
+          "tooth_14": "14 - الضاحك الأول العلوي الأيمن",
+          "tooth_15": "15 - الضاحك الثاني العلوي الأيمن",
+          "tooth_16": "16 - الضرس الأول العلوي الأيمن",
+          "tooth_17": "17 - الضرس الثاني العلوي الأيمن",
+          "tooth_18": "18 - الضرس الثالث العلوي الأيمن",
+          "tooth_21": "21 - القاطع المركزي العلوي الأيسر",
+          "tooth_22": "22 - القاطع الجانبي العلوي الأيسر",
+          "tooth_23": "23 - الناب العلوي الأيسر",
+          "tooth_24": "24 - الضاحك الأول العلوي الأيسر",
+          "tooth_25": "25 - الضاحك الثاني العلوي الأيسر",
+          "tooth_26": "26 - الضرس الأول العلوي الأيسر",
+          "tooth_27": "27 - الضرس الثاني العلوي الأيسر",
+          "tooth_28": "28 - الضرس الثالث العلوي الأيسر",
+          "tooth_31": "31 - القاطع المركزي السفلي الأيسر",
+          "tooth_32": "32 - القاطع الجانبي السفلي الأيسر",
+          "tooth_33": "33 - الناب السفلي الأيسر",
+          "tooth_34": "34 - الضاحك الأول السفلي الأيسر",
+          "tooth_35": "35 - الضاحك الثاني السفلي الأيسر",
+          "tooth_36": "36 - الضرس الأول السفلي الأيسر",
+          "tooth_37": "37 - الضرس الثاني السفلي الأيسر",
+          "tooth_38": "38 - الضرس الثالث السفلي الأيسر",
+          "tooth_41": "41 - القاطع المركزي السفلي الأيمن",
+          "tooth_42": "42 - القاطع الجانبي السفلي الأيمن",
+          "tooth_43": "43 - الناب السفلي الأيمن",
+          "tooth_44": "44 - الضاحك الأول السفلي الأيمن",
+          "tooth_45": "45 - الضاحك الثاني السفلي الأيمن",
+          "tooth_46": "46 - الضرس الأول السفلي الأيمن",
+          "tooth_47": "47 - الضرس الثاني السفلي الأيمن",
+          "tooth_48": "48 - الضرس الثالث السفلي الأيمن",
+          "tooth_51": "51 - القاطع المركزي اللبني العلوي الأيمن",
+          "tooth_52": "52 - القاطع الجانبي اللبني العلوي الأيمن",
+          "tooth_53": "53 - الناب اللبني العلوي الأيمن",
+          "tooth_54": "54 - الضرس الأول اللبني العلوي الأيمن",
+          "tooth_55": "55 - الضرس الثاني اللبني العلوي الأيمن",
+          "tooth_61": "61 - القاطع المركزي اللبني العلوي الأيسر",
+          "tooth_62": "62 - القاطع الجانبي اللبني العلوي الأيسر",
+          "tooth_63": "63 - الناب اللبني العلوي الأيسر",
+          "tooth_64": "64 - الضرس الأول اللبني العلوي الأيسر",
+          "tooth_65": "65 - الضرس الثاني اللبني العلوي الأيسر",
+          "tooth_71": "71 - القاطع المركزي اللبني السفلي الأيسر",
+          "tooth_72": "72 - القاطع الجانبي اللبني السفلي الأيسر",
+          "tooth_73": "73 - الناب اللبني السفلي الأيسر",
+          "tooth_74": "74 - الضرس الأول اللبني السفلي الأيسر",
+          "tooth_75": "75 - الضرس الثاني اللبني السفلي الأيسر",
+          "tooth_81": "81 - القاطع المركزي اللبني السفلي الأيمن",
+          "tooth_82": "82 - القاطع الجانبي اللبني السفلي الأيمن",
+          "tooth_83": "83 - الناب اللبني السفلي الأيمن",
+          "tooth_84": "84 - الضرس الأول اللبني السفلي الأيمن",
+          "tooth_85": "85 - الضرس الثاني اللبني السفلي الأيمن"
+        },
         "history": {
           "auditTrail": "هذا هو سجل التدقيق السريري. تبقى العناصر الملغاة أو المبطلة ظاهرة ولا يمكن حذفها بصمت.",
           "completedReason": "تم إكمال العلاج السريري",
@@ -155,7 +361,38 @@
         "details": {
           "close": "إغلاق",
           "continueTreatment": "متابعة العلاج",
-          "startTreatment": "بدء العلاج"
+          "startTreatment": "بدء العلاج",
+          "selectTooth": "حدد سناً لعرض تاريخه المحدد والعلاجات النشطة.",
+          "noRecords": "لا توجد سجلات للأسنان المحددة.",
+          "surfaces": "الأسطح: {surfaces}",
+          "evidence": "الأدلة",
+          "attachments": "المرفقات",
+          "symptoms": "الأعراض",
+          "note": "ملاحظة",
+          "pain": "الألم {level}/10",
+          "unavailableAttachment": "مرفق غير متاح",
+          "treatmentDetails": "تفاصيل العلاج",
+          "chargePosted": "تم تسجيل الرسوم",
+          "notCharged": "غير مفوتر",
+          "clinicalStatus": "الحالة السريرية",
+          "price": "السعر",
+          "priority": "الأولوية",
+          "billing": "الفوترة",
+          "linkedRequests": "الطلبات المرتبطة",
+          "document": "مستند",
+          "followUp": "متابعة",
+          "noDate": "لم يتم تحديد تاريخ",
+          "postedCashierCharge": "رسوم مسجلة للصندوق",
+          "cashierWorkflow": "تتم معالجته خارج سير العمل السريري.",
+          "remaining": "متبقي",
+          "relatedDiagnoses": "التشخيصات المرتبطة",
+          "noLinkedDiagnosis": "لا يوجد تشخيص مرتبط بهذا الموضع.",
+          "notSpecified": "غير محدد",
+          "visitNotes": "ملاحظات الزيارة والتسليم",
+          "noHandoff": "لا توجد ملاحظات تسليم لهذا العلاج.",
+          "procedureTimeline": "الخط الزمني للإجراءات",
+          "noClinicalSessions": "لا توجد جلسات سريرية مسجلة.",
+          "timeNotRecorded": "لم يتم تسجيل الوقت"
         },
         "dialogs": {
           "sendAssistant": {

@@ -34,6 +34,7 @@ interface TreatmentPlanPanelProps<TItem extends TreatmentPlanPanelItem> {
   treatmentPlan: TItem[];
   treatmentGroups: TreatmentGroupSummary[];
   getTreatmentLocationLabel: (item: TItem) => string;
+  getTreatmentActLabel: (act: string) => string;
   onStartTreatment: (item: TItem) => void;
   onOpenDetails: (item: TItem) => void;
   onChangeStatus: (
@@ -54,6 +55,7 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
   treatmentPlan,
   treatmentGroups,
   getTreatmentLocationLabel,
+  getTreatmentActLabel,
   onStartTreatment,
   onOpenDetails,
   onChangeStatus,
@@ -136,7 +138,7 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
                   )}
                 </td>
                 <td className="px-4 py-3 font-medium text-slate-800">
-                  <div>{item.act}</div>
+                  <div>{getTreatmentActLabel(item.act)}</div>
                   <div className="mt-1 flex items-center gap-2 text-[11px] text-text-muted">
                     <span className="rounded-full bg-primary-soft px-2 py-0.5 font-semibold text-primary">
                       {t(`statuses.${item.status}`)}

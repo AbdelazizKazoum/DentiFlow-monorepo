@@ -40,6 +40,7 @@ interface SurfacePickerDialogProps {
   tooth: number | null;
   activeSurfaces: SurfaceCode[];
   pendingDroppedAct: TreatmentPageDentalActDTO | null;
+  getActLabel?: (act: string) => string;
   onClearSurfaces: () => void;
   onClose: () => void;
   onConfirm: () => void;
@@ -59,6 +60,7 @@ export function SurfacePickerDialog({
   tooth,
   activeSurfaces,
   pendingDroppedAct,
+  getActLabel,
   onClearSurfaces,
   onClose,
   onConfirm,
@@ -81,7 +83,9 @@ export function SurfacePickerDialog({
             </h3>
             <p className="mt-1 text-sm text-slate-500">
               {pendingDroppedAct
-                ? t("descriptionForAct", {act: pendingDroppedAct.name})
+                ? t("descriptionForAct", {
+                    act: getActLabel?.(pendingDroppedAct.name) ?? pendingDroppedAct.name,
+                  })
                 : t("description")}
             </p>
           </div>
@@ -236,12 +240,18 @@ export function ConfirmTreatmentDialog({
 
 interface CompleteSessionActDialogProps {
   procedure: VisitProcedure | null;
+  getActLabel?: (act: string) => string;
+  getLocationLabel?: (procedure: VisitProcedure) => string;
+  getAreaLabel?: (procedure: VisitProcedure) => string;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
 export function CompleteSessionActDialog({
   procedure,
+  getActLabel,
+  getLocationLabel,
+  getAreaLabel,
   onCancel,
   onConfirm,
 }: CompleteSessionActDialogProps) {
@@ -263,14 +273,17 @@ export function CompleteSessionActDialog({
 
         <div className="mb-6 flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p>
-            <strong>{t("act")}:</strong> {procedure.act}
+            <strong>{t("act")}:</strong>{" "}
+            {getActLabel?.(procedure.act) ?? procedure.act}
           </p>
           <p>
-            <strong>{t("location")}:</strong> {getTreatmentLocationLabel(procedure)}
+            <strong>{t("location")}:</strong>{" "}
+            {getLocationLabel?.(procedure) ?? getTreatmentLocationLabel(procedure)}
           </p>
           <p>
             <strong>{t("area")}:</strong>{" "}
-            {procedure.surfaces.length ? procedure.surfaces.join(", ") : t("fullTooth")}
+            {getAreaLabel?.(procedure) ??
+              (procedure.surfaces.length ? procedure.surfaces.join(", ") : t("fullTooth"))}
           </p>
           <p className="text-slate-500">
             {t("description")}

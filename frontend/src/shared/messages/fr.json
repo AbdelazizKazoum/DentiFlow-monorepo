@@ -142,6 +142,212 @@
         "applyTreatmentPlan": "Appliquer le plan de traitement",
         "selectDiagnosis": "Sélectionner un diagnostic *",
         "choose": "-- Choisir --",
+        "odontogram": {
+          "title": "Odontogramme",
+          "midline": "Maxillaire / Mandibulaire",
+          "legend": {
+            "filling": "Obturation",
+            "rootCanal": "Traitement canalaire",
+            "crown": "Couronne",
+            "pathology": "Pathologie"
+          }
+        },
+        "dentition": {
+          "adult": "Adulte",
+          "child": "Enfant",
+          "mixed": "Mixte"
+        },
+        "chart": {
+          "primaryUpperArch": "Arcade supérieure temporaire",
+          "primaryLowerArch": "Arcade inférieure temporaire",
+          "permanentUpperArch": "Arcade supérieure permanente",
+          "permanentLowerArch": "Arcade inférieure permanente"
+        },
+        "location": {
+          "teeth": "Dents {teeth}",
+          "fullSelectedTeeth": "Dents sélectionnées entières"
+        },
+        "mouthRegions": {
+          "whole_mouth": {"label": "Bouche entière", "hint": "Toutes les dents"},
+          "upper_arch": {"label": "Arcade supérieure", "hint": "Partie haute"},
+          "lower_arch": {"label": "Arcade inférieure", "hint": "Partie basse"},
+          "upper_right": {"label": "Supérieur droit", "hint": "Quadrant 1"},
+          "upper_left": {"label": "Supérieur gauche", "hint": "Quadrant 2"},
+          "lower_left": {"label": "Inférieur gauche", "hint": "Quadrant 3"},
+          "lower_right": {"label": "Inférieur droit", "hint": "Quadrant 4"}
+        },
+        "surfaces": {
+          "V": "Vestibulaire",
+          "L": "Linguale",
+          "P": "Palatine",
+          "M": "Mésiale",
+          "D": "Distale",
+          "O": "Occlusale",
+          "R": "Racine / canal"
+        },
+        "documents": {
+          "prescription": "Ordonnance",
+          "medical_certificate": "Certificat médical",
+          "clinical_report": "Rapport clinique"
+        },
+        "acts": {
+          "categories": {
+            "general": "Général",
+            "radiography": "Radiographie",
+            "preventive": "Préventif",
+            "restorative": "Restaurateur",
+            "endodontics": "Endodontie",
+            "surgery": "Chirurgie",
+            "prosthetics": "Prothèse",
+            "aesthetic": "Esthétique",
+            "orthodontics": "Orthodontie"
+          },
+          "names": {
+            "consultation": "Consultation",
+            "panoramic_x_ray": "Radiographie panoramique",
+            "scaling_and_polishing": "Détartrage et polissage",
+            "fluoride_treatment": "Traitement au fluor",
+            "composite_filling_1_surface": "Obturation composite (1 surface)",
+            "composite_filling_2_surfaces": "Obturation composite (2 surfaces)",
+            "composite_filling_3_plus_surfaces": "Obturation composite (3+ surfaces)",
+            "root_canal_treatment_anterior": "Traitement canalaire (antérieure)",
+            "root_canal_treatment_premolar": "Traitement canalaire (prémolaire)",
+            "root_canal_treatment_molar": "Traitement canalaire (molaire)",
+            "simple_extraction": "Extraction simple",
+            "surgical_extraction": "Extraction chirurgicale",
+            "wisdom_tooth_extraction": "Extraction de dent de sagesse",
+            "ceramic_crown": "Couronne céramique",
+            "zirconia_crown": "Couronne zircone",
+            "temporary_crown": "Couronne provisoire",
+            "dental_implant_placement": "Pose d'implant dentaire",
+            "bone_grafting": "Greffe osseuse",
+            "teeth_whitening_in_office": "Blanchiment dentaire au cabinet",
+            "orthodontic_consultation": "Consultation orthodontique"
+          }
+        },
+        "diagnoses": {
+          "labels": {
+            "severity": "Sévérité",
+            "certainty": "Certitude",
+            "status": "Statut",
+            "evidence": "Preuves diagnostiques",
+            "symptoms": "Symptômes",
+            "painLevel": "Niveau de douleur",
+            "clinicalNotes": "Notes cliniques"
+          },
+          "names": {
+            "dental_caries": "Carie dentaire",
+            "pulpitis": "Pulpite",
+            "gingivitis": "Gingivite",
+            "periodontitis": "Parodontite",
+            "fractured_tooth": "Dent fracturée",
+            "impacted_tooth": "Dent incluse",
+            "abscess": "Abcès",
+            "bone_loss": "Perte osseuse"
+          },
+          "severity": {
+            "mild": "Légère",
+            "moderate": "Modérée",
+            "severe": "Sévère"
+          },
+          "certainty": {
+            "suspected": "Suspecté",
+            "confirmed": "Confirmé",
+            "ruled_out": "Écarté"
+          },
+          "status": {
+            "active": "Actif",
+            "resolved": "Résolu",
+            "monitoring": "Surveillance"
+          },
+          "evidence": {
+            "visual_exam": "Examen visuel",
+            "x_ray": "Radiographie",
+            "percussion_test": "Test de percussion",
+            "cold_test": "Test au froid",
+            "periodontal_probing": "Sondage parodontal"
+          },
+          "symptoms": {
+            "pain": "Douleur",
+            "sensitivity": "Sensibilité",
+            "swelling": "Gonflement",
+            "bleeding": "Saignement",
+            "mobility": "Mobilité"
+          },
+          "radiology": {
+            "title": "Pièces radiologiques",
+            "description": "Téléversez une fois, puis liez à un ou plusieurs diagnostics.",
+            "upload": "Téléverser",
+            "empty": "Aucun fichier radiographique joint."
+          },
+          "notesPlaceholder": "Ajoutez les observations cliniques, la réponse aux tests, les notes radiographiques...",
+          "record": "Enregistrer le diagnostic"
+        },
+        "eventStates": {
+          "diagnosis": "Diagnostic",
+          "planned": "Planifié",
+          "completed": "Terminé",
+          "inProgress": "En cours"
+        },
+        "procedureStatus": {
+          "completed": "Terminé",
+          "in_progress": "En cours",
+          "in_progress_form": "En cours"
+        },
+        "teeth": {
+          "tooth_11": "11 - Incisive centrale supérieure droite",
+          "tooth_12": "12 - Incisive latérale supérieure droite",
+          "tooth_13": "13 - Canine supérieure droite",
+          "tooth_14": "14 - Première prémolaire supérieure droite",
+          "tooth_15": "15 - Deuxième prémolaire supérieure droite",
+          "tooth_16": "16 - Première molaire supérieure droite",
+          "tooth_17": "17 - Deuxième molaire supérieure droite",
+          "tooth_18": "18 - Troisième molaire supérieure droite",
+          "tooth_21": "21 - Incisive centrale supérieure gauche",
+          "tooth_22": "22 - Incisive latérale supérieure gauche",
+          "tooth_23": "23 - Canine supérieure gauche",
+          "tooth_24": "24 - Première prémolaire supérieure gauche",
+          "tooth_25": "25 - Deuxième prémolaire supérieure gauche",
+          "tooth_26": "26 - Première molaire supérieure gauche",
+          "tooth_27": "27 - Deuxième molaire supérieure gauche",
+          "tooth_28": "28 - Troisième molaire supérieure gauche",
+          "tooth_31": "31 - Incisive centrale inférieure gauche",
+          "tooth_32": "32 - Incisive latérale inférieure gauche",
+          "tooth_33": "33 - Canine inférieure gauche",
+          "tooth_34": "34 - Première prémolaire inférieure gauche",
+          "tooth_35": "35 - Deuxième prémolaire inférieure gauche",
+          "tooth_36": "36 - Première molaire inférieure gauche",
+          "tooth_37": "37 - Deuxième molaire inférieure gauche",
+          "tooth_38": "38 - Troisième molaire inférieure gauche",
+          "tooth_41": "41 - Incisive centrale inférieure droite",
+          "tooth_42": "42 - Incisive latérale inférieure droite",
+          "tooth_43": "43 - Canine inférieure droite",
+          "tooth_44": "44 - Première prémolaire inférieure droite",
+          "tooth_45": "45 - Deuxième prémolaire inférieure droite",
+          "tooth_46": "46 - Première molaire inférieure droite",
+          "tooth_47": "47 - Deuxième molaire inférieure droite",
+          "tooth_48": "48 - Troisième molaire inférieure droite",
+          "tooth_51": "51 - Incisive centrale temporaire supérieure droite",
+          "tooth_52": "52 - Incisive latérale temporaire supérieure droite",
+          "tooth_53": "53 - Canine temporaire supérieure droite",
+          "tooth_54": "54 - Première molaire temporaire supérieure droite",
+          "tooth_55": "55 - Deuxième molaire temporaire supérieure droite",
+          "tooth_61": "61 - Incisive centrale temporaire supérieure gauche",
+          "tooth_62": "62 - Incisive latérale temporaire supérieure gauche",
+          "tooth_63": "63 - Canine temporaire supérieure gauche",
+          "tooth_64": "64 - Première molaire temporaire supérieure gauche",
+          "tooth_65": "65 - Deuxième molaire temporaire supérieure gauche",
+          "tooth_71": "71 - Incisive centrale temporaire inférieure gauche",
+          "tooth_72": "72 - Incisive latérale temporaire inférieure gauche",
+          "tooth_73": "73 - Canine temporaire inférieure gauche",
+          "tooth_74": "74 - Première molaire temporaire inférieure gauche",
+          "tooth_75": "75 - Deuxième molaire temporaire inférieure gauche",
+          "tooth_81": "81 - Incisive centrale temporaire inférieure droite",
+          "tooth_82": "82 - Incisive latérale temporaire inférieure droite",
+          "tooth_83": "83 - Canine temporaire inférieure droite",
+          "tooth_84": "84 - Première molaire temporaire inférieure droite",
+          "tooth_85": "85 - Deuxième molaire temporaire inférieure droite"
+        },
         "history": {
           "auditTrail": "Ceci est le journal clinique. Les actes annulés ou invalidés restent visibles et ne peuvent pas être supprimés silencieusement.",
           "completedReason": "Traitement clinique terminé",
@@ -155,7 +361,38 @@
         "details": {
           "close": "Fermer",
           "continueTreatment": "Continuer le traitement",
-          "startTreatment": "Commencer le traitement"
+          "startTreatment": "Commencer le traitement",
+          "selectTooth": "Sélectionnez une dent pour voir son historique spécifique et ses traitements actifs.",
+          "noRecords": "Aucun dossier trouvé pour les dents sélectionnées.",
+          "surfaces": "Surfaces : {surfaces}",
+          "evidence": "Preuves",
+          "attachments": "Pièces jointes",
+          "symptoms": "Symptômes",
+          "note": "Note",
+          "pain": "Douleur {level}/10",
+          "unavailableAttachment": "Pièce jointe indisponible",
+          "treatmentDetails": "Détails du traitement",
+          "chargePosted": "Frais postés",
+          "notCharged": "Non facturé",
+          "clinicalStatus": "Statut clinique",
+          "price": "Prix",
+          "priority": "Priorité",
+          "billing": "Facturation",
+          "linkedRequests": "Demandes liées",
+          "document": "Document",
+          "followUp": "Suivi",
+          "noDate": "Aucune date sélectionnée",
+          "postedCashierCharge": "Frais postés à la caisse",
+          "cashierWorkflow": "Géré hors du flux clinique.",
+          "remaining": "restant",
+          "relatedDiagnoses": "Diagnostics liés",
+          "noLinkedDiagnosis": "Aucun diagnostic lié à cette localisation.",
+          "notSpecified": "Non spécifié",
+          "visitNotes": "Notes de visite et transmission",
+          "noHandoff": "Aucune note de transmission enregistrée pour ce traitement.",
+          "procedureTimeline": "Chronologie des actes",
+          "noClinicalSessions": "Aucune séance clinique enregistrée.",
+          "timeNotRecorded": "Heure non enregistrée"
         },
         "dialogs": {
           "sendAssistant": {

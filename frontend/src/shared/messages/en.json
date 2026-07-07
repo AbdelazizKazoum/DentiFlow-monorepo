@@ -142,6 +142,212 @@
         "applyTreatmentPlan": "Apply Treatment Plan",
         "selectDiagnosis": "Select Diagnosis *",
         "choose": "-- Choose --",
+        "odontogram": {
+          "title": "Odontogram",
+          "midline": "Maxillary / Mandibular",
+          "legend": {
+            "filling": "Filling",
+            "rootCanal": "Root Canal",
+            "crown": "Crown",
+            "pathology": "Pathology"
+          }
+        },
+        "dentition": {
+          "adult": "Adult",
+          "child": "Child",
+          "mixed": "Mixed"
+        },
+        "chart": {
+          "primaryUpperArch": "Primary upper arch",
+          "primaryLowerArch": "Primary lower arch",
+          "permanentUpperArch": "Permanent upper arch",
+          "permanentLowerArch": "Permanent lower arch"
+        },
+        "location": {
+          "teeth": "Teeth {teeth}",
+          "fullSelectedTeeth": "Full selected teeth"
+        },
+        "mouthRegions": {
+          "whole_mouth": {"label": "Whole Mouth", "hint": "All teeth"},
+          "upper_arch": {"label": "Upper Arch", "hint": "Top side"},
+          "lower_arch": {"label": "Lower Arch", "hint": "Bottom side"},
+          "upper_right": {"label": "Upper Right", "hint": "Quadrant 1"},
+          "upper_left": {"label": "Upper Left", "hint": "Quadrant 2"},
+          "lower_left": {"label": "Lower Left", "hint": "Quadrant 3"},
+          "lower_right": {"label": "Lower Right", "hint": "Quadrant 4"}
+        },
+        "surfaces": {
+          "V": "Vestibular",
+          "L": "Lingual",
+          "P": "Palatal",
+          "M": "Mesial",
+          "D": "Distal",
+          "O": "Occlusal",
+          "R": "Root / Canal"
+        },
+        "documents": {
+          "prescription": "Prescription",
+          "medical_certificate": "Medical certificate",
+          "clinical_report": "Clinical report"
+        },
+        "acts": {
+          "categories": {
+            "general": "General",
+            "radiography": "Radiography",
+            "preventive": "Preventive",
+            "restorative": "Restorative",
+            "endodontics": "Endodontics",
+            "surgery": "Surgery",
+            "prosthetics": "Prosthetics",
+            "aesthetic": "Aesthetic",
+            "orthodontics": "Orthodontics"
+          },
+          "names": {
+            "consultation": "Consultation",
+            "panoramic_x_ray": "Panoramic X-Ray",
+            "scaling_and_polishing": "Scaling and Polishing",
+            "fluoride_treatment": "Fluoride Treatment",
+            "composite_filling_1_surface": "Composite Filling (1 Surface)",
+            "composite_filling_2_surfaces": "Composite Filling (2 Surfaces)",
+            "composite_filling_3_plus_surfaces": "Composite Filling (3+ Surfaces)",
+            "root_canal_treatment_anterior": "Root Canal Treatment (Anterior)",
+            "root_canal_treatment_premolar": "Root Canal Treatment (Premolar)",
+            "root_canal_treatment_molar": "Root Canal Treatment (Molar)",
+            "simple_extraction": "Simple Extraction",
+            "surgical_extraction": "Surgical Extraction",
+            "wisdom_tooth_extraction": "Wisdom Tooth Extraction",
+            "ceramic_crown": "Ceramic Crown",
+            "zirconia_crown": "Zirconia Crown",
+            "temporary_crown": "Temporary Crown",
+            "dental_implant_placement": "Dental Implant Placement",
+            "bone_grafting": "Bone Grafting",
+            "teeth_whitening_in_office": "Teeth Whitening (In-Office)",
+            "orthodontic_consultation": "Orthodontic Consultation"
+          }
+        },
+        "diagnoses": {
+          "labels": {
+            "severity": "Severity",
+            "certainty": "Certainty",
+            "status": "Status",
+            "evidence": "Diagnostic Evidence",
+            "symptoms": "Symptoms",
+            "painLevel": "Pain Level",
+            "clinicalNotes": "Clinical Notes"
+          },
+          "names": {
+            "dental_caries": "Dental Caries",
+            "pulpitis": "Pulpitis",
+            "gingivitis": "Gingivitis",
+            "periodontitis": "Periodontitis",
+            "fractured_tooth": "Fractured Tooth",
+            "impacted_tooth": "Impacted Tooth",
+            "abscess": "Abscess",
+            "bone_loss": "Bone Loss"
+          },
+          "severity": {
+            "mild": "Mild",
+            "moderate": "Moderate",
+            "severe": "Severe"
+          },
+          "certainty": {
+            "suspected": "Suspected",
+            "confirmed": "Confirmed",
+            "ruled_out": "Ruled out"
+          },
+          "status": {
+            "active": "Active",
+            "resolved": "Resolved",
+            "monitoring": "Monitoring"
+          },
+          "evidence": {
+            "visual_exam": "Visual exam",
+            "x_ray": "X-ray",
+            "percussion_test": "Percussion test",
+            "cold_test": "Cold test",
+            "periodontal_probing": "Periodontal probing"
+          },
+          "symptoms": {
+            "pain": "Pain",
+            "sensitivity": "Sensitivity",
+            "swelling": "Swelling",
+            "bleeding": "Bleeding",
+            "mobility": "Mobility"
+          },
+          "radiology": {
+            "title": "Radiology Attachments",
+            "description": "Upload once, then link to one or more diagnoses.",
+            "upload": "Upload",
+            "empty": "No X-ray files attached yet."
+          },
+          "notesPlaceholder": "Add clinical observations, test response, radiographic notes...",
+          "record": "Record Diagnosis"
+        },
+        "eventStates": {
+          "diagnosis": "Diagnosis",
+          "planned": "Planned",
+          "completed": "Completed",
+          "inProgress": "In Progress"
+        },
+        "procedureStatus": {
+          "completed": "Completed",
+          "in_progress": "In Progress",
+          "in_progress_form": "In Progress"
+        },
+        "teeth": {
+          "tooth_11": "11 - Upper Right Central Incisor",
+          "tooth_12": "12 - Upper Right Lateral Incisor",
+          "tooth_13": "13 - Upper Right Canine",
+          "tooth_14": "14 - Upper Right First Premolar",
+          "tooth_15": "15 - Upper Right Second Premolar",
+          "tooth_16": "16 - Upper Right First Molar",
+          "tooth_17": "17 - Upper Right Second Molar",
+          "tooth_18": "18 - Upper Right Third Molar",
+          "tooth_21": "21 - Upper Left Central Incisor",
+          "tooth_22": "22 - Upper Left Lateral Incisor",
+          "tooth_23": "23 - Upper Left Canine",
+          "tooth_24": "24 - Upper Left First Premolar",
+          "tooth_25": "25 - Upper Left Second Premolar",
+          "tooth_26": "26 - Upper Left First Molar",
+          "tooth_27": "27 - Upper Left Second Molar",
+          "tooth_28": "28 - Upper Left Third Molar",
+          "tooth_31": "31 - Lower Left Central Incisor",
+          "tooth_32": "32 - Lower Left Lateral Incisor",
+          "tooth_33": "33 - Lower Left Canine",
+          "tooth_34": "34 - Lower Left First Premolar",
+          "tooth_35": "35 - Lower Left Second Premolar",
+          "tooth_36": "36 - Lower Left First Molar",
+          "tooth_37": "37 - Lower Left Second Molar",
+          "tooth_38": "38 - Lower Left Third Molar",
+          "tooth_41": "41 - Lower Right Central Incisor",
+          "tooth_42": "42 - Lower Right Lateral Incisor",
+          "tooth_43": "43 - Lower Right Canine",
+          "tooth_44": "44 - Lower Right First Premolar",
+          "tooth_45": "45 - Lower Right Second Premolar",
+          "tooth_46": "46 - Lower Right First Molar",
+          "tooth_47": "47 - Lower Right Second Molar",
+          "tooth_48": "48 - Lower Right Third Molar",
+          "tooth_51": "51 - Primary Upper Right Central Incisor",
+          "tooth_52": "52 - Primary Upper Right Lateral Incisor",
+          "tooth_53": "53 - Primary Upper Right Canine",
+          "tooth_54": "54 - Primary Upper Right First Molar",
+          "tooth_55": "55 - Primary Upper Right Second Molar",
+          "tooth_61": "61 - Primary Upper Left Central Incisor",
+          "tooth_62": "62 - Primary Upper Left Lateral Incisor",
+          "tooth_63": "63 - Primary Upper Left Canine",
+          "tooth_64": "64 - Primary Upper Left First Molar",
+          "tooth_65": "65 - Primary Upper Left Second Molar",
+          "tooth_71": "71 - Primary Lower Left Central Incisor",
+          "tooth_72": "72 - Primary Lower Left Lateral Incisor",
+          "tooth_73": "73 - Primary Lower Left Canine",
+          "tooth_74": "74 - Primary Lower Left First Molar",
+          "tooth_75": "75 - Primary Lower Left Second Molar",
+          "tooth_81": "81 - Primary Lower Right Central Incisor",
+          "tooth_82": "82 - Primary Lower Right Lateral Incisor",
+          "tooth_83": "83 - Primary Lower Right Canine",
+          "tooth_84": "84 - Primary Lower Right First Molar",
+          "tooth_85": "85 - Primary Lower Right Second Molar"
+        },
         "history": {
           "auditTrail": "This is the clinical audit trail. Cancelled and voided items remain here and cannot be silently removed.",
           "completedReason": "Completed clinical treatment",
@@ -155,7 +361,38 @@
         "details": {
           "close": "Close",
           "continueTreatment": "Continue Treatment",
-          "startTreatment": "Start Treatment"
+          "startTreatment": "Start Treatment",
+          "selectTooth": "Select a tooth to view its specific history and active treatments.",
+          "noRecords": "No records found for the selected teeth.",
+          "surfaces": "Surfaces: {surfaces}",
+          "evidence": "Evidence",
+          "attachments": "Attachments",
+          "symptoms": "Symptoms",
+          "note": "Note",
+          "pain": "Pain {level}/10",
+          "unavailableAttachment": "Unavailable attachment",
+          "treatmentDetails": "Treatment details",
+          "chargePosted": "Charge posted",
+          "notCharged": "Not charged",
+          "clinicalStatus": "Clinical status",
+          "price": "Price",
+          "priority": "Priority",
+          "billing": "Billing",
+          "linkedRequests": "Linked requests",
+          "document": "Document",
+          "followUp": "Follow-up",
+          "noDate": "No date selected",
+          "postedCashierCharge": "Posted cashier charge",
+          "cashierWorkflow": "Handled outside the clinical workflow.",
+          "remaining": "remaining",
+          "relatedDiagnoses": "Related diagnoses",
+          "noLinkedDiagnosis": "No diagnosis linked to this location yet.",
+          "notSpecified": "Not specified",
+          "visitNotes": "Visit notes and handoff",
+          "noHandoff": "No handoff notes recorded for this treatment.",
+          "procedureTimeline": "Procedure timeline",
+          "noClinicalSessions": "No clinical sessions recorded yet.",
+          "timeNotRecorded": "Time not recorded"
         },
         "dialogs": {
           "sendAssistant": {
