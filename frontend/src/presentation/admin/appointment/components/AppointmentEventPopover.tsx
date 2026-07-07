@@ -2,6 +2,7 @@
 
 import { Avatar, Button, Divider, Popover } from "@mui/material";
 import { Calendar, Clock, Edit3, LogIn, Stethoscope, User } from "lucide-react";
+import {useLocale, useTranslations} from "next-intl";
 import type { Appointment } from "@/domain/appointment/entities/appointment";
 import { APPOINTMENT_STATUS_CONFIG } from "../appointmentConfig";
 import type { AppointmentProvider } from "../appointmentConfig";
@@ -24,12 +25,12 @@ function initials(name: string): string {
     .join("");
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+function formatTime(date: Date, locale: string): string {
+  return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString([], {
+function formatDate(date: Date, locale: string): string {
+  return date.toLocaleDateString(locale, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -56,6 +57,9 @@ export function AppointmentEventPopover({
   onEdit,
   onCheckIn,
 }: AppointmentEventPopoverProps) {
+  const locale = useLocale();
+  const t = useTranslations("admin.appointments");
+
   if (!appointment) return null;
 
   const open = Boolean(anchorEl);
@@ -139,7 +143,7 @@ export function AppointmentEventPopover({
                   marginTop: 2,
                 }}
               >
-                {appointment.type ?? "Visit"}
+                {appointment.type ?? t("calendar.visit")}
               </div>
             </div>
           </div>
@@ -159,7 +163,7 @@ export function AppointmentEventPopover({
               textTransform: "uppercase",
             }}
           >
-            {statusCfg.label}
+            {t(`status.${appointment.status}`)}
           </span>
         </div>
 
@@ -177,8 +181,8 @@ export function AppointmentEventPopover({
                 fontWeight: 500,
               }}
             >
-              {formatTime(appointment.startAt)} –{" "}
-              {formatTime(appointment.endAt)}
+              {formatTime(appointment.startAt, locale)} –{" "}
+              {formatTime(appointment.endAt, locale)}
             </span>
           </div>
 
@@ -192,7 +196,7 @@ export function AppointmentEventPopover({
                 fontWeight: 500,
               }}
             >
-              {formatDate(appointment.startAt)}
+              {formatDate(appointment.startAt, locale)}
             </span>
             {appointment.isEmergency && (
               <span
@@ -208,7 +212,7 @@ export function AppointmentEventPopover({
                   letterSpacing: "0.04em",
                 }}
               >
-                Emergency
+                {t("priority.EMERGENCY")}
               </span>
             )}
           </div>
@@ -298,7 +302,7 @@ export function AppointmentEventPopover({
               },
             }}
           >
-            Edit
+            {t("popover.edit")}
           </Button>
 
           {eligible && (
@@ -324,7 +328,7 @@ export function AppointmentEventPopover({
                 },
               }}
             >
-              Check In
+              {t("popover.checkIn")}
             </Button>
           )}
         </div>

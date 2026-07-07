@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useLocale, useTranslations} from "next-intl";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -45,11 +46,14 @@ function initials(name: string): string {
     .join("");
 }
 
-function toCalendarEvent(appointment: Appointment): EventInput {
+function toCalendarEvent(
+  appointment: Appointment,
+  fallbackVisitLabel: string,
+): EventInput {
   const cfg = APPOINTMENT_STATUS_CONFIG[appointment.status];
   return {
     id: appointment.id,
-    title: `${appointment.patientName} — ${appointment.type ?? "Visit"}`,
+    title: `${appointment.patientName} — ${appointment.type ?? fallbackVisitLabel}`,
     start: appointment.startAt.toISOString(),
     end: appointment.endAt.toISOString(),
     resourceId: appointment.doctorId,
@@ -74,6 +78,8 @@ export function AppointmentCalendar({
   onMoveRequested,
   onRangeChange,
 }: AppointmentCalendarProps) {
+  const locale = useLocale();
+  const t = useTranslations("admin.appointments.calendar");
   const [currentView, setCurrentView] = useState("resourceTimeGridDay");
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
   const [popoverAppointment, setPopoverAppointment] =
@@ -151,7 +157,7 @@ export function AppointmentCalendar({
         resources={visibleResources}
         customButtons={{
           addAppointment: {
-            text: "+ New Appointment",
+            text: t("newAppointment"),
             click: () => {
               const now = new Date();
               now.setSeconds(0, 0);
@@ -165,12 +171,13 @@ export function AppointmentCalendar({
           right: "resourceTimeGridDay,timeGridWeek,dayGridMonth addAppointment",
         }}
         buttonText={{
-          today: "Today",
-          week: "Week",
-          day: "Day",
-          month: "Month",
-          resourceTimeGridDay: "Day",
+          today: t("today"),
+          week: t("week"),
+          day: t("day"),
+          month: t("month"),
+          resourceTimeGridDay: t("day"),
         }}
+        locale={locale}
         resourceLabelContent={(arg) => {
           const provider = providers.find(
             (item) => item.id === arg.resource.id,
@@ -215,7 +222,9 @@ export function AppointmentCalendar({
             </div>
           );
         }}
-        events={visibleAppointments.map(toCalendarEvent)}
+        events={visibleAppointments.map((appointment) =>
+          toCalendarEvent(appointment, t("visit")),
+        )}
         eventContent={(eventInfo) => {
           const appointment = eventInfo.event.extendedProps.appointment as
             | Appointment
@@ -240,7 +249,7 @@ export function AppointmentCalendar({
                     lineHeight: 1.25,
                   }}
                 >
-                  {eventInfo.event.title || "New Appointment"}
+                  {eventInfo.event.title || t("newAppointment")}
                 </div>
                 <div
                   style={{

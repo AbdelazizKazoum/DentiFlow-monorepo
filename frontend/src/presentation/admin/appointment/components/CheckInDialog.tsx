@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LogIn, X } from "lucide-react";
+import {useTranslations} from "next-intl";
 import type { Appointment } from "@/domain/appointment/entities/appointment";
 import type { QueuePriority } from "@/domain/queue/entities/queueEntry";
 import { TF_SX } from "../../patient/patientConfig";
@@ -54,6 +55,10 @@ export function CheckInDialog({
   onClose,
   onSubmit,
 }: CheckInDialogProps) {
+  const t = useTranslations("admin.appointments.checkIn");
+  const priorityT = useTranslations("admin.appointments.priority");
+  const calendarT = useTranslations("admin.appointments.calendar");
+
   if (!appointment) return null;
 
   return (
@@ -100,13 +105,13 @@ export function CheckInDialog({
               fontSize: "1rem",
             }}
           >
-            Check In Patient
+            {t("title")}
           </Typography>
           <Typography
             variant="body2"
             sx={{ color: "var(--text-muted)", fontSize: "0.8rem", mt: 0.25 }}
           >
-            {appointment.patientName} · {appointment.type ?? "Visit"}
+            {appointment.patientName} · {appointment.type ?? calendarT("visit")}
           </Typography>
         </div>
         <IconButton
@@ -145,7 +150,7 @@ export function CheckInDialog({
                 letterSpacing: "0.02em",
               }}
             >
-              Priority
+              {t("priority")}
             </label>
             <FormControl fullWidth>
               <Select
@@ -171,7 +176,7 @@ export function CheckInDialog({
                   },
                 }}
               >
-                {PRIORITY_CONFIG.map(({ value, label, color }) => (
+                {PRIORITY_CONFIG.map(({ value, color }) => (
                   <MenuItem key={value} value={value}>
                     <div
                       style={{ display: "flex", alignItems: "center", gap: 8 }}
@@ -187,7 +192,7 @@ export function CheckInDialog({
                         }}
                       />
                       <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>
-                        {label}
+                        {priorityT(value)}
                       </span>
                     </div>
                   </MenuItem>
@@ -197,8 +202,8 @@ export function CheckInDialog({
           </div>
 
           <TextField
-            label="Arrival Notes (optional)"
-            placeholder="e.g. Patient mentions sensitivity, came early..."
+            label={t("arrivalNotes")}
+            placeholder={t("arrivalNotesPlaceholder")}
             fullWidth
             multiline
             rows={3}
@@ -228,7 +233,7 @@ export function CheckInDialog({
             fontSize: "0.875rem",
           }}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           variant="contained"
@@ -249,7 +254,7 @@ export function CheckInDialog({
             "&.Mui-disabled": { opacity: 0.65 },
           }}
         >
-          {isChecking ? "Checking in..." : "Confirm Check In"}
+          {isChecking ? t("checking") : t("confirm")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,4 +1,5 @@
 import {Avatar, Chip} from "@mui/material";
+import {useTranslations} from "next-intl";
 import type {AppointmentProvider} from "../appointmentConfig";
 import {
   APPOINTMENT_LEGEND_STATUSES,
@@ -25,6 +26,8 @@ export function ProviderFilterBar({
   activeProviderIds,
   onToggleProvider,
 }: ProviderFilterBarProps) {
+  const t = useTranslations("admin.appointments");
+
   return (
     <div
       className="px-6 py-3.5 border-b flex flex-wrap items-center gap-3"
@@ -34,7 +37,7 @@ export function ProviderFilterBar({
         className="text-xs font-semibold uppercase tracking-wide mr-1"
         style={{color: "var(--text-muted)"}}
       >
-        Providers
+        {t("filters.providers")}
       </span>
       {providers.map((provider) => {
         const active = activeProviderIds.has(provider.id);
@@ -86,7 +89,7 @@ export function ProviderFilterBar({
                 className="text-xs font-medium hidden sm:inline"
                 style={{color: "var(--text-muted)"}}
               >
-                {cfg.label}
+                {t(`status.${status}`)}
               </span>
             </div>
           );
@@ -95,7 +98,7 @@ export function ProviderFilterBar({
           className="text-xs hidden lg:inline"
           style={{color: "var(--text-muted)"}}
         >
-          Click to book · Drag to reschedule
+          {t("filters.hint")}
         </span>
       </div>
     </div>

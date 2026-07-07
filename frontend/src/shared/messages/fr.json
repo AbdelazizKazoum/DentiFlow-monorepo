@@ -586,6 +586,80 @@
         }
       }
     },
+    "appointments": {
+      "page": {
+        "title": "Rendez-vous",
+        "subtitle": "Gérez le planning des patients"
+      },
+      "calendar": {
+        "newAppointment": "+ Nouveau rendez-vous",
+        "today": "Aujourd'hui",
+        "week": "Semaine",
+        "day": "Jour",
+        "month": "Mois",
+        "visit": "Visite"
+      },
+      "filters": {
+        "providers": "Praticiens",
+        "hint": "Cliquez pour réserver · Glissez pour reprogrammer"
+      },
+      "status": {
+        "PENDING": "En attente",
+        "CONFIRMED": "Confirmé",
+        "CANCELLED": "Annulé",
+        "NO_SHOW": "Absent",
+        "COMPLETED": "Terminé"
+      },
+      "priority": {
+        "NORMAL": "Normale",
+        "URGENT": "Urgente",
+        "EMERGENCY": "Urgence"
+      },
+      "form": {
+        "newTitle": "Nouveau rendez-vous",
+        "editTitle": "Modifier le rendez-vous",
+        "service": "Service / procédure",
+        "servicePlaceholder": "ex. Contrôle annuel",
+        "startTime": "Heure de début",
+        "endTime": "Heure de fin",
+        "provider": "Praticien",
+        "status": "Statut",
+        "patientPhone": "Téléphone du patient",
+        "patientEmail": "Email du patient",
+        "phonePlaceholder": "ex. 555-0101",
+        "emailPlaceholder": "ex. jane.d@example.com",
+        "emergencyOverride": "Marquer comme urgence",
+        "notes": "Notes / commentaires",
+        "notesPlaceholder": "ex. Le patient signale une sensibilité dentaire...",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "saveChanges": "Enregistrer",
+        "create": "Créer le rendez-vous"
+      },
+      "patientSearch": {
+        "label": "Patient",
+        "placeholder": "Rechercher par nom ou téléphone...",
+        "continueAs": "Continuer comme",
+        "newPatient": "nouveau patient",
+        "noPatients": "Aucun patient trouvé",
+        "newPatientHint": "Vous pouvez saisir un nom et continuer comme nouveau patient",
+        "minChars": "Tapez au moins 2 caractères pour rechercher"
+      },
+      "popover": {
+        "edit": "Modifier",
+        "checkIn": "Enregistrer l'arrivée"
+      },
+      "checkIn": {
+        "title": "Enregistrer l'arrivée",
+        "priority": "Priorité",
+        "arrivalNotes": "Notes d'arrivée (facultatif)",
+        "arrivalNotesPlaceholder": "ex. Le patient signale une sensibilité, arrivé en avance...",
+        "cancel": "Annuler",
+        "checking": "Enregistrement...",
+        "confirm": "Confirmer l'arrivée"
+      }
+    },
     "auth": {
       "login": {
         "title": "Connexion Admin",

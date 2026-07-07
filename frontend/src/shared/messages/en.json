@@ -586,6 +586,80 @@
         }
       }
     },
+    "appointments": {
+      "page": {
+        "title": "Appointments",
+        "subtitle": "Manage your patient schedule"
+      },
+      "calendar": {
+        "newAppointment": "+ New Appointment",
+        "today": "Today",
+        "week": "Week",
+        "day": "Day",
+        "month": "Month",
+        "visit": "Visit"
+      },
+      "filters": {
+        "providers": "Providers",
+        "hint": "Click to book · Drag to reschedule"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "CANCELLED": "Cancelled",
+        "NO_SHOW": "No Show",
+        "COMPLETED": "Completed"
+      },
+      "priority": {
+        "NORMAL": "Normal",
+        "URGENT": "Urgent",
+        "EMERGENCY": "Emergency"
+      },
+      "form": {
+        "newTitle": "Book New Appointment",
+        "editTitle": "Edit Appointment",
+        "service": "Service / Procedure",
+        "servicePlaceholder": "e.g. Annual Checkup",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "provider": "Provider",
+        "status": "Status",
+        "patientPhone": "Patient Phone",
+        "patientEmail": "Patient Email",
+        "phonePlaceholder": "e.g. 555-0101",
+        "emailPlaceholder": "e.g. jane.d@example.com",
+        "emergencyOverride": "Emergency override",
+        "notes": "Notes / Comments",
+        "notesPlaceholder": "e.g. Patient mentioned tooth sensitivity...",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "saveChanges": "Save Changes",
+        "create": "Create Appointment"
+      },
+      "patientSearch": {
+        "label": "Patient",
+        "placeholder": "Search by name or phone...",
+        "continueAs": "Continue as",
+        "newPatient": "new patient",
+        "noPatients": "No patients found",
+        "newPatientHint": "You can enter a name and continue as a new patient",
+        "minChars": "Type at least 2 characters to search"
+      },
+      "popover": {
+        "edit": "Edit",
+        "checkIn": "Check In"
+      },
+      "checkIn": {
+        "title": "Check In Patient",
+        "priority": "Priority",
+        "arrivalNotes": "Arrival Notes (optional)",
+        "arrivalNotesPlaceholder": "e.g. Patient mentions sensitivity, came early...",
+        "cancel": "Cancel",
+        "checking": "Checking in...",
+        "confirm": "Confirm Check In"
+      }
+    },
     "auth": {
       "login": {
         "title": "Admin Login",

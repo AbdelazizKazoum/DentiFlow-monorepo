@@ -1,5 +1,6 @@
 "use client";
 
+import {useTranslations} from "next-intl";
 import {AppointmentCalendar} from "./components/AppointmentCalendar";
 import {AppointmentCalendarStyles} from "./components/AppointmentCalendarStyles";
 import {AppointmentFormModal} from "./components/AppointmentFormModal";
@@ -9,6 +10,7 @@ import {useAppointmentPage} from "./hooks/useAppointmentPage";
 
 export default function AppointmentPage() {
   const hook = useAppointmentPage();
+  const t = useTranslations("admin.appointments.page");
 
   return (
     <>
@@ -16,9 +18,9 @@ export default function AppointmentPage() {
 
       <div className="p-6 lg:p-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="text-sm" style={{color: "var(--text-muted)"}}>
-            Manage your patient schedule
+            {t("subtitle")}
           </p>
         </div>
 

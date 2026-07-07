@@ -16,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import {X} from "lucide-react";
+import {useTranslations} from "next-intl";
 import type {AppointmentStatus} from "@/domain/appointment/entities/appointment";
 import type {AppointmentProvider} from "../appointmentConfig";
 import type {AppointmentFormState} from "../types";
@@ -54,6 +55,9 @@ export function AppointmentFormModal({
   onSave,
   onDelete,
 }: AppointmentFormModalProps) {
+  const t = useTranslations("admin.appointments.form");
+  const statusT = useTranslations("admin.appointments.status");
+
   return (
     <Dialog
       open={open}
@@ -86,7 +90,7 @@ export function AppointmentFormModal({
           component="div"
           sx={{fontWeight: 700, color: "var(--foreground)"}}
         >
-          {form.id ? "Edit Appointment" : "Book New Appointment"}
+          {form.id ? t("editTitle") : t("newTitle")}
         </Typography>
         <IconButton
           size="small"
@@ -132,11 +136,11 @@ export function AppointmentFormModal({
               }
             />
             <TextField
-              label="Service / Procedure"
+              label={t("service")}
               fullWidth
               value={form.type}
               onChange={(e) => onChange({...form, type: e.target.value})}
-              placeholder="e.g. Annual Checkup"
+              placeholder={t("servicePlaceholder")}
               required
               sx={TF_SX}
             />
@@ -144,7 +148,7 @@ export function AppointmentFormModal({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
-              label="Start Time"
+              label={t("startTime")}
               type="datetime-local"
               fullWidth
               value={form.startAt}
@@ -153,7 +157,7 @@ export function AppointmentFormModal({
               sx={TF_SX}
             />
             <TextField
-              label="End Time"
+              label={t("endTime")}
               type="datetime-local"
               fullWidth
               value={form.endAt}
@@ -165,9 +169,9 @@ export function AppointmentFormModal({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormControl fullWidth sx={TF_SX}>
-              <InputLabel>Provider</InputLabel>
+              <InputLabel>{t("provider")}</InputLabel>
               <Select
-                label="Provider"
+                label={t("provider")}
                 value={form.doctorId}
                 onChange={(e) => {
                   const provider = providers.find(
@@ -238,9 +242,9 @@ export function AppointmentFormModal({
               </Select>
             </FormControl>
             <FormControl fullWidth sx={TF_SX}>
-              <InputLabel>Status</InputLabel>
+              <InputLabel>{t("status")}</InputLabel>
               <Select
-                label="Status"
+                label={t("status")}
                 value={form.status}
                 onChange={(e) =>
                   onChange({
@@ -249,33 +253,33 @@ export function AppointmentFormModal({
                   })
                 }
               >
-                <MenuItem value="PENDING">Pending Confirmation</MenuItem>
-                <MenuItem value="CONFIRMED">Confirmed</MenuItem>
-                <MenuItem value="CANCELLED">Cancelled</MenuItem>
+                <MenuItem value="PENDING">{statusT("PENDING")}</MenuItem>
+                <MenuItem value="CONFIRMED">{statusT("CONFIRMED")}</MenuItem>
+                <MenuItem value="CANCELLED">{statusT("CANCELLED")}</MenuItem>
               </Select>
             </FormControl>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextField
-              label="Patient Phone"
+              label={t("patientPhone")}
               fullWidth
               value={form.patientPhone}
               onChange={(e) =>
                 onChange({...form, patientPhone: e.target.value})
               }
-              placeholder="e.g. 555-0101"
+              placeholder={t("phonePlaceholder")}
               sx={TF_SX}
             />
             <TextField
-              label="Patient Email"
+              label={t("patientEmail")}
               type="email"
               fullWidth
               value={form.patientEmail}
               onChange={(e) =>
                 onChange({...form, patientEmail: e.target.value})
               }
-              placeholder="e.g. jane.d@example.com"
+              placeholder={t("emailPlaceholder")}
               sx={TF_SX}
             />
           </div>
@@ -293,7 +297,7 @@ export function AppointmentFormModal({
                 }}
               />
             }
-            label="Emergency override"
+            label={t("emergencyOverride")}
             sx={{
               "& .MuiFormControlLabel-label": {
                 fontSize: "0.875rem",
@@ -304,13 +308,13 @@ export function AppointmentFormModal({
           />
 
           <TextField
-            label="Notes / Comments"
+            label={t("notes")}
             fullWidth
             multiline
             rows={3}
             value={form.notes}
             onChange={(e) => onChange({...form, notes: e.target.value})}
-            placeholder="e.g. Patient mentioned tooth sensitivity..."
+            placeholder={t("notesPlaceholder")}
             sx={TF_SX}
           />
         </div>
@@ -335,7 +339,7 @@ export function AppointmentFormModal({
                 borderRadius: "8px",
               }}
             >
-              Delete
+              {t("delete")}
             </Button>
           )}
         </div>
@@ -350,7 +354,7 @@ export function AppointmentFormModal({
               padding: "8px 16px",
             }}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="contained"
@@ -370,10 +374,10 @@ export function AppointmentFormModal({
             }}
           >
             {isSaving
-              ? "Saving..."
+              ? t("saving")
               : form.id
-                ? "Save Changes"
-                : "Create Appointment"}
+                ? t("saveChanges")
+                : t("create")}
           </Button>
         </div>
       </DialogActions>

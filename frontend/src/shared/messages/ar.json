@@ -586,6 +586,80 @@
         }
       }
     },
+    "appointments": {
+      "page": {
+        "title": "المواعيد",
+        "subtitle": "إدارة جدول المرضى"
+      },
+      "calendar": {
+        "newAppointment": "+ موعد جديد",
+        "today": "اليوم",
+        "week": "أسبوع",
+        "day": "يوم",
+        "month": "شهر",
+        "visit": "زيارة"
+      },
+      "filters": {
+        "providers": "الممارسون",
+        "hint": "انقر للحجز · اسحب لإعادة الجدولة"
+      },
+      "status": {
+        "PENDING": "قيد الانتظار",
+        "CONFIRMED": "مؤكد",
+        "CANCELLED": "ملغى",
+        "NO_SHOW": "لم يحضر",
+        "COMPLETED": "مكتمل"
+      },
+      "priority": {
+        "NORMAL": "عادية",
+        "URGENT": "عاجلة",
+        "EMERGENCY": "طارئة"
+      },
+      "form": {
+        "newTitle": "حجز موعد جديد",
+        "editTitle": "تعديل الموعد",
+        "service": "الخدمة / الإجراء",
+        "servicePlaceholder": "مثال: فحص سنوي",
+        "startTime": "وقت البداية",
+        "endTime": "وقت النهاية",
+        "provider": "الممارس",
+        "status": "الحالة",
+        "patientPhone": "هاتف المريض",
+        "patientEmail": "بريد المريض",
+        "phonePlaceholder": "مثال: 555-0101",
+        "emailPlaceholder": "مثال: jane.d@example.com",
+        "emergencyOverride": "تحديد كحالة طارئة",
+        "notes": "ملاحظات / تعليقات",
+        "notesPlaceholder": "مثال: ذكر المريض حساسية في الأسنان...",
+        "delete": "حذف",
+        "cancel": "إلغاء",
+        "saving": "جار الحفظ...",
+        "saveChanges": "حفظ التغييرات",
+        "create": "إنشاء الموعد"
+      },
+      "patientSearch": {
+        "label": "المريض",
+        "placeholder": "ابحث بالاسم أو الهاتف...",
+        "continueAs": "المتابعة باسم",
+        "newPatient": "مريض جديد",
+        "noPatients": "لم يتم العثور على مرضى",
+        "newPatientHint": "يمكنك إدخال اسم والمتابعة كمريض جديد",
+        "minChars": "اكتب حرفين على الأقل للبحث"
+      },
+      "popover": {
+        "edit": "تعديل",
+        "checkIn": "تسجيل الوصول"
+      },
+      "checkIn": {
+        "title": "تسجيل وصول المريض",
+        "priority": "الأولوية",
+        "arrivalNotes": "ملاحظات الوصول (اختياري)",
+        "arrivalNotesPlaceholder": "مثال: يذكر المريض حساسية، وصل مبكراً...",
+        "cancel": "إلغاء",
+        "checking": "جار تسجيل الوصول...",
+        "confirm": "تأكيد تسجيل الوصول"
+      }
+    },
     "auth": {
       "login": {
         "title": "تسجيل دخول المسؤول",

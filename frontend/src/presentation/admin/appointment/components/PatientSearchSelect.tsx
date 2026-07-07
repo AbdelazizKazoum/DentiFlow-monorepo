@@ -3,6 +3,7 @@
 import {useState, useEffect, useMemo} from "react";
 import {Autocomplete, TextField, Avatar, Box} from "@mui/material";
 import {Search, Phone, User, CheckCircle2, Plus} from "lucide-react";
+import {useTranslations} from "next-intl";
 import {useAppointmentStore} from "@/presentation/stores/appointmentStore";
 import type {Patient} from "@/domain/patient/entities/patient";
 import {TF_SX, AVATAR_COLORS} from "../../patient/patientConfig";
@@ -76,6 +77,7 @@ export function PatientSearchSelect({
   error,
   helperText,
 }: PatientSearchSelectProps) {
+  const t = useTranslations("admin.appointments.patientSearch");
   const {searchResults, isSearchingPatients, searchPatients} =
     useAppointmentStore();
   const [inputValue, setInputValue] = useState(value);
@@ -169,8 +171,8 @@ export function PatientSearchSelect({
         return (
           <TextField
             {...params}
-            label="Patient"
-            placeholder="Search by name or phone…"
+            label={t("label")}
+            placeholder={t("placeholder")}
             error={error}
             helperText={helperText}
             sx={{
@@ -200,7 +202,7 @@ export function PatientSearchSelect({
         );
       }}
       renderOption={(props, option) => {
-        const {key: _key, ...rest} = props as {
+        const {key, ...rest} = props as {
           key: React.Key;
         } & React.HTMLAttributes<HTMLLIElement>;
 
@@ -208,7 +210,7 @@ export function PatientSearchSelect({
         if (option === NEW_PATIENT_SENTINEL) {
           return (
             <li
-              key="__new_patient__"
+              key={key}
               {...rest}
               style={{
                 padding: "10px 14px",
@@ -237,9 +239,9 @@ export function PatientSearchSelect({
               <span
                 style={{fontSize: "0.82rem", color: "#1d4ed8", fontWeight: 500}}
               >
-                Continue as &ldquo;
+                {t("continueAs")} &ldquo;
                 <strong style={{fontWeight: 700}}>{inputValue.trim()}</strong>
-                &rdquo; &mdash; new patient
+                &rdquo; &mdash; {t("newPatient")}
               </span>
             </li>
           );
@@ -355,15 +357,15 @@ export function PatientSearchSelect({
                 fontWeight: 500,
               }}
             >
-              No patients found
+              {t("noPatients")}
             </span>
             <span style={{fontSize: "0.73rem", color: "#94a3b8"}}>
-              You can enter a name and continue as a new patient
+              {t("newPatientHint")}
             </span>
           </Box>
         ) : (
           <span style={{fontSize: "0.8rem", color: "var(--text-muted)"}}>
-            Type at least 2 characters to search
+            {t("minChars")}
           </span>
         )
       }
