@@ -91,6 +91,264 @@
     }
   },
   "admin": {
+    "language": {
+      "label": "Langue"
+    },
+    "dashboard": {
+      "header": {
+        "title": "Tableau de bord",
+        "openSidebar": "Ouvrir la barre latérale",
+        "closeSidebar": "Fermer la barre latérale",
+        "openNavigation": "Ouvrir la navigation",
+        "searchPlaceholder": "Rechercher patients, rendez-vous",
+        "toggleTheme": "Changer de thème",
+        "notifications": "Notifications",
+        "settings": "Paramètres"
+      }
+    },
+    "treatment": {
+      "header": {
+        "age": "{age} ans",
+        "alerts": "Alertes : {alerts}",
+        "printReport": "Imprimer le rapport",
+        "amountDue": "Montant dû ${amount}",
+        "newCharges": "${amount} de nouveaux actes envoyés à la caisse"
+      },
+      "tabs": {
+        "currentSession": "Séance en cours",
+        "treatmentPlan": "Plan de traitement",
+        "clinicalHistory": "Historique clinique"
+      },
+      "workspace": {
+        "selectedRegion": "{region} sélectionnée",
+        "tooth": "Dent {tooth}",
+        "fullTooth": "Dent entière",
+        "selectTarget": "Sélectionnez des dents ou une région buccale",
+        "mouthRegion": "Région buccale",
+        "selectMouthRegion": "Sélectionner une région buccale",
+        "inspector": {
+          "treatments": "Traitements",
+          "diagnoses": "Diagnostics",
+          "details": "Détails"
+        },
+        "searchActs": "Rechercher des actes à appliquer ou glisser...",
+        "dragTip": "Astuce : faites glisser un acte sur une dent précise.",
+        "priority": "Priorité",
+        "priorities": {
+          "Low": "Basse",
+          "Normal": "Normale",
+          "High": "Haute"
+        },
+        "applyTreatmentPlan": "Appliquer le plan de traitement",
+        "selectDiagnosis": "Sélectionner un diagnostic *",
+        "choose": "-- Choisir --",
+        "history": {
+          "auditTrail": "Ceci est le journal clinique. Les actes annulés ou invalidés restent visibles et ne peuvent pas être supprimés silencieusement.",
+          "completedReason": "Traitement clinique terminé",
+          "table": {
+            "location": "Localisation",
+            "treatment": "Traitement",
+            "finalStatus": "Statut final",
+            "reason": "Raison / note d'audit"
+          }
+        },
+        "details": {
+          "close": "Fermer",
+          "continueTreatment": "Continuer le traitement",
+          "startTreatment": "Commencer le traitement"
+        },
+        "dialogs": {
+          "sendAssistant": {
+            "title": "Envoyer la visite à l'assistant ?",
+            "summary": "La visite sera marquée comme nécessitant un codage assistant.",
+            "description": "Votre note de transmission sera enregistrée et vous serez redirigé vers la salle d'attente pour sélectionner le patient suivant.",
+            "cancel": "Annuler",
+            "confirm": "Confirmer et retourner"
+          },
+          "closeVisit": {
+            "title": "Clôturer la visite ?",
+            "summary": "Cette visite sera marquée comme clôturée.",
+            "description": "Les traitements structurés et les frais postés resteront disponibles pour le flux de caisse. Vous serez redirigé vers la salle d'attente.",
+            "followUp": {
+              "title": "Demander un suivi",
+              "description": "Crée une demande de planification pour le flux des rendez-vous.",
+              "preferredDate": "Date préférée",
+              "urgency": "Urgence",
+              "urgencies": {
+                "Routine": "Routine",
+                "Soon": "Bientôt",
+                "Urgent": "Urgent"
+              },
+              "reason": "Raison du suivi..."
+            },
+            "document": {
+              "title": "Demander un document médical",
+              "description": "Crée une tâche de document pour les ordonnances, certificats ou rapports cliniques.",
+              "documentType": "Type de document",
+              "linkToTreatment": "Lier au traitement",
+              "visitLevel": "Niveau visite",
+              "reason": "Que faut-il préparer ?"
+            },
+            "cancel": "Annuler",
+            "confirm": "Clôturer et retourner"
+          }
+        }
+      },
+      "currentSession": {
+        "openVisit": "Visite ouverte",
+        "chair": "Fauteuil {number}",
+        "visitStarted": "Visite {visitId} · Début {time}",
+        "status": {
+          "closed": "Clôturée",
+          "needsCoding": "À coder",
+          "inProgress": "En cours"
+        },
+        "handoffTitle": "Note de transmission du médecin",
+        "handoffDescription": "Résumé libre de la visite pour le codage assistant avant la clôture.",
+        "codingStatus": {
+          "needsAssistantCoding": "Codage assistant requis",
+          "structured": "Structuré",
+          "draftSaved": "Brouillon enregistré",
+          "structuredWorkflow": "Flux structuré"
+        },
+        "followUpRequested": "Suivi demandé",
+        "followUpFallback": "L'assistant doit planifier un suivi.",
+        "documentRequested": "Document demandé",
+        "clinicalDocument": "Document clinique",
+        "handoffPlaceholder": "Exemple : Travail sur la dent 16, canal nettoyé, obturation provisoire posée. Patient encore sensible ; poursuivre le traitement endodontique à la prochaine visite.",
+        "savedBy": "Enregistré par {author} · {date}",
+        "saveDraft": "Enregistrer le brouillon",
+        "sendToAssistant": "Envoyer à l'assistant",
+        "markStructured": "Marquer structuré",
+        "closeVisit": "Clôturer la visite",
+        "empty": "Aucun traitement actif.",
+        "markDone": "Terminer",
+        "table": {
+          "location": "Localisation",
+          "treatmentAct": "Acte",
+          "notes": "Notes",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "procedureStatus": {
+          "completed": "Terminé",
+          "inProgress": "En cours"
+        }
+      },
+      "plan": {
+        "bulkTreatmentGroup": "Groupe de traitement",
+        "billedPerTooth": "Facturé par dent",
+        "packageBilling": "Facturation forfaitaire",
+        "completedCount": "{completed}/{total} terminés",
+        "chargePosted": "Facture créée",
+        "notCharged": "Non facturé",
+        "groupedTeeth": "Dents groupées",
+        "details": "Détails",
+        "continue": "Continuer",
+        "start": "Démarrer",
+        "cancel": "Annuler",
+        "void": "Invalider",
+        "cancelReason": "Annulé depuis le plan de traitement",
+        "voidReason": "Saisi par erreur",
+        "table": {
+          "location": "Localisation",
+          "treatmentAct": "Acte",
+          "priority": "Priorité",
+          "price": "Prix",
+          "actions": "Actions"
+        },
+        "statuses": {
+          "proposed": "Proposé",
+          "accepted": "Accepté",
+          "scheduled": "Planifié",
+          "in_progress": "En cours",
+          "completed": "Terminé",
+          "declined": "Refusé",
+          "cancelled": "Annulé",
+          "voided": "Invalidé"
+        },
+        "priority": {
+          "Low": "Basse",
+          "Normal": "Normale",
+          "High": "Haute"
+        }
+      },
+      "dialogs": {
+        "surfacePicker": {
+          "tooth": "Dent {tooth}",
+          "title": "Sélectionner la zone de traitement",
+          "description": "Choisissez toute la dent ou sélectionnez une ou plusieurs surfaces.",
+          "descriptionForAct": "Choisissez la zone de traitement pour {act}.",
+          "fullTooth": "Dent entière",
+          "fullToothHint": "À utiliser pour le blanchiment, les couronnes, l'extraction ou un traitement complet.",
+          "specificSurfaces": "Surfaces spécifiques - sélection multiple",
+          "confirm": "Confirmer la sélection",
+          "surfaces": {
+            "V": "Vestibulaire (extérieur)",
+            "L": "Palatin / lingual",
+            "M": "Mésial (avant)",
+            "D": "Distal (arrière)",
+            "O": "Occlusal (morsure)",
+            "R": "Racine / canal"
+          }
+        },
+        "confirmTreatment": {
+          "title": "Confirmer l'acte",
+          "act": "Acte",
+          "target": "Cible",
+          "dentition": "Dentition",
+          "tooth": "Dent {tooth}",
+          "fullTooth": "Dent entière",
+          "priority": "Priorité",
+          "cancel": "Annuler",
+          "confirm": "Confirmer et appliquer"
+        },
+        "completeSessionAct": {
+          "title": "Marquer le traitement terminé ?",
+          "act": "Acte",
+          "location": "Localisation",
+          "area": "Zone",
+          "fullTooth": "Dent entière",
+          "description": "Cette action marque l'acte de la séance comme terminé et met à jour la progression du plan associé.",
+          "cancel": "Annuler",
+          "confirm": "Confirmer"
+        },
+        "sendAssistant": {
+          "title": "Envoyer la visite à l'assistant ?",
+          "summary": "La visite sera marquée comme nécessitant un codage assistant.",
+          "description": "Votre note de transmission sera enregistrée et vous serez redirigé vers la salle d'attente pour sélectionner le patient suivant.",
+          "cancel": "Annuler",
+          "confirm": "Confirmer et retourner"
+        },
+        "closeVisit": {
+          "title": "Clôturer la visite ?",
+          "summary": "Cette visite sera marquée comme clôturée.",
+          "description": "Les traitements structurés et les frais postés resteront disponibles pour le flux de caisse. Vous serez redirigé vers la salle d'attente.",
+          "followUp": {
+            "title": "Demander un suivi",
+            "description": "Crée une demande de planification pour le flux des rendez-vous.",
+            "preferredDate": "Date préférée",
+            "urgency": "Urgence",
+            "urgencies": {
+              "Routine": "Routine",
+              "Soon": "Bientôt",
+              "Urgent": "Urgent"
+            },
+            "reason": "Raison du suivi..."
+          },
+          "document": {
+            "title": "Demander un document médical",
+            "description": "Crée une tâche de document pour les ordonnances, certificats ou rapports cliniques.",
+            "documentType": "Type de document",
+            "linkToTreatment": "Lier au traitement",
+            "visitLevel": "Niveau visite",
+            "reason": "Que faut-il préparer ?"
+          },
+          "cancel": "Annuler",
+          "confirm": "Clôturer et retourner"
+        }
+      }
+    },
     "auth": {
       "login": {
         "title": "Connexion Admin",

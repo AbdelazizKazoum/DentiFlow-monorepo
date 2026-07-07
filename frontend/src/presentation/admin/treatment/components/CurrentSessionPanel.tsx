@@ -7,6 +7,7 @@ import {
   Stethoscope,
   X,
 } from "lucide-react";
+import {useLocale, useTranslations} from "next-intl";
 
 type VisitCodingStatus = "structured" | "draft_note" | "needs_coding" | "coded";
 type VisitLifecycleStatus = "open" | "needs_coding" | "closed";
@@ -89,27 +90,32 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
   onSetSessionActToComplete,
   setVisitCodingStatus,
 }: CurrentSessionPanelProps<TProcedure>) {
+  const locale = useLocale();
+  const t = useTranslations("admin.treatment.currentSession");
+
   return (
     <div className="p-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary-soft px-4 py-3">
         <div>
           <p className="text-sm font-bold text-foreground">
-            Open visit · Chair 01
+            {t("openVisit")} · {t("chair", {number: "01"})}
           </p>
           <p className="text-xs text-text-muted">
-            Visit {activeVisit.id} · Started{" "}
-            {new Date(activeVisit.startedAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
+            {t("visitStarted", {
+              visitId: activeVisit.id,
+              time: new Date(activeVisit.startedAt).toLocaleTimeString(locale, {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
             })}
           </p>
         </div>
         <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-white">
           {visitLifecycleStatus === "closed"
-            ? "Closed"
+            ? t("status.closed")
             : visitCodingStatus === "needs_coding"
-              ? "Needs coding"
-              : "In progress"}
+              ? t("status.needsCoding")
+              : t("status.inProgress")}
         </span>
       </div>
 
@@ -117,11 +123,10 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-slate-800">
-              Doctor handoff note
+              {t("handoffTitle")}
             </p>
             <p className="text-xs text-slate-500">
-              Free-text visit summary for assistant coding before the visit is
-              closed.
+              {t("handoffDescription")}
             </p>
           </div>
           <span
@@ -136,12 +141,12 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
             }`}
           >
             {visitCodingStatus === "needs_coding"
-              ? "Needs assistant coding"
+              ? t("codingStatus.needsAssistantCoding")
               : visitCodingStatus === "coded"
-                ? "Structured"
+                ? t("codingStatus.structured")
                 : visitCodingStatus === "draft_note"
-                  ? "Draft saved"
-                  : "Structured workflow"}
+                  ? t("codingStatus.draftSaved")
+                  : t("codingStatus.structuredWorkflow")}
           </span>
         </div>
 
@@ -150,25 +155,25 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
             {followUpRequests.length > 0 && (
               <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
                 <div className="flex items-center gap-2 font-bold">
-                  <Calendar size={14} /> Follow-up requested
+                  <Calendar size={14} /> {t("followUpRequested")}
                 </div>
                 <p className="mt-1 text-blue-700">
                   {followUpRequests[followUpRequests.length - 1]?.reason ||
-                    "Assistant should schedule follow-up."}
+                    t("followUpFallback")}
                 </p>
               </div>
             )}
             {documentRequests.length > 0 && (
               <div className="rounded-md border border-violet-200 bg-violet-50 px-3 py-2 text-xs text-violet-800">
                 <div className="flex items-center gap-2 font-bold">
-                  <FileText size={14} /> Document requested
+                  <FileText size={14} /> {t("documentRequested")}
                 </div>
                 <p className="mt-1 text-violet-700">
                   {documentRequestTypes.find(
                     (type) =>
                       type.id ===
                       documentRequests[documentRequests.length - 1]?.type,
-                  )?.label || "Clinical document"}
+                  )?.label || t("clinicalDocument")}
                 </p>
               </div>
             )}
@@ -186,14 +191,16 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
             }
           }}
           rows={3}
-          placeholder="Example: Worked on tooth 16, canal cleaned, temporary filling placed. Patient still sensitive; continue RCT next visit."
+          placeholder={t("handoffPlaceholder")}
           className="w-full resize-none rounded-md border border-slate-300 bg-page p-3 text-sm text-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/25"
         />
 
         {visitHandoffRecord && (
           <div className="mt-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500">
-            Saved by {visitHandoffRecord.authoredBy} ·{" "}
-            {new Date(visitHandoffRecord.savedAt).toLocaleString()}
+            {t("savedBy", {
+              author: visitHandoffRecord.authoredBy,
+              date: new Date(visitHandoffRecord.savedAt).toLocaleString(locale),
+            })}
           </div>
         )}
 
@@ -203,21 +210,21 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
             disabled={!visitHandoffNote.trim()}
             className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
           >
-            <Save size={14} /> Save Draft
+            <Save size={14} /> {t("saveDraft")}
           </button>
           <button
             onClick={onSendToAssistant}
             disabled={!visitHandoffNote.trim()}
             className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-100 disabled:opacity-50"
           >
-            <FileText size={14} /> Send to Assistant
+            <FileText size={14} /> {t("sendToAssistant")}
           </button>
           {visitHandoffRecord && (
             <button
               onClick={onMarkStructured}
               className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
             >
-              <CheckCircle size={14} /> Mark Structured
+              <CheckCircle size={14} /> {t("markStructured")}
             </button>
           )}
           <button
@@ -225,7 +232,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
             disabled={visitCodingStatus === "needs_coding"}
             className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-45"
           >
-            <X size={14} /> Close Visit
+            <X size={14} /> {t("closeVisit")}
           </button>
         </div>
       </div>
@@ -234,7 +241,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
         <div className="text-center py-8 text-slate-500 flex flex-col items-center">
           <Stethoscope size={32} className="text-slate-300 mb-2" />
           <p className="text-base font-medium text-slate-700">
-            No active treatments.
+            {t("empty")}
           </p>
         </div>
       ) : (
@@ -242,11 +249,11 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
               <tr>
-                <th className="px-4 py-3 font-semibold">Location</th>
-                <th className="px-4 py-3 font-semibold">Treatment Act</th>
-                <th className="px-4 py-3 font-semibold">Notes</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <th className="px-4 py-3 font-semibold">{t("table.location")}</th>
+                <th className="px-4 py-3 font-semibold">{t("table.treatmentAct")}</th>
+                <th className="px-4 py-3 font-semibold">{t("table.notes")}</th>
+                <th className="px-4 py-3 font-semibold">{t("table.status")}</th>
+                <th className="px-4 py-3 font-semibold text-right">{t("table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -284,11 +291,11 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
                   <td className="px-4 py-3">
                     {item.status === "completed" ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-700 border border-sky-200">
-                        <CheckCircle size={12} /> Completed
+                        <CheckCircle size={12} /> {t("procedureStatus.completed")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
-                        <Clock size={12} /> In Progress
+                        <Clock size={12} /> {t("procedureStatus.inProgress")}
                       </span>
                     )}
                   </td>
@@ -298,7 +305,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
                         onClick={() => onSetSessionActToComplete(item)}
                         className="px-3 py-1.5 text-xs font-semibold text-white bg-sky-500 hover:bg-sky-600 rounded transition-colors shadow-sm"
                       >
-                        Mark Done
+                        {t("markDone")}
                       </button>
                     )}
                   </td>

@@ -91,6 +91,264 @@
     }
   },
   "admin": {
+    "language": {
+      "label": "Language"
+    },
+    "dashboard": {
+      "header": {
+        "title": "Dashboard",
+        "openSidebar": "Open sidebar",
+        "closeSidebar": "Close sidebar",
+        "openNavigation": "Open navigation",
+        "searchPlaceholder": "Search patients, appointments",
+        "toggleTheme": "Toggle theme",
+        "notifications": "Notifications",
+        "settings": "Settings"
+      }
+    },
+    "treatment": {
+      "header": {
+        "age": "{age} y.o.",
+        "alerts": "Alerts: {alerts}",
+        "printReport": "Print Report",
+        "amountDue": "Amount due ${amount}",
+        "newCharges": "${amount} new treatment charges posted for cashier"
+      },
+      "tabs": {
+        "currentSession": "Current Session",
+        "treatmentPlan": "Treatment Plan",
+        "clinicalHistory": "Clinical History"
+      },
+      "workspace": {
+        "selectedRegion": "{region} Selected",
+        "tooth": "Tooth {tooth}",
+        "fullTooth": "Full tooth",
+        "selectTarget": "Select teeth or a mouth region",
+        "mouthRegion": "Mouth Region",
+        "selectMouthRegion": "Select a mouth region",
+        "inspector": {
+          "treatments": "Treatments",
+          "diagnoses": "Diagnoses",
+          "details": "Details"
+        },
+        "searchActs": "Search acts to apply or drag...",
+        "dragTip": "Tip: Drag an act onto a specific tooth.",
+        "priority": "Priority",
+        "priorities": {
+          "Low": "Low",
+          "Normal": "Normal",
+          "High": "High"
+        },
+        "applyTreatmentPlan": "Apply Treatment Plan",
+        "selectDiagnosis": "Select Diagnosis *",
+        "choose": "-- Choose --",
+        "history": {
+          "auditTrail": "This is the clinical audit trail. Cancelled and voided items remain here and cannot be silently removed.",
+          "completedReason": "Completed clinical treatment",
+          "table": {
+            "location": "Location",
+            "treatment": "Treatment",
+            "finalStatus": "Final status",
+            "reason": "Reason / audit note"
+          }
+        },
+        "details": {
+          "close": "Close",
+          "continueTreatment": "Continue Treatment",
+          "startTreatment": "Start Treatment"
+        },
+        "dialogs": {
+          "sendAssistant": {
+            "title": "Send Visit to Assistant?",
+            "summary": "The visit will be marked as needing assistant coding.",
+            "description": "Your handoff note will be saved, and you will be redirected to the waiting room to select the next patient.",
+            "cancel": "Cancel",
+            "confirm": "Confirm & Return"
+          },
+          "closeVisit": {
+            "title": "Close Visit?",
+            "summary": "This visit will be marked as closed.",
+            "description": "Structured treatments and posted charges will remain available for the cashier workflow. You will be redirected to the waiting room.",
+            "followUp": {
+              "title": "Request follow-up scheduling",
+              "description": "Creates a scheduling request for the appointment workflow.",
+              "preferredDate": "Preferred date",
+              "urgency": "Urgency",
+              "urgencies": {
+                "Routine": "Routine",
+                "Soon": "Soon",
+                "Urgent": "Urgent"
+              },
+              "reason": "Reason for follow-up..."
+            },
+            "document": {
+              "title": "Request medical document",
+              "description": "Creates a document task for prescriptions, certificates, or clinical reports.",
+              "documentType": "Document type",
+              "linkToTreatment": "Link to treatment",
+              "visitLevel": "Visit level",
+              "reason": "What should be prepared?"
+            },
+            "cancel": "Cancel",
+            "confirm": "Close & Return"
+          }
+        }
+      },
+      "currentSession": {
+        "openVisit": "Open visit",
+        "chair": "Chair {number}",
+        "visitStarted": "Visit {visitId} · Started {time}",
+        "status": {
+          "closed": "Closed",
+          "needsCoding": "Needs coding",
+          "inProgress": "In progress"
+        },
+        "handoffTitle": "Doctor handoff note",
+        "handoffDescription": "Free-text visit summary for assistant coding before the visit is closed.",
+        "codingStatus": {
+          "needsAssistantCoding": "Needs assistant coding",
+          "structured": "Structured",
+          "draftSaved": "Draft saved",
+          "structuredWorkflow": "Structured workflow"
+        },
+        "followUpRequested": "Follow-up requested",
+        "followUpFallback": "Assistant should schedule follow-up.",
+        "documentRequested": "Document requested",
+        "clinicalDocument": "Clinical document",
+        "handoffPlaceholder": "Example: Worked on tooth 16, canal cleaned, temporary filling placed. Patient still sensitive; continue RCT next visit.",
+        "savedBy": "Saved by {author} · {date}",
+        "saveDraft": "Save Draft",
+        "sendToAssistant": "Send to Assistant",
+        "markStructured": "Mark Structured",
+        "closeVisit": "Close Visit",
+        "empty": "No active treatments.",
+        "markDone": "Mark Done",
+        "table": {
+          "location": "Location",
+          "treatmentAct": "Treatment Act",
+          "notes": "Notes",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "procedureStatus": {
+          "completed": "Completed",
+          "inProgress": "In Progress"
+        }
+      },
+      "plan": {
+        "bulkTreatmentGroup": "Bulk treatment group",
+        "billedPerTooth": "Billed per tooth",
+        "packageBilling": "Package billing",
+        "completedCount": "{completed}/{total} completed",
+        "chargePosted": "Charge posted",
+        "notCharged": "Not charged",
+        "groupedTeeth": "Grouped teeth",
+        "details": "Details",
+        "continue": "Continue",
+        "start": "Start",
+        "cancel": "Cancel",
+        "void": "Void",
+        "cancelReason": "Cancelled from treatment plan",
+        "voidReason": "Entered in error",
+        "table": {
+          "location": "Location",
+          "treatmentAct": "Treatment Act",
+          "priority": "Priority",
+          "price": "Price",
+          "actions": "Actions"
+        },
+        "statuses": {
+          "proposed": "Proposed",
+          "accepted": "Accepted",
+          "scheduled": "Scheduled",
+          "in_progress": "In progress",
+          "completed": "Completed",
+          "declined": "Declined",
+          "cancelled": "Cancelled",
+          "voided": "Voided"
+        },
+        "priority": {
+          "Low": "Low",
+          "Normal": "Normal",
+          "High": "High"
+        }
+      },
+      "dialogs": {
+        "surfacePicker": {
+          "tooth": "Tooth {tooth}",
+          "title": "Select treatment area",
+          "description": "Choose the full tooth, or select one or more specific surfaces.",
+          "descriptionForAct": "Choose the treatment area for {act}.",
+          "fullTooth": "Full tooth",
+          "fullToothHint": "Use for whitening, crowns, extraction, or a complete tooth treatment.",
+          "specificSurfaces": "Specific surfaces - select multiple",
+          "confirm": "Confirm selection",
+          "surfaces": {
+            "V": "Vestibular (Outer)",
+            "L": "Palatal / Lingual",
+            "M": "Mesial (Front)",
+            "D": "Distal (Back)",
+            "O": "Occlusal (Biting)",
+            "R": "Root / Canal"
+          }
+        },
+        "confirmTreatment": {
+          "title": "Confirm Treatment Act",
+          "act": "Act",
+          "target": "Target",
+          "dentition": "Dentition",
+          "tooth": "Tooth {tooth}",
+          "fullTooth": "Full tooth",
+          "priority": "Priority",
+          "cancel": "Cancel",
+          "confirm": "Confirm & Apply"
+        },
+        "completeSessionAct": {
+          "title": "Mark Treatment Done?",
+          "act": "Act",
+          "location": "Location",
+          "area": "Area",
+          "fullTooth": "Full tooth",
+          "description": "This will mark the current session procedure as completed and update the linked treatment plan progress.",
+          "cancel": "Cancel",
+          "confirm": "Confirm Done"
+        },
+        "sendAssistant": {
+          "title": "Send Visit to Assistant?",
+          "summary": "The visit will be marked as needing assistant coding.",
+          "description": "Your handoff note will be saved, and you will be redirected to the waiting room to select the next patient.",
+          "cancel": "Cancel",
+          "confirm": "Confirm & Return"
+        },
+        "closeVisit": {
+          "title": "Close Visit?",
+          "summary": "This visit will be marked as closed.",
+          "description": "Structured treatments and posted charges will remain available for the cashier workflow. You will be redirected to the waiting room.",
+          "followUp": {
+            "title": "Request follow-up scheduling",
+            "description": "Creates a scheduling request for the appointment workflow.",
+            "preferredDate": "Preferred date",
+            "urgency": "Urgency",
+            "urgencies": {
+              "Routine": "Routine",
+              "Soon": "Soon",
+              "Urgent": "Urgent"
+            },
+            "reason": "Reason for follow-up..."
+          },
+          "document": {
+            "title": "Request medical document",
+            "description": "Creates a document task for prescriptions, certificates, or clinical reports.",
+            "documentType": "Document type",
+            "linkToTreatment": "Link to treatment",
+            "visitLevel": "Visit level",
+            "reason": "What should be prepared?"
+          },
+          "cancel": "Cancel",
+          "confirm": "Close & Return"
+        }
+      }
+    },
     "auth": {
       "login": {
         "title": "Admin Login",

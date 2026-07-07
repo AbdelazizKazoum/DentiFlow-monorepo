@@ -1,5 +1,7 @@
 import React from "react";
 import {Bell, Sun, Moon, Search, Settings, Menu} from "lucide-react";
+import {useTranslations} from "next-intl";
+import {LanguageSwitcher} from "./LanguageSwitcher";
 
 interface DashboardHeaderProps {
   onToggleTheme: () => void;
@@ -16,26 +18,30 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isSidebarCollapsed,
   onOpenMobile,
 }) => {
+  const t = useTranslations("admin.dashboard.header");
+
   return (
     <header className="flex items-center justify-between px-4 sm:px-6 h-16 gap-3 w-full bg-card">
       <div className="flex items-center gap-3 md:w-1/4 min-w-0">
         <button
           onClick={onToggleSidebar}
           className="hidden md:flex p-2 rounded-lg text-text-muted hover:bg-surface-hover hover:text-foreground transition-all"
-          title={isSidebarCollapsed ? "Open sidebar" : "Close sidebar"}
+          title={
+            isSidebarCollapsed ? t("openSidebar") : t("closeSidebar")
+          }
         >
           <Menu size={20} />
         </button>
         <button
           onClick={onOpenMobile}
           className="flex md:hidden p-2 rounded-lg text-text-muted hover:bg-surface-hover hover:text-foreground transition-all"
-          aria-label="Open navigation"
+          aria-label={t("openNavigation")}
         >
           <Menu size={20} />
         </button>
 
         <h1 className="text-base font-semibold text-foreground tracking-tight hidden md:block whitespace-nowrap">
-          Dashboard
+          {t("title")}
         </h1>
       </div>
 
@@ -47,7 +53,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />
           <input
             type="text"
-            placeholder="Search patients, appointments"
+            placeholder={t("searchPlaceholder")}
             className="ml-2 py-2 bg-transparent text-foreground border-none outline-none w-full text-[0.9375rem] transition-all placeholder:text-text-placeholder hidden sm:block"
           />
         </div>
@@ -58,20 +64,21 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <button
             onClick={onToggleTheme}
             className="p-2 text-text-muted hover:bg-surface-hover hover:text-foreground transition-all rounded-lg"
-            title="Toggle theme"
+            title={t("toggleTheme")}
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+          <LanguageSwitcher />
           <button
             className="relative p-2 text-text-muted hover:bg-surface-hover hover:text-foreground transition-all rounded-lg"
-            title="Notifications"
+            title={t("notifications")}
           >
             <Bell size={20} />
             <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-card" />
           </button>
           <button
             className="flex items-center gap-2 p-2 text-text-muted hover:bg-surface-hover hover:text-foreground transition-colors rounded-lg"
-            title="Settings"
+            title={t("settings")}
           >
             <Settings size={20} />
           </button>

@@ -8,6 +8,7 @@ import {
   Pill,
   X,
 } from "lucide-react";
+import {useTranslations} from "next-intl";
 import type {
   TreatmentPageDentalActDTO,
   TreatmentPageDocumentRequestTypeId,
@@ -45,13 +46,13 @@ interface SurfacePickerDialogProps {
   onToggleSurface: (surface: SurfaceCode) => void;
 }
 
-const SURFACE_OPTIONS: Array<{id: SurfaceCode; label: string}> = [
-  {id: "V", label: "Vestibular (Outer)"},
-  {id: "L", label: "Palatal / Lingual"},
-  {id: "M", label: "Mesial (Front)"},
-  {id: "D", label: "Distal (Back)"},
-  {id: "O", label: "Occlusal (Biting)"},
-  {id: "R", label: "Root / Canal"},
+const SURFACE_OPTIONS: Array<{id: SurfaceCode; labelKey: string}> = [
+  {id: "V", labelKey: "surfaces.V"},
+  {id: "L", labelKey: "surfaces.L"},
+  {id: "M", labelKey: "surfaces.M"},
+  {id: "D", labelKey: "surfaces.D"},
+  {id: "O", labelKey: "surfaces.O"},
+  {id: "R", labelKey: "surfaces.R"},
 ];
 
 export function SurfacePickerDialog({
@@ -63,6 +64,8 @@ export function SurfacePickerDialog({
   onConfirm,
   onToggleSurface,
 }: SurfacePickerDialogProps) {
+  const t = useTranslations("admin.treatment.dialogs.surfacePicker");
+
   if (tooth === null) return null;
 
   return (
@@ -71,15 +74,15 @@ export function SurfacePickerDialog({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              Tooth {tooth}
+              {t("tooth", {tooth})}
             </p>
             <h3 className="mt-1 text-lg font-bold text-slate-800">
-              Select treatment area
+              {t("title")}
             </h3>
             <p className="mt-1 text-sm text-slate-500">
               {pendingDroppedAct
-                ? `Choose the treatment area for ${pendingDroppedAct.name}.`
-                : "Choose the full tooth, or select one or more specific surfaces."}
+                ? t("descriptionForAct", {act: pendingDroppedAct.name})
+                : t("description")}
             </p>
           </div>
           <button
@@ -99,10 +102,9 @@ export function SurfacePickerDialog({
           }`}
         >
           <span>
-            <span className="block text-sm font-bold">Full tooth</span>
+            <span className="block text-sm font-bold">{t("fullTooth")}</span>
             <span className="text-xs font-normal text-slate-500">
-              Use for whitening, crowns, extraction, or a complete tooth
-              treatment.
+              {t("fullToothHint")}
             </span>
           </span>
           {activeSurfaces.length === 0 && <CheckCircle size={18} />}
@@ -110,7 +112,7 @@ export function SurfacePickerDialog({
 
         <div className="mt-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-600">
-            Specific surfaces - select multiple
+            {t("specificSurfaces")}
           </p>
           <div className="grid grid-cols-2 gap-2">
             {SURFACE_OPTIONS.map((surface) => {
@@ -128,7 +130,7 @@ export function SurfacePickerDialog({
                   {surface.id === "R" && (
                     <Activity size={14} className="mr-1 inline text-red-500" />
                   )}
-                  {surface.label}
+                  {t(surface.labelKey)}
                 </button>
               );
             })}
@@ -139,7 +141,7 @@ export function SurfacePickerDialog({
           onClick={onConfirm}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-md bg-primary py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark"
         >
-          <CheckCircle size={17} /> Confirm selection
+          <CheckCircle size={17} /> {t("confirm")}
         </button>
       </div>
     </div>
@@ -171,6 +173,8 @@ export function ConfirmTreatmentDialog({
   onCancel,
   onConfirm,
 }: ConfirmTreatmentDialogProps) {
+  const t = useTranslations("admin.treatment.dialogs.confirmTreatment");
+
   if (!open) return null;
 
   return (
@@ -181,32 +185,32 @@ export function ConfirmTreatmentDialog({
             <AlertTriangle size={20} />
           </div>
           <h3 className="text-lg font-bold text-slate-800">
-            Confirm Treatment Act
+            {t("title")}
           </h3>
         </div>
 
         <div className="mb-6 flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p>
-            <strong>Act:</strong> {actName}
+            <strong>{t("act")}:</strong> {actName}
           </p>
           <p>
-            <strong>Target:</strong> {targetLabel}
+            <strong>{t("target")}:</strong> {targetLabel}
           </p>
           <p>
-            <strong>Dentition:</strong> {dentitionLabel}
+            <strong>{t("dentition")}:</strong> {dentitionLabel}
           </p>
           {!selectedMouthRegion &&
             selectedTeeth.map((tooth) => (
               <p key={tooth}>
-                <strong>Tooth {tooth}:</strong>{" "}
+                <strong>{t("tooth", {tooth})}:</strong>{" "}
                 {toothSurfaces[tooth]?.length
                   ? toothSurfaces[tooth].join(", ")
-                  : "Full tooth"}
+                  : t("fullTooth")}
               </p>
             ))}
           {priority !== "Normal" && (
             <p>
-              <strong>Priority:</strong> {priority}
+              <strong>{t("priority")}:</strong> {priority}
             </p>
           )}
         </div>
@@ -216,13 +220,13 @@ export function ConfirmTreatmentDialog({
             onClick={onCancel}
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-dark"
           >
-            <CheckCircle size={16} /> Confirm & Apply
+            <CheckCircle size={16} /> {t("confirm")}
           </button>
         </div>
       </div>
@@ -241,6 +245,8 @@ export function CompleteSessionActDialog({
   onCancel,
   onConfirm,
 }: CompleteSessionActDialogProps) {
+  const t = useTranslations("admin.treatment.dialogs.completeSessionAct");
+
   if (!procedure) return null;
 
   return (
@@ -251,24 +257,23 @@ export function CompleteSessionActDialog({
             <CheckCircle size={20} />
           </div>
           <h3 className="text-lg font-bold text-slate-800">
-            Mark Treatment Done?
+            {t("title")}
           </h3>
         </div>
 
         <div className="mb-6 flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p>
-            <strong>Act:</strong> {procedure.act}
+            <strong>{t("act")}:</strong> {procedure.act}
           </p>
           <p>
-            <strong>Location:</strong> {getTreatmentLocationLabel(procedure)}
+            <strong>{t("location")}:</strong> {getTreatmentLocationLabel(procedure)}
           </p>
           <p>
-            <strong>Area:</strong>{" "}
-            {procedure.surfaces.length ? procedure.surfaces.join(", ") : "Full tooth"}
+            <strong>{t("area")}:</strong>{" "}
+            {procedure.surfaces.length ? procedure.surfaces.join(", ") : t("fullTooth")}
           </p>
           <p className="text-slate-500">
-            This will mark the current session procedure as completed and update
-            the linked treatment plan progress.
+            {t("description")}
           </p>
         </div>
 
@@ -277,13 +282,13 @@ export function CompleteSessionActDialog({
             onClick={onCancel}
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex items-center gap-2 rounded-md bg-sky-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-sky-700"
           >
-            <CheckCircle size={16} /> Confirm Done
+            <CheckCircle size={16} /> {t("confirm")}
           </button>
         </div>
       </div>
@@ -302,6 +307,8 @@ export function SendAssistantDialog({
   onCancel,
   onConfirm,
 }: SendAssistantDialogProps) {
+  const t = useTranslations("admin.treatment.dialogs.sendAssistant");
+
   if (!open) return null;
 
   return (
@@ -312,17 +319,16 @@ export function SendAssistantDialog({
             <FileText size={20} />
           </div>
           <h3 className="text-lg font-bold text-slate-800">
-            Send Visit to Assistant?
+            {t("title")}
           </h3>
         </div>
 
         <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p className="font-semibold text-slate-800">
-            The visit will be marked as needing assistant coding.
+            {t("summary")}
           </p>
           <p className="mt-2 text-slate-500">
-            Your handoff note will be saved, and you will be redirected to the
-            waiting room to select the next patient.
+            {t("description")}
           </p>
         </div>
 
@@ -331,13 +337,13 @@ export function SendAssistantDialog({
             onClick={onCancel}
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex items-center gap-2 rounded-md bg-amber-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-amber-700"
           >
-            <FileText size={16} /> Confirm & Return
+            <FileText size={16} /> {t("confirm")}
           </button>
         </div>
       </div>
@@ -364,6 +370,8 @@ export function CloseVisitDialog({
   onCancel,
   onConfirm,
 }: CloseVisitDialogProps) {
+  const t = useTranslations("admin.treatment.dialogs.closeVisit");
+
   if (!open) return null;
 
   return (
@@ -373,16 +381,15 @@ export function CloseVisitDialog({
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
             <CheckCircle size={20} />
           </div>
-          <h3 className="text-lg font-bold text-slate-800">Close Visit?</h3>
+          <h3 className="text-lg font-bold text-slate-800">{t("title")}</h3>
         </div>
 
         <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p className="font-semibold text-slate-800">
-            This visit will be marked as closed.
+            {t("summary")}
           </p>
           <p className="mt-2 text-slate-500">
-            Structured treatments and posted charges will remain available for
-            the cashier workflow. You will be redirected to the waiting room.
+            {t("description")}
           </p>
         </div>
 
@@ -403,10 +410,10 @@ export function CloseVisitDialog({
               <div className="flex-1">
                 <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <Calendar size={16} className="text-blue-600" />
-                  Request follow-up scheduling
+                  {t("followUp.title")}
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
-                  Creates a scheduling request for the appointment workflow.
+                  {t("followUp.description")}
                 </p>
               </div>
             </label>
@@ -416,7 +423,7 @@ export function CloseVisitDialog({
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-xs font-bold text-slate-600">
-                      Preferred date
+                      {t("followUp.preferredDate")}
                     </label>
                     <input
                       type="date"
@@ -432,7 +439,7 @@ export function CloseVisitDialog({
                   </div>
                   <div>
                     <label className="mb-1 block text-xs font-bold text-slate-600">
-                      Urgency
+                      {t("followUp.urgency")}
                     </label>
                     <select
                       value={nextSteps.followUpUrgency}
@@ -444,9 +451,13 @@ export function CloseVisitDialog({
                       }
                       className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                     >
-                      <option>Routine</option>
-                      <option>Soon</option>
-                      <option>Urgent</option>
+                      <option value="Routine">
+                        {t("followUp.urgencies.Routine")}
+                      </option>
+                      <option value="Soon">{t("followUp.urgencies.Soon")}</option>
+                      <option value="Urgent">
+                        {t("followUp.urgencies.Urgent")}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -459,7 +470,7 @@ export function CloseVisitDialog({
                     }))
                   }
                   rows={2}
-                  placeholder="Reason for follow-up..."
+                  placeholder={t("followUp.reason")}
                   className="w-full resize-none rounded-md border border-slate-300 bg-slate-50 p-3 text-sm text-slate-700"
                 />
               </div>
@@ -482,11 +493,10 @@ export function CloseVisitDialog({
               <div className="flex-1">
                 <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
                   <Pill size={16} className="text-violet-600" />
-                  Request medical document
+                  {t("document.title")}
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
-                  Creates a document task for prescriptions, certificates, or
-                  clinical reports.
+                  {t("document.description")}
                 </p>
               </div>
             </label>
@@ -496,7 +506,7 @@ export function CloseVisitDialog({
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-xs font-bold text-slate-600">
-                      Document type
+                      {t("document.documentType")}
                     </label>
                     <select
                       value={nextSteps.documentType}
@@ -518,7 +528,7 @@ export function CloseVisitDialog({
                   </div>
                   <div>
                     <label className="mb-1 block text-xs font-bold text-slate-600">
-                      Link to treatment
+                      {t("document.linkToTreatment")}
                     </label>
                     <select
                       value={nextSteps.linkedTreatmentId}
@@ -530,7 +540,7 @@ export function CloseVisitDialog({
                       }
                       className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                     >
-                      <option value="">Visit level</option>
+                      <option value="">{t("document.visitLevel")}</option>
                       {treatmentPlan
                         .filter((item) =>
                           ["proposed", "accepted", "in_progress"].includes(
@@ -554,7 +564,7 @@ export function CloseVisitDialog({
                     }))
                   }
                   rows={2}
-                  placeholder="What should be prepared?"
+                  placeholder={t("document.reason")}
                   className="w-full resize-none rounded-md border border-slate-300 bg-slate-50 p-3 text-sm text-slate-700"
                 />
               </div>
@@ -567,13 +577,13 @@ export function CloseVisitDialog({
             onClick={onCancel}
             className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             onClick={onConfirm}
             className="flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-700"
           >
-            <CheckCircle size={16} /> Close & Return
+            <CheckCircle size={16} /> {t("confirm")}
           </button>
         </div>
       </div>

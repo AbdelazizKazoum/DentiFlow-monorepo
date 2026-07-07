@@ -91,6 +91,264 @@
     }
   },
   "admin": {
+    "language": {
+      "label": "اللغة"
+    },
+    "dashboard": {
+      "header": {
+        "title": "لوحة التحكم",
+        "openSidebar": "فتح الشريط الجانبي",
+        "closeSidebar": "إغلاق الشريط الجانبي",
+        "openNavigation": "فتح التنقل",
+        "searchPlaceholder": "ابحث عن المرضى والمواعيد",
+        "toggleTheme": "تبديل المظهر",
+        "notifications": "الإشعارات",
+        "settings": "الإعدادات"
+      }
+    },
+    "treatment": {
+      "header": {
+        "age": "{age} سنة",
+        "alerts": "تنبيهات: {alerts}",
+        "printReport": "طباعة التقرير",
+        "amountDue": "المبلغ المستحق ${amount}",
+        "newCharges": "${amount} رسوم علاج جديدة أُرسلت إلى الصندوق"
+      },
+      "tabs": {
+        "currentSession": "الجلسة الحالية",
+        "treatmentPlan": "خطة العلاج",
+        "clinicalHistory": "السجل السريري"
+      },
+      "workspace": {
+        "selectedRegion": "تم تحديد {region}",
+        "tooth": "السن {tooth}",
+        "fullTooth": "السن بالكامل",
+        "selectTarget": "حدد أسناناً أو منطقة فموية",
+        "mouthRegion": "المنطقة الفموية",
+        "selectMouthRegion": "حدد منطقة فموية",
+        "inspector": {
+          "treatments": "العلاجات",
+          "diagnoses": "التشخيصات",
+          "details": "التفاصيل"
+        },
+        "searchActs": "ابحث عن إجراءات لتطبيقها أو سحبها...",
+        "dragTip": "نصيحة: اسحب الإجراء إلى سن محدد.",
+        "priority": "الأولوية",
+        "priorities": {
+          "Low": "منخفضة",
+          "Normal": "عادية",
+          "High": "عالية"
+        },
+        "applyTreatmentPlan": "تطبيق خطة العلاج",
+        "selectDiagnosis": "حدد التشخيص *",
+        "choose": "-- اختر --",
+        "history": {
+          "auditTrail": "هذا هو سجل التدقيق السريري. تبقى العناصر الملغاة أو المبطلة ظاهرة ولا يمكن حذفها بصمت.",
+          "completedReason": "تم إكمال العلاج السريري",
+          "table": {
+            "location": "الموضع",
+            "treatment": "العلاج",
+            "finalStatus": "الحالة النهائية",
+            "reason": "السبب / ملاحظة التدقيق"
+          }
+        },
+        "details": {
+          "close": "إغلاق",
+          "continueTreatment": "متابعة العلاج",
+          "startTreatment": "بدء العلاج"
+        },
+        "dialogs": {
+          "sendAssistant": {
+            "title": "إرسال الزيارة إلى المساعد؟",
+            "summary": "سيتم تعليم الزيارة على أنها تحتاج إلى ترميز المساعد.",
+            "description": "سيتم حفظ ملاحظة التسليم ثم تحويلك إلى غرفة الانتظار لاختيار المريض التالي.",
+            "cancel": "إلغاء",
+            "confirm": "تأكيد والعودة"
+          },
+          "closeVisit": {
+            "title": "إغلاق الزيارة؟",
+            "summary": "سيتم تعليم هذه الزيارة كمغلقة.",
+            "description": "ستبقى العلاجات المنظمة والرسوم المسجلة متاحة لسير عمل الصندوق. سيتم تحويلك إلى غرفة الانتظار.",
+            "followUp": {
+              "title": "طلب جدولة متابعة",
+              "description": "ينشئ طلب جدولة لسير عمل المواعيد.",
+              "preferredDate": "التاريخ المفضل",
+              "urgency": "درجة الاستعجال",
+              "urgencies": {
+                "Routine": "روتينية",
+                "Soon": "قريباً",
+                "Urgent": "عاجلة"
+              },
+              "reason": "سبب المتابعة..."
+            },
+            "document": {
+              "title": "طلب مستند طبي",
+              "description": "ينشئ مهمة مستند للوصفات أو الشهادات أو التقارير السريرية.",
+              "documentType": "نوع المستند",
+              "linkToTreatment": "ربط بالعلاج",
+              "visitLevel": "مستوى الزيارة",
+              "reason": "ما الذي يجب تحضيره؟"
+            },
+            "cancel": "إلغاء",
+            "confirm": "إغلاق والعودة"
+          }
+        }
+      },
+      "currentSession": {
+        "openVisit": "زيارة مفتوحة",
+        "chair": "الكرسي {number}",
+        "visitStarted": "زيارة {visitId} · بدأت {time}",
+        "status": {
+          "closed": "مغلقة",
+          "needsCoding": "تحتاج إلى ترميز",
+          "inProgress": "قيد التنفيذ"
+        },
+        "handoffTitle": "ملاحظة تسليم الطبيب",
+        "handoffDescription": "ملخص حر للزيارة من أجل ترميز المساعد قبل إغلاق الزيارة.",
+        "codingStatus": {
+          "needsAssistantCoding": "تحتاج إلى ترميز المساعد",
+          "structured": "منظم",
+          "draftSaved": "تم حفظ المسودة",
+          "structuredWorkflow": "سير عمل منظم"
+        },
+        "followUpRequested": "تم طلب متابعة",
+        "followUpFallback": "يجب على المساعد جدولة متابعة.",
+        "documentRequested": "تم طلب مستند",
+        "clinicalDocument": "مستند سريري",
+        "handoffPlaceholder": "مثال: تم العمل على السن 16، تنظيف القناة، ووضع حشوة مؤقتة. ما زال المريض حساساً؛ متابعة علاج العصب في الزيارة القادمة.",
+        "savedBy": "تم الحفظ بواسطة {author} · {date}",
+        "saveDraft": "حفظ المسودة",
+        "sendToAssistant": "إرسال إلى المساعد",
+        "markStructured": "تعليم كمنظم",
+        "closeVisit": "إغلاق الزيارة",
+        "empty": "لا توجد علاجات نشطة.",
+        "markDone": "تعليم كمنجز",
+        "table": {
+          "location": "الموضع",
+          "treatmentAct": "إجراء العلاج",
+          "notes": "ملاحظات",
+          "status": "الحالة",
+          "actions": "إجراءات"
+        },
+        "procedureStatus": {
+          "completed": "مكتمل",
+          "inProgress": "قيد التنفيذ"
+        }
+      },
+      "plan": {
+        "bulkTreatmentGroup": "مجموعة علاجية",
+        "billedPerTooth": "يُفوتر لكل سن",
+        "packageBilling": "فوترة كحزمة",
+        "completedCount": "{completed}/{total} مكتملة",
+        "chargePosted": "تم تسجيل الرسوم",
+        "notCharged": "غير مفوتر",
+        "groupedTeeth": "أسنان مجمعة",
+        "details": "التفاصيل",
+        "continue": "متابعة",
+        "start": "بدء",
+        "cancel": "إلغاء",
+        "void": "إبطال",
+        "cancelReason": "أُلغي من خطة العلاج",
+        "voidReason": "أُدخل بالخطأ",
+        "table": {
+          "location": "الموضع",
+          "treatmentAct": "إجراء العلاج",
+          "priority": "الأولوية",
+          "price": "السعر",
+          "actions": "إجراءات"
+        },
+        "statuses": {
+          "proposed": "مقترح",
+          "accepted": "مقبول",
+          "scheduled": "مجدول",
+          "in_progress": "قيد التنفيذ",
+          "completed": "مكتمل",
+          "declined": "مرفوض",
+          "cancelled": "ملغى",
+          "voided": "مبطل"
+        },
+        "priority": {
+          "Low": "منخفضة",
+          "Normal": "عادية",
+          "High": "عالية"
+        }
+      },
+      "dialogs": {
+        "surfacePicker": {
+          "tooth": "السن {tooth}",
+          "title": "اختيار منطقة العلاج",
+          "description": "اختر السن بالكامل أو حدد سطحاً واحداً أو أكثر.",
+          "descriptionForAct": "اختر منطقة العلاج لـ {act}.",
+          "fullTooth": "السن بالكامل",
+          "fullToothHint": "يُستخدم للتبييض أو التيجان أو الخلع أو علاج السن بالكامل.",
+          "specificSurfaces": "أسطح محددة - يمكن اختيار أكثر من سطح",
+          "confirm": "تأكيد الاختيار",
+          "surfaces": {
+            "V": "دهليزي (خارجي)",
+            "L": "حنكي / لساني",
+            "M": "أنسي (أمامي)",
+            "D": "وحشي (خلفي)",
+            "O": "إطباقي",
+            "R": "جذر / قناة"
+          }
+        },
+        "confirmTreatment": {
+          "title": "تأكيد إجراء العلاج",
+          "act": "الإجراء",
+          "target": "الهدف",
+          "dentition": "نوع الأسنان",
+          "tooth": "السن {tooth}",
+          "fullTooth": "السن بالكامل",
+          "priority": "الأولوية",
+          "cancel": "إلغاء",
+          "confirm": "تأكيد وتطبيق"
+        },
+        "completeSessionAct": {
+          "title": "تعليم العلاج كمنجز؟",
+          "act": "الإجراء",
+          "location": "الموضع",
+          "area": "المنطقة",
+          "fullTooth": "السن بالكامل",
+          "description": "سيتم تعليم إجراء الجلسة الحالية كمكتمل وتحديث تقدم خطة العلاج المرتبطة.",
+          "cancel": "إلغاء",
+          "confirm": "تأكيد الإنجاز"
+        },
+        "sendAssistant": {
+          "title": "إرسال الزيارة إلى المساعد؟",
+          "summary": "سيتم تعليم الزيارة على أنها تحتاج إلى ترميز المساعد.",
+          "description": "سيتم حفظ ملاحظة التسليم ثم تحويلك إلى غرفة الانتظار لاختيار المريض التالي.",
+          "cancel": "إلغاء",
+          "confirm": "تأكيد والعودة"
+        },
+        "closeVisit": {
+          "title": "إغلاق الزيارة؟",
+          "summary": "سيتم تعليم هذه الزيارة كمغلقة.",
+          "description": "ستبقى العلاجات المنظمة والرسوم المسجلة متاحة لسير عمل الصندوق. سيتم تحويلك إلى غرفة الانتظار.",
+          "followUp": {
+            "title": "طلب جدولة متابعة",
+            "description": "ينشئ طلب جدولة لسير عمل المواعيد.",
+            "preferredDate": "التاريخ المفضل",
+            "urgency": "درجة الاستعجال",
+            "urgencies": {
+              "Routine": "روتينية",
+              "Soon": "قريباً",
+              "Urgent": "عاجلة"
+            },
+            "reason": "سبب المتابعة..."
+          },
+          "document": {
+            "title": "طلب مستند طبي",
+            "description": "ينشئ مهمة مستند للوصفات أو الشهادات أو التقارير السريرية.",
+            "documentType": "نوع المستند",
+            "linkToTreatment": "ربط بالعلاج",
+            "visitLevel": "مستوى الزيارة",
+            "reason": "ما الذي يجب تحضيره؟"
+          },
+          "cancel": "إلغاء",
+          "confirm": "إغلاق والعودة"
+        }
+      }
+    },
     "auth": {
       "login": {
         "title": "تسجيل دخول المسؤول",

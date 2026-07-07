@@ -1,4 +1,5 @@
 import {Info, Play} from "lucide-react";
+import {useTranslations} from "next-intl";
 
 type TreatmentStatus =
   | "proposed"
@@ -57,6 +58,7 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
   onOpenDetails,
   onChangeStatus,
 }: TreatmentPlanPanelProps<TItem>) {
+  const t = useTranslations("admin.treatment.plan");
   const activePlanItems = treatmentPlan.filter(
     (item) => !INACTIVE_STATUSES.includes(item.status),
   );
@@ -89,14 +91,14 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
                   {group.label}
                 </p>
                 <p className="text-xs text-text-muted">
-                  Bulk treatment group ·{" "}
+                  {t("bulkTreatmentGroup")} ·{" "}
                   {group.billingMode === "per_item"
-                    ? "Billed per tooth"
-                    : "Package billing"}
+                    ? t("billedPerTooth")
+                    : t("packageBilling")}
                 </p>
               </div>
               <span className="rounded-full bg-card px-2.5 py-1 text-xs font-bold text-primary">
-                {completed}/{items.length} completed
+                {t("completedCount", {completed, total: items.length})}
               </span>
             </div>
           );
@@ -106,11 +108,11 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
             <tr>
-              <th className="px-4 py-3 font-semibold">Location</th>
-              <th className="px-4 py-3 font-semibold">Treatment Act</th>
-              <th className="px-4 py-3 font-semibold">Priority</th>
-              <th className="px-4 py-3 font-semibold">Price</th>
-              <th className="px-4 py-3 font-semibold text-right">Actions</th>
+              <th className="px-4 py-3 font-semibold">{t("table.location")}</th>
+              <th className="px-4 py-3 font-semibold">{t("table.treatmentAct")}</th>
+              <th className="px-4 py-3 font-semibold">{t("table.priority")}</th>
+              <th className="px-4 py-3 font-semibold">{t("table.price")}</th>
+              <th className="px-4 py-3 font-semibold text-right">{t("table.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -137,7 +139,7 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
                   <div>{item.act}</div>
                   <div className="mt-1 flex items-center gap-2 text-[11px] text-text-muted">
                     <span className="rounded-full bg-primary-soft px-2 py-0.5 font-semibold text-primary">
-                      {item.status.replace("_", " ")}
+                      {t(`statuses.${item.status}`)}
                     </span>
                     <span
                       className={`rounded-full px-2 py-0.5 font-semibold ${
@@ -146,11 +148,11 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
                           : "bg-slate-100 text-slate-500"
                       }`}
                     >
-                      {item.chargeId ? "Charge posted" : "Not charged"}
+                      {item.chargeId ? t("chargePosted") : t("notCharged")}
                     </span>
                     {item.treatmentGroupId && (
                       <span className="rounded-full border border-primary/20 bg-card px-2 py-0.5 font-semibold text-primary">
-                        Grouped teeth
+                        {t("groupedTeeth")}
                       </span>
                     )}
                   </div>
@@ -163,7 +165,7 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
                         : "bg-slate-100 text-slate-700 border-slate-200"
                     }`}
                   >
-                    {item.priority}
+                    {t(`priority.${item.priority}`)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-slate-600">
@@ -174,34 +176,34 @@ export function TreatmentPlanPanel<TItem extends TreatmentPlanPanelItem>({
                     onClick={() => onOpenDetails(item)}
                     className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded transition-colors"
                   >
-                    <Info size={12} /> Details
+                    <Info size={12} /> {t("details")}
                   </button>
                   <button
                     onClick={() => onStartTreatment(item)}
                     className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-primary bg-primary-soft hover:bg-primary/15 border border-primary/25 rounded transition-colors"
                   >
                     <Play size={12} fill="currentColor" />{" "}
-                    {item.status === "in_progress" ? "Continue" : "Start"}
+                    {item.status === "in_progress" ? t("continue") : t("start")}
                   </button>
                   <button
                     onClick={() =>
                       onChangeStatus(
                         item.id,
                         "cancelled",
-                        "Cancelled from treatment plan",
+                        t("cancelReason"),
                       )
                     }
                     className="px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200 bg-amber-50 rounded transition-colors"
                   >
-                    Cancel
+                    {t("cancel")}
                   </button>
                   <button
                     onClick={() =>
-                      onChangeStatus(item.id, "voided", "Entered in error")
+                      onChangeStatus(item.id, "voided", t("voidReason"))
                     }
                     className="px-2.5 py-1 text-xs font-semibold text-red-700 border border-red-200 bg-red-50 rounded transition-colors"
                   >
-                    Void
+                    {t("void")}
                   </button>
                 </td>
               </tr>

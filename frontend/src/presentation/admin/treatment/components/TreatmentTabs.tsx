@@ -1,5 +1,6 @@
 import type {LucideIcon} from "lucide-react";
 import {FileText, History, Play} from "lucide-react";
+import {useTranslations} from "next-intl";
 import type {TreatmentWorkspaceTab} from "../store/useTreatmentWorkspaceStore";
 
 interface TreatmentTabsProps {
@@ -11,31 +12,33 @@ interface TreatmentTabsProps {
 
 const TABS: Array<{
   id: TreatmentWorkspaceTab;
-  label: string;
+  labelKey: "currentSession" | "treatmentPlan" | "clinicalHistory";
   icon: LucideIcon;
   getCount: (props: TreatmentTabsProps) => number;
 }> = [
   {
     id: "session",
-    label: "Current Session",
+    labelKey: "currentSession",
     icon: Play,
     getCount: (props) => props.currentSessionCount,
   },
   {
     id: "plan",
-    label: "Treatment Plan",
+    labelKey: "treatmentPlan",
     icon: FileText,
     getCount: (props) => props.treatmentPlanCount,
   },
   {
     id: "history",
-    label: "Clinical History",
+    labelKey: "clinicalHistory",
     icon: History,
     getCount: () => 12,
   },
 ];
 
 export function TreatmentTabs(props: TreatmentTabsProps) {
+  const t = useTranslations("admin.treatment.tabs");
+
   return (
     <div className="flex border-b border-slate-200 px-2 overflow-x-auto bg-slate-50/50 rounded-t-xl">
       {TABS.map((tab) => {
@@ -53,7 +56,7 @@ export function TreatmentTabs(props: TreatmentTabsProps) {
             }`}
           >
             <Icon size={16} />
-            {tab.label}
+            {t(tab.labelKey)}
             {count > 0 && (
               <span
                 className={`px-1.5 py-0.5 rounded-full text-xs ${

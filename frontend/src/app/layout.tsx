@@ -26,7 +26,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang={locale}
       dir={direction}
       className={`${publicSans.variable} h-full antialiased`}
     >

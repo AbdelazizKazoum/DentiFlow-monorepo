@@ -2,6 +2,7 @@
 
 import React, {useEffect, useMemo, useState} from "react";
 import {useParams, useRouter, useSearchParams} from "next/navigation";
+import {useTranslations} from "next-intl";
 import {
   Calendar,
   CheckCircle,
@@ -87,6 +88,7 @@ import { TreatmentHeader } from "./TreatmentHeader";
 import { TreatmentPlanPanel } from "./TreatmentPlanPanel";
 import { TreatmentTabs } from "./TreatmentTabs";
 import {
+  CompleteSessionActDialog,
   ConfirmTreatmentDialog,
   SurfacePickerDialog,
 } from "./TreatmentWorkspaceDialogs";
@@ -207,6 +209,7 @@ const TREATMENT_CLINIC_ID =
   "00000000-0000-4000-8000-000000000001";
 
 export function TreatmentWorkspace() {
+  const tx = useTranslations("admin.treatment.workspace");
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -338,7 +341,9 @@ export function TreatmentWorkspace() {
     workspacePatientId,
   ]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    // Hydrate editable handoff fields when the persisted visit handoff changes.
     if (!visitHandoffRecord) {
       setVisitHandoffNote("");
       setVisitCodingStatus("structured");
@@ -351,11 +356,8 @@ export function TreatmentWorkspace() {
     setVisitLifecycleStatus(
       visitHandoffRecord.status === "needs_coding" ? "needs_coding" : "open",
     );
-  }, [
-    visitHandoffRecord?.id,
-    visitHandoffRecord?.status,
-    visitHandoffRecord?.text,
-  ]);
+  }, [visitHandoffRecord]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const selectedMouthRegionOption = MOUTH_REGION_OPTIONS.find(
     (option) => option.id === selectedMouthRegion,
@@ -1472,26 +1474,29 @@ export function TreatmentWorkspace() {
               )}
 
               {/* CLINICAL HISTORY — records are retained after cancellation or correction */}
-              {activeTab === "history" && (
-                <div className="p-4">
-                  <div className="mb-3 rounded-md border border-ui-border bg-page px-3 py-2 text-xs text-text-muted">
-                    This is the clinical audit trail. Cancelled and voided items
-                    remain here and cannot be silently removed.
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
-                        <tr>
-                          <th className="px-4 py-3 font-semibold">Location</th>
-                          <th className="px-4 py-3 font-semibold">Treatment</th>
-                          <th className="px-4 py-3 font-semibold">
-                            Final status
-                          </th>
-                          <th className="px-4 py-3 font-semibold">
-                            Reason / audit note
-                          </th>
-                        </tr>
-                      </thead>
+      {activeTab === "history" && (
+        <div className="p-4">
+          <div className="mb-3 rounded-md border border-ui-border bg-page px-3 py-2 text-xs text-text-muted">
+            {tx("history.auditTrail")}
+          </div>
+          <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">
+                    {tx("history.table.location")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {tx("history.table.treatment")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {tx("history.table.finalStatus")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold">
+                    {tx("history.table.reason")}
+                  </th>
+                </tr>
+              </thead>
                       <tbody className="divide-y divide-slate-100">
                         {treatmentPlan
                           .filter((item) =>
@@ -1508,7 +1513,7 @@ export function TreatmentWorkspace() {
                                 {item.toothIds?.length
                                   ? getTreatmentLocationLabel(item)
                                   : typeof item.tooth === "number"
-                                    ? `Tooth ${item.tooth}`
+                                    ? tx("tooth", {tooth: item.tooth})
                                     : item.tooth}
                               </td>
                               <td className="px-4 py-3">
@@ -1528,7 +1533,7 @@ export function TreatmentWorkspace() {
                               </td>
                               <td className="px-4 py-3 text-slate-500">
                                 {item.statusReason ||
-                                  "Completed clinical treatment"}
+                                  tx("history.completedReason")}
                                 <div className="mt-1 text-[11px] text-slate-400">
                                   {item.statusChangedAt
                                     ? new Date(
@@ -1560,7 +1565,7 @@ export function TreatmentWorkspace() {
             <div className="flex gap-2 flex-wrap min-h-[32px] items-center">
               {selectedMouthRegionOption ? (
                 <span className="inline-flex items-center gap-1 bg-primary text-white text-sm font-bold px-3 py-1 rounded shadow-sm">
-                  {selectedMouthRegionOption.label} Selected
+                  {tx("selectedRegion", {region: selectedMouthRegionOption.label})}
                   <X
                     size={14}
                     className="cursor-pointer ml-1 opacity-80 hover:opacity-100"
@@ -1573,11 +1578,11 @@ export function TreatmentWorkspace() {
                     key={t}
                     className="inline-flex items-center gap-1 bg-primary-soft text-primary text-sm font-bold px-2.5 py-1 rounded border border-primary/25 shadow-sm"
                   >
-                    <span>Tooth {t}</span>
+                    <span>{tx("tooth", {tooth: t})}</span>
                     <span className="border-l border-primary/25 pl-1.5 text-[11px] font-semibold">
                       {toothSurfaces[t]?.length
                         ? toothSurfaces[t].join(", ")
-                        : "Full tooth"}
+                        : tx("fullTooth")}
                     </span>
                     <X
                       size={14}
@@ -1588,14 +1593,14 @@ export function TreatmentWorkspace() {
                 ))
               ) : (
                 <div className="text-sm text-slate-500 italic flex items-center gap-2">
-                  <Info size={16} /> Select teeth or a mouth region
+                  <Info size={16} /> {tx("selectTarget")}
                 </div>
               )}
             </div>
 
             <div>
               <label className="mb-1 block text-xs font-bold text-slate-700">
-                Mouth Region
+                {tx("mouthRegion")}
               </label>
               <select
                 value={selectedMouthRegion || ""}
@@ -1610,7 +1615,7 @@ export function TreatmentWorkspace() {
                 }}
                 className="w-full rounded-md border border-ui-border bg-white px-3 py-2 text-sm font-semibold text-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/25"
               >
-                <option value="">Select a mouth region</option>
+                <option value="">{tx("selectMouthRegion")}</option>
                 {MOUTH_REGION_OPTIONS.map((region) => (
                   <option key={region.id} value={region.id}>
                     {region.label} - {region.hint}
@@ -1625,19 +1630,19 @@ export function TreatmentWorkspace() {
               className={`flex-1 py-3 text-center transition-colors border-b-2 ${inspectorMode === "act" ? "text-primary border-primary bg-card" : "text-text-muted border-transparent hover:bg-surface-hover"}`}
               onClick={() => setInspectorMode("act")}
             >
-              Treatments
+              {tx("inspector.treatments")}
             </button>
             <button
               className={`flex-1 py-3 text-center transition-colors border-b-2 ${inspectorMode === "diagnosis" ? "text-primary border-primary bg-card" : "text-text-muted border-transparent hover:bg-surface-hover"}`}
               onClick={() => setInspectorMode("diagnosis")}
             >
-              Diagnoses
+              {tx("inspector.diagnoses")}
             </button>
             <button
               className={`flex-1 py-3 text-center transition-colors border-b-2 ${inspectorMode === "details" ? "text-primary border-primary bg-card" : "text-text-muted border-transparent hover:bg-surface-hover"}`}
               onClick={() => setInspectorMode("details")}
             >
-              Details{" "}
+              {tx("inspector.details")}{" "}
               <span className="ml-1 bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px]">
                 {selectedTeethEvents.length}
               </span>
@@ -1657,7 +1662,7 @@ export function TreatmentWorkspace() {
                     />
                     <input
                       type="text"
-                      placeholder="Search acts to apply or drag..."
+                      placeholder={tx("searchActs")}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full border border-ui-border rounded-md py-2 pl-9 pr-3 text-sm focus:ring-2 focus:ring-primary/25 focus:border-primary bg-page"
@@ -1697,7 +1702,7 @@ export function TreatmentWorkspace() {
                     ))}
                   </div>
                   <p className="text-[11px] text-slate-400 text-center italic">
-                    Tip: Drag an act onto a specific tooth.
+                    {tx("dragTip")}
                   </p>
                 </div>
 
@@ -1706,7 +1711,7 @@ export function TreatmentWorkspace() {
                   <div className="flex gap-4">
                     <div className="flex-1">
                       <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Priority
+                        {tx("priority")}
                       </label>
                       <select
                         value={actForm.priority}
@@ -1718,9 +1723,9 @@ export function TreatmentWorkspace() {
                         }
                         className="w-full border border-slate-300 rounded-md p-2 text-sm bg-white"
                       >
-                        <option>Low</option>
-                        <option>Normal</option>
-                        <option>High</option>
+                        <option value="Low">{tx("priorities.Low")}</option>
+                        <option value="Normal">{tx("priorities.Normal")}</option>
+                        <option value="High">{tx("priorities.High")}</option>
                       </select>
                     </div>
                   </div>
@@ -1730,7 +1735,7 @@ export function TreatmentWorkspace() {
                     disabled={!selectedActId || !hasTargetSelection}
                     className="w-full mt-1 flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-md text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 shadow-sm"
                   >
-                    <Plus size={18} /> Apply Treatment Plan
+                    <Plus size={18} /> {tx("applyTreatmentPlan")}
                   </button>
                 </div>
               </div>
@@ -1741,7 +1746,7 @@ export function TreatmentWorkspace() {
               <div className="p-4 flex flex-col gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Select Diagnosis *
+                    {tx("selectDiagnosis")}
                   </label>
                   <select
                     value={diagnosisForm.diagnosis}
@@ -1753,7 +1758,7 @@ export function TreatmentWorkspace() {
                     }
                     className="w-full border border-slate-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-red-500 bg-white"
                   >
-                    <option value="">-- Choose --</option>
+                    <option value="">{tx("choose")}</option>
                     {DIAGNOSES_CATALOG.map((d) => (
                       <option key={d} value={d}>
                         {d}
@@ -2133,7 +2138,7 @@ export function TreatmentWorkspace() {
         targetLabel={
           selectedMouthRegionOption
             ? selectedMouthRegionOption.label
-            : `Tooth ${selectedTeeth.join(", ")}`
+            : tx("tooth", {tooth: selectedTeeth.join(", ")})
         }
         dentitionLabel={dentitionLabel}
         selectedMouthRegion={selectedMouthRegion}
@@ -2500,7 +2505,7 @@ export function TreatmentWorkspace() {
                   onClick={() => setTreatmentDetailsItem(null)}
                   className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
                 >
-                  Close
+                  {tx("details.close")}
                 </button>
                 {!["completed", "cancelled", "voided", "declined"].includes(
                   treatmentDetailsItem.status,
@@ -2514,8 +2519,8 @@ export function TreatmentWorkspace() {
                   >
                     <Play size={16} fill="currentColor" />
                     {treatmentDetailsItem.status === "in_progress"
-                      ? "Continue Treatment"
-                      : "Start Treatment"}
+                      ? tx("details.continueTreatment")
+                      : tx("details.startTreatment")}
                   </button>
                 )}
               </div>
@@ -2524,54 +2529,11 @@ export function TreatmentWorkspace() {
         </div>
       )}
 
-      {/* COMPLETE SESSION ACT CONFIRMATION */}
-      {sessionActToComplete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/25 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-[420px] max-w-[90%] border border-slate-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
-                <CheckCircle size={20} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800">
-                Mark Treatment Done?
-              </h3>
-            </div>
-
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm text-slate-700 flex flex-col gap-2">
-              <p>
-                <strong>Act:</strong> {sessionActToComplete.act}
-              </p>
-              <p>
-                <strong>Location:</strong>{" "}
-                {getTreatmentLocationLabel(sessionActToComplete)}
-              </p>
-              <p>
-                <strong>Area:</strong>{" "}
-                {getTreatmentAreaLabel(sessionActToComplete)}
-              </p>
-              <p className="text-slate-500">
-                This will mark the current session procedure as completed and
-                update the linked treatment plan progress.
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setSessionActToComplete(null)}
-                className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmCompleteSessionAct}
-                className="px-4 py-2 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
-              >
-                <CheckCircle size={16} /> Confirm Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CompleteSessionActDialog
+        procedure={sessionActToComplete}
+        onCancel={() => setSessionActToComplete(null)}
+        onConfirm={handleConfirmCompleteSessionAct}
+      />
 
       {/* SEND TO ASSISTANT CONFIRMATION */}
       {isSendAssistantModalOpen && (
@@ -2582,17 +2544,16 @@ export function TreatmentWorkspace() {
                 <FileText size={20} />
               </div>
               <h3 className="text-lg font-bold text-slate-800">
-                Send Visit to Assistant?
+                {tx("dialogs.sendAssistant.title")}
               </h3>
             </div>
 
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm text-slate-700">
               <p className="font-semibold text-slate-800">
-                The visit will be marked as needing assistant coding.
+                {tx("dialogs.sendAssistant.summary")}
               </p>
               <p className="mt-2 text-slate-500">
-                Your handoff note will be saved, and you will be redirected to
-                the waiting room to select the next patient.
+                {tx("dialogs.sendAssistant.description")}
               </p>
             </div>
 
@@ -2601,13 +2562,13 @@ export function TreatmentWorkspace() {
                 onClick={() => setIsSendAssistantModalOpen(false)}
                 className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors"
               >
-                Cancel
+                {tx("dialogs.sendAssistant.cancel")}
               </button>
               <button
                 onClick={confirmSendToAssistant}
                 className="px-4 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
               >
-                <FileText size={16} /> Confirm & Return
+                <FileText size={16} /> {tx("dialogs.sendAssistant.confirm")}
               </button>
             </div>
           </div>
@@ -2622,17 +2583,17 @@ export function TreatmentWorkspace() {
               <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
                 <CheckCircle size={20} />
               </div>
-              <h3 className="text-lg font-bold text-slate-800">Close Visit?</h3>
+              <h3 className="text-lg font-bold text-slate-800">
+                {tx("dialogs.closeVisit.title")}
+              </h3>
             </div>
 
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 text-sm text-slate-700">
               <p className="font-semibold text-slate-800">
-                This visit will be marked as closed.
+                {tx("dialogs.closeVisit.summary")}
               </p>
               <p className="mt-2 text-slate-500">
-                Structured treatments and posted charges will remain available
-                for the cashier workflow. You will be redirected to the waiting
-                room.
+                {tx("dialogs.closeVisit.description")}
               </p>
             </div>
 
@@ -2653,10 +2614,10 @@ export function TreatmentWorkspace() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
                       <Calendar size={16} className="text-blue-600" />
-                      Request follow-up scheduling
+                      {tx("dialogs.closeVisit.followUp.title")}
                     </div>
                     <p className="mt-1 text-xs text-slate-500">
-                      Creates a scheduling request for the appointment workflow.
+                      {tx("dialogs.closeVisit.followUp.description")}
                     </p>
                   </div>
                 </label>
@@ -2666,7 +2627,7 @@ export function TreatmentWorkspace() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
                         <label className="mb-1 block text-xs font-bold text-slate-600">
-                          Preferred date
+                          {tx("dialogs.closeVisit.followUp.preferredDate")}
                         </label>
                         <input
                           type="date"
@@ -2682,7 +2643,7 @@ export function TreatmentWorkspace() {
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-bold text-slate-600">
-                          Urgency
+                          {tx("dialogs.closeVisit.followUp.urgency")}
                         </label>
                         <select
                           value={closeVisitNextSteps.followUpUrgency}
@@ -2695,9 +2656,15 @@ export function TreatmentWorkspace() {
                           }
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                         >
-                          <option>Routine</option>
-                          <option>Soon</option>
-                          <option>Urgent</option>
+                          <option value="Routine">
+                            {tx("dialogs.closeVisit.followUp.urgencies.Routine")}
+                          </option>
+                          <option value="Soon">
+                            {tx("dialogs.closeVisit.followUp.urgencies.Soon")}
+                          </option>
+                          <option value="Urgent">
+                            {tx("dialogs.closeVisit.followUp.urgencies.Urgent")}
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -2710,7 +2677,7 @@ export function TreatmentWorkspace() {
                         }))
                       }
                       rows={2}
-                      placeholder="Reason for follow-up..."
+                      placeholder={tx("dialogs.closeVisit.followUp.reason")}
                       className="w-full resize-none rounded-md border border-slate-300 bg-slate-50 p-3 text-sm text-slate-700"
                     />
                   </div>
@@ -2733,11 +2700,10 @@ export function TreatmentWorkspace() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
                       <Pill size={16} className="text-violet-600" />
-                      Request medical document
+                      {tx("dialogs.closeVisit.document.title")}
                     </div>
                     <p className="mt-1 text-xs text-slate-500">
-                      Creates a document task for prescriptions, certificates,
-                      or clinical reports.
+                      {tx("dialogs.closeVisit.document.description")}
                     </p>
                   </div>
                 </label>
@@ -2747,7 +2713,7 @@ export function TreatmentWorkspace() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div>
                         <label className="mb-1 block text-xs font-bold text-slate-600">
-                          Document type
+                          {tx("dialogs.closeVisit.document.documentType")}
                         </label>
                         <select
                           value={closeVisitNextSteps.documentType}
@@ -2769,7 +2735,7 @@ export function TreatmentWorkspace() {
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-bold text-slate-600">
-                          Link to treatment
+                          {tx("dialogs.closeVisit.document.linkToTreatment")}
                         </label>
                         <select
                           value={closeVisitNextSteps.linkedTreatmentId}
@@ -2781,7 +2747,9 @@ export function TreatmentWorkspace() {
                           }
                           className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
                         >
-                          <option value="">Visit level</option>
+                          <option value="">
+                            {tx("dialogs.closeVisit.document.visitLevel")}
+                          </option>
                           {treatmentPlan
                             .filter((item) =>
                               ["proposed", "accepted", "in_progress"].includes(
@@ -2805,7 +2773,7 @@ export function TreatmentWorkspace() {
                         }))
                       }
                       rows={2}
-                      placeholder="What should be prepared?"
+                      placeholder={tx("dialogs.closeVisit.document.reason")}
                       className="w-full resize-none rounded-md border border-slate-300 bg-slate-50 p-3 text-sm text-slate-700"
                     />
                   </div>
@@ -2818,13 +2786,13 @@ export function TreatmentWorkspace() {
                 onClick={() => setIsCloseVisitModalOpen(false)}
                 className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors"
               >
-                Cancel
+                {tx("dialogs.closeVisit.cancel")}
               </button>
               <button
                 onClick={confirmCloseVisit}
                 className="px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors shadow-sm flex items-center gap-2"
               >
-                <CheckCircle size={16} /> Close & Return
+                <CheckCircle size={16} /> {tx("dialogs.closeVisit.confirm")}
               </button>
             </div>
           </div>
