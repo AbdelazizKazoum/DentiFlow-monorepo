@@ -11,6 +11,7 @@ This note summarizes the production deployment work done so far and the current 
 - Production compose file for VPS/VM pulls: `docker-compose.deploy.yml`
 - Local/buildable production compose file: `docker-compose.prod.yml`
 - GitHub Actions workflow: `.github/workflows/deploy-prod.yml`
+- Public reverse proxy: Dockerized Nginx using `nginx/default.conf`
 
 ## Docker Hub Images
 
@@ -51,7 +52,7 @@ Required repository variables:
 For the current Azure IP:
 
 ```text
-PROD_NEXT_PUBLIC_API_URL=http://68.221.171.244:3001
+PROD_NEXT_PUBLIC_API_URL=http://68.221.171.244
 PROD_NEXT_PUBLIC_DEFAULT_CLINIC_ID=00000000-0000-4000-8000-000000000001
 ```
 
@@ -62,6 +63,7 @@ The VM should contain:
 ```text
 /opt/dentiflow/.env.prod
 /opt/dentiflow/docker-compose.deploy.yml
+/opt/dentiflow/nginx/default.conf
 ```
 
 `docker-compose.deploy.yml` is copied by GitHub Actions using `appleboy/scp-action`.
@@ -78,9 +80,9 @@ REFRESH_TOKEN_SECRET=<strong secret>
 NEXTAUTH_SECRET=<strong secret>
 NEXTAUTH_SESSION_COOKIE_NAME=dentiflow-prod.session-token
 
-FRONTEND_URL=http://68.221.171.244:3000
-NEXTAUTH_URL=http://68.221.171.244:3000
-NEXT_PUBLIC_API_URL=http://68.221.171.244:3001
+FRONTEND_URL=http://68.221.171.244
+NEXTAUTH_URL=http://68.221.171.244
+NEXT_PUBLIC_API_URL=http://68.221.171.244
 NEXT_PUBLIC_DEFAULT_CLINIC_ID=00000000-0000-4000-8000-000000000001
 
 DENTIFLOW_SEED_DEFAULT_ADMIN=true
@@ -89,9 +91,10 @@ DEFAULT_ADMIN_EMAIL=admin@dentiflow.local
 DEFAULT_ADMIN_PASSWORD=Admin123!
 DEFAULT_ADMIN_FULL_NAME=DentiFlow Admin
 
-PROD_BIND_ADDRESS=0.0.0.0
+PROD_BIND_ADDRESS=127.0.0.1
 PROD_FRONTEND_PORT=3000
 PROD_API_PORT=3001
+NGINX_HTTP_PORT=80
 ```
 
 ## Azure Network Requirements
@@ -99,16 +102,23 @@ PROD_API_PORT=3001
 Azure inbound security rules must allow:
 
 - TCP `22`
-- TCP `3000`
-- TCP `3001`
+- TCP `80`
+
+After Nginx is in front of the app, TCP `3000` and TCP `3001` do not need public inbound Azure rules. The compose file can still bind them to `127.0.0.1` for local debugging from inside the VM.
 
 Ubuntu UFW should also allow:
 
 ```bash
 sudo ufw allow OpenSSH
-sudo ufw allow 3000/tcp
-sudo ufw allow 3001/tcp
+sudo ufw allow 80/tcp
 sudo ufw status
+```
+
+If old direct app rules exist, remove them after confirming Nginx works:
+
+```bash
+sudo ufw delete allow 3000/tcp
+sudo ufw delete allow 3001/tcp
 ```
 
 ## Health Checks
@@ -116,8 +126,8 @@ sudo ufw status
 Browser:
 
 ```text
-http://68.221.171.244:3000
-http://68.221.171.244:3001/health
+http://68.221.171.244
+http://68.221.171.244/api-gateway/health
 ```
 
 From VM:
@@ -125,6 +135,8 @@ From VM:
 ```bash
 cd /opt/dentiflow
 docker compose --env-file .env.prod -f docker-compose.deploy.yml ps
+curl -I http://127.0.0.1
+curl http://127.0.0.1/api-gateway/health
 curl -I http://127.0.0.1:3000
 curl http://127.0.0.1:3001/health
 ```
@@ -239,6 +251,25 @@ Restart stack manually:
 ```bash
 cd /opt/dentiflow
 docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --no-build --remove-orphans
+```
+
+## Nginx Reverse Proxy Notes
+
+Nginx runs as a container in the same Docker network as the frontend and API gateway. It listens publicly on port `80`, proxies the app to the `frontend:3000` container, and exposes only a debug health alias:
+
+```text
+http://68.221.171.244 -> frontend:3000
+http://68.221.171.244/api-gateway/health -> api-gateway:3001/health
+```
+
+Do not route all `/api/v1/*` traffic directly to the API gateway in Nginx right now. The Next.js frontend has a BFF route at `/api/v1/[...path]` that reads the secure NextAuth session cookie and adds backend tokens server-side.
+
+On the VM, if another host-level Nginx or Apache process already owns port `80`, stop it before starting the Docker stack:
+
+```bash
+sudo ss -tulpn | grep ':80'
+sudo systemctl stop nginx apache2
+sudo systemctl disable nginx apache2
 ```
 
 Re-run one-shot migration containers:
