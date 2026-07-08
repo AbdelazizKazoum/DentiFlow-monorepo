@@ -94,6 +94,36 @@
     "language": {
       "label": "Langue"
     },
+    "sidebar": {
+      "userFallback": "Utilisateur",
+      "logout": "Déconnexion",
+      "groups": {
+        "overview": "Vue d'ensemble",
+        "clinical": "Clinique",
+        "communication": "Communication"
+      },
+      "items": {
+        "dashboard": "Tableau de bord",
+        "schedule": "Planning",
+        "patients": "Patients",
+        "treatments": "Traitements",
+        "waitingRoom": "Salle d'attente",
+        "staff": "Personnel",
+        "messages": "Messages"
+      },
+      "roles": {
+        "admin": "Administrateur",
+        "doctor": "Médecin",
+        "secretary": "Secrétaire",
+        "secretariat": "Secrétaire",
+        "dental_assistant": "Assistant dentaire",
+        "staff": "Personnel"
+      },
+      "aria": {
+        "navigationMenu": "Menu de navigation",
+        "closeMenu": "Fermer le menu"
+      }
+    },
     "dashboard": {
       "header": {
         "title": "Tableau de bord",

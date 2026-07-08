@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import {useSession} from "next-auth/react";
 import {useAdminAuthStore} from "@/presentation/stores/adminAuthStore";
-import {useLocale} from "next-intl";
+import {useLocale, useTranslations} from "next-intl";
 import {usePathname, useRouter} from "next/navigation";
 
 interface SidebarProps {
@@ -28,53 +28,46 @@ interface SidebarProps {
 }
 
 interface NavItem {
-  name: string;
+  id: string;
   icon: React.ReactNode;
 }
 
 interface NavGroup {
-  label: string;
+  id: string;
   items: NavItem[];
 }
 
 const navGroups: NavGroup[] = [
   {
-    label: "Overview",
-    items: [{name: "Dashboard", icon: <LayoutDashboard size={20} />}],
+    id: "overview",
+    items: [{id: "dashboard", icon: <LayoutDashboard size={20} />}],
   },
   {
-    label: "Clinical",
+    id: "clinical",
     items: [
-      {name: "Schedule", icon: <Calendar size={20} />},
-      {name: "Patients", icon: <Users size={20} />},
-      {name: "Treatments", icon: <Stethoscope size={20} />},
-      {name: "Waiting Room", icon: <ClipboardList size={20} />},
-      {name: "Staff", icon: <UserCog size={20} />},
+      {id: "schedule", icon: <Calendar size={20} />},
+      {id: "patients", icon: <Users size={20} />},
+      {id: "treatments", icon: <Stethoscope size={20} />},
+      {id: "waitingRoom", icon: <ClipboardList size={20} />},
+      {id: "staff", icon: <UserCog size={20} />},
     ],
   },
   {
-    label: "Communication",
-    items: [{name: "Messages", icon: <MessageSquare size={20} />}],
+    id: "communication",
+    items: [{id: "messages", icon: <MessageSquare size={20} />}],
   },
 ];
 
 const allItems = navGroups.flatMap((g) => g.items);
 
 const routes: Record<string, string> = {
-  Dashboard: "/admin/dashboard",
-  Schedule: "/admin/appointments",
-  Patients: "/admin/patients",
-  Treatments: "/admin/treatments",
-  "Waiting Room": "/admin/waiting-room",
-  Staff: "/admin/staff",
-  Messages: "/admin/messages",
-};
-
-const roleLabels: Record<string, string> = {
-  admin: "Administrator",
-  doctor: "Doctor",
-  secretariat: "Secretary",
-  dental_assistant: "Dental Assistant",
+  dashboard: "/admin/dashboard",
+  schedule: "/admin/appointments",
+  patients: "/admin/patients",
+  treatments: "/admin/treatments",
+  waitingRoom: "/admin/waiting-room",
+  staff: "/admin/staff",
+  messages: "/admin/messages",
 };
 
 function SidebarContent({
@@ -87,12 +80,14 @@ function SidebarContent({
   const {data: session} = useSession();
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const logout = useAdminAuthStore((s) => s.logout);
+  const t = useTranslations("admin.sidebar");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
-  const userName = session?.user?.name ?? "User";
-  const userRole = roleLabels[session?.user?.role ?? ""] ?? "Staff";
+  const userName = session?.user?.name ?? t("userFallback");
+  const userRoleKey = session?.user?.role ?? "staff";
+  const userRole = t(`roles.${userRoleKey}`);
   const userInitials = userName
     .split(" ")
     .slice(0, 2)
@@ -104,20 +99,20 @@ function SidebarContent({
   const showUserImage = Boolean(userImage && failedImageUrl !== userImage);
 
   const getActiveTab = () => {
-    if (pathname.includes("/appointments")) return "Schedule";
-    if (pathname.includes("/patients")) return "Patients";
-    if (pathname.includes("/treatments")) return "Treatments";
-    if (pathname.includes("/waiting-room")) return "Waiting Room";
-    if (pathname.includes("/staff")) return "Staff";
-    if (pathname.includes("/messages")) return "Messages";
-    if (pathname.includes("/dashboard")) return "Dashboard";
+    if (pathname.includes("/appointments")) return "schedule";
+    if (pathname.includes("/patients")) return "patients";
+    if (pathname.includes("/treatments")) return "treatments";
+    if (pathname.includes("/waiting-room")) return "waitingRoom";
+    if (pathname.includes("/staff")) return "staff";
+    if (pathname.includes("/messages")) return "messages";
+    if (pathname.includes("/dashboard")) return "dashboard";
     return "";
   };
 
   const activeTab = getActiveTab();
 
-  const handleNavClick = (name: string) => {
-    router.push(`/${locale}${routes[name]}`);
+  const handleNavClick = (id: string) => {
+    router.push(`/${locale}${routes[id]}`);
     onNavigate?.();
   };
 
@@ -191,28 +186,29 @@ function SidebarContent({
 
       <nav className="flex-1 px-3 pt-3 space-y-5 overflow-x-hidden overflow-y-auto sidebar-scroll pb-2 min-h-0">
         {navGroups.map((group) => (
-          <div key={group.label} className="flex flex-col">
+          <div key={group.id} className="flex flex-col">
             <div
               className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-in-out
                 ${isExpanded ? "max-h-7 opacity-100 mb-1" : "max-h-0 opacity-0 mb-0"}`}
             >
               <p className="px-3 text-[0.6875rem] font-normal tracking-[0.04em] uppercase text-sidebar-label select-none">
-                {group.label}
+                {t(`groups.${group.id}`)}
               </p>
             </div>
 
             <div className="space-y-0.5">
               {group.items.map((item) => {
                 const globalIdx = allItems.findIndex(
-                  (i) => i.name === item.name,
+                  (i) => i.id === item.id,
                 );
-                const isActive = activeTab === item.name;
+                const isActive = activeTab === item.id;
+                const itemLabel = t(`items.${item.id}`);
 
                 return (
                   <button
-                    key={item.name}
-                    onClick={() => handleNavClick(item.name)}
-                    title={!isExpanded ? item.name : undefined}
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    title={!isExpanded ? itemLabel : undefined}
                     className={`group relative w-full h-11 flex items-center rounded-lg
                       transition-all duration-200 ease-in-out
                       ${isExpanded ? "px-3" : "justify-center"}
@@ -239,7 +235,7 @@ function SidebarContent({
                           : "0ms",
                       }}
                     >
-                      {item.name}
+                      {itemLabel}
                     </span>
 
                     {!isExpanded && (
@@ -250,7 +246,7 @@ function SidebarContent({
                           transition-[opacity,transform] duration-150
                           group-hover:opacity-100 group-hover:translate-x-1"
                       >
-                        {item.name}
+                        {itemLabel}
                       </span>
                     )}
                   </button>
@@ -266,7 +262,7 @@ function SidebarContent({
       <div className="p-3 shrink-0">
         <button
           onClick={() => logout(locale)}
-          title={!isExpanded ? "Logout" : undefined}
+          title={!isExpanded ? t("logout") : undefined}
           className={`group relative h-11 w-full flex items-center rounded-lg
             text-sidebar-text-muted hover:bg-red-500/15 hover:text-red-200
             transition-all duration-200 ease-in-out
@@ -281,7 +277,7 @@ function SidebarContent({
               transition-[width,opacity] duration-280 ease-in-out
               ${isExpanded ? "w-16 opacity-100" : "w-0 opacity-0"}`}
           >
-            Logout
+            {t("logout")}
           </span>
 
           {!isExpanded && (
@@ -292,7 +288,7 @@ function SidebarContent({
                 transition-[opacity,transform] duration-150
                 group-hover:opacity-100 group-hover:translate-x-1"
             >
-              Logout
+              {t("logout")}
             </span>
           )}
         </button>
@@ -308,6 +304,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [hovered, setHovered] = useState(false);
   const isDesktopExpanded = !isCollapsed || hovered;
+  const t = useTranslations("admin.sidebar");
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -358,13 +355,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               animate={{x: 0}}
               exit={{x: "-100%"}}
               transition={{type: "spring", stiffness: 380, damping: 38}}
-              aria-label="Navigation menu"
+              aria-label={t("aria.navigationMenu")}
             >
               <button
                 onClick={onMobileClose}
                 className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/10 hover:bg-white/20
                   text-white/60 hover:text-white transition-all z-10"
-                aria-label="Close menu"
+                aria-label={t("aria.closeMenu")}
               >
                 <X size={16} />
               </button>

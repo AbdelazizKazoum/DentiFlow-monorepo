@@ -94,6 +94,36 @@
     "language": {
       "label": "Language"
     },
+    "sidebar": {
+      "userFallback": "User",
+      "logout": "Logout",
+      "groups": {
+        "overview": "Overview",
+        "clinical": "Clinical",
+        "communication": "Communication"
+      },
+      "items": {
+        "dashboard": "Dashboard",
+        "schedule": "Schedule",
+        "patients": "Patients",
+        "treatments": "Treatments",
+        "waitingRoom": "Waiting Room",
+        "staff": "Staff",
+        "messages": "Messages"
+      },
+      "roles": {
+        "admin": "Administrator",
+        "doctor": "Doctor",
+        "secretary": "Secretary",
+        "secretariat": "Secretary",
+        "dental_assistant": "Dental Assistant",
+        "staff": "Staff"
+      },
+      "aria": {
+        "navigationMenu": "Navigation menu",
+        "closeMenu": "Close menu"
+      }
+    },
     "dashboard": {
       "header": {
         "title": "Dashboard",

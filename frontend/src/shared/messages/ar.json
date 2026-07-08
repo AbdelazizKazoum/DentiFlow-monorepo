@@ -94,6 +94,36 @@
     "language": {
       "label": "اللغة"
     },
+    "sidebar": {
+      "userFallback": "مستخدم",
+      "logout": "تسجيل الخروج",
+      "groups": {
+        "overview": "نظرة عامة",
+        "clinical": "العيادة",
+        "communication": "التواصل"
+      },
+      "items": {
+        "dashboard": "لوحة التحكم",
+        "schedule": "الجدول",
+        "patients": "المرضى",
+        "treatments": "العلاجات",
+        "waitingRoom": "غرفة الانتظار",
+        "staff": "الموظفون",
+        "messages": "الرسائل"
+      },
+      "roles": {
+        "admin": "مسؤول",
+        "doctor": "طبيب",
+        "secretary": "سكرتير",
+        "secretariat": "سكرتير",
+        "dental_assistant": "مساعد أسنان",
+        "staff": "موظف"
+      },
+      "aria": {
+        "navigationMenu": "قائمة التنقل",
+        "closeMenu": "إغلاق القائمة"
+      }
+    },
     "dashboard": {
       "header": {
         "title": "لوحة التحكم",
