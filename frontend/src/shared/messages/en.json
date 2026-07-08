@@ -189,6 +189,77 @@
         "delete": "Delete"
       }
     },
+    "treatmentVisits": {
+      "header": {
+        "title": "Treatment Visits",
+        "subtitle": "Track clinical visits, dentist handoffs, and assistant coding work",
+        "visitCount": "{count, plural, one {# visit} other {# visits}}"
+      },
+      "tabs": {
+        "needsCoding": "Needs Coding",
+        "open": "Open Visits",
+        "closed": "Completed",
+        "all": "All Visits"
+      },
+      "search": {
+        "placeholder": "Search by patient, doctor, treatment, or handoff note..."
+      },
+      "statuses": {
+        "OPEN": "Open",
+        "NEEDS_CODING": "Needs Coding",
+        "CLOSED": "Closed",
+        "CANCELLED": "Cancelled"
+      },
+      "handoffStatuses": {
+        "STRUCTURED": "Structured",
+        "DRAFT_NOTE": "Draft note",
+        "NEEDS_CODING": "Needs coding",
+        "CODED": "Coded",
+        "none": "No handoff"
+      },
+      "procedureStatuses": {
+        "IN_PROGRESS": "In progress",
+        "COMPLETED": "Completed",
+        "in-progress": "In progress",
+        "completed": "Completed"
+      },
+      "visit": {
+        "started": "Started {date}",
+        "provider": "Doctor: {provider}",
+        "noProvider": "No doctor assigned"
+      },
+      "metrics": {
+        "procedures": "Treatments",
+        "procedureCount": "{count, plural, one {# treatment} other {# treatments}}",
+        "handoff": "Handoff",
+        "charges": "Remaining",
+        "noCharges": "No charges"
+      },
+      "actions": {
+        "viewDetails": "View details",
+        "hideDetails": "Hide details",
+        "openWorkspace": "Open Workspace",
+        "markCoded": "Mark coded"
+      },
+      "details": {
+        "procedures": "Visit treatments",
+        "noProcedures": "No treatments have been started in this visit yet.",
+        "noLocation": "No location",
+        "handoff": "Dentist handoff",
+        "noHandoff": "No handoff note was sent for this visit.",
+        "savedAt": "Saved {date}",
+        "notSaved": "Not saved yet"
+      },
+      "empty": {
+        "title": "No visits found",
+        "description": "When dentists send handoff notes or start treatments, matching visits will appear here."
+      },
+      "loading": "Loading treatment visits...",
+      "errors": {
+        "listEndpointMissing": "The visit worklist endpoint is not available yet. Add GET /api/v1/treatment/visits to feed this page with visits, procedures, handoffs, and charge summaries.",
+        "markCodedMissing": "The handoff coding endpoint is not available yet. Add POST /api/v1/treatment/handoffs/:id/coded so assistants can mark handoffs as coded."
+      }
+    },
     "treatment": {
       "header": {
         "age": "{age} y.o.",

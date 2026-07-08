@@ -189,6 +189,77 @@
         "delete": "Supprimer"
       }
     },
+    "treatmentVisits": {
+      "header": {
+        "title": "Visites de traitement",
+        "subtitle": "Suivez les visites cliniques, les transmissions du dentiste et le codage assistant",
+        "visitCount": "{count, plural, one {# visite} other {# visites}}"
+      },
+      "tabs": {
+        "needsCoding": "À coder",
+        "open": "Visites ouvertes",
+        "closed": "Terminées",
+        "all": "Toutes"
+      },
+      "search": {
+        "placeholder": "Rechercher par patient, médecin, traitement ou note de transmission..."
+      },
+      "statuses": {
+        "OPEN": "Ouverte",
+        "NEEDS_CODING": "À coder",
+        "CLOSED": "Clôturée",
+        "CANCELLED": "Annulée"
+      },
+      "handoffStatuses": {
+        "STRUCTURED": "Structurée",
+        "DRAFT_NOTE": "Brouillon",
+        "NEEDS_CODING": "À coder",
+        "CODED": "Codée",
+        "none": "Aucune transmission"
+      },
+      "procedureStatuses": {
+        "IN_PROGRESS": "En cours",
+        "COMPLETED": "Terminé",
+        "in-progress": "En cours",
+        "completed": "Terminé"
+      },
+      "visit": {
+        "started": "Commencée {date}",
+        "provider": "Médecin : {provider}",
+        "noProvider": "Aucun médecin assigné"
+      },
+      "metrics": {
+        "procedures": "Traitements",
+        "procedureCount": "{count, plural, one {# traitement} other {# traitements}}",
+        "handoff": "Transmission",
+        "charges": "Restant",
+        "noCharges": "Aucun frais"
+      },
+      "actions": {
+        "viewDetails": "Voir les détails",
+        "hideDetails": "Masquer",
+        "openWorkspace": "Ouvrir l'espace",
+        "markCoded": "Marquer codée"
+      },
+      "details": {
+        "procedures": "Traitements de la visite",
+        "noProcedures": "Aucun traitement n'a encore été démarré dans cette visite.",
+        "noLocation": "Aucun emplacement",
+        "handoff": "Transmission du dentiste",
+        "noHandoff": "Aucune note de transmission n'a été envoyée pour cette visite.",
+        "savedAt": "Enregistrée {date}",
+        "notSaved": "Pas encore enregistrée"
+      },
+      "empty": {
+        "title": "Aucune visite trouvée",
+        "description": "Lorsque les dentistes envoient des transmissions ou démarrent des traitements, les visites correspondantes apparaîtront ici."
+      },
+      "loading": "Chargement des visites de traitement...",
+      "errors": {
+        "listEndpointMissing": "Le point d'accès de la liste des visites n'est pas encore disponible. Ajoutez GET /api/v1/treatment/visits pour alimenter cette page avec les visites, traitements, transmissions et résumés de frais.",
+        "markCodedMissing": "Le point d'accès de codage des transmissions n'est pas encore disponible. Ajoutez POST /api/v1/treatment/handoffs/:id/coded pour permettre aux assistants de marquer les transmissions comme codées."
+      }
+    },
     "treatment": {
       "header": {
         "age": "{age} ans",

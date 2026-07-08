@@ -189,6 +189,77 @@
         "delete": "حذف"
       }
     },
+    "treatmentVisits": {
+      "header": {
+        "title": "زيارات العلاج",
+        "subtitle": "تتبع الزيارات السريرية وتسليمات الطبيب وعمل ترميز المساعد",
+        "visitCount": "{count, plural, one {# زيارة} other {# زيارات}}"
+      },
+      "tabs": {
+        "needsCoding": "تحتاج ترميزاً",
+        "open": "زيارات مفتوحة",
+        "closed": "مكتملة",
+        "all": "كل الزيارات"
+      },
+      "search": {
+        "placeholder": "ابحث بالمريض أو الطبيب أو العلاج أو ملاحظة التسليم..."
+      },
+      "statuses": {
+        "OPEN": "مفتوحة",
+        "NEEDS_CODING": "تحتاج ترميزاً",
+        "CLOSED": "مغلقة",
+        "CANCELLED": "ملغاة"
+      },
+      "handoffStatuses": {
+        "STRUCTURED": "منظمة",
+        "DRAFT_NOTE": "مسودة",
+        "NEEDS_CODING": "تحتاج ترميزاً",
+        "CODED": "مرمزة",
+        "none": "لا يوجد تسليم"
+      },
+      "procedureStatuses": {
+        "IN_PROGRESS": "قيد التنفيذ",
+        "COMPLETED": "مكتمل",
+        "in-progress": "قيد التنفيذ",
+        "completed": "مكتمل"
+      },
+      "visit": {
+        "started": "بدأت {date}",
+        "provider": "الطبيب: {provider}",
+        "noProvider": "لا يوجد طبيب معين"
+      },
+      "metrics": {
+        "procedures": "العلاجات",
+        "procedureCount": "{count, plural, one {# علاج} other {# علاجات}}",
+        "handoff": "التسليم",
+        "charges": "المتبقي",
+        "noCharges": "لا توجد رسوم"
+      },
+      "actions": {
+        "viewDetails": "عرض التفاصيل",
+        "hideDetails": "إخفاء التفاصيل",
+        "openWorkspace": "فتح مساحة العمل",
+        "markCoded": "تعليم كمرمز"
+      },
+      "details": {
+        "procedures": "علاجات الزيارة",
+        "noProcedures": "لم يبدأ أي علاج في هذه الزيارة بعد.",
+        "noLocation": "لا يوجد موضع",
+        "handoff": "تسليم الطبيب",
+        "noHandoff": "لم يتم إرسال ملاحظة تسليم لهذه الزيارة.",
+        "savedAt": "حفظت {date}",
+        "notSaved": "لم تحفظ بعد"
+      },
+      "empty": {
+        "title": "لم يتم العثور على زيارات",
+        "description": "عندما يرسل الأطباء ملاحظات التسليم أو يبدأون العلاجات، ستظهر الزيارات المطابقة هنا."
+      },
+      "loading": "جار تحميل زيارات العلاج...",
+      "errors": {
+        "listEndpointMissing": "نقطة وصول قائمة الزيارات غير متاحة بعد. أضف GET /api/v1/treatment/visits لتغذية هذه الصفحة بالزيارات والعلاجات والتسليمات وملخصات الرسوم.",
+        "markCodedMissing": "نقطة وصول ترميز التسليم غير متاحة بعد. أضف POST /api/v1/treatment/handoffs/:id/coded ليتمكن المساعدون من تعليم التسليمات كمرمزة."
+      }
+    },
     "treatment": {
       "header": {
         "age": "{age} سنة",
