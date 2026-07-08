@@ -9,8 +9,10 @@ import { StaffActionMenu } from "./components/StaffActionMenu";
 import { StaffFormModal } from "./components/StaffFormModal";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { StaffGridSkeleton } from "./components/StaffGridSkeleton";
+import {useTranslations} from "next-intl";
 
 export default function StaffPage() {
+  const t = useTranslations("admin.staff");
   const {
     staff,
     filtered,
@@ -94,7 +96,8 @@ export default function StaffPage() {
         onClose={() => setDeleteConfirmOpen(false)}
         onConfirm={confirmDelete}
         staffName={
-          staff.find((s) => s.id === deleteTargetId)?.fullName ?? "this member"
+          staff.find((s) => s.id === deleteTargetId)?.fullName ??
+          t("deleteModal.fallbackMember")
         }
       />
     </>

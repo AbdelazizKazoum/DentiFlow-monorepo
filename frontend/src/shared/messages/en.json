@@ -106,6 +106,89 @@
         "settings": "Settings"
       }
     },
+    "staff": {
+      "header": {
+        "title": "Staff Management",
+        "subtitle": "Manage your clinic's team members",
+        "addStaff": "Add Staff Member"
+      },
+      "summary": {
+        "total": "Total Staff",
+        "active": "Active",
+        "onLeave": "On Leave",
+        "inactive": "Inactive"
+      },
+      "filters": {
+        "searchPlaceholder": "Search by name, email or specialization...",
+        "allRoles": "All Roles"
+      },
+      "roles": {
+        "DOCTOR": "Doctor",
+        "SECRETARY": "Secretary",
+        "DENTAL_ASSISTANT": "Dental Assistant",
+        "ADMIN": "Admin"
+      },
+      "statuses": {
+        "active": "Active",
+        "on-leave": "On Leave",
+        "inactive": "Inactive"
+      },
+      "card": {
+        "joined": "Joined {date}"
+      },
+      "grid": {
+        "empty": "No staff members found"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "form": {
+        "addTitle": "Add Staff Member",
+        "editTitle": "Edit Staff Member",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "e.g. Jane",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "e.g. Doe",
+        "role": "Role",
+        "status": "Status",
+        "email": "Email",
+        "emailPlaceholder": "e.g. jane@dentiflow.com",
+        "phone": "Phone",
+        "phonePlaceholder": "e.g. 555-0201",
+        "specialization": "Specialization",
+        "specializationPlaceholder": "e.g. Orthodontics",
+        "joinDate": "Join Date",
+        "changePasswordHint": "Change Password - leave blank to keep existing",
+        "accountPassword": "Account Password",
+        "newPassword": "New Password",
+        "password": "Password",
+        "passwordPlaceholder": "Min. 8 characters",
+        "confirmPassword": "Confirm Password",
+        "confirmPasswordPlaceholder": "Repeat password",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "adding": "Adding...",
+        "updating": "Updating...",
+        "updateMember": "Update Member",
+        "addMember": "Add Member"
+      },
+      "validation": {
+        "requiredIdentity": "First name, last name and email are required.",
+        "emailExists": "A staff member with this email already exists.",
+        "passwordRequired": "Password is required.",
+        "passwordMin": "Password must be at least 8 characters.",
+        "passwordMismatch": "Passwords do not match."
+      },
+      "deleteModal": {
+        "title": "Delete Staff Member",
+        "fallbackMember": "this member",
+        "messagePrefix": "Are you sure you want to delete",
+        "messageSuffix": "This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+      }
+    },
     "treatment": {
       "header": {
         "age": "{age} y.o.",

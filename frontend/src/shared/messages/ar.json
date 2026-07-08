@@ -106,6 +106,89 @@
         "settings": "الإعدادات"
       }
     },
+    "staff": {
+      "header": {
+        "title": "إدارة الموظفين",
+        "subtitle": "إدارة أعضاء فريق العيادة",
+        "addStaff": "إضافة موظف"
+      },
+      "summary": {
+        "total": "إجمالي الموظفين",
+        "active": "نشطون",
+        "onLeave": "في إجازة",
+        "inactive": "غير نشطين"
+      },
+      "filters": {
+        "searchPlaceholder": "ابحث بالاسم أو البريد أو التخصص...",
+        "allRoles": "كل الأدوار"
+      },
+      "roles": {
+        "DOCTOR": "طبيب",
+        "SECRETARY": "سكرتير",
+        "DENTAL_ASSISTANT": "مساعد أسنان",
+        "ADMIN": "مسؤول"
+      },
+      "statuses": {
+        "active": "نشط",
+        "on-leave": "في إجازة",
+        "inactive": "غير نشط"
+      },
+      "card": {
+        "joined": "انضم في {date}"
+      },
+      "grid": {
+        "empty": "لم يتم العثور على موظفين"
+      },
+      "actions": {
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "form": {
+        "addTitle": "إضافة موظف",
+        "editTitle": "تعديل الموظف",
+        "firstName": "الاسم الأول",
+        "firstNamePlaceholder": "مثال: Jane",
+        "lastName": "اسم العائلة",
+        "lastNamePlaceholder": "مثال: Doe",
+        "role": "الدور",
+        "status": "الحالة",
+        "email": "البريد الإلكتروني",
+        "emailPlaceholder": "مثال: jane@dentiflow.com",
+        "phone": "الهاتف",
+        "phonePlaceholder": "مثال: 555-0201",
+        "specialization": "التخصص",
+        "specializationPlaceholder": "مثال: تقويم الأسنان",
+        "joinDate": "تاريخ الانضمام",
+        "changePasswordHint": "تغيير كلمة المرور - اتركه فارغاً للاحتفاظ بالحالية",
+        "accountPassword": "كلمة مرور الحساب",
+        "newPassword": "كلمة مرور جديدة",
+        "password": "كلمة المرور",
+        "passwordPlaceholder": "8 أحرف على الأقل",
+        "confirmPassword": "تأكيد كلمة المرور",
+        "confirmPasswordPlaceholder": "أعد كتابة كلمة المرور",
+        "delete": "حذف",
+        "cancel": "إلغاء",
+        "adding": "جار الإضافة...",
+        "updating": "جار التحديث...",
+        "updateMember": "تحديث الموظف",
+        "addMember": "إضافة الموظف"
+      },
+      "validation": {
+        "requiredIdentity": "الاسم الأول واسم العائلة والبريد الإلكتروني مطلوبة.",
+        "emailExists": "يوجد موظف بهذا البريد الإلكتروني بالفعل.",
+        "passwordRequired": "كلمة المرور مطلوبة.",
+        "passwordMin": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+        "passwordMismatch": "كلمتا المرور غير متطابقتين."
+      },
+      "deleteModal": {
+        "title": "حذف الموظف",
+        "fallbackMember": "هذا الموظف",
+        "messagePrefix": "هل أنت متأكد أنك تريد حذف",
+        "messageSuffix": "لا يمكن التراجع عن هذا الإجراء.",
+        "cancel": "إلغاء",
+        "delete": "حذف"
+      }
+    },
     "treatment": {
       "header": {
         "age": "{age} سنة",

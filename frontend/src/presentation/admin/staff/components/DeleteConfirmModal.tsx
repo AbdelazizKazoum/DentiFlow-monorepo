@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import {X} from "lucide-react";
+import {useTranslations} from "next-intl";
 
 interface DeleteConfirmModalProps {
   open: boolean;
@@ -22,6 +23,8 @@ export function DeleteConfirmModal({
   onConfirm,
   staffName,
 }: DeleteConfirmModalProps) {
+  const t = useTranslations("admin.staff.deleteModal");
+
   return (
     <Dialog
       open={open}
@@ -54,7 +57,7 @@ export function DeleteConfirmModal({
           component="div"
           sx={{fontWeight: 700, color: "var(--foreground)"}}
         >
-          Delete Staff Member
+          {t("title")}
         </Typography>
         <IconButton
           size="small"
@@ -73,9 +76,10 @@ export function DeleteConfirmModal({
             lineHeight: 1.6,
           }}
         >
-          Are you sure you want to delete{" "}
+          {t("messagePrefix")}{" "}
           <strong style={{color: "var(--brand-primary)"}}>{staffName}</strong>?
-          This action cannot be undone.
+          {" "}
+          {t("messageSuffix")}
         </Typography>
       </DialogContent>
 
@@ -93,7 +97,7 @@ export function DeleteConfirmModal({
             flex: 1,
           }}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           variant="contained"
@@ -109,7 +113,7 @@ export function DeleteConfirmModal({
             "&:hover": {backgroundColor: "#c53030"},
           }}
         >
-          Delete
+          {t("delete")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,5 +1,6 @@
 import {Menu, MenuItem} from "@mui/material";
 import {Edit2, Trash2} from "lucide-react";
+import {useTranslations} from "next-intl";
 
 interface StaffActionMenuProps {
   anchor: HTMLElement | null;
@@ -14,6 +15,8 @@ export function StaffActionMenu({
   onEdit,
   onDelete,
 }: StaffActionMenuProps) {
+  const t = useTranslations("admin.staff.actions");
+
   return (
     <Menu
       anchorEl={anchor}
@@ -35,13 +38,13 @@ export function StaffActionMenu({
         onClick={onEdit}
         sx={{fontSize: "0.875rem", gap: 1, color: "var(--foreground)"}}
       >
-        <Edit2 size={15} /> Edit
+        <Edit2 size={15} /> {t("edit")}
       </MenuItem>
       <MenuItem
         onClick={onDelete}
         sx={{fontSize: "0.875rem", gap: 1, color: "#e53e3e"}}
       >
-        <Trash2 size={15} /> Delete
+        <Trash2 size={15} /> {t("delete")}
       </MenuItem>
     </Menu>
   );

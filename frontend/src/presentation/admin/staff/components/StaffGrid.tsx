@@ -1,5 +1,6 @@
 import React from "react";
 import {UserCog} from "lucide-react";
+import {useTranslations} from "next-intl";
 import {Staff} from "@/domain/staff/entities/staff";
 import {StaffCard} from "./StaffCard";
 
@@ -9,6 +10,8 @@ interface StaffGridProps {
 }
 
 export function StaffGrid({members, onOpenMenu}: StaffGridProps) {
+  const t = useTranslations("admin.staff.grid");
+
   if (members.length === 0) {
     return (
       <div
@@ -17,7 +20,7 @@ export function StaffGrid({members, onOpenMenu}: StaffGridProps) {
       >
         <UserCog size={40} style={{color: "var(--text-muted)"}} />
         <p className="text-sm font-medium" style={{color: "var(--text-muted)"}}>
-          No staff members found
+          {t("empty")}
         </p>
       </div>
     );

@@ -1,6 +1,7 @@
 import React from "react";
 import {Mail, Phone, MoreVertical} from "lucide-react";
 import {IconButton} from "@mui/material";
+import {useLocale, useTranslations} from "next-intl";
 import {Staff} from "@/domain/staff/entities/staff";
 import {ROLE_CONFIG, STATUS_CONFIG} from "../staffConfig";
 
@@ -10,6 +11,8 @@ interface StaffCardProps {
 }
 
 export function StaffCard({member, onOpenMenu}: StaffCardProps) {
+  const locale = useLocale();
+  const t = useTranslations("admin.staff");
   const roleCfg = ROLE_CONFIG[member.role];
   const statusCfg = STATUS_CONFIG[member.status];
 
@@ -54,7 +57,7 @@ export function StaffCard({member, onOpenMenu}: StaffCardProps) {
           className="px-2.5 py-0.5 rounded-full text-xs font-semibold"
           style={{backgroundColor: roleCfg.bg, color: roleCfg.color}}
         >
-          {roleCfg.label}
+          {t(`roles.${member.role}`)}
         </span>
         <span
           className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
@@ -64,7 +67,7 @@ export function StaffCard({member, onOpenMenu}: StaffCardProps) {
             className="w-1.5 h-1.5 rounded-full"
             style={{backgroundColor: statusCfg.dot}}
           />
-          {statusCfg.label}
+          {t(`statuses.${member.status}`)}
         </span>
       </div>
 
@@ -95,11 +98,12 @@ export function StaffCard({member, onOpenMenu}: StaffCardProps) {
 
       {/* Join date */}
       <p className="text-xs" style={{color: "var(--text-muted)"}}>
-        Joined{" "}
-        {member.createdAt.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
+        {t("card.joined", {
+          date: member.createdAt.toLocaleDateString(locale, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }),
         })}
       </p>
     </div>

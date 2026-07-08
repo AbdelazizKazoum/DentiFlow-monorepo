@@ -1,4 +1,5 @@
 import {Search} from "lucide-react";
+import {useTranslations} from "next-intl";
 import {StaffRole} from "@/domain/staff/entities/staff";
 import {ROLE_CONFIG} from "../staffConfig";
 
@@ -15,6 +16,8 @@ export function StaffFilters({
   roleFilter,
   onRoleFilterChange,
 }: StaffFiltersProps) {
+  const t = useTranslations("admin.staff");
+
   return (
     <div
       className="bg-card border rounded-xl p-4 flex flex-col sm:flex-row gap-3"
@@ -29,7 +32,7 @@ export function StaffFilters({
         />
         <input
           type="text"
-          placeholder="Search by name, email or specialization…"
+          placeholder={t("filters.searchPlaceholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-9 pr-4 h-9 text-sm rounded-lg border bg-transparent outline-none
@@ -71,7 +74,9 @@ export function StaffFilters({
                       }
               }
             >
-              {r === "all" ? "All Roles" : ROLE_CONFIG[r as StaffRole]?.label}
+              {r === "all"
+                ? t("filters.allRoles")
+                : t(`roles.${r as StaffRole}`)}
             </button>
           );
         })}

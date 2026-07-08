@@ -1,3 +1,5 @@
+import {useTranslations} from "next-intl";
+
 interface StaffSummaryCardsProps {
   total: number;
   active: number;
@@ -11,11 +13,12 @@ export function StaffSummaryCards({
   onLeave,
   inactive,
 }: StaffSummaryCardsProps) {
+  const t = useTranslations("admin.staff.summary");
   const stats = [
-    {label: "Total Staff", value: total, dot: "#0f8aa3"},
-    {label: "Active", value: active, dot: "#279C41"},
-    {label: "On Leave", value: onLeave, dot: "#f6ad55"},
-    {label: "Inactive", value: inactive, dot: "#94a3b8"},
+    {label: t("total"), value: total, dot: "#0f8aa3"},
+    {label: t("active"), value: active, dot: "#279C41"},
+    {label: t("onLeave"), value: onLeave, dot: "#f6ad55"},
+    {label: t("inactive"), value: inactive, dot: "#94a3b8"},
   ];
 
   return (

@@ -106,6 +106,89 @@
         "settings": "Paramètres"
       }
     },
+    "staff": {
+      "header": {
+        "title": "Gestion du personnel",
+        "subtitle": "Gérez les membres de l'équipe de la clinique",
+        "addStaff": "Ajouter un membre"
+      },
+      "summary": {
+        "total": "Total personnel",
+        "active": "Actifs",
+        "onLeave": "En congé",
+        "inactive": "Inactifs"
+      },
+      "filters": {
+        "searchPlaceholder": "Rechercher par nom, email ou spécialité...",
+        "allRoles": "Tous les rôles"
+      },
+      "roles": {
+        "DOCTOR": "Médecin",
+        "SECRETARY": "Secrétaire",
+        "DENTAL_ASSISTANT": "Assistant dentaire",
+        "ADMIN": "Administrateur"
+      },
+      "statuses": {
+        "active": "Actif",
+        "on-leave": "En congé",
+        "inactive": "Inactif"
+      },
+      "card": {
+        "joined": "Inscrit le {date}"
+      },
+      "grid": {
+        "empty": "Aucun membre du personnel trouvé"
+      },
+      "actions": {
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "form": {
+        "addTitle": "Ajouter un membre du personnel",
+        "editTitle": "Modifier le membre du personnel",
+        "firstName": "Prénom",
+        "firstNamePlaceholder": "ex. Jane",
+        "lastName": "Nom",
+        "lastNamePlaceholder": "ex. Doe",
+        "role": "Rôle",
+        "status": "Statut",
+        "email": "Email",
+        "emailPlaceholder": "ex. jane@dentiflow.com",
+        "phone": "Téléphone",
+        "phonePlaceholder": "ex. 555-0201",
+        "specialization": "Spécialité",
+        "specializationPlaceholder": "ex. Orthodontie",
+        "joinDate": "Date d'arrivée",
+        "changePasswordHint": "Changer le mot de passe - laissez vide pour conserver l'actuel",
+        "accountPassword": "Mot de passe du compte",
+        "newPassword": "Nouveau mot de passe",
+        "password": "Mot de passe",
+        "passwordPlaceholder": "Min. 8 caractères",
+        "confirmPassword": "Confirmer le mot de passe",
+        "confirmPasswordPlaceholder": "Répéter le mot de passe",
+        "delete": "Supprimer",
+        "cancel": "Annuler",
+        "adding": "Ajout...",
+        "updating": "Mise à jour...",
+        "updateMember": "Mettre à jour",
+        "addMember": "Ajouter"
+      },
+      "validation": {
+        "requiredIdentity": "Le prénom, le nom et l'email sont requis.",
+        "emailExists": "Un membre du personnel utilise déjà cet email.",
+        "passwordRequired": "Le mot de passe est requis.",
+        "passwordMin": "Le mot de passe doit comporter au moins 8 caractères.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas."
+      },
+      "deleteModal": {
+        "title": "Supprimer le membre du personnel",
+        "fallbackMember": "ce membre",
+        "messagePrefix": "Voulez-vous vraiment supprimer",
+        "messageSuffix": "Cette action est irréversible.",
+        "cancel": "Annuler",
+        "delete": "Supprimer"
+      }
+    },
     "treatment": {
       "header": {
         "age": "{age} ans",

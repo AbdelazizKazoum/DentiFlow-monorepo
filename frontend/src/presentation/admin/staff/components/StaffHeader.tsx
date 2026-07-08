@@ -1,16 +1,19 @@
 import {Plus} from "lucide-react";
+import {useTranslations} from "next-intl";
 
 interface StaffHeaderProps {
   onAddNew: () => void;
 }
 
 export function StaffHeader({onAddNew}: StaffHeaderProps) {
+  const t = useTranslations("admin.staff");
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Staff Management</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t("header.title")}</h1>
         <p className="text-sm" style={{color: "var(--text-muted)"}}>
-          Manage your clinic&apos;s team members
+          {t("header.subtitle")}
         </p>
       </div>
       <button
@@ -26,7 +29,7 @@ export function StaffHeader({onAddNew}: StaffHeaderProps) {
         }
       >
         <Plus size={16} />
-        Add Staff Member
+        {t("header.addStaff")}
       </button>
     </div>
   );

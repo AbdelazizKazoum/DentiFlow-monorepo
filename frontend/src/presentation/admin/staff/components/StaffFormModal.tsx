@@ -14,6 +14,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { X, Eye, EyeOff, Loader2 } from "lucide-react";
+import {useTranslations} from "next-intl";
 import { useState } from "react";
 import { StaffRole, StaffStatus } from "@/domain/staff/entities/staff";
 import type { StaffFormState } from "../hooks/useStaffPage";
@@ -41,6 +42,9 @@ export function StaffFormModal({
   isAdding,
   isUpdating,
 }: StaffFormModalProps) {
+  const t = useTranslations("admin.staff.form");
+  const roleT = useTranslations("admin.staff.roles");
+  const statusT = useTranslations("admin.staff.statuses");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   return (
@@ -75,7 +79,7 @@ export function StaffFormModal({
           component="div"
           sx={{ fontWeight: 700, color: "var(--foreground)" }}
         >
-          {form.id ? "Edit Staff Member" : "Add Staff Member"}
+          {form.id ? t("editTitle") : t("addTitle")}
         </Typography>
         <IconButton
           size="small"
@@ -104,24 +108,24 @@ export function StaffFormModal({
           {/* First Name & Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
-              label="First Name"
+              label={t("firstName")}
               fullWidth
               value={form.firstName}
               onChange={(e) =>
                 onFormChange({ ...form, firstName: e.target.value })
               }
-              placeholder="e.g. Jane"
+              placeholder={t("firstNamePlaceholder")}
               required
               disabled={isAdding || isUpdating}
             />
             <TextField
-              label="Last Name"
+              label={t("lastName")}
               fullWidth
               value={form.lastName}
               onChange={(e) =>
                 onFormChange({ ...form, lastName: e.target.value })
               }
-              placeholder="e.g. Doe"
+              placeholder={t("lastNamePlaceholder")}
               required
               disabled={isAdding || isUpdating}
             />
@@ -130,27 +134,29 @@ export function StaffFormModal({
           {/* Role & Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
+              <InputLabel>{t("role")}</InputLabel>
               <Select
-                label="Role"
+                label={t("role")}
                 value={form.role}
                 onChange={(e) =>
                   onFormChange({ ...form, role: e.target.value as StaffRole })
                 }
                 disabled={isAdding || isUpdating}
               >
-                <MenuItem value={StaffRole.DOCTOR}>Doctor</MenuItem>
-                <MenuItem value={StaffRole.SECRETARY}>Secretary</MenuItem>
-                <MenuItem value={StaffRole.DENTAL_ASSISTANT}>
-                  Dental Assistant
+                <MenuItem value={StaffRole.DOCTOR}>{roleT("DOCTOR")}</MenuItem>
+                <MenuItem value={StaffRole.SECRETARY}>
+                  {roleT("SECRETARY")}
                 </MenuItem>
-                <MenuItem value={StaffRole.ADMIN}>Admin</MenuItem>
+                <MenuItem value={StaffRole.DENTAL_ASSISTANT}>
+                  {roleT("DENTAL_ASSISTANT")}
+                </MenuItem>
+                <MenuItem value={StaffRole.ADMIN}>{roleT("ADMIN")}</MenuItem>
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
+              <InputLabel>{t("status")}</InputLabel>
               <Select
-                label="Status"
+                label={t("status")}
                 value={form.status}
                 onChange={(e) =>
                   onFormChange({
@@ -160,9 +166,15 @@ export function StaffFormModal({
                 }
                 disabled={isAdding || isUpdating}
               >
-                <MenuItem value={StaffStatus.ACTIVE}>✅ Active</MenuItem>
-                <MenuItem value={StaffStatus.ON_LEAVE}>🟡 On Leave</MenuItem>
-                <MenuItem value={StaffStatus.INACTIVE}>⚫ Inactive</MenuItem>
+                <MenuItem value={StaffStatus.ACTIVE}>
+                  {statusT("active")}
+                </MenuItem>
+                <MenuItem value={StaffStatus.ON_LEAVE}>
+                  {statusT("on-leave")}
+                </MenuItem>
+                <MenuItem value={StaffStatus.INACTIVE}>
+                  {statusT("inactive")}
+                </MenuItem>
               </Select>
             </FormControl>
           </div>
@@ -170,21 +182,21 @@ export function StaffFormModal({
           {/* Contact */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
-              label="Email"
+              label={t("email")}
               type="email"
               fullWidth
               value={form.email}
               onChange={(e) => onFormChange({ ...form, email: e.target.value })}
-              placeholder="e.g. jane@dentiflow.com"
+              placeholder={t("emailPlaceholder")}
               required
               disabled={isAdding || isUpdating}
             />
             <TextField
-              label="Phone"
+              label={t("phone")}
               fullWidth
               value={form.phone}
               onChange={(e) => onFormChange({ ...form, phone: e.target.value })}
-              placeholder="e.g. 555-0201"
+              placeholder={t("phonePlaceholder")}
               disabled={isAdding || isUpdating}
             />
           </div>
@@ -192,17 +204,17 @@ export function StaffFormModal({
           {/* Specialization & Join Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
             <TextField
-              label="Specialization"
+              label={t("specialization")}
               fullWidth
               value={form.specialization}
               onChange={(e) =>
                 onFormChange({ ...form, specialization: e.target.value })
               }
-              placeholder="e.g. Orthodontics"
+              placeholder={t("specializationPlaceholder")}
               disabled={isAdding || isUpdating}
             />
             <TextField
-              label="Join Date"
+              label={t("joinDate")}
               type="date"
               fullWidth
               value={form.createdAt}
@@ -224,12 +236,12 @@ export function StaffFormModal({
               style={{ color: "var(--text-muted)" }}
             >
               {form.id
-                ? "Change Password — leave blank to keep existing"
-                : "Account Password"}
+                ? t("changePasswordHint")
+                : t("accountPassword")}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <TextField
-                label={form.id ? "New Password" : "Password"}
+                label={form.id ? t("newPassword") : t("password")}
                 fullWidth
                 required={!form.id}
                 type={showPassword ? "text" : "password"}
@@ -237,7 +249,7 @@ export function StaffFormModal({
                 onChange={(e) =>
                   onFormChange({ ...form, password: e.target.value })
                 }
-                placeholder="Min. 8 characters"
+                placeholder={t("passwordPlaceholder")}
                 disabled={isAdding || isUpdating}
                 slotProps={{
                   input: {
@@ -262,7 +274,7 @@ export function StaffFormModal({
                 }}
               />
               <TextField
-                label="Confirm Password"
+                label={t("confirmPassword")}
                 fullWidth
                 required={!form.id || !!form.password}
                 type={showConfirm ? "text" : "password"}
@@ -270,7 +282,7 @@ export function StaffFormModal({
                 onChange={(e) =>
                   onFormChange({ ...form, confirmPassword: e.target.value })
                 }
-                placeholder="Repeat password"
+                placeholder={t("confirmPasswordPlaceholder")}
                 disabled={isAdding || isUpdating}
                 slotProps={{
                   input: {
@@ -318,7 +330,7 @@ export function StaffFormModal({
                 borderRadius: "8px",
               }}
             >
-              Delete
+              {t("delete")}
             </Button>
           )}
         </div>
@@ -333,7 +345,7 @@ export function StaffFormModal({
               padding: "8px 16px",
             }}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             variant="contained"
@@ -359,12 +371,12 @@ export function StaffFormModal({
             {isAdding || isUpdating ? (
               <>
                 <Loader2 size={16} className="animate-spin mr-2" />
-                {isAdding ? "Adding..." : "Updating..."}
+                {isAdding ? t("adding") : t("updating")}
               </>
             ) : form.id ? (
-              "Update Member"
+              t("updateMember")
             ) : (
-              "Add Member"
+              t("addMember")
             )}
           </Button>
         </div>

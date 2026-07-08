@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import {useTranslations} from "next-intl";
 import { Staff, StaffRole, StaffStatus } from "@/domain/staff/entities/staff";
 import { useStaffStore } from "@/presentation/stores/staffStore";
 
@@ -31,6 +32,7 @@ const EMPTY_FORM: StaffFormState = {
 };
 
 export function useStaffPage() {
+  const t = useTranslations("admin.staff.validation");
   const {
     staff,
     isLoading,
@@ -114,29 +116,29 @@ export function useStaffPage() {
   // ── Save ──────────────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) {
-      setFormError("First name, last name and email are required.");
+      setFormError(t("requiredIdentity"));
       return;
     }
     const emailExists = (staff || []).some(
       (s) => s.email === form.email && s.id !== form.id,
     );
     if (emailExists) {
-      setFormError("A staff member with this email already exists.");
+      setFormError(t("emailExists"));
       return;
     }
 
     // Password validation — required on create, optional on edit
     const isCreate = !form.id;
     if (isCreate && !form.password.trim()) {
-      setFormError("Password is required.");
+      setFormError(t("passwordRequired"));
       return;
     }
     if (form.password && form.password.length < 8) {
-      setFormError("Password must be at least 8 characters.");
+      setFormError(t("passwordMin"));
       return;
     }
     if (form.password && form.password !== form.confirmPassword) {
-      setFormError("Passwords do not match.");
+      setFormError(t("passwordMismatch"));
       return;
     }
 
