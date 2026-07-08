@@ -229,7 +229,8 @@
         "IN_PROGRESS": "In progress",
         "COMPLETED": "Completed",
         "in-progress": "In progress",
-        "completed": "Completed"
+        "completed": "Completed",
+        "carriedForward": "Carried forward"
       },
       "visit": {
         "started": "Started {date}",

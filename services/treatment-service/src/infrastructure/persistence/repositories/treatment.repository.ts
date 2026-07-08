@@ -215,6 +215,25 @@ export class TreatmentRepository implements ITreatmentRepository {
     return this.saveVisitProcedure(merged);
   }
 
+  async completeOpenProceduresForTreatmentPlanItem(
+    treatmentPlanItemId: string,
+    completedAt: Date,
+    providerId: string,
+  ): Promise<void> {
+    await this.procedures.update(
+      {
+        treatment_plan_item_id: treatmentPlanItemId,
+        status: "IN_PROGRESS",
+      },
+      {
+        status: "COMPLETED",
+        action: "COMPLETED",
+        completed_at: completedAt,
+        provider_id: providerId,
+      },
+    );
+  }
+
   async saveDiagnosis(diagnosis: Diagnosis): Promise<Diagnosis> {
     const saved = await this.diagnoses.save({
       id: diagnosis.id.startsWith("d_") ? undefined : diagnosis.id,

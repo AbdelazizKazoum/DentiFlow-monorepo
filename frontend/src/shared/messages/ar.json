@@ -229,7 +229,8 @@
         "IN_PROGRESS": "قيد التنفيذ",
         "COMPLETED": "مكتمل",
         "in-progress": "قيد التنفيذ",
-        "completed": "مكتمل"
+        "completed": "مكتمل",
+        "carriedForward": "مرحّل للمتابعة"
       },
       "visit": {
         "started": "بدأت {date}",

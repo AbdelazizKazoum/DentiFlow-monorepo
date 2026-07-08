@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useLocale, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 import axios from "axios";
@@ -72,10 +72,18 @@ interface TreatmentVisitListItem {
 }
 
 type WorklistTab = "needsCoding" | "open" | "closed" | "all";
+type VisitCounts = Record<WorklistTab, number | null>;
 
 const DEFAULT_CLINIC_ID =
   process.env.NEXT_PUBLIC_DEFAULT_CLINIC_ID ??
   "00000000-0000-4000-8000-000000000001";
+
+const INITIAL_COUNTS: VisitCounts = {
+  needsCoding: null,
+  open: null,
+  closed: null,
+  all: null,
+};
 
 type ApiRecord = Record<string, unknown>;
 
@@ -188,6 +196,16 @@ const tabToStatus = (tab: WorklistTab): string | undefined => {
   return undefined;
 };
 
+const tabToHandoffStatus = (tab: WorklistTab): string | undefined =>
+  tab === "needsCoding" ? "NEEDS_CODING" : undefined;
+
+const totalFromResponse = (data: unknown): number => {
+  const record = asRecord(data);
+  if (typeof record.total === "number") return record.total;
+  if (Array.isArray(data)) return data.length;
+  return Array.isArray(record.visits) ? record.visits.length : 0;
+};
+
 export default function TreatmentsPage() {
   const t = useTranslations("admin.treatmentVisits");
   const locale = useLocale();
@@ -198,7 +216,46 @@ export default function TreatmentsPage() {
   const [expandedVisitId, setExpandedVisitId] = useState<string | null>(null);
   const [codingHandoffId, setCodingHandoffId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCounts, setIsLoadingCounts] = useState(true);
+  const [groupCounts, setGroupCounts] =
+    useState<VisitCounts>(INITIAL_COUNTS);
   const [error, setError] = useState("");
+
+  const loadGroupCounts = useCallback(async () => {
+    const groups: WorklistTab[] = ["needsCoding", "open", "closed", "all"];
+    setIsLoadingCounts(true);
+    try {
+      const responses = await Promise.all(
+        groups.map((group) =>
+          axiosClient.get("/api/v1/treatment/visits", {
+            params: {
+              clinicId: DEFAULT_CLINIC_ID,
+              status: tabToStatus(group),
+              handoffStatus: tabToHandoffStatus(group),
+              limit: 1,
+            },
+          }),
+        ),
+      );
+      setGroupCounts(
+        groups.reduce<VisitCounts>(
+          (acc, group, index) => ({
+            ...acc,
+            [group]: totalFromResponse(responses[index].data),
+          }),
+          INITIAL_COUNTS,
+        ),
+      );
+    } catch {
+      setGroupCounts(INITIAL_COUNTS);
+    } finally {
+      setIsLoadingCounts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadGroupCounts();
+  }, [loadGroupCounts]);
 
   useEffect(() => {
     let cancelled = false;
@@ -211,8 +268,7 @@ export default function TreatmentsPage() {
           params: {
             clinicId: DEFAULT_CLINIC_ID,
             status: tabToStatus(activeTab),
-            handoffStatus:
-              activeTab === "needsCoding" ? "NEEDS_CODING" : undefined,
+            handoffStatus: tabToHandoffStatus(activeTab),
           },
         });
         const rawVisits = Array.isArray(data) ? data : data.visits ?? [];
@@ -239,20 +295,6 @@ export default function TreatmentsPage() {
       cancelled = true;
     };
   }, [activeTab, t]);
-
-  const counts = useMemo(
-    () => ({
-      needsCoding: visits.filter(
-        (visit) =>
-          visit.status === "NEEDS_CODING" ||
-          visit.handoff?.status === "NEEDS_CODING",
-      ).length,
-      open: visits.filter((visit) => visit.status === "OPEN").length,
-      closed: visits.filter((visit) => visit.status === "CLOSED").length,
-      all: visits.length,
-    }),
-    [visits],
-  );
 
   const filteredVisits = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -309,6 +351,7 @@ export default function TreatmentsPage() {
             : item,
         ),
       );
+      void loadGroupCounts();
     } catch {
       setError(t("errors.markCodedMissing"));
     } finally {
@@ -333,11 +376,39 @@ export default function TreatmentsPage() {
       maximumFractionDigits: 0,
     }).format(value);
 
-  const tabs: Array<{id: WorklistTab; label: string; count: number}> = [
-    {id: "needsCoding", label: t("tabs.needsCoding"), count: counts.needsCoding},
-    {id: "open", label: t("tabs.open"), count: counts.open},
-    {id: "closed", label: t("tabs.closed"), count: counts.closed},
-    {id: "all", label: t("tabs.all"), count: counts.all},
+  const procedureStatusLabel = (
+    visit: TreatmentVisitListItem,
+    procedure: TreatmentVisitProcedure,
+  ) =>
+    visit.status === "CLOSED" && procedure.status === "IN_PROGRESS"
+      ? t("procedureStatuses.carriedForward")
+      : t(`procedureStatuses.${procedure.status}`);
+
+  const groups: Array<{
+    id: WorklistTab;
+    label: string;
+    count: number | null;
+  }> = [
+    {
+      id: "all",
+      label: t("tabs.all"),
+      count: groupCounts.all,
+    },
+    {
+      id: "needsCoding",
+      label: t("tabs.needsCoding"),
+      count: groupCounts.needsCoding,
+    },
+    {
+      id: "open",
+      label: t("tabs.open"),
+      count: groupCounts.open,
+    },
+    {
+      id: "closed",
+      label: t("tabs.closed"),
+      count: groupCounts.closed,
+    },
   ];
 
   const statusTone = (visit: TreatmentVisitListItem) => {
@@ -391,28 +462,40 @@ export default function TreatmentsPage() {
           </div>
         </header>
 
-        <section className="app-card flex flex-col gap-3 p-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-1 rounded-md bg-page p-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`h-9 rounded px-3 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-text-muted hover:bg-surface-hover hover:text-foreground"
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span className="ml-2 rounded bg-primary-soft px-1.5 py-0.5 text-xs text-primary">
-                  {tab.count}
-                </span>
-              </button>
-            ))}
+        <section className="flex flex-col gap-3 border-b border-ui-border pb-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-1">
+            {groups.map((group) => {
+              const isActive = activeTab === group.id;
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  onClick={() => setActiveTab(group.id)}
+                  className={`inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary-soft text-primary"
+                      : "text-text-muted hover:bg-surface-hover hover:text-foreground"
+                  }`}
+                >
+                  <span>{group.label}</span>
+                  <span
+                    className={`min-w-6 rounded px-1.5 py-0.5 text-center text-xs font-semibold ${
+                      isActive
+                        ? "bg-card text-primary"
+                        : "bg-page text-text-muted"
+                    }`}
+                  >
+                    {group.count ?? (isLoadingCounts ? "..." : "-")}
+                  </span>
+                </button>
+              );
+            })}
+            {isLoadingCounts && (
+              <Loader2 size={14} className="ml-1 animate-spin text-text-muted" />
+            )}
           </div>
 
-          <div className="relative w-full lg:max-w-md">
+          <div className="relative w-full lg:w-[360px]">
             <Search
               size={16}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-text-placeholder"
@@ -613,7 +696,7 @@ export default function TreatmentsPage() {
                                         <p className="text-xs text-text-muted">
                                           {procedure.locationLabel ??
                                             t("details.noLocation")}{" "}
-                                          · {t(`procedureStatuses.${procedure.status}`)}
+                                          · {procedureStatusLabel(visit, procedure)}
                                         </p>
                                       </div>
                                     ))}

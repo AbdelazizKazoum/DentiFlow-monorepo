@@ -232,6 +232,13 @@ export class ManageTreatmentWorkspaceUseCase {
           completedAt: now,
         })
       : undefined;
+    if (item) {
+      await this.repository.completeOpenProceduresForTreatmentPlanItem(
+        item.id,
+        now,
+        input.providerId,
+      );
+    }
     return {procedure: updatedProcedure, treatmentItem};
   }
 

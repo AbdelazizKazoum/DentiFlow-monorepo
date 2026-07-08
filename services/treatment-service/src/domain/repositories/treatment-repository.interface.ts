@@ -40,6 +40,11 @@ export interface ITreatmentRepository {
   saveTreatmentGroup(group: TreatmentGroup): Promise<TreatmentGroup>;
   saveVisitProcedure(procedure: VisitProcedure): Promise<VisitProcedure>;
   updateVisitProcedure(id: string, patch: Partial<VisitProcedure>): Promise<VisitProcedure>;
+  completeOpenProceduresForTreatmentPlanItem(
+    treatmentPlanItemId: string,
+    completedAt: Date,
+    providerId: string,
+  ): Promise<void>;
   getVisitProcedure(id: string): Promise<VisitProcedure | null>;
   saveDiagnosis(diagnosis: Diagnosis): Promise<Diagnosis>;
   saveClinicalAttachments(attachments: ClinicalAttachment[]): Promise<ClinicalAttachment[]>;
