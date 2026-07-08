@@ -204,6 +204,14 @@
       "search": {
         "placeholder": "Search by patient, doctor, treatment, or handoff note..."
       },
+      "columns": {
+        "patient": "Patient",
+        "started": "Started",
+        "status": "Status",
+        "treatments": "Treatments",
+        "remaining": "Remaining",
+        "actions": "Actions"
+      },
       "statuses": {
         "OPEN": "Open",
         "NEEDS_CODING": "Needs Coding",
@@ -257,6 +265,8 @@
       "loading": "Loading treatment visits...",
       "errors": {
         "listEndpointMissing": "The visit worklist endpoint is not available yet. Add GET /api/v1/treatment/visits to feed this page with visits, procedures, handoffs, and charge summaries.",
+        "loadFailed": "Could not load treatment visits: {message}",
+        "loadFailedGeneric": "Could not load treatment visits. Please try again.",
         "markCodedMissing": "The handoff coding endpoint is not available yet. Add POST /api/v1/treatment/handoffs/:id/coded so assistants can mark handoffs as coded."
       }
     },

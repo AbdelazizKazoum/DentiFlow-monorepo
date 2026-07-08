@@ -6,6 +6,8 @@ import {
   CloseVisitResult,
   CreateVisitFromQueueInput,
   IVisitWorkflowRepository,
+  ListVisitsQuery,
+  ListVisitsResult,
 } from "../../domain/repositories/visit-workflow-repository.interface";
 import {IOutboxRepository} from "../../domain/repositories/outbox-repository.interface";
 import {
@@ -49,6 +51,10 @@ export class ManageVisitWorkflowUseCase {
     return visit;
   }
 
+  listVisits(query: ListVisitsQuery): Promise<ListVisitsResult> {
+    return this.visits.listVisits(query);
+  }
+
   async saveVisitHandoff(input: {
     clinicId: string;
     patientId: string;
@@ -77,8 +83,13 @@ export class ManageVisitWorkflowUseCase {
     return handoff;
   }
 
-  markHandoffCoded(handoffId: string, codedBy: string): Promise<VisitHandoff> {
-    return this.visits.markHandoffCoded(handoffId, codedBy);
+  async markHandoffCoded(handoffId: string, codedBy: string): Promise<VisitHandoff> {
+    const handoff = await this.visits.markHandoffCoded(handoffId, codedBy);
+    const visit = await this.visits.findById(handoff.visitId);
+    if (visit?.status === "NEEDS_CODING") {
+      await this.visits.updateStatus(visit.id, "OPEN", codedBy);
+    }
+    return handoff;
   }
 
   async closeVisit(input: CloseVisitInput): Promise<CloseVisitResult> {

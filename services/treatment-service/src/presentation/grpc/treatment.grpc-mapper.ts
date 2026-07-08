@@ -13,6 +13,7 @@ import type {
   VisitProcedure,
 } from "../../domain/entities";
 import type {TreatmentWorkspace} from "../../domain/repositories/treatment-repository.interface";
+import type {TreatmentVisitWorklistItem} from "../../domain/repositories/visit-workflow-repository.interface";
 
 const iso = (date?: Date) => date?.toISOString() ?? "";
 
@@ -238,4 +239,19 @@ export const workspaceToGrpc = (workspace: TreatmentWorkspace): TreatmentProto.T
   handoffs: workspace.handoffs.map(handoffToGrpc),
   followUpRequests: workspace.followUpRequests.map(followUpToGrpc),
   documentRequests: workspace.documentRequests.map(documentToGrpc),
+});
+
+export const worklistItemToGrpc = (
+  item: TreatmentVisitWorklistItem,
+): TreatmentProto.TreatmentVisitWorklistItemReply => ({
+  visit: visitToGrpc(item.visit),
+  latestHandoff: item.latestHandoff
+    ? handoffToGrpc(item.latestHandoff)
+    : undefined,
+  procedures: item.procedures.map(procedureToGrpc),
+  chargesSummary: {
+    total: item.chargesSummary.total,
+    remaining: item.chargesSummary.remaining,
+    status: item.chargesSummary.status,
+  },
 });

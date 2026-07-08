@@ -204,6 +204,14 @@
       "search": {
         "placeholder": "ابحث بالمريض أو الطبيب أو العلاج أو ملاحظة التسليم..."
       },
+      "columns": {
+        "patient": "المريض",
+        "started": "البداية",
+        "status": "الحالة",
+        "treatments": "العلاجات",
+        "remaining": "المتبقي",
+        "actions": "الإجراءات"
+      },
       "statuses": {
         "OPEN": "مفتوحة",
         "NEEDS_CODING": "تحتاج ترميزاً",
@@ -257,6 +265,8 @@
       "loading": "جار تحميل زيارات العلاج...",
       "errors": {
         "listEndpointMissing": "نقطة وصول قائمة الزيارات غير متاحة بعد. أضف GET /api/v1/treatment/visits لتغذية هذه الصفحة بالزيارات والعلاجات والتسليمات وملخصات الرسوم.",
+        "loadFailed": "تعذر تحميل زيارات العلاج: {message}",
+        "loadFailedGeneric": "تعذر تحميل زيارات العلاج. يرجى المحاولة مرة أخرى.",
         "markCodedMissing": "نقطة وصول ترميز التسليم غير متاحة بعد. أضف POST /api/v1/treatment/handoffs/:id/coded ليتمكن المساعدون من تعليم التسليمات كمرمزة."
       }
     },

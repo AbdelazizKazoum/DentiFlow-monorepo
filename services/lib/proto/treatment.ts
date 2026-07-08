@@ -142,6 +142,12 @@ export interface TreatmentChargeReply {
   createdBy: string;
 }
 
+export interface TreatmentChargeSummaryReply {
+  total: number;
+  remaining: number;
+  status: string;
+}
+
 export interface VisitHandoffReply {
   id: string;
   clinicId: string;
@@ -196,6 +202,13 @@ export interface TreatmentWorkspaceReply {
   documentRequests: MedicalDocumentRequestReply[];
 }
 
+export interface TreatmentVisitWorklistItemReply {
+  visit: VisitReply | undefined;
+  latestHandoff: VisitHandoffReply | undefined;
+  procedures: VisitProcedureReply[];
+  chargesSummary: TreatmentChargeSummaryReply | undefined;
+}
+
 export interface CreateVisitFromQueueRequest {
   clinicId: string;
   patientId: string;
@@ -204,6 +217,19 @@ export interface CreateVisitFromQueueRequest {
   chairId: string;
   providerId: string;
   startedAt: string;
+}
+
+export interface ListVisitsRequest {
+  clinicId: string;
+  status: string;
+  handoffStatus: string;
+  page: number;
+  limit: number;
+}
+
+export interface ListVisitsReply {
+  visits: TreatmentVisitWorklistItemReply[];
+  total: number;
 }
 
 export interface GetTreatmentWorkspaceRequest {
@@ -291,6 +317,11 @@ export interface SaveVisitHandoffRequest {
   status: string;
   providerId: string;
   treatmentPlanItemId: string;
+}
+
+export interface MarkHandoffCodedRequest {
+  handoffId: string;
+  codedBy: string;
 }
 
 export interface SaveClinicalAttachmentsRequest {
@@ -1817,6 +1848,65 @@ export const TreatmentChargeReply: MessageFns<TreatmentChargeReply> = {
   },
 };
 
+function createBaseTreatmentChargeSummaryReply(): TreatmentChargeSummaryReply {
+  return { total: 0, remaining: 0, status: "" };
+}
+
+export const TreatmentChargeSummaryReply: MessageFns<TreatmentChargeSummaryReply> = {
+  encode(message: TreatmentChargeSummaryReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(9).double(message.total);
+    }
+    if (message.remaining !== 0) {
+      writer.uint32(17).double(message.remaining);
+    }
+    if (message.status !== "") {
+      writer.uint32(26).string(message.status);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): TreatmentChargeSummaryReply {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTreatmentChargeSummaryReply();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 9) {
+            break;
+          }
+
+          message.total = reader.double();
+          continue;
+        }
+        case 2: {
+          if (tag !== 17) {
+            break;
+          }
+
+          message.remaining = reader.double();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.status = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 function createBaseVisitHandoffReply(): VisitHandoffReply {
   return {
     id: "",
@@ -2428,6 +2518,76 @@ export const TreatmentWorkspaceReply: MessageFns<TreatmentWorkspaceReply> = {
   },
 };
 
+function createBaseTreatmentVisitWorklistItemReply(): TreatmentVisitWorklistItemReply {
+  return { visit: undefined, latestHandoff: undefined, procedures: [], chargesSummary: undefined };
+}
+
+export const TreatmentVisitWorklistItemReply: MessageFns<TreatmentVisitWorklistItemReply> = {
+  encode(message: TreatmentVisitWorklistItemReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.visit !== undefined) {
+      VisitReply.encode(message.visit, writer.uint32(10).fork()).join();
+    }
+    if (message.latestHandoff !== undefined) {
+      VisitHandoffReply.encode(message.latestHandoff, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.procedures) {
+      VisitProcedureReply.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.chargesSummary !== undefined) {
+      TreatmentChargeSummaryReply.encode(message.chargesSummary, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): TreatmentVisitWorklistItemReply {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseTreatmentVisitWorklistItemReply();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.visit = VisitReply.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.latestHandoff = VisitHandoffReply.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.procedures.push(VisitProcedureReply.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.chargesSummary = TreatmentChargeSummaryReply.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 function createBaseCreateVisitFromQueueRequest(): CreateVisitFromQueueRequest {
   return {
     clinicId: "",
@@ -2527,6 +2687,135 @@ export const CreateVisitFromQueueRequest: MessageFns<CreateVisitFromQueueRequest
           }
 
           message.startedAt = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseListVisitsRequest(): ListVisitsRequest {
+  return { clinicId: "", status: "", handoffStatus: "", page: 0, limit: 0 };
+}
+
+export const ListVisitsRequest: MessageFns<ListVisitsRequest> = {
+  encode(message: ListVisitsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.clinicId !== "") {
+      writer.uint32(10).string(message.clinicId);
+    }
+    if (message.status !== "") {
+      writer.uint32(18).string(message.status);
+    }
+    if (message.handoffStatus !== "") {
+      writer.uint32(26).string(message.handoffStatus);
+    }
+    if (message.page !== 0) {
+      writer.uint32(32).int32(message.page);
+    }
+    if (message.limit !== 0) {
+      writer.uint32(40).int32(message.limit);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListVisitsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListVisitsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.clinicId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.status = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.handoffStatus = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.page = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.limit = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseListVisitsReply(): ListVisitsReply {
+  return { visits: [], total: 0 };
+}
+
+export const ListVisitsReply: MessageFns<ListVisitsReply> = {
+  encode(message: ListVisitsReply, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.visits) {
+      TreatmentVisitWorklistItemReply.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int32(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListVisitsReply {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseListVisitsReply();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.visits.push(TreatmentVisitWorklistItemReply.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.total = reader.int32();
           continue;
         }
       }
@@ -3478,6 +3767,54 @@ export const SaveVisitHandoffRequest: MessageFns<SaveVisitHandoffRequest> = {
   },
 };
 
+function createBaseMarkHandoffCodedRequest(): MarkHandoffCodedRequest {
+  return { handoffId: "", codedBy: "" };
+}
+
+export const MarkHandoffCodedRequest: MessageFns<MarkHandoffCodedRequest> = {
+  encode(message: MarkHandoffCodedRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.handoffId !== "") {
+      writer.uint32(10).string(message.handoffId);
+    }
+    if (message.codedBy !== "") {
+      writer.uint32(18).string(message.codedBy);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkHandoffCodedRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMarkHandoffCodedRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.handoffId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.codedBy = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 function createBaseSaveClinicalAttachmentsRequest(): SaveClinicalAttachmentsRequest {
   return { attachments: [] };
 }
@@ -3797,6 +4134,8 @@ export const CloseVisitReply: MessageFns<CloseVisitReply> = {
 export interface TreatmentServiceClient {
   createVisitFromQueue(request: CreateVisitFromQueueRequest): Observable<VisitReply>;
 
+  listVisits(request: ListVisitsRequest): Observable<ListVisitsReply>;
+
   getTreatmentWorkspace(request: GetTreatmentWorkspaceRequest): Observable<TreatmentWorkspaceReply>;
 
   createTreatmentPlanItems(request: CreateTreatmentPlanItemsRequest): Observable<TreatmentPlanItemsReply>;
@@ -3811,6 +4150,8 @@ export interface TreatmentServiceClient {
 
   saveVisitHandoff(request: SaveVisitHandoffRequest): Observable<VisitHandoffReply>;
 
+  markHandoffCoded(request: MarkHandoffCodedRequest): Observable<VisitHandoffReply>;
+
   saveClinicalAttachments(request: SaveClinicalAttachmentsRequest): Observable<ClinicalAttachmentsReply>;
 
   closeVisit(request: CloseVisitRequest): Observable<CloseVisitReply>;
@@ -3818,6 +4159,8 @@ export interface TreatmentServiceClient {
 
 export interface TreatmentServiceController {
   createVisitFromQueue(request: CreateVisitFromQueueRequest): Promise<VisitReply> | Observable<VisitReply> | VisitReply;
+
+  listVisits(request: ListVisitsRequest): Promise<ListVisitsReply> | Observable<ListVisitsReply> | ListVisitsReply;
 
   getTreatmentWorkspace(
     request: GetTreatmentWorkspaceRequest,
@@ -3847,6 +4190,10 @@ export interface TreatmentServiceController {
     request: SaveVisitHandoffRequest,
   ): Promise<VisitHandoffReply> | Observable<VisitHandoffReply> | VisitHandoffReply;
 
+  markHandoffCoded(
+    request: MarkHandoffCodedRequest,
+  ): Promise<VisitHandoffReply> | Observable<VisitHandoffReply> | VisitHandoffReply;
+
   saveClinicalAttachments(
     request: SaveClinicalAttachmentsRequest,
   ): Promise<ClinicalAttachmentsReply> | Observable<ClinicalAttachmentsReply> | ClinicalAttachmentsReply;
@@ -3858,6 +4205,7 @@ export function TreatmentServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createVisitFromQueue",
+      "listVisits",
       "getTreatmentWorkspace",
       "createTreatmentPlanItems",
       "createDiagnosis",
@@ -3865,6 +4213,7 @@ export function TreatmentServiceControllerMethods() {
       "completeVisitProcedure",
       "changeTreatmentStatus",
       "saveVisitHandoff",
+      "markHandoffCoded",
       "saveClinicalAttachments",
       "closeVisit",
     ];
@@ -3893,6 +4242,15 @@ export const TreatmentServiceService = {
     requestDeserialize: (value: Buffer): CreateVisitFromQueueRequest => CreateVisitFromQueueRequest.decode(value),
     responseSerialize: (value: VisitReply): Buffer => Buffer.from(VisitReply.encode(value).finish()),
     responseDeserialize: (value: Buffer): VisitReply => VisitReply.decode(value),
+  },
+  listVisits: {
+    path: "/treatment.TreatmentService/ListVisits" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListVisitsRequest): Buffer => Buffer.from(ListVisitsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListVisitsRequest => ListVisitsRequest.decode(value),
+    responseSerialize: (value: ListVisitsReply): Buffer => Buffer.from(ListVisitsReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListVisitsReply => ListVisitsReply.decode(value),
   },
   getTreatmentWorkspace: {
     path: "/treatment.TreatmentService/GetTreatmentWorkspace" as const,
@@ -3969,6 +4327,16 @@ export const TreatmentServiceService = {
     responseSerialize: (value: VisitHandoffReply): Buffer => Buffer.from(VisitHandoffReply.encode(value).finish()),
     responseDeserialize: (value: Buffer): VisitHandoffReply => VisitHandoffReply.decode(value),
   },
+  markHandoffCoded: {
+    path: "/treatment.TreatmentService/MarkHandoffCoded" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: MarkHandoffCodedRequest): Buffer =>
+      Buffer.from(MarkHandoffCodedRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): MarkHandoffCodedRequest => MarkHandoffCodedRequest.decode(value),
+    responseSerialize: (value: VisitHandoffReply): Buffer => Buffer.from(VisitHandoffReply.encode(value).finish()),
+    responseDeserialize: (value: Buffer): VisitHandoffReply => VisitHandoffReply.decode(value),
+  },
   saveClinicalAttachments: {
     path: "/treatment.TreatmentService/SaveClinicalAttachments" as const,
     requestStream: false as const,
@@ -3993,6 +4361,7 @@ export const TreatmentServiceService = {
 
 export interface TreatmentServiceServer extends UntypedServiceImplementation {
   createVisitFromQueue: handleUnaryCall<CreateVisitFromQueueRequest, VisitReply>;
+  listVisits: handleUnaryCall<ListVisitsRequest, ListVisitsReply>;
   getTreatmentWorkspace: handleUnaryCall<GetTreatmentWorkspaceRequest, TreatmentWorkspaceReply>;
   createTreatmentPlanItems: handleUnaryCall<CreateTreatmentPlanItemsRequest, TreatmentPlanItemsReply>;
   createDiagnosis: handleUnaryCall<CreateDiagnosisRequest, DiagnosisReply>;
@@ -4000,6 +4369,7 @@ export interface TreatmentServiceServer extends UntypedServiceImplementation {
   completeVisitProcedure: handleUnaryCall<CompleteVisitProcedureRequest, CompleteVisitProcedureReply>;
   changeTreatmentStatus: handleUnaryCall<ChangeTreatmentStatusRequest, TreatmentPlanItemReply>;
   saveVisitHandoff: handleUnaryCall<SaveVisitHandoffRequest, VisitHandoffReply>;
+  markHandoffCoded: handleUnaryCall<MarkHandoffCodedRequest, VisitHandoffReply>;
   saveClinicalAttachments: handleUnaryCall<SaveClinicalAttachmentsRequest, ClinicalAttachmentsReply>;
   closeVisit: handleUnaryCall<CloseVisitRequest, CloseVisitReply>;
 }

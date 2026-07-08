@@ -204,6 +204,14 @@
       "search": {
         "placeholder": "Rechercher par patient, médecin, traitement ou note de transmission..."
       },
+      "columns": {
+        "patient": "Patient",
+        "started": "Début",
+        "status": "Statut",
+        "treatments": "Traitements",
+        "remaining": "Restant",
+        "actions": "Actions"
+      },
       "statuses": {
         "OPEN": "Ouverte",
         "NEEDS_CODING": "À coder",
@@ -257,6 +265,8 @@
       "loading": "Chargement des visites de traitement...",
       "errors": {
         "listEndpointMissing": "Le point d'accès de la liste des visites n'est pas encore disponible. Ajoutez GET /api/v1/treatment/visits pour alimenter cette page avec les visites, traitements, transmissions et résumés de frais.",
+        "loadFailed": "Impossible de charger les visites de traitement : {message}",
+        "loadFailedGeneric": "Impossible de charger les visites de traitement. Veuillez réessayer.",
         "markCodedMissing": "Le point d'accès de codage des transmissions n'est pas encore disponible. Ajoutez POST /api/v1/treatment/handoffs/:id/coded pour permettre aux assistants de marquer les transmissions comme codées."
       }
     },

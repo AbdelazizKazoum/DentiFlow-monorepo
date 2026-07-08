@@ -221,3 +221,41 @@ export const workspaceToHttp = (dto: TreatmentProto.TreatmentWorkspaceReply) => 
   followUpRequests: (dto.followUpRequests ?? []).map(followUpToHttp),
   documentRequests: (dto.documentRequests ?? []).map(documentToHttp),
 });
+
+export const worklistItemToHttp = (
+  dto: TreatmentProto.TreatmentVisitWorklistItemReply,
+) => {
+  const visit = dto.visit ? visitToHttp(dto.visit) : undefined;
+  return {
+    ...(visit ?? {}),
+    patientId: visit?.patientId ?? "",
+    patient: {
+      id: visit?.patientId ?? "",
+      fullName: visit?.patientId ?? "Unknown patient",
+    },
+    provider: visit?.providerId
+      ? {
+          id: visit.providerId,
+          fullName: visit.providerId,
+        }
+      : undefined,
+    handoff: dto.latestHandoff ? handoffToHttp(dto.latestHandoff) : null,
+    latestHandoff: dto.latestHandoff
+      ? handoffToHttp(dto.latestHandoff)
+      : null,
+    procedures: (dto.procedures ?? []).map((procedure) => {
+      const mapped = procedureToHttp(procedure);
+      return {
+        ...mapped,
+        locationLabel: mapped.location.label,
+      };
+    }),
+    chargesSummary: dto.chargesSummary
+      ? {
+          total: dto.chargesSummary.total,
+          remaining: dto.chargesSummary.remaining,
+          status: dto.chargesSummary.status,
+        }
+      : undefined,
+  };
+};

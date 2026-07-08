@@ -1,8 +1,10 @@
 import type {
   FollowUpRequest,
   MedicalDocumentRequest,
+  TreatmentCharge,
   Visit,
   VisitHandoff,
+  VisitProcedure,
   VisitStatus,
 } from "../entities";
 
@@ -37,8 +39,35 @@ export interface CloseVisitResult {
   documentRequest?: MedicalDocumentRequest;
 }
 
+export interface ListVisitsQuery {
+  clinicId: string;
+  status?: VisitStatus;
+  handoffStatus?: VisitHandoff["status"];
+  page?: number;
+  limit?: number;
+}
+
+export interface VisitChargeSummary {
+  total: number;
+  remaining: number;
+  status: "UNPAID" | "PARTIALLY_PAID" | "PAID" | "VOIDED" | "MIXED" | "NONE";
+}
+
+export interface TreatmentVisitWorklistItem {
+  visit: Visit;
+  latestHandoff?: VisitHandoff;
+  procedures: VisitProcedure[];
+  chargesSummary: VisitChargeSummary;
+}
+
+export interface ListVisitsResult {
+  visits: TreatmentVisitWorklistItem[];
+  total: number;
+}
+
 export interface IVisitWorkflowRepository {
   createVisit(input: CreateVisitFromQueueInput): Promise<Visit>;
+  listVisits(query: ListVisitsQuery): Promise<ListVisitsResult>;
   findById(id: string): Promise<Visit | null>;
   findActiveByPatient(clinicId: string, patientId: string): Promise<Visit | null>;
   findByQueueEntry(clinicId: string, queueEntryId: string): Promise<Visit | null>;

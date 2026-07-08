@@ -1,4 +1,5 @@
 import {Controller} from "@nestjs/common";
+import {GrpcMethod} from "@nestjs/microservices";
 import {TreatmentProto} from "@lib/proto";
 import {ManageTreatmentWorkspaceUseCase} from "../../application/use-cases/manage-treatment-workspace.use-case";
 import {ManageVisitWorkflowUseCase} from "../../application/use-cases/manage-visit-workflow.use-case";
@@ -14,18 +15,19 @@ import {
   planItemToGrpc,
   procedureToGrpc,
   visitToGrpc,
+  worklistItemToGrpc,
   workspaceToGrpc,
 } from "./treatment.grpc-mapper";
 import {toRpcError} from "./rpc-error.helper";
 
 @Controller()
-@TreatmentProto.TreatmentServiceControllerMethods()
 export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceController {
   constructor(
     private readonly visits: ManageVisitWorkflowUseCase,
     private readonly workspace: ManageTreatmentWorkspaceUseCase,
   ) {}
 
+  @GrpcMethod("TreatmentService", "CreateVisitFromQueue")
   async createVisitFromQueue(request: TreatmentProto.CreateVisitFromQueueRequest) {
     try {
       return visitToGrpc(
@@ -44,6 +46,29 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "ListVisits")
+  async listVisits(request: TreatmentProto.ListVisitsRequest) {
+    try {
+      const result = await this.visits.listVisits({
+        clinicId: request.clinicId,
+        status: request.status ? (request.status as never) : undefined,
+        handoffStatus: request.handoffStatus
+          ? (request.handoffStatus as never)
+          : undefined,
+        page: request.page || undefined,
+        limit: request.limit || undefined,
+      });
+      const visits = result.visits ?? [];
+      return {
+        visits: visits.map(worklistItemToGrpc),
+        total: result.total,
+      };
+    } catch (err) {
+      toRpcError(err);
+    }
+  }
+
+  @GrpcMethod("TreatmentService", "GetTreatmentWorkspace")
   async getTreatmentWorkspace(request: TreatmentProto.GetTreatmentWorkspaceRequest) {
     try {
       return workspaceToGrpc(
@@ -58,6 +83,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "CreateTreatmentPlanItems")
   async createTreatmentPlanItems(request: TreatmentProto.CreateTreatmentPlanItemsRequest) {
     try {
       const result = await this.workspace.createTreatmentPlanItems({
@@ -78,6 +104,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "CreateDiagnosis")
   async createDiagnosis(request: TreatmentProto.CreateDiagnosisRequest) {
     try {
       return diagnosisToGrpc(
@@ -105,6 +132,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "StartTreatment")
   async startTreatment(request: TreatmentProto.StartTreatmentRequest) {
     try {
       const result = await this.workspace.startTreatment(request);
@@ -119,6 +147,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "CompleteVisitProcedure")
   async completeVisitProcedure(request: TreatmentProto.CompleteVisitProcedureRequest) {
     try {
       const result = await this.workspace.completeVisitProcedure({
@@ -138,6 +167,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "ChangeTreatmentStatus")
   async changeTreatmentStatus(request: TreatmentProto.ChangeTreatmentStatusRequest) {
     try {
       return planItemToGrpc(await this.workspace.changeTreatmentStatus(request as never));
@@ -146,6 +176,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "SaveVisitHandoff")
   async saveVisitHandoff(request: TreatmentProto.SaveVisitHandoffRequest) {
     try {
       return this.visits.saveVisitHandoff({
@@ -174,6 +205,31 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "MarkHandoffCoded")
+  async markHandoffCoded(request: TreatmentProto.MarkHandoffCodedRequest) {
+    try {
+      return this.visits.markHandoffCoded(
+        request.handoffId,
+        request.codedBy,
+      ).then((handoff) => ({
+        id: handoff.id,
+        clinicId: handoff.clinicId,
+        patientId: handoff.patientId,
+        visitId: handoff.visitId,
+        treatmentPlanItemId: handoff.treatmentPlanItemId ?? "",
+        text: handoff.text,
+        status: handoff.status,
+        authoredBy: handoff.authoredBy,
+        savedAt: handoff.savedAt.toISOString(),
+        codedAt: handoff.codedAt?.toISOString() ?? "",
+        codedBy: handoff.codedBy ?? "",
+      }));
+    } catch (err) {
+      toRpcError(err);
+    }
+  }
+
+  @GrpcMethod("TreatmentService", "SaveClinicalAttachments")
   async saveClinicalAttachments(request: TreatmentProto.SaveClinicalAttachmentsRequest) {
     try {
       const attachments = await this.workspace.saveClinicalAttachments({
@@ -185,6 +241,7 @@ export class TreatmentGrpcController implements TreatmentProto.TreatmentServiceC
     }
   }
 
+  @GrpcMethod("TreatmentService", "CloseVisit")
   async closeVisit(request: TreatmentProto.CloseVisitRequest) {
     try {
       const result = await this.visits.closeVisit({

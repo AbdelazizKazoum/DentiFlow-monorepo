@@ -1,9 +1,9 @@
 "use client";
 
 import {useEffect, useMemo, useState} from "react";
-import type {ReactNode} from "react";
 import {useLocale, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
+import axios from "axios";
 import {
   AlertCircle,
   CheckCircle2,
@@ -217,10 +217,17 @@ export default function TreatmentsPage() {
         });
         const rawVisits = Array.isArray(data) ? data : data.visits ?? [];
         if (!cancelled) setVisits(rawVisits.map(normalizeVisit));
-      } catch {
+      } catch (err) {
         if (!cancelled) {
           setVisits([]);
-          setError(t("errors.listEndpointMissing"));
+          const serverMessage = axios.isAxiosError(err)
+            ? err.response?.data?.message ?? err.response?.data?.error
+            : undefined;
+          setError(
+            typeof serverMessage === "string" && serverMessage.trim()
+              ? t("errors.loadFailed", {message: serverMessage})
+              : t("errors.loadFailedGeneric"),
+          );
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -333,338 +340,325 @@ export default function TreatmentsPage() {
     {id: "all", label: t("tabs.all"), count: counts.all},
   ];
 
+  const statusTone = (visit: TreatmentVisitListItem) => {
+    const needsCoding =
+      visit.status === "NEEDS_CODING" ||
+      visit.handoff?.status === "NEEDS_CODING";
+
+    if (needsCoding) {
+      return {
+        label: t("statuses.NEEDS_CODING"),
+        icon: <FileText size={12} />,
+        className: "bg-amber-50 text-amber-700 ring-amber-200",
+      };
+    }
+    if (visit.status === "CLOSED") {
+      return {
+        label: t("statuses.CLOSED"),
+        icon: <CheckCircle2 size={12} />,
+        className: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+      };
+    }
+    if (visit.status === "CANCELLED") {
+      return {
+        label: t("statuses.CANCELLED"),
+        icon: <AlertCircle size={12} />,
+        className: "bg-page text-text-muted ring-ui-border",
+      };
+    }
+    return {
+      label: t("statuses.OPEN"),
+      icon: <Clock size={12} />,
+      className: "bg-primary-soft text-primary ring-primary/20",
+    };
+  };
+
   return (
-    <div className="p-6 lg:p-8 space-y-6">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {t("header.title")}
-          </h1>
-          <p className="text-sm" style={{color: "var(--text-muted)"}}>
-            {t("header.subtitle")}
-          </p>
-        </div>
-        <div
-          className="inline-flex w-fit items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold"
-          style={{
-            borderColor: "var(--border-ui)",
-            color: "var(--text-muted)",
-            backgroundColor: "var(--surface-card)",
-          }}
-        >
-          <ClipboardList size={16} />
-          {t("header.visitCount", {count: filteredVisits.length})}
-        </div>
-      </header>
-
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
-            className="rounded-xl border p-4 text-left transition-colors"
-            style={{
-              borderColor:
-                activeTab === tab.id
-                  ? "var(--brand-primary)"
-                  : "var(--border-ui)",
-              backgroundColor:
-                activeTab === tab.id ? "rgba(15, 138, 163, 0.08)" : "var(--card-bg)",
-            }}
-          >
-            <p className="text-xs font-semibold" style={{color: "var(--text-muted)"}}>
-              {tab.label}
-            </p>
-            <p className="mt-1 text-2xl font-bold text-foreground">{tab.count}</p>
-          </button>
-        ))}
-      </section>
-
-      <section
-        className="rounded-xl border bg-card p-4"
-        style={{borderColor: "var(--border-ui)"}}
-      >
-        <div className="relative">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{color: "var(--text-muted)"}}
-          />
-          <input
-            type="text"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder={t("search.placeholder")}
-            className="h-10 w-full rounded-lg border bg-transparent pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/30"
-            style={{
-              borderColor: "var(--border-ui)",
-              color: "var(--foreground)",
-            }}
-          />
-        </div>
-      </section>
-
-      {error && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          <div className="flex items-start gap-2">
-            <AlertCircle size={16} className="mt-0.5 shrink-0" />
-            <p>{error}</p>
-          </div>
-        </div>
-      )}
-
-      <section
-        className="overflow-hidden rounded-xl border bg-card"
-        style={{borderColor: "var(--border-ui)"}}
-      >
-        {isLoading ? (
-          <div className="flex items-center gap-2 p-6 text-sm font-semibold" style={{color: "var(--text-muted)"}}>
-            <Loader2 size={16} className="animate-spin" />
-            {t("loading")}
-          </div>
-        ) : filteredVisits.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 p-12 text-center">
-            <Stethoscope size={42} style={{color: "var(--text-muted)"}} />
-            <p className="text-sm font-semibold text-foreground">
-              {t("empty.title")}
-            </p>
-            <p className="max-w-md text-sm" style={{color: "var(--text-muted)"}}>
-              {t("empty.description")}
+    <div className="min-h-screen bg-page">
+      <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-4 p-4 lg:p-6">
+        <header className="flex flex-col gap-3 border-b border-ui-border pb-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-xl font-semibold tracking-normal text-foreground">
+              {t("header.title")}
+            </h1>
+            <p className="mt-1 text-sm text-text-muted">
+              {t("header.subtitle")}
             </p>
           </div>
-        ) : (
-          <div className="divide-y" style={{borderColor: "var(--border-ui)"}}>
-            {filteredVisits.map((visit) => {
-              const isExpanded = expandedVisitId === visit.id;
-              const needsCoding =
-                visit.status === "NEEDS_CODING" ||
-                visit.handoff?.status === "NEEDS_CODING";
+          <div className="flex items-center gap-2 text-sm font-medium text-text-muted">
+            <ClipboardList size={16} />
+            {t("header.visitCount", {count: filteredVisits.length})}
+          </div>
+        </header>
 
-              return (
-                <article key={visit.id} className="p-4 sm:p-5">
-                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold"
-                          style={{
-                            backgroundColor: needsCoding
-                              ? "#fef3c7"
-                              : visit.status === "CLOSED"
-                                ? "#E8F8EC"
-                                : "#e8f0fe",
-                            color: needsCoding
-                              ? "#b45309"
-                              : visit.status === "CLOSED"
-                                ? "#279C41"
-                                : "#0f8aa3",
-                          }}
-                        >
-                          {needsCoding ? (
-                            <FileText size={12} />
-                          ) : visit.status === "CLOSED" ? (
-                            <CheckCircle2 size={12} />
-                          ) : (
-                            <Clock size={12} />
-                          )}
-                          {needsCoding
-                            ? t("statuses.NEEDS_CODING")
-                            : t(`statuses.${visit.status}`)}
-                        </span>
-                        <span className="text-xs" style={{color: "var(--text-muted)"}}>
-                          {t("visit.started", {date: formatDateTime(visit.startedAt)})}
-                        </span>
-                      </div>
+        <section className="app-card flex flex-col gap-3 p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-1 rounded-md bg-page p-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`h-9 rounded px-3 text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-text-muted hover:bg-surface-hover hover:text-foreground"
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className="ml-2 rounded bg-primary-soft px-1.5 py-0.5 text-xs text-primary">
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
 
-                      <div className="mt-3 flex items-start gap-3">
-                        <div
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-                          style={{
-                            backgroundColor: "rgba(15, 138, 163, 0.12)",
-                            color: "var(--brand-primary)",
-                          }}
-                        >
-                          <UserRound size={20} />
-                        </div>
-                        <div className="min-w-0">
-                          <h2 className="truncate text-base font-bold text-foreground">
-                            {visit.patient.fullName}
-                          </h2>
-                          <p className="text-sm" style={{color: "var(--text-muted)"}}>
-                            {visit.provider?.fullName
-                              ? t("visit.provider", {provider: visit.provider.fullName})
-                              : t("visit.noProvider")}
-                            {visit.patient.phone ? ` · ${visit.patient.phone}` : ""}
-                          </p>
-                        </div>
-                      </div>
+          <div className="relative w-full lg:max-w-md">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-placeholder"
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("search.placeholder")}
+              className="h-9 w-full rounded-md border border-ui-border bg-card pl-9 pr-3 text-sm text-foreground outline-none transition placeholder:text-text-placeholder focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        </section>
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-3">
-                        <Metric
-                          icon={<Stethoscope size={15} />}
-                          label={t("metrics.procedures")}
-                          value={t("metrics.procedureCount", {
-                            count: visit.procedures.length,
-                          })}
-                        />
-                        <Metric
-                          icon={<FileText size={15} />}
-                          label={t("metrics.handoff")}
-                          value={
-                            visit.handoff
-                              ? t(`handoffStatuses.${visit.handoff.status}`)
-                              : t("handoffStatuses.none")
-                          }
-                        />
-                        <Metric
-                          icon={<ClipboardList size={15} />}
-                          label={t("metrics.charges")}
-                          value={
-                            visit.chargesSummary
-                              ? formatMoney(visit.chargesSummary.remaining)
-                              : t("metrics.noCharges")
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedVisitId(isExpanded ? null : visit.id)
-                        }
-                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors hover:bg-gray-50"
-                        style={{
-                          borderColor: "var(--border-ui)",
-                          color: "var(--foreground)",
-                        }}
-                      >
-                        <ChevronDown
-                          size={14}
-                          className={isExpanded ? "rotate-180 transition" : "transition"}
-                        />
-                        {isExpanded ? t("actions.hideDetails") : t("actions.viewDetails")}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openWorkspace(visit)}
-                        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-bold text-white transition-colors hover:bg-primary-dark"
-                      >
-                        <Stethoscope size={14} />
-                        {t("actions.openWorkspace")}
-                      </button>
-                      {visit.handoff?.status === "NEEDS_CODING" && (
-                        <button
-                          type="button"
-                          onClick={() => void markHandoffCoded(visit)}
-                          disabled={codingHandoffId === visit.handoff.id}
-                          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-60"
-                        >
-                          {codingHandoffId === visit.handoff.id ? (
-                            <Loader2 size={14} className="animate-spin" />
-                          ) : (
-                            <CheckCircle2 size={14} />
-                          )}
-                          {t("actions.markCoded")}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {isExpanded && (
-                    <div
-                      className="mt-5 grid gap-4 border-t pt-4 lg:grid-cols-[1.2fr_1fr]"
-                      style={{borderColor: "var(--border-ui)"}}
-                    >
-                      <div>
-                        <h3 className="text-sm font-bold text-foreground">
-                          {t("details.procedures")}
-                        </h3>
-                        <div className="mt-3 space-y-2">
-                          {visit.procedures.length === 0 ? (
-                            <p className="text-sm" style={{color: "var(--text-muted)"}}>
-                              {t("details.noProcedures")}
-                            </p>
-                          ) : (
-                            visit.procedures.map((procedure) => (
-                              <div
-                                key={procedure.id}
-                                className="rounded-lg border p-3"
-                                style={{borderColor: "var(--border-ui)"}}
-                              >
-                                <p className="text-sm font-semibold text-foreground">
-                                  {procedure.actName}
-                                </p>
-                                <p className="mt-1 text-xs" style={{color: "var(--text-muted)"}}>
-                                  {procedure.locationLabel ?? t("details.noLocation")} ·{" "}
-                                  {t(`procedureStatuses.${procedure.status}`)}
-                                </p>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-foreground">
-                          {t("details.handoff")}
-                        </h3>
-                        <div
-                          className="mt-3 rounded-lg border p-3 text-sm"
-                          style={{borderColor: "var(--border-ui)"}}
-                        >
-                          {visit.handoff?.text ? (
-                            <>
-                              <p className="whitespace-pre-wrap text-foreground">
-                                {visit.handoff.text}
-                              </p>
-                              <p className="mt-3 text-xs" style={{color: "var(--text-muted)"}}>
-                                {visit.handoff.savedAt
-                                  ? t("details.savedAt", {
-                                      date: formatDateTime(visit.handoff.savedAt),
-                                    })
-                                  : t("details.notSaved")}
-                              </p>
-                            </>
-                          ) : (
-                            <p style={{color: "var(--text-muted)"}}>
-                              {t("details.noHandoff")}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </article>
-              );
-            })}
+        {error && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={16} className="mt-0.5 shrink-0" />
+              <p>{error}</p>
+            </div>
           </div>
         )}
-      </section>
-    </div>
-  );
-}
 
-function Metric({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div
-      className="rounded-lg border px-3 py-2"
-      style={{borderColor: "var(--border-ui)"}}
-    >
-      <div className="flex items-center gap-1.5 text-xs font-semibold" style={{color: "var(--text-muted)"}}>
-        {icon}
-        {label}
+        <section className="app-card overflow-hidden">
+          {isLoading ? (
+            <div className="flex items-center gap-2 p-6 text-sm font-medium text-text-muted">
+              <Loader2 size={16} className="animate-spin" />
+              {t("loading")}
+            </div>
+          ) : filteredVisits.length === 0 ? (
+            <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 p-10 text-center">
+              <Stethoscope size={38} className="text-text-placeholder" />
+              <p className="text-sm font-semibold text-foreground">
+                {t("empty.title")}
+              </p>
+              <p className="max-w-md text-sm text-text-muted">
+                {t("empty.description")}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <div className="hidden grid-cols-[minmax(220px,1.35fr)_minmax(140px,.85fr)_minmax(110px,.55fr)_minmax(150px,.75fr)_minmax(120px,.55fr)_160px] gap-4 border-b border-ui-border bg-page px-4 py-2.5 text-xs font-semibold uppercase text-text-placeholder lg:grid">
+                <div>{t("columns.patient")}</div>
+                <div>{t("columns.started")}</div>
+                <div>{t("columns.status")}</div>
+                <div>{t("columns.treatments")}</div>
+                <div>{t("columns.remaining")}</div>
+                <div className="text-right">{t("columns.actions")}</div>
+              </div>
+
+              <div className="divide-y divide-ui-border">
+                {filteredVisits.map((visit) => {
+                  const isExpanded = expandedVisitId === visit.id;
+                  const tone = statusTone(visit);
+                  const latestProcedure = visit.procedures[0];
+
+                  return (
+                    <article key={visit.id} className="bg-card">
+                      <div className="grid gap-3 px-4 py-3 transition-colors hover:bg-surface-hover lg:grid-cols-[minmax(220px,1.35fr)_minmax(140px,.85fr)_minmax(110px,.55fr)_minmax(150px,.75fr)_minmax(120px,.55fr)_160px] lg:items-center lg:gap-4">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-primary-soft text-primary">
+                            <UserRound size={18} />
+                          </div>
+                          <div className="min-w-0">
+                            <h2 className="truncate text-sm font-semibold text-foreground">
+                              {visit.patient.fullName}
+                            </h2>
+                            <p className="truncate text-xs text-text-muted">
+                              {visit.patient.phone || visit.patientId}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 lg:block">
+                          <span className="text-xs font-medium text-text-muted lg:hidden">
+                            {t("columns.started")}
+                          </span>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              {formatDateTime(visit.startedAt)}
+                            </p>
+                            <p className="truncate text-xs text-text-muted">
+                              {visit.provider?.fullName
+                                ? visit.provider.fullName
+                                : t("visit.noProvider")}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 lg:block">
+                          <span className="text-xs font-medium text-text-muted lg:hidden">
+                            {t("columns.status")}
+                          </span>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold ring-1 ${tone.className}`}
+                          >
+                            {tone.icon}
+                            {tone.label}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground">
+                            {t("metrics.procedureCount", {
+                              count: visit.procedures.length,
+                            })}
+                          </p>
+                          <p className="truncate text-xs text-text-muted">
+                            {latestProcedure?.actName ??
+                              (visit.handoff
+                                ? t(`handoffStatuses.${visit.handoff.status}`)
+                                : t("handoffStatuses.none"))}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 lg:block">
+                          <span className="text-xs font-medium text-text-muted lg:hidden">
+                            {t("columns.remaining")}
+                          </span>
+                          <p className="text-sm font-semibold text-foreground">
+                            {visit.chargesSummary
+                              ? formatMoney(visit.chargesSummary.remaining)
+                              : t("metrics.noCharges")}
+                          </p>
+                          {visit.handoff && (
+                            <p className="truncate text-xs text-text-muted">
+                              {t(`handoffStatuses.${visit.handoff.status}`)}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpandedVisitId(isExpanded ? null : visit.id)
+                            }
+                            className="inline-flex h-8 items-center gap-1 rounded border border-ui-border bg-card px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-surface-hover"
+                          >
+                            <ChevronDown
+                              size={14}
+                              className={
+                                isExpanded ? "rotate-180 transition" : "transition"
+                              }
+                            />
+                            {isExpanded
+                              ? t("actions.hideDetails")
+                              : t("actions.viewDetails")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openWorkspace(visit)}
+                            className="inline-flex h-8 items-center gap-1 rounded bg-primary px-2.5 text-xs font-medium text-white transition-colors hover:bg-primary-dark"
+                          >
+                            <Stethoscope size={14} />
+                            {t("actions.openWorkspace")}
+                          </button>
+                          {visit.handoff?.status === "NEEDS_CODING" && (
+                            <button
+                              type="button"
+                              onClick={() => void markHandoffCoded(visit)}
+                              disabled={codingHandoffId === visit.handoff.id}
+                              className="inline-flex h-8 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-60"
+                            >
+                              {codingHandoffId === visit.handoff.id ? (
+                                <Loader2 size={14} className="animate-spin" />
+                              ) : (
+                                <CheckCircle2 size={14} />
+                              )}
+                              {t("actions.markCoded")}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {isExpanded && (
+                        <div className="border-t border-ui-border bg-page px-4 py-4">
+                          <div className="grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+                            <div>
+                              <h3 className="text-xs font-semibold uppercase text-text-placeholder">
+                                {t("details.procedures")}
+                              </h3>
+                              <div className="mt-2 overflow-hidden rounded border border-ui-border bg-card">
+                                {visit.procedures.length === 0 ? (
+                                  <p className="p-3 text-sm text-text-muted">
+                                    {t("details.noProcedures")}
+                                  </p>
+                                ) : (
+                                  <div className="divide-y divide-ui-border">
+                                    {visit.procedures.map((procedure) => (
+                                      <div
+                                        key={procedure.id}
+                                        className="grid gap-1 px-3 py-2.5 sm:grid-cols-[1fr_auto] sm:items-center"
+                                      >
+                                        <p className="text-sm font-medium text-foreground">
+                                          {procedure.actName}
+                                        </p>
+                                        <p className="text-xs text-text-muted">
+                                          {procedure.locationLabel ??
+                                            t("details.noLocation")}{" "}
+                                          · {t(`procedureStatuses.${procedure.status}`)}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <h3 className="text-xs font-semibold uppercase text-text-placeholder">
+                                {t("details.handoff")}
+                              </h3>
+                              <div className="mt-2 rounded border border-ui-border bg-card p-3 text-sm">
+                                {visit.handoff?.text ? (
+                                  <>
+                                    <p className="max-h-40 overflow-auto whitespace-pre-wrap text-foreground">
+                                      {visit.handoff.text}
+                                    </p>
+                                    <p className="mt-3 text-xs text-text-muted">
+                                      {visit.handoff.savedAt
+                                        ? t("details.savedAt", {
+                                            date: formatDateTime(
+                                              visit.handoff.savedAt,
+                                            ),
+                                          })
+                                        : t("details.notSaved")}
+                                    </p>
+                                  </>
+                                ) : (
+                                  <p className="text-text-muted">
+                                    {t("details.noHandoff")}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
       </div>
-      <p className="mt-1 text-sm font-bold text-foreground">{value}</p>
     </div>
   );
 }

@@ -3,6 +3,7 @@ package treatment;
 
 service TreatmentService {
   rpc CreateVisitFromQueue (CreateVisitFromQueueRequest) returns (VisitReply);
+  rpc ListVisits (ListVisitsRequest) returns (ListVisitsReply);
   rpc GetTreatmentWorkspace (GetTreatmentWorkspaceRequest) returns (TreatmentWorkspaceReply);
   rpc CreateTreatmentPlanItems (CreateTreatmentPlanItemsRequest) returns (TreatmentPlanItemsReply);
   rpc CreateDiagnosis (CreateDiagnosisRequest) returns (DiagnosisReply);
@@ -10,6 +11,7 @@ service TreatmentService {
   rpc CompleteVisitProcedure (CompleteVisitProcedureRequest) returns (CompleteVisitProcedureReply);
   rpc ChangeTreatmentStatus (ChangeTreatmentStatusRequest) returns (TreatmentPlanItemReply);
   rpc SaveVisitHandoff (SaveVisitHandoffRequest) returns (VisitHandoffReply);
+  rpc MarkHandoffCoded (MarkHandoffCodedRequest) returns (VisitHandoffReply);
   rpc SaveClinicalAttachments (SaveClinicalAttachmentsRequest) returns (ClinicalAttachmentsReply);
   rpc CloseVisit (CloseVisitRequest) returns (CloseVisitReply);
 }
@@ -144,6 +146,12 @@ message TreatmentChargeReply {
   string created_by = 14;
 }
 
+message TreatmentChargeSummaryReply {
+  double total = 1;
+  double remaining = 2;
+  string status = 3;
+}
+
 message VisitHandoffReply {
   string id = 1;
   string clinic_id = 2;
@@ -198,6 +206,13 @@ message TreatmentWorkspaceReply {
   repeated MedicalDocumentRequestReply document_requests = 10;
 }
 
+message TreatmentVisitWorklistItemReply {
+  VisitReply visit = 1;
+  VisitHandoffReply latest_handoff = 2;
+  repeated VisitProcedureReply procedures = 3;
+  TreatmentChargeSummaryReply charges_summary = 4;
+}
+
 message CreateVisitFromQueueRequest {
   string clinic_id = 1;
   string patient_id = 2;
@@ -206,6 +221,19 @@ message CreateVisitFromQueueRequest {
   string chair_id = 5;
   string provider_id = 6;
   string started_at = 7;
+}
+
+message ListVisitsRequest {
+  string clinic_id = 1;
+  string status = 2;
+  string handoff_status = 3;
+  int32 page = 4;
+  int32 limit = 5;
+}
+
+message ListVisitsReply {
+  repeated TreatmentVisitWorklistItemReply visits = 1;
+  int32 total = 2;
 }
 
 message GetTreatmentWorkspaceRequest {
@@ -293,6 +321,11 @@ message SaveVisitHandoffRequest {
   string status = 5;
   string provider_id = 6;
   string treatment_plan_item_id = 7;
+}
+
+message MarkHandoffCodedRequest {
+  string handoff_id = 1;
+  string coded_by = 2;
 }
 
 message SaveClinicalAttachmentsRequest {

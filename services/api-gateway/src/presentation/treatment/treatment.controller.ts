@@ -12,7 +12,13 @@ import {
 } from "@nestjs/common";
 import {ClientGrpc} from "@nestjs/microservices";
 import {lastValueFrom} from "rxjs";
+import {PatientProto} from "@lib/proto";
 import {ApiTags} from "@nestjs/swagger";
+import {
+  PATIENT_GRPC_CLIENT,
+  PATIENT_SERVICE_NAME,
+  PatientServiceClient,
+} from "../patient/patient-grpc.helper";
 import {JwtAuthGuard} from "../../shared/guards/jwt-auth.guard";
 import {RolesGuard} from "../../shared/guards/roles.guard";
 import {ClinicScopeGuard} from "../../shared/guards/clinic-scope.guard";
@@ -33,6 +39,7 @@ import {
   planItemToHttp,
   procedureToHttp,
   visitToHttp,
+  worklistItemToHttp,
   workspaceToHttp,
 } from "./treatment-grpc.helper";
 
@@ -43,13 +50,65 @@ type JsonBody = Record<string, any>;
 @UseGuards(JwtAuthGuard, RolesGuard, ClinicScopeGuard)
 export class TreatmentController implements OnModuleInit {
   private treatmentGrpcService!: TreatmentServiceClient;
+  private patientGrpcService!: PatientServiceClient;
 
   constructor(
     @Inject(TREATMENT_GRPC_CLIENT) private readonly grpcClient: ClientGrpc,
+    @Inject(PATIENT_GRPC_CLIENT) private readonly patientGrpcClient: ClientGrpc,
   ) {}
 
   onModuleInit() {
     this.treatmentGrpcService = initTreatmentGrpcService(this.grpcClient);
+    this.patientGrpcService =
+      this.patientGrpcClient.getService<PatientServiceClient>(
+        PATIENT_SERVICE_NAME,
+      );
+  }
+
+  @Get("visits")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
+  async listVisits(
+    @Query()
+    query: {
+      status?: string;
+      handoffStatus?: string;
+      handoff_status?: string;
+      page?: string;
+      limit?: string;
+    },
+    @CurrentUser() user: JwtPayload,
+  ) {
+    try {
+      const result = await lastValueFrom(
+        this.treatmentGrpcService.listVisits({
+          clinicId: user.clinic_id,
+          status: query.status ?? "",
+          handoffStatus: query.handoffStatus ?? query.handoff_status ?? "",
+          page: query.page ? Number(query.page) : 1,
+          limit: query.limit ? Number(query.limit) : 50,
+        }),
+      );
+      const visits = (result.visits ?? []).map(worklistItemToHttp);
+      const patients = await this.loadPatientsForVisits(visits);
+      return {
+        visits: visits.map((visit) => {
+          const patient = patients.get(visit.patientId);
+          return patient
+            ? {
+                ...visit,
+                patient: {
+                  id: patient.id,
+                  fullName: `${patient.firstName} ${patient.lastName}`.trim(),
+                  phone: patient.phone || undefined,
+                },
+              }
+            : visit;
+        }),
+        total: result.total,
+      };
+    } catch (err) {
+      handleGrpcError(err);
+    }
   }
 
   @Post("visits/from-queue")
@@ -244,6 +303,26 @@ export class TreatmentController implements OnModuleInit {
     }
   }
 
+  @Post("handoffs/:id/coded")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
+  async markHandoffCoded(
+    @Param("id") id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    try {
+      return handoffToHttp(
+        await lastValueFrom(
+          this.treatmentGrpcService.markHandoffCoded({
+            handoffId: id,
+            codedBy: user.user_id,
+          }),
+        ),
+      );
+    } catch (err) {
+      handleGrpcError(err);
+    }
+  }
+
   @Post("attachments")
   @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.DENTAL_ASSISTANT)
   async saveAttachments(@Body() body: JsonBody, @CurrentUser() user: JwtPayload) {
@@ -307,5 +386,28 @@ export class TreatmentController implements OnModuleInit {
     } catch (err) {
       handleGrpcError(err);
     }
+  }
+
+  private async loadPatientsForVisits(visits: Array<{patientId?: string}>) {
+    const patientIds = [
+      ...new Set(visits.map((visit) => visit.patientId).filter(Boolean)),
+    ] as string[];
+    const entries = await Promise.all(
+      patientIds.map(async (id) => {
+        try {
+          const patient = await lastValueFrom(
+            this.patientGrpcService.getPatient({id}),
+          );
+          return [id, patient] as const;
+        } catch {
+          return null;
+        }
+      }),
+    );
+    return new Map<string, PatientProto.PatientReply>(
+      entries.filter((entry): entry is readonly [string, PatientProto.PatientReply] =>
+        Boolean(entry),
+      ),
+    );
   }
 }

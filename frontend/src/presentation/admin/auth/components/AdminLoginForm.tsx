@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import {useForm} from "react-hook-form";
 import {motion, AnimatePresence} from "framer-motion";
 import {Mail, Lock, Eye, EyeOff, ArrowRight} from "lucide-react";
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {useLocale, useTranslations} from "next-intl";
 import {signIn} from "next-auth/react";
 import type {AdminLoginCredentials} from "@/domain/auth/entities/AdminUser";
@@ -12,6 +12,7 @@ export function AdminLoginForm() {
   const t = useTranslations("admin.auth");
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -32,7 +33,15 @@ export function AdminLoginForm() {
     });
     if (result?.ok && !result.error) {
       setStatus("success");
-      setTimeout(() => router.push(`/${locale}/admin/dashboard`), 1000);
+      const callbackUrl = searchParams.get("callbackUrl");
+      const nextUrl =
+        callbackUrl?.startsWith(`/${locale}/admin`) === true
+          ? callbackUrl
+          : `/${locale}/admin/dashboard`;
+      setTimeout(() => {
+        router.replace(nextUrl);
+        router.refresh();
+      }, 300);
     } else {
       setStatus("error");
     }
