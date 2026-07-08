@@ -79,7 +79,7 @@ export interface TreatmentPageActiveVisitDTO {
   patientId: string;
   chairId: string;
   providerId: string;
-  status: "open";
+  status: TreatmentPageVisitLifecycleStatus;
   startedAt: string;
 }
 

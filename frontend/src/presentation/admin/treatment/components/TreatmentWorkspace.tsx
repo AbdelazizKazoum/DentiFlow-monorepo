@@ -428,16 +428,20 @@ export function TreatmentWorkspace() {
     if (!visitHandoffRecord) {
       setVisitHandoffNote("");
       setVisitCodingStatus("structured");
-      setVisitLifecycleStatus("open");
+      setVisitLifecycleStatus(activeVisit.status);
       return;
     }
 
     setVisitHandoffNote(visitHandoffRecord.text);
     setVisitCodingStatus(visitHandoffRecord.status);
     setVisitLifecycleStatus(
-      visitHandoffRecord.status === "needs_coding" ? "needs_coding" : "open",
+      activeVisit.status === "closed"
+        ? "closed"
+        : visitHandoffRecord.status === "needs_coding"
+          ? "needs_coding"
+          : activeVisit.status,
     );
-  }, [visitHandoffRecord]);
+  }, [activeVisit.status, visitHandoffRecord]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const selectedMouthRegionOption = localizedMouthRegionOptions.find(

@@ -598,6 +598,8 @@
       },
       "currentSession": {
         "openVisit": "Open visit",
+        "needsCodingVisit": "Visit needs coding",
+        "closedVisit": "Closed visit",
         "chair": "Chair {number}",
         "visitStarted": "Visit {visitId} · Started {time}",
         "status": {
@@ -634,7 +636,8 @@
         },
         "procedureStatus": {
           "completed": "Completed",
-          "inProgress": "In Progress"
+          "inProgress": "In Progress",
+          "carriedForward": "Carried forward"
         }
       },
       "plan": {

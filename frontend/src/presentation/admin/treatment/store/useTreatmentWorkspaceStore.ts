@@ -49,6 +49,7 @@ import type {
   TreatmentPageTreatmentChargeDTO,
   TreatmentPageTreatmentGroupDTO,
   TreatmentPageTreatmentPlanItemDTO,
+  TreatmentPageVisitLifecycleStatus,
   TreatmentPageVisitHandoffDTO,
   TreatmentPageVisitProcedureDTO,
 } from "@/infrastructure/treatment/dtos";
@@ -84,6 +85,19 @@ const toTreatmentPatient = (patient: Patient): TreatmentPagePatientDTO => ({
   alerts: patient.allergies ? [`Allergies: ${patient.allergies}`] : [],
   balance: 0,
 });
+
+const fromDomainVisitLifecycleStatus = (
+  status: string,
+): TreatmentPageVisitLifecycleStatus => {
+  switch (status) {
+    case "CLOSED":
+      return "closed";
+    case "NEEDS_CODING":
+      return "needs_coding";
+    default:
+      return "open";
+  }
+};
 
 interface TreatmentWorkspaceStoreState {
   patient: TreatmentPagePatientDTO;
@@ -214,7 +228,9 @@ export const useTreatmentWorkspaceStore = create<TreatmentWorkspaceStoreState>(
                 patientId: workspace.activeVisit.patientId,
                 chairId: workspace.activeVisit.chairId,
                 providerId: workspace.activeVisit.providerId,
-                status: "open",
+                status: fromDomainVisitLifecycleStatus(
+                  workspace.activeVisit.status,
+                ),
                 startedAt: workspace.activeVisit.startedAt.toISOString(),
               }
             : null,

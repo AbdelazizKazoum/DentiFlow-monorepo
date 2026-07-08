@@ -97,6 +97,13 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
   const t = useTranslations("admin.treatment.currentSession");
   const [isHydrated, setIsHydrated] = useState(false);
   const canSubmitHandoff = isHydrated ? Boolean(visitHandoffNote.trim()) : true;
+  const isClosedVisit = visitLifecycleStatus === "closed";
+  const visitLifecycleLabel =
+    isClosedVisit
+      ? t("closedVisit")
+      : visitLifecycleStatus === "needs_coding"
+        ? t("needsCodingVisit")
+        : t("openVisit");
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -110,7 +117,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary-soft px-4 py-3">
         <div>
           <p className="text-sm font-bold text-foreground">
-            {t("openVisit")} · {t("chair", {number: "01"})}
+            {visitLifecycleLabel} · {t("chair", {number: "01"})}
           </p>
           <p className="text-xs text-text-muted">
             {t("visitStarted", {
@@ -305,6 +312,10 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 text-sky-700 border border-sky-200">
                         <CheckCircle size={12} /> {t("procedureStatus.completed")}
                       </span>
+                    ) : isClosedVisit ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                        <Clock size={12} /> {t("procedureStatus.carriedForward")}
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
                         <Clock size={12} /> {t("procedureStatus.inProgress")}
@@ -312,7 +323,7 @@ export function CurrentSessionPanel<TProcedure extends VisitProcedureView>({
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {item.status !== "completed" && (
+                    {!isClosedVisit && item.status !== "completed" && (
                       <button
                         onClick={() => onSetSessionActToComplete(item)}
                         className="px-3 py-1.5 text-xs font-semibold text-white bg-sky-500 hover:bg-sky-600 rounded transition-colors shadow-sm"

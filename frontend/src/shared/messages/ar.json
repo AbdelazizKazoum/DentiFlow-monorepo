@@ -598,6 +598,8 @@
       },
       "currentSession": {
         "openVisit": "زيارة مفتوحة",
+        "needsCodingVisit": "زيارة تحتاج إلى ترميز",
+        "closedVisit": "زيارة مغلقة",
         "chair": "الكرسي {number}",
         "visitStarted": "زيارة {visitId} · بدأت {time}",
         "status": {
@@ -634,7 +636,8 @@
         },
         "procedureStatus": {
           "completed": "مكتمل",
-          "inProgress": "قيد التنفيذ"
+          "inProgress": "قيد التنفيذ",
+          "carriedForward": "مرحّل للمتابعة"
         }
       },
       "plan": {
