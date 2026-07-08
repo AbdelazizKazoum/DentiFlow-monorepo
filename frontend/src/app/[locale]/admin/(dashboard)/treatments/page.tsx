@@ -17,6 +17,8 @@ import {
   UserRound,
 } from "lucide-react";
 import {axiosClient} from "@/infrastructure/http/axiosClient";
+import {getAllStaffUseCase} from "@/infrastructure/staff/container";
+import {StaffRole, type Staff} from "@/domain/staff/entities/staff";
 
 type VisitStatus = "OPEN" | "NEEDS_CODING" | "CLOSED" | "CANCELLED";
 type HandoffStatus = "STRUCTURED" | "DRAFT_NOTE" | "NEEDS_CODING" | "CODED";
@@ -86,6 +88,7 @@ const INITIAL_COUNTS: VisitCounts = {
 };
 
 type ApiRecord = Record<string, unknown>;
+type StaffLookup = Map<string, Staff>;
 
 const asRecord = (value: unknown): ApiRecord =>
   value && typeof value === "object" && !Array.isArray(value)
@@ -95,10 +98,48 @@ const asRecord = (value: unknown): ApiRecord =>
 const asString = (value: unknown, fallback = ""): string =>
   typeof value === "string" ? value : fallback;
 
-const normalizeVisit = (rawValue: unknown): TreatmentVisitListItem => {
+const doctorDisplayName = (staff: Staff) => {
+  const name = staff.fullName.trim();
+  return name ? name : staff.id;
+};
+
+const createStaffLookup = (staffMembers: Staff[]): StaffLookup => {
+  const lookup = new Map<string, Staff>();
+  staffMembers
+    .filter((staff) => staff.role === StaffRole.DOCTOR)
+    .forEach((staff) => {
+      lookup.set(staff.id, staff);
+      lookup.set(staff.userId, staff);
+    });
+  return lookup;
+};
+
+const normalizeVisit = (
+  rawValue: unknown,
+  staffLookup: StaffLookup = new Map(),
+): TreatmentVisitListItem => {
   const raw = asRecord(rawValue);
   const patient = asRecord(raw.patient);
   const provider = asRecord(raw.provider ?? raw.doctor);
+  const providerId = asString(
+    provider.id ??
+      raw.providerId ??
+      raw.provider_id ??
+      raw.doctorId ??
+      raw.doctor_id,
+  );
+  const providerFromStaff = providerId ? staffLookup.get(providerId) : undefined;
+  const providerName =
+    (providerFromStaff ? doctorDisplayName(providerFromStaff) : "") ||
+    asString(
+      provider.fullName ??
+        provider.full_name ??
+        provider.name ??
+        raw.providerName ??
+        raw.provider_name ??
+        raw.doctorName ??
+        raw.doctor_name,
+    );
   const handoffRecord = asRecord(
     raw.handoff ?? raw.latestHandoff ?? raw.latest_handoff,
   );
@@ -122,18 +163,10 @@ const normalizeVisit = (rawValue: unknown): TreatmentVisitListItem => {
         "Unknown patient",
       phone: asString(patient.phone ?? raw.patientPhone ?? raw.patient_phone),
     },
-    provider: Object.keys(provider).length > 0
+    provider: providerId || providerName
       ? {
-          id: asString(provider.id ?? raw.providerId ?? raw.provider_id),
-          fullName:
-            asString(
-              provider.fullName ??
-                provider.full_name ??
-                provider.name ??
-                raw.providerName ??
-                raw.provider_name,
-            ) ||
-            "Provider",
+          id: providerId,
+          fullName: providerName || providerId || "Provider",
         }
       : undefined,
     status: (asString(raw.status, "OPEN")) as VisitStatus,
@@ -219,7 +252,26 @@ export default function TreatmentsPage() {
   const [isLoadingCounts, setIsLoadingCounts] = useState(true);
   const [groupCounts, setGroupCounts] =
     useState<VisitCounts>(INITIAL_COUNTS);
+  const [staffLookup, setStaffLookup] = useState<StaffLookup>(() => new Map());
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadStaff = async () => {
+      try {
+        const staffMembers = await getAllStaffUseCase.execute();
+        if (!cancelled) setStaffLookup(createStaffLookup(staffMembers));
+      } catch {
+        if (!cancelled) setStaffLookup(new Map());
+      }
+    };
+
+    void loadStaff();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const loadGroupCounts = useCallback(async () => {
     const groups: WorklistTab[] = ["needsCoding", "open", "closed", "all"];
@@ -272,7 +324,13 @@ export default function TreatmentsPage() {
           },
         });
         const rawVisits = Array.isArray(data) ? data : data.visits ?? [];
-        if (!cancelled) setVisits(rawVisits.map(normalizeVisit));
+        if (!cancelled) {
+          setVisits(
+            rawVisits.map((rawVisit: unknown) =>
+              normalizeVisit(rawVisit, staffLookup),
+            ),
+          );
+        }
       } catch (err) {
         if (!cancelled) {
           setVisits([]);
@@ -294,7 +352,7 @@ export default function TreatmentsPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeTab, t]);
+  }, [activeTab, staffLookup, t]);
 
   const filteredVisits = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -336,10 +394,13 @@ export default function TreatmentsPage() {
       const {data} = await axiosClient.post(
         `/api/v1/treatment/handoffs/${visit.handoff.id}/coded`,
       );
-      const updated = normalizeVisit({
-        ...visit,
-        handoff: data,
-      });
+      const updated = normalizeVisit(
+        {
+          ...visit,
+          handoff: data,
+        },
+        staffLookup,
+      );
       setVisits((current) =>
         current.map((item) =>
           item.id === visit.id
