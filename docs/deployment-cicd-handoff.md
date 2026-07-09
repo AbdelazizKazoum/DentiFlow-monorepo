@@ -52,7 +52,7 @@ Required repository variables:
 For the current Azure IP:
 
 ```text
-PROD_NEXT_PUBLIC_API_URL=http://68.221.171.244
+PROD_NEXT_PUBLIC_API_URL=http://dentiflow.site
 PROD_NEXT_PUBLIC_DEFAULT_CLINIC_ID=00000000-0000-4000-8000-000000000001
 ```
 
@@ -80,9 +80,9 @@ REFRESH_TOKEN_SECRET=<strong secret>
 NEXTAUTH_SECRET=<strong secret>
 NEXTAUTH_SESSION_COOKIE_NAME=dentiflow-prod.session-token
 
-FRONTEND_URL=http://68.221.171.244
-NEXTAUTH_URL=http://68.221.171.244
-NEXT_PUBLIC_API_URL=http://68.221.171.244
+FRONTEND_URL=http://dentiflow.site
+NEXTAUTH_URL=http://dentiflow.site
+NEXT_PUBLIC_API_URL=http://dentiflow.site
 NEXT_PUBLIC_DEFAULT_CLINIC_ID=00000000-0000-4000-8000-000000000001
 
 DENTIFLOW_SEED_DEFAULT_ADMIN=true
@@ -126,8 +126,8 @@ sudo ufw delete allow 3001/tcp
 Browser:
 
 ```text
-http://68.221.171.244
-http://68.221.171.244/api-gateway/health
+http://dentiflow.site
+http://dentiflow.site/api-gateway/health
 ```
 
 From VM:
@@ -258,8 +258,8 @@ docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --no-buil
 Nginx runs as a container in the same Docker network as the frontend and API gateway. It listens publicly on port `80`, proxies the app to the `frontend:3000` container, and exposes only a debug health alias:
 
 ```text
-http://68.221.171.244 -> frontend:3000
-http://68.221.171.244/api-gateway/health -> api-gateway:3001/health
+http://dentiflow.site -> frontend:3000
+http://dentiflow.site/api-gateway/health -> api-gateway:3001/health
 ```
 
 Do not route all `/api/v1/*` traffic directly to the API gateway in Nginx right now. The Next.js frontend has a BFF route at `/api/v1/[...path]` that reads the secure NextAuth session cookie and adds backend tokens server-side.
