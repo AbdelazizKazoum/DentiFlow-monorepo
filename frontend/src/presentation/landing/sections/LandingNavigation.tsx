@@ -1,10 +1,11 @@
 "use client";
 
 import React, {useState} from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {useLocale, useTranslations} from "next-intl";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import {Globe2, Menu, ShieldCheck, X} from "lucide-react";
+import {Globe2, Menu, X} from "lucide-react";
 
 const navLinks = [
   {href: "#home", key: "home"},
@@ -22,6 +23,7 @@ const locales = [
 
 export function LandingNavigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
   const t = useTranslations("landing.navbar");
   const locale = useLocale();
   const pathname = usePathname();
@@ -42,9 +44,27 @@ export function LandingNavigation() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0c332f]/92 text-white backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <a href="#home" className="flex min-w-0 items-center gap-3" aria-label={t("brand")}>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#d7b56d]/40 bg-[#d7b56d] text-[#102f2a]">
-            <ShieldCheck size={22} />
+        <a
+          href="#home"
+          className="flex min-w-0 items-center gap-3"
+          aria-label={`${t("brand")} - ${t("agency")}`}
+        >
+          <span className="flex h-14 w-11 shrink-0 items-center justify-center">
+            {logoFailed ? (
+              <span className="flex h-10 w-10 items-center justify-center rounded-md border border-[#d7b56d]/50 bg-[#d7b56d] text-xs font-bold text-[#102f2a] shadow-sm">
+                GR
+              </span>
+            ) : (
+              <Image
+                src="/logo.png"
+                alt={t("logoAlt")}
+                width={52}
+                height={64}
+                priority
+                onError={() => setLogoFailed(true)}
+                className="h-14 w-auto object-contain drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]"
+              />
+            )}
           </span>
           <span className="min-w-0">
             <span className="block text-sm font-semibold leading-5 text-white">

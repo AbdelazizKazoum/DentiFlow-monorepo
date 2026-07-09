@@ -8,6 +8,7 @@
     "navbar": {
       "brand": "Odontology Center",
       "agency": "Royal Gendarmerie",
+      "logoAlt": "Royal Gendarmerie emblem",
       "language": "Language",
       "portal": "Staff portal",
       "openMenu": "Open navigation menu",
@@ -21,80 +22,80 @@
       }
     },
     "hero": {
-      "badge": "Patient access and follow-up",
-      "headline": "Request and prepare your dental appointment with confidence",
-      "subheadline": "Share the essential information before your visit so the clinical team can review your request, confirm availability, and prepare the right care pathway.",
+      "badge": "Patient appointments and clinical follow-up",
+      "headline": "Coordinated dental care for personnel and families",
+      "subheadline": "Submit the essential details before your visit so the center can verify your request, assess the reason for care, and confirm the appropriate appointment.",
       "primaryCta": "Request an appointment",
       "secondaryCta": "View clinical services",
       "stats": {
         "access": {
-          "label": "Appointment",
-          "value": "Confirmed"
+          "label": "Request",
+          "value": "Reviewed"
         },
         "pathway": {
-          "label": "Review",
-          "value": "Clinical"
+          "label": "Care path",
+          "value": "Prepared"
         },
         "records": {
           "label": "Records",
-          "value": "Digital"
+          "value": "Secured"
         }
       }
     },
     "center": {
-      "eyebrow": "Institutional dental service",
-      "title": "A professional center built for reliable care coordination",
-      "description": "The center brings together dental consultations, procedures, clinical handoffs, appointment planning, and patient follow-up in one organized environment for authorized patients.",
+      "eyebrow": "Organized dental care",
+      "title": "A coordinated service for consultations, treatment, and follow-up",
+      "description": "The center supports authorized patients through a structured dental care process, from appointment review and clinical assessment to documented treatment and follow-up.",
       "cards": {
         "continuity": {
-          "title": "Continuity of care",
-          "description": "Each visit is connected to the patient record, clinical notes, and treatment history."
+          "title": "Coordinated follow-up",
+          "description": "Each visit is linked to the patient record, clinical notes, and treatment history to support continuity of care."
         },
         "records": {
-          "title": "Structured documentation",
-          "description": "Clinical teams can prepare, review, and complete treatment information with clear accountability."
+          "title": "Reliable documentation",
+          "description": "Clinical information is organized to help the care team review, complete, and track treatment decisions responsibly."
         }
       }
     },
     "services": {
       "eyebrow": "Clinical services",
-      "title": "Dental services aligned with center operations",
+      "title": "Core dental services delivered through a structured clinical pathway",
       "items": {
         "consultation": {
           "title": "Initial consultation",
-          "description": "Assessment, diagnosis, orientation, and treatment planning for eligible patients."
+          "description": "Clinical assessment, diagnosis, orientation, and treatment planning for eligible patients."
         },
         "care": {
           "title": "Dental treatment",
-          "description": "Routine dental care, restorative procedures, and follow-up treatment sessions."
+          "description": "Routine care, restorative procedures, and scheduled follow-up sessions based on the treatment plan."
         },
         "radiology": {
-          "title": "Clinical records",
-          "description": "Support for documents, radiology references, notes, and visit handoffs."
+          "title": "Clinical documentation",
+          "description": "Management of clinical notes, medical documents, radiology references, and visit handoffs."
         },
         "emergency": {
           "title": "Priority requests",
-          "description": "Appointment requests can identify urgent symptoms for faster administrative review."
+          "description": "Urgent symptoms can be identified during the request process for appropriate administrative review."
         }
       }
     },
     "appointment": {
       "eyebrow": "Patient appointment request",
-      "title": "Fulfill your appointment request before visiting the center",
-      "description": "Patients can submit the essential information needed by the center team to identify the patient, understand the reason for the visit, and confirm the appointment slot.",
-      "toast": "Appointment request captured. The center team will review it.",
+      "title": "Submit your appointment request before visiting the center",
+      "description": "This request helps the appointments desk identify the patient, understand the reason for the visit, and prepare the file for clinical review.",
+      "toast": "Appointment request submitted for review.",
       "process": {
         "identify": {
           "title": "Identify the patient",
-          "description": "Provide your full name and service or registration reference."
+          "description": "Provide the patient name and registration or identification reference."
         },
         "triage": {
-          "title": "Describe the need",
-          "description": "Select the visit reason and add symptoms or useful notes."
+          "title": "Specify the reason",
+          "description": "Choose the visit type and include symptoms or relevant administrative notes."
         },
         "confirm": {
-          "title": "Wait for confirmation",
-          "description": "The center validates availability and confirms the appointment."
+          "title": "Receive confirmation",
+          "description": "The appointments desk reviews availability and confirms the visit details."
         }
       },
       "form": {
@@ -116,7 +117,7 @@
         },
         "notes": "Additional notes",
         "notesPlaceholder": "Symptoms, constraints, or administrative notes",
-        "privacy": "Your request will be reviewed by authorized center staff.",
+        "privacy": "Your request is intended for review by authorized center staff.",
         "submit": "Submit request"
       }
     },

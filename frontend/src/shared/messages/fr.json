@@ -8,6 +8,7 @@
     "navbar": {
       "brand": "Centre d'odontologie",
       "agency": "Gendarmerie Royale",
+      "logoAlt": "Emblème de la Gendarmerie Royale",
       "language": "Langue",
       "portal": "Portail personnel",
       "openMenu": "Ouvrir le menu de navigation",
@@ -21,80 +22,80 @@
       }
     },
     "hero": {
-      "badge": "Accès patient et suivi",
-      "headline": "Préparez votre rendez-vous dentaire avec clarté et confiance",
-      "subheadline": "Transmettez les informations essentielles avant votre visite afin que l'équipe clinique puisse examiner la demande, confirmer la disponibilité et préparer le bon parcours de soins.",
+      "badge": "Rendez-vous patients et suivi clinique",
+      "headline": "Soins dentaires coordonnés pour le personnel et les familles",
+      "subheadline": "Transmettez les informations essentielles avant votre visite afin que le centre puisse vérifier votre demande, évaluer le motif de prise en charge et confirmer le rendez-vous approprié.",
       "primaryCta": "Demander un rendez-vous",
       "secondaryCta": "Voir les services",
       "stats": {
         "access": {
-          "label": "Rendez-vous",
-          "value": "Confirmé"
+          "label": "Demande",
+          "value": "Revue"
         },
         "pathway": {
-          "label": "Revue",
-          "value": "Clinique"
+          "label": "Parcours",
+          "value": "Préparé"
         },
         "records": {
           "label": "Dossiers",
-          "value": "Numériques"
+          "value": "Sécurisés"
         }
       }
     },
     "center": {
-      "eyebrow": "Service dentaire institutionnel",
-      "title": "Un centre professionnel conçu pour une coordination fiable des soins",
-      "description": "Le centre réunit les consultations dentaires, les actes, les transmissions cliniques, la planification des rendez-vous et le suivi des patients dans un environnement organisé pour les patients autorisés.",
+      "eyebrow": "Soins dentaires organisés",
+      "title": "Un service coordonné pour les consultations, les traitements et le suivi",
+      "description": "Le centre accompagne les patients autorisés dans un parcours dentaire structuré, depuis l'examen de la demande et l'évaluation clinique jusqu'au traitement documenté et au suivi.",
       "cards": {
         "continuity": {
-          "title": "Continuité des soins",
-          "description": "Chaque visite est liée au dossier patient, aux notes cliniques et à l'historique des traitements."
+          "title": "Suivi coordonné",
+          "description": "Chaque visite est rattachée au dossier patient, aux notes cliniques et à l'historique des traitements afin de préserver la continuité des soins."
         },
         "records": {
-          "title": "Documentation structurée",
-          "description": "Les équipes cliniques peuvent préparer, vérifier et compléter les informations de traitement avec une responsabilité claire."
+          "title": "Documentation fiable",
+          "description": "Les informations cliniques sont organisées pour aider l'équipe de soins à vérifier, compléter et suivre les décisions de traitement de manière responsable."
         }
       }
     },
     "services": {
       "eyebrow": "Services cliniques",
-      "title": "Des services dentaires alignés avec l'organisation du centre",
+      "title": "Des services dentaires essentiels dans un parcours clinique structuré",
       "items": {
         "consultation": {
           "title": "Consultation initiale",
-          "description": "Évaluation, diagnostic, orientation et planification du traitement pour les patients éligibles."
+          "description": "Évaluation clinique, diagnostic, orientation et planification du traitement pour les patients éligibles."
         },
         "care": {
           "title": "Traitement dentaire",
-          "description": "Soins dentaires courants, actes restaurateurs et séances de suivi."
+          "description": "Soins courants, actes restaurateurs et séances de suivi programmées selon le plan de traitement."
         },
         "radiology": {
-          "title": "Dossiers cliniques",
-          "description": "Support pour les documents, références radiologiques, notes et transmissions de visite."
+          "title": "Documentation clinique",
+          "description": "Gestion des notes cliniques, documents médicaux, références radiologiques et transmissions de visite."
         },
         "emergency": {
           "title": "Demandes prioritaires",
-          "description": "Les demandes de rendez-vous peuvent signaler les symptômes urgents pour une revue administrative plus rapide."
+          "description": "Les symptômes urgents peuvent être signalés lors de la demande afin d'orienter la revue administrative."
         }
       }
     },
     "appointment": {
       "eyebrow": "Demande de rendez-vous patient",
-      "title": "Remplissez votre demande de rendez-vous avant la visite au centre",
-      "description": "Les patients peuvent envoyer les informations essentielles permettant à l'équipe du centre d'identifier le patient, de comprendre le motif de visite et de confirmer le créneau.",
-      "toast": "Demande de rendez-vous enregistrée. L'équipe du centre va l'examiner.",
+      "title": "Soumettez votre demande de rendez-vous avant la visite au centre",
+      "description": "Cette demande aide le bureau des rendez-vous à identifier le patient, comprendre le motif de visite et préparer le dossier pour la revue clinique.",
+      "toast": "Demande de rendez-vous soumise pour revue.",
       "process": {
         "identify": {
           "title": "Identifier le patient",
-          "description": "Indiquez votre nom complet et votre référence de service ou d'immatriculation."
+          "description": "Indiquez le nom du patient et la référence d'immatriculation ou d'identification."
         },
         "triage": {
-          "title": "Décrire le besoin",
-          "description": "Sélectionnez le motif de visite et ajoutez les symptômes ou notes utiles."
+          "title": "Préciser le motif",
+          "description": "Choisissez le type de visite et ajoutez les symptômes ou les notes administratives utiles."
         },
         "confirm": {
-          "title": "Attendre la confirmation",
-          "description": "Le centre vérifie les disponibilités et confirme le rendez-vous."
+          "title": "Recevoir la confirmation",
+          "description": "Le bureau des rendez-vous vérifie les disponibilités et confirme les détails de la visite."
         }
       },
       "form": {
@@ -116,7 +117,7 @@
         },
         "notes": "Notes complémentaires",
         "notesPlaceholder": "Symptômes, contraintes ou notes administratives",
-        "privacy": "Votre demande sera examinée par le personnel autorisé du centre.",
+        "privacy": "Votre demande est destinée à être examinée par le personnel autorisé du centre.",
         "submit": "Envoyer la demande"
       }
     },
