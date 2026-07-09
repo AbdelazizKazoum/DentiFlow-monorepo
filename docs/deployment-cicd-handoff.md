@@ -64,6 +64,7 @@ The VM should contain:
 /opt/dentiflow/.env.prod
 /opt/dentiflow/docker-compose.deploy.yml
 /opt/dentiflow/nginx/default.conf
+/opt/dentiflow/nginx/default.https.conf
 ```
 
 `docker-compose.deploy.yml` is copied by GitHub Actions using `appleboy/scp-action`.
@@ -95,6 +96,7 @@ PROD_BIND_ADDRESS=127.0.0.1
 PROD_FRONTEND_PORT=3000
 PROD_API_PORT=3001
 NGINX_HTTP_PORT=80
+NGINX_HTTPS_PORT=443
 ```
 
 ## Azure Network Requirements
@@ -103,6 +105,7 @@ Azure inbound security rules must allow:
 
 - TCP `22`
 - TCP `80`
+- TCP `443` once HTTPS is enabled
 
 After Nginx is in front of the app, TCP `3000` and TCP `3001` do not need public inbound Azure rules. The compose file can still bind them to `127.0.0.1` for local debugging from inside the VM.
 
@@ -111,6 +114,7 @@ Ubuntu UFW should also allow:
 ```bash
 sudo ufw allow OpenSSH
 sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
 sudo ufw status
 ```
 
@@ -263,6 +267,82 @@ http://dentiflow.site/api-gateway/health -> api-gateway:3001/health
 ```
 
 Do not route all `/api/v1/*` traffic directly to the API gateway in Nginx right now. The Next.js frontend has a BFF route at `/api/v1/[...path]` that reads the secure NextAuth session cookie and adds backend tokens server-side.
+
+## HTTPS Setup
+
+DNS must already point to the VPS before requesting certificates:
+
+```text
+dentiflow.site
+www.dentiflow.site
+app.dentiflow.site
+api.dentiflow.site
+```
+
+Before the first certificate exists, deploy with `nginx/default.conf`, which serves HTTP and the Let's Encrypt challenge path.
+
+Azure inbound rules and UFW must allow TCP `80` and `443`:
+
+```bash
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw status
+```
+
+Request the certificate from the VM:
+
+```bash
+cd /opt/dentiflow
+docker compose --env-file .env.prod -f docker-compose.deploy.yml run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email your-email@example.com \
+  --agree-tos \
+  --no-eff-email \
+  -d dentiflow.site \
+  -d www.dentiflow.site \
+  -d app.dentiflow.site \
+  -d api.dentiflow.site
+```
+
+After Certbot succeeds, switch Nginx to the HTTPS config on the VM:
+
+```bash
+cd /opt/dentiflow
+cp nginx/default.https.conf nginx/default.conf
+docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d nginx
+```
+
+Then update `/opt/dentiflow/.env.prod`:
+
+```env
+FRONTEND_URL=https://dentiflow.site
+NEXTAUTH_URL=https://dentiflow.site
+NEXT_PUBLIC_API_URL=https://dentiflow.site
+```
+
+Also update GitHub repository variable:
+
+```text
+PROD_NEXT_PUBLIC_API_URL=https://dentiflow.site
+```
+
+Redeploy from GitHub Actions so the frontend image is rebuilt with the HTTPS public API URL.
+
+Renewal test:
+
+```bash
+cd /opt/dentiflow
+docker compose --env-file .env.prod -f docker-compose.deploy.yml run --rm certbot renew --dry-run
+```
+
+Manual renewal command:
+
+```bash
+cd /opt/dentiflow
+docker compose --env-file .env.prod -f docker-compose.deploy.yml run --rm certbot renew
+docker compose --env-file .env.prod -f docker-compose.deploy.yml exec nginx nginx -s reload
+```
 
 On the VM, if another host-level Nginx or Apache process already owns port `80`, stop it before starting the Docker stack:
 

@@ -168,6 +168,9 @@ jobs:
             set -e
             cd /opt/dentiflow
             export IMAGE_TAG=${{ env.IMAGE_TAG }}
+            if grep -q '^NEXTAUTH_URL=https://' .env.prod; then
+              cp nginx/default.https.conf nginx/default.conf
+            fi
             docker compose --env-file .env.prod -f docker-compose.deploy.yml pull
             docker compose --env-file .env.prod -f docker-compose.deploy.yml rm -f db-bootstrap auth-migrations clinic-migrations patient-migrations appointment-migrations treatment-migrations || true
             if ! docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --no-build --remove-orphans; then
