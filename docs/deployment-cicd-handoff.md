@@ -49,10 +49,10 @@ Required repository variables:
 - `PROD_NEXT_PUBLIC_API_URL`
 - `PROD_NEXT_PUBLIC_DEFAULT_CLINIC_ID`
 
-For the current Azure IP:
+Current production values:
 
 ```text
-PROD_NEXT_PUBLIC_API_URL=http://dentiflow.site
+PROD_NEXT_PUBLIC_API_URL=https://dentiflow.site
 PROD_NEXT_PUBLIC_DEFAULT_CLINIC_ID=00000000-0000-4000-8000-000000000001
 ```
 
@@ -81,9 +81,9 @@ REFRESH_TOKEN_SECRET=<strong secret>
 NEXTAUTH_SECRET=<strong secret>
 NEXTAUTH_SESSION_COOKIE_NAME=dentiflow-prod.session-token
 
-FRONTEND_URL=http://dentiflow.site
-NEXTAUTH_URL=http://dentiflow.site
-NEXT_PUBLIC_API_URL=http://dentiflow.site
+FRONTEND_URL=https://dentiflow.site
+NEXTAUTH_URL=https://dentiflow.site
+NEXT_PUBLIC_API_URL=https://dentiflow.site
 NEXT_PUBLIC_DEFAULT_CLINIC_ID=00000000-0000-4000-8000-000000000001
 
 DENTIFLOW_SEED_DEFAULT_ADMIN=true
@@ -105,7 +105,7 @@ Azure inbound security rules must allow:
 
 - TCP `22`
 - TCP `80`
-- TCP `443` once HTTPS is enabled
+- TCP `443`
 
 After Nginx is in front of the app, TCP `3000` and TCP `3001` do not need public inbound Azure rules. The compose file can still bind them to `127.0.0.1` for local debugging from inside the VM.
 
@@ -130,8 +130,8 @@ sudo ufw delete allow 3001/tcp
 Browser:
 
 ```text
-http://dentiflow.site
-http://dentiflow.site/api-gateway/health
+https://dentiflow.site
+https://dentiflow.site/api-gateway/health
 ```
 
 From VM:
@@ -141,6 +141,7 @@ cd /opt/dentiflow
 docker compose --env-file .env.prod -f docker-compose.deploy.yml ps
 curl -I http://127.0.0.1
 curl http://127.0.0.1/api-gateway/health
+curl -k -I https://127.0.0.1
 curl -I http://127.0.0.1:3000
 curl http://127.0.0.1:3001/health
 ```
@@ -259,16 +260,26 @@ docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d --no-buil
 
 ## Nginx Reverse Proxy Notes
 
-Nginx runs as a container in the same Docker network as the frontend and API gateway. It listens publicly on port `80`, proxies the app to the `frontend:3000` container, and exposes only a debug health alias:
+Nginx runs as a container in the same Docker network as the frontend and API gateway. It listens publicly on ports `80` and `443`. HTTP redirects to HTTPS, HTTPS proxies the app to the `frontend:3000` container, and Nginx exposes only a debug health alias:
 
 ```text
-http://dentiflow.site -> frontend:3000
-http://dentiflow.site/api-gateway/health -> api-gateway:3001/health
+http://dentiflow.site -> https://dentiflow.site
+https://dentiflow.site -> frontend:3000
+https://dentiflow.site/api-gateway/health -> api-gateway:3001/health
 ```
 
 Do not route all `/api/v1/*` traffic directly to the API gateway in Nginx right now. The Next.js frontend has a BFF route at `/api/v1/[...path]` that reads the secure NextAuth session cookie and adds backend tokens server-side.
 
 ## HTTPS Setup
+
+Current HTTPS status:
+
+```text
+https://dentiflow.site is live
+http://dentiflow.site redirects to https://dentiflow.site
+https://dentiflow.site/api-gateway/health returns API gateway health
+Let's Encrypt certificate expires on 2026-10-07
+```
 
 DNS must already point to the VPS before requesting certificates:
 
@@ -311,6 +322,7 @@ After Certbot succeeds, switch Nginx to the HTTPS config on the VM:
 cd /opt/dentiflow
 cp nginx/default.https.conf nginx/default.conf
 docker compose --env-file .env.prod -f docker-compose.deploy.yml up -d nginx
+docker compose --env-file .env.prod -f docker-compose.deploy.yml exec nginx nginx -s reload
 ```
 
 Then update `/opt/dentiflow/.env.prod`:
@@ -350,6 +362,102 @@ On the VM, if another host-level Nginx or Apache process already owns port `80`,
 sudo ss -tulpn | grep ':80'
 sudo systemctl stop nginx apache2
 sudo systemctl disable nginx apache2
+```
+
+## Domain And HTTPS Presentation Summary
+
+This is the presentation-friendly sequence used to publish DentiFlow securely:
+
+1. Bought the domain `dentiflow.site` from IONOS.
+2. Added DNS `A` records in IONOS to point the domain and subdomains to the Azure VPS public IP `68.221.171.244`:
+
+```text
+A   @     68.221.171.244
+A   www   68.221.171.244
+A   app   68.221.171.244
+A   api   68.221.171.244
+```
+
+3. Added Dockerized Nginx as the public reverse proxy. Instead of exposing the frontend on `3000` and API gateway on `3001`, users access the app through Nginx on standard web ports:
+
+```text
+80  -> HTTP
+443 -> HTTPS
+```
+
+4. Opened the required network ports in Azure Network Security Group and Ubuntu UFW:
+
+```text
+22  SSH
+80  HTTP
+443 HTTPS
+```
+
+5. Added a Certbot Docker service and shared volumes:
+
+```text
+certbot_www -> temporary Let's Encrypt challenge files
+letsencrypt -> generated SSL certificates
+```
+
+6. Configured Nginx to serve the Let's Encrypt HTTP challenge path:
+
+```text
+/.well-known/acme-challenge/*
+```
+
+This allowed Let's Encrypt to verify that the VPS controls `dentiflow.site`.
+
+7. Requested a Let's Encrypt certificate for:
+
+```text
+dentiflow.site
+www.dentiflow.site
+app.dentiflow.site
+api.dentiflow.site
+```
+
+Certbot generated:
+
+```text
+/etc/letsencrypt/live/dentiflow.site/fullchain.pem
+/etc/letsencrypt/live/dentiflow.site/privkey.pem
+```
+
+8. Switched Nginx to the HTTPS config. The final Nginx behavior is:
+
+```text
+http://dentiflow.site  -> redirects to https://dentiflow.site
+https://dentiflow.site -> proxies to frontend:3000
+```
+
+The API gateway remains internal and is reached through the frontend BFF or the debug health alias:
+
+```text
+https://dentiflow.site/api-gateway/health -> api-gateway:3001/health
+```
+
+9. Updated production environment variables and GitHub Actions variable to use the HTTPS URL:
+
+```env
+FRONTEND_URL=https://dentiflow.site
+NEXTAUTH_URL=https://dentiflow.site
+NEXT_PUBLIC_API_URL=https://dentiflow.site
+PROD_NEXT_PUBLIC_API_URL=https://dentiflow.site
+```
+
+10. Verified the final deployment:
+
+```text
+https://dentiflow.site works
+http://dentiflow.site redirects to HTTPS
+https://dentiflow.site/api-gateway/health returns {"status":"ok"}
+```
+
+Short presentation wording:
+
+```text
+We bought a domain name, pointed its DNS records to the Azure VPS, added Nginx as a Docker reverse proxy, opened ports 80 and 443, used Certbot with Let's Encrypt to generate SSL certificates, configured Nginx to redirect HTTP to HTTPS and serve the app securely, then updated the production environment and GitHub Actions variables to use https://dentiflow.site.
 ```
 
 Re-run one-shot migration containers:
