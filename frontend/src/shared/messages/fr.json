@@ -21,28 +21,24 @@
       }
     },
     "hero": {
-      "badge": "Centre d'odontologie de la Gendarmerie Royale",
-      "headline": "Soins dentaires coordonnés pour le personnel de la Gendarmerie Royale et les familles",
-      "subheadline": "Un parcours clinique sécurisé pour les consultations, les plans de traitement, les suivis et les dossiers patients, conçu pour une organisation médicale rigoureuse.",
+      "badge": "Accès patient et suivi",
+      "headline": "Préparez votre rendez-vous dentaire avec clarté et confiance",
+      "subheadline": "Transmettez les informations essentielles avant votre visite afin que l'équipe clinique puisse examiner la demande, confirmer la disponibilité et préparer le bon parcours de soins.",
       "primaryCta": "Demander un rendez-vous",
       "secondaryCta": "Voir les services",
       "stats": {
         "access": {
-          "label": "Accès",
-          "value": "Sur demande"
+          "label": "Rendez-vous",
+          "value": "Confirmé"
         },
         "pathway": {
-          "label": "Parcours",
-          "value": "Triage"
+          "label": "Revue",
+          "value": "Clinique"
         },
         "records": {
           "label": "Dossiers",
           "value": "Numériques"
         }
-      },
-      "panel": {
-        "kicker": "Parcours de rendez-vous",
-        "title": "Avant votre visite"
       }
     },
     "center": {
@@ -127,7 +123,7 @@
     "contact": {
       "location": {
         "title": "Localisation du centre",
-        "value": "Centre d'odontologie de la Gendarmerie Royale"
+        "value": "Accueil et bureau des rendez-vous"
       },
       "phone": {
         "title": "Bureau des rendez-vous",

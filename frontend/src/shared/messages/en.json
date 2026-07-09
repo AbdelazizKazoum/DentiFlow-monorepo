@@ -21,28 +21,24 @@
       }
     },
     "hero": {
-      "badge": "Royal Gendarmerie Odontology Center",
-      "headline": "Coordinated dental care for Royal Gendarmerie personnel and families",
-      "subheadline": "A secure clinical pathway for consultations, treatment planning, follow-up visits, and patient records, designed for disciplined healthcare operations.",
+      "badge": "Patient access and follow-up",
+      "headline": "Request and prepare your dental appointment with confidence",
+      "subheadline": "Share the essential information before your visit so the clinical team can review your request, confirm availability, and prepare the right care pathway.",
       "primaryCta": "Request an appointment",
       "secondaryCta": "View clinical services",
       "stats": {
         "access": {
-          "label": "Access",
-          "value": "By request"
+          "label": "Appointment",
+          "value": "Confirmed"
         },
         "pathway": {
-          "label": "Care pathway",
-          "value": "Triage"
+          "label": "Review",
+          "value": "Clinical"
         },
         "records": {
           "label": "Records",
           "value": "Digital"
         }
-      },
-      "panel": {
-        "kicker": "Appointment pathway",
-        "title": "Before your visit"
       }
     },
     "center": {
@@ -127,7 +123,7 @@
     "contact": {
       "location": {
         "title": "Center location",
-        "value": "Royal Gendarmerie Odontology Center"
+        "value": "Reception and appointments desk"
       },
       "phone": {
         "title": "Appointments desk",

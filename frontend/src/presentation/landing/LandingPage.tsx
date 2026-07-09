@@ -34,6 +34,27 @@ const heroList: Variants = {
   hidden: {},
   visible: {transition: {staggerChildren: 0.1, delayChildren: 0.35}},
 };
+const sectionIntro: Variants = {
+  hidden: {opacity: 0, y: 24},
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {duration: 0.65, ease: "easeOut"},
+  },
+};
+const sectionList: Variants = {
+  hidden: {},
+  visible: {transition: {staggerChildren: 0.1, delayChildren: 0.15}},
+};
+const sectionCard: Variants = {
+  hidden: {opacity: 0, y: 18},
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {duration: 0.5, ease: "easeOut"},
+  },
+};
+const sectionViewport = {once: true, amount: 0.25};
 
 export function LandingPage() {
   const t = useTranslations("landing");
@@ -51,7 +72,7 @@ export function LandingPage() {
       <main>
         <motion.section
           id="home"
-          className="relative min-h-[720px] overflow-hidden bg-[#0c332f] pt-24 text-white"
+          className="relative h-[100svh] max-h-[100svh] overflow-hidden bg-[#0c332f] pt-20 text-white"
           initial="hidden"
           animate="visible"
         >
@@ -78,30 +99,30 @@ export function LandingPage() {
             aria-hidden="true"
           />
 
-          <div className="relative mx-auto grid min-h-[640px] max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8">
+          <div className="relative mx-auto grid h-[calc(100svh-5rem)] max-w-7xl items-center px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
             <div className="max-w-3xl">
               <motion.div
-                className="mb-5 inline-flex items-center gap-2 rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm font-medium text-emerald-50"
+                className="mb-4 inline-flex items-center gap-2 rounded-md border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-emerald-50 sm:text-sm"
                 variants={heroItem}
               >
                 <ShieldCheck size={16} />
                 {t("hero.badge")}
               </motion.div>
               <motion.h1
-                className="max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl"
+                className="max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl xl:text-6xl"
                 variants={heroItem}
               >
                 {t("hero.headline")}
               </motion.h1>
               <motion.p
-                className="mt-6 max-w-2xl text-base leading-8 text-emerald-50 sm:text-lg"
+                className="mt-4 max-w-2xl text-sm leading-7 text-emerald-50 sm:text-base lg:text-lg"
                 variants={heroItem}
               >
                 {t("hero.subheadline")}
               </motion.p>
 
               <motion.div
-                className="mt-8 flex flex-col gap-3 sm:flex-row"
+                className="mt-6 flex flex-col gap-3 sm:flex-row"
                 variants={heroItem}
               >
                 <motion.a
@@ -123,89 +144,50 @@ export function LandingPage() {
               </motion.div>
 
               <motion.dl
-                className="mt-12 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3"
+                className="mt-8 hidden max-w-2xl grid-cols-3 gap-3 sm:grid"
                 variants={heroList}
               >
                 <motion.div
-                  className="rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-sm"
+                  className="rounded-lg border border-white/15 bg-white/10 p-3 backdrop-blur-sm"
                   variants={heroItem}
                 >
                   <dt className="text-sm text-emerald-100">{t("hero.stats.access.label")}</dt>
-                  <dd className="mt-1 text-2xl font-semibold text-white">
+                  <dd className="mt-1 text-xl font-semibold text-white">
                     {t("hero.stats.access.value")}
                   </dd>
                 </motion.div>
                 <motion.div
-                  className="rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-sm"
+                  className="rounded-lg border border-white/15 bg-white/10 p-3 backdrop-blur-sm"
                   variants={heroItem}
                 >
                   <dt className="text-sm text-emerald-100">{t("hero.stats.pathway.label")}</dt>
-                  <dd className="mt-1 text-2xl font-semibold text-white">
+                  <dd className="mt-1 text-xl font-semibold text-white">
                     {t("hero.stats.pathway.value")}
                   </dd>
                 </motion.div>
                 <motion.div
-                  className="rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-sm"
+                  className="rounded-lg border border-white/15 bg-white/10 p-3 backdrop-blur-sm"
                   variants={heroItem}
                 >
                   <dt className="text-sm text-emerald-100">{t("hero.stats.records.label")}</dt>
-                  <dd className="mt-1 text-2xl font-semibold text-white">
+                  <dd className="mt-1 text-xl font-semibold text-white">
                     {t("hero.stats.records.value")}
                   </dd>
                 </motion.div>
               </motion.dl>
             </div>
-
-            <motion.aside
-              className="hidden rounded-lg border border-white/15 bg-white/[0.08] p-5 shadow-2xl shadow-black/20 backdrop-blur-md lg:block"
-              initial={{opacity: 0, x: 28}}
-              animate={{opacity: 1, x: 0}}
-              transition={{duration: 0.85, delay: 0.45, ease: [0.16, 1, 0.3, 1]}}
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <p className="text-sm font-semibold text-[#d7b56d]">
-                    {t("hero.panel.kicker")}
-                  </p>
-                  <h2 className="mt-1 text-xl font-semibold text-white">
-                    {t("hero.panel.title")}
-                  </h2>
-                </div>
-                <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#d7b56d] text-[#102f2a]">
-                  <CalendarCheck size={20} />
-                </span>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {processKeys.map((key, index) => (
-                  <motion.div
-                    key={key}
-                    className="flex items-start gap-3 rounded-md border border-white/10 bg-white/10 p-3"
-                    initial={{opacity: 0, y: 12}}
-                    animate={{opacity: 1, y: 0}}
-                    transition={{duration: 0.45, delay: 0.7 + index * 0.12}}
-                  >
-                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded bg-emerald-50 text-xs font-semibold text-emerald-900">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <h3 className="text-sm font-semibold text-white">
-                        {t(`appointment.process.${key}.title`)}
-                      </h3>
-                      <p className="mt-1 text-xs leading-5 text-emerald-50">
-                        {t(`appointment.process.${key}.description`)}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.aside>
           </div>
         </motion.section>
 
-        <section id="center" className="border-b border-emerald-900/10 bg-white py-16">
+        <motion.section
+          id="center"
+          className="scroll-mt-20 border-b border-emerald-900/10 bg-white py-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={sectionViewport}
+        >
           <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
-            <div>
+            <motion.div variants={sectionIntro}>
               <p className="text-sm font-semibold text-emerald-700">{t("center.eyebrow")}</p>
               <h2 className="mt-3 text-3xl font-semibold leading-tight text-zinc-950 sm:text-4xl">
                 {t("center.title")}
@@ -213,9 +195,16 @@ export function LandingPage() {
               <p className="mt-5 max-w-2xl leading-8 text-zinc-600">
                 {t("center.description")}
               </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-emerald-900/10 bg-[#f4f8f5] p-5">
+            </motion.div>
+            <motion.div
+              className="grid gap-3 sm:grid-cols-2"
+              variants={sectionList}
+            >
+              <motion.div
+                className="rounded-lg border border-emerald-900/10 bg-[#f4f8f5] p-5"
+                variants={sectionCard}
+                whileHover={{y: -3}}
+              >
                 <HeartPulse className="text-emerald-700" size={24} />
                 <h3 className="mt-4 font-semibold text-zinc-950">
                   {t("center.cards.continuity.title")}
@@ -223,8 +212,12 @@ export function LandingPage() {
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
                   {t("center.cards.continuity.description")}
                 </p>
-              </div>
-              <div className="rounded-lg border border-emerald-900/10 bg-[#f4f8f5] p-5">
+              </motion.div>
+              <motion.div
+                className="rounded-lg border border-emerald-900/10 bg-[#f4f8f5] p-5"
+                variants={sectionCard}
+                whileHover={{y: -3}}
+              >
                 <FileText className="text-emerald-700" size={24} />
                 <h3 className="mt-4 font-semibold text-zinc-950">
                   {t("center.cards.records.title")}
@@ -232,25 +225,36 @@ export function LandingPage() {
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
                   {t("center.cards.records.description")}
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        <section id="services" className="bg-[#f7faf8] py-16">
+        <motion.section
+          id="services"
+          className="scroll-mt-20 bg-[#f7faf8] py-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={sectionViewport}
+        >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl">
+            <motion.div className="max-w-2xl" variants={sectionIntro}>
               <p className="text-sm font-semibold text-emerald-700">{t("services.eyebrow")}</p>
               <h2 className="mt-3 text-3xl font-semibold leading-tight text-zinc-950 sm:text-4xl">
                 {t("services.title")}
               </h2>
-            </div>
+            </motion.div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <motion.div
+              className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+              variants={sectionList}
+            >
               {serviceKeys.map((key) => (
-                <article
+                <motion.article
                   key={key}
                   className="rounded-lg border border-emerald-900/10 bg-white p-5 shadow-sm"
+                  variants={sectionCard}
+                  whileHover={{y: -4}}
                 >
                   <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
                     {key === "consultation" && <Stethoscope size={20} />}
@@ -264,15 +268,21 @@ export function LandingPage() {
                   <p className="mt-3 text-sm leading-6 text-zinc-600">
                     {t(`services.items.${key}.description`)}
                   </p>
-                </article>
+                </motion.article>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
-        <section id="appointment" className="bg-white py-16">
+        <motion.section
+          id="appointment"
+          className="scroll-mt-20 bg-white py-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={sectionViewport}
+        >
           <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[.85fr_1.15fr] lg:px-8">
-            <div>
+            <motion.div variants={sectionIntro}>
               <p className="text-sm font-semibold text-emerald-700">
                 {t("appointment.eyebrow")}
               </p>
@@ -283,11 +293,12 @@ export function LandingPage() {
                 {t("appointment.description")}
               </p>
 
-              <div className="mt-8 space-y-3">
+              <motion.div className="mt-8 space-y-3" variants={sectionList}>
                 {processKeys.map((key, index) => (
-                  <div
+                  <motion.div
                     key={key}
                     className="flex gap-3 rounded-lg border border-emerald-900/10 bg-[#f4f8f5] p-4"
+                    variants={sectionCard}
                   >
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-sm font-semibold text-white">
                       {index + 1}
@@ -300,14 +311,15 @@ export function LandingPage() {
                         {t(`appointment.process.${key}.description`)}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
-            <form
+            <motion.form
               onSubmit={handleAppointmentSubmit}
               className="rounded-lg border border-emerald-900/10 bg-[#f7faf8] p-5 shadow-sm sm:p-6"
+              variants={sectionIntro}
             >
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
@@ -381,13 +393,22 @@ export function LandingPage() {
                   {t("appointment.form.submit")}
                 </button>
               </div>
-            </form>
+            </motion.form>
           </div>
-        </section>
+        </motion.section>
 
-        <section id="contact" className="bg-[#102f2a] py-14 text-white">
-          <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 md:grid-cols-3 lg:px-8">
-            <div className="flex gap-3">
+        <motion.section
+          id="contact"
+          className="scroll-mt-20 bg-[#102f2a] py-14 text-white"
+          initial="hidden"
+          whileInView="visible"
+          viewport={sectionViewport}
+        >
+          <motion.div
+            className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 md:grid-cols-3 lg:px-8"
+            variants={sectionList}
+          >
+            <motion.div className="flex gap-3" variants={sectionCard}>
               <MapPin className="shrink-0 text-[#d7b56d]" size={22} />
               <div>
                 <h3 className="font-semibold">{t("contact.location.title")}</h3>
@@ -395,8 +416,8 @@ export function LandingPage() {
                   {t("contact.location.value")}
                 </p>
               </div>
-            </div>
-            <div className="flex gap-3">
+            </motion.div>
+            <motion.div className="flex gap-3" variants={sectionCard}>
               <Phone className="shrink-0 text-[#d7b56d]" size={22} />
               <div>
                 <h3 className="font-semibold">{t("contact.phone.title")}</h3>
@@ -404,8 +425,8 @@ export function LandingPage() {
                   {t("contact.phone.value")}
                 </p>
               </div>
-            </div>
-            <div className="flex gap-3">
+            </motion.div>
+            <motion.div className="flex gap-3" variants={sectionCard}>
               <CheckCircle2 className="shrink-0 text-[#d7b56d]" size={22} />
               <div>
                 <h3 className="font-semibold">{t("contact.hours.title")}</h3>
@@ -413,9 +434,9 @@ export function LandingPage() {
                   {t("contact.hours.value")}
                 </p>
               </div>
-            </div>
-          </div>
-        </section>
+            </motion.div>
+          </motion.div>
+        </motion.section>
       </main>
     </div>
   );
