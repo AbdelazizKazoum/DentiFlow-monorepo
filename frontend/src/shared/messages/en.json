@@ -124,7 +124,8 @@
     "contact": {
       "location": {
         "title": "Center location",
-        "value": "Reception and appointments desk"
+        "value": "X4WX+498, Avenue Ibn Sina, Rabat",
+        "mapLink": "Open in Google Maps"
       },
       "phone": {
         "title": "Appointments desk",

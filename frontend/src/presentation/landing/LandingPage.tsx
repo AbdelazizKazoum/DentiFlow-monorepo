@@ -1,8 +1,14 @@
 "use client";
 
 import React from "react";
-import {motion} from "framer-motion";
-import type {Variants} from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import type {MotionStyle, Variants} from "framer-motion";
 import {useTranslations} from "next-intl";
 import {toast} from "sonner";
 import {
@@ -22,6 +28,22 @@ import {LandingNavigation} from "./sections/LandingNavigation";
 
 const serviceKeys = ["consultation", "care", "radiology", "emergency"] as const;
 const processKeys = ["identify", "triage", "confirm"] as const;
+const heroDots = [
+  {left: "12%", top: "20%", size: 5, delay: 0, duration: 9},
+  {left: "22%", top: "72%", size: 3, delay: 1.4, duration: 10},
+  {left: "42%", top: "18%", size: 4, delay: 0.8, duration: 12},
+  {left: "58%", top: "66%", size: 3, delay: 2.1, duration: 9},
+  {left: "74%", top: "28%", size: 5, delay: 1.1, duration: 11},
+  {left: "88%", top: "76%", size: 4, delay: 0.4, duration: 10},
+] as const;
+const pageDots = [
+  {left: "8%", top: "18%", size: 4, delay: 0.2, duration: 12},
+  {left: "28%", top: "48%", size: 3, delay: 1.6, duration: 13},
+  {left: "64%", top: "20%", size: 4, delay: 0.9, duration: 11},
+  {left: "86%", top: "62%", size: 3, delay: 2.2, duration: 12},
+] as const;
+const MAP_URL =
+  "https://www.google.com/maps/place/Centre+d'Odontologie+de+la+Gendarmerie+Royale/@33.9952861,-6.854134,17z/data=!3m1!4b1!4m6!3m5!1s0xda76c9204cee22f:0x6aff777785d8fa43!8m2!3d33.9952861!4d-6.8515591!16s%2Fg%2F12ll10tgs";
 const heroItem: Variants = {
   hidden: {opacity: 0, y: 18},
   visible: {
@@ -58,6 +80,30 @@ const sectionViewport = {once: true, amount: 0.25};
 
 export function LandingPage() {
   const t = useTranslations("landing");
+  const shouldReduceMotion = useReducedMotion();
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const springX = useSpring(pointerX, {stiffness: 70, damping: 24, mass: 0.5});
+  const springY = useSpring(pointerY, {stiffness: 70, damping: 24, mass: 0.5});
+  const dotsX = useTransform(springX, [-1, 1], [-18, 18]);
+  const dotsY = useTransform(springY, [-1, 1], [-12, 12]);
+  const ringX = useTransform(springX, [-1, 1], [14, -14]);
+  const ringY = useTransform(springY, [-1, 1], [10, -10]);
+
+  const handleHeroPointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    if (shouldReduceMotion) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const nextX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+    const nextY = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+    pointerX.set(nextX);
+    pointerY.set(nextY);
+  };
+
+  const resetHeroPointer = () => {
+    pointerX.set(0);
+    pointerY.set(0);
+  };
 
   const handleAppointmentSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -69,12 +115,18 @@ export function LandingPage() {
     <div className="min-h-screen bg-[#f7faf8] font-sans text-zinc-900 selection:bg-emerald-100 selection:text-emerald-950">
       <LandingNavigation />
 
-      <main>
+      <main className="relative overflow-hidden">
+        <AmbientDots
+          dots={pageDots}
+          className="absolute inset-x-0 top-[100svh] bottom-0 z-0 text-emerald-700/25"
+        />
         <motion.section
           id="home"
           className="relative h-[100svh] max-h-[100svh] overflow-hidden bg-[#0c332f] pt-20 text-white"
           initial="hidden"
           animate="visible"
+          onPointerMove={handleHeroPointerMove}
+          onPointerLeave={resetHeroPointer}
         >
           <motion.div
             className="absolute inset-0 bg-cover bg-center opacity-[0.32]"
@@ -89,6 +141,25 @@ export function LandingPage() {
           />
           <div
             className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,51,47,0.96)_0%,rgba(12,51,47,0.88)_43%,rgba(12,51,47,0.66)_100%)]"
+            aria-hidden="true"
+          />
+          <AmbientDots
+            dots={heroDots}
+            className="absolute inset-0 z-0 text-[#d7b56d]/55"
+            style={{x: dotsX, y: dotsY}}
+          />
+          <motion.div
+            className="absolute right-[8%] top-1/2 z-0 hidden h-72 w-72 -translate-y-1/2 rounded-full border border-[#d7b56d]/15 lg:block"
+            animate={{rotate: 360}}
+            transition={{duration: 38, repeat: Infinity, ease: "linear"}}
+            style={{x: ringX, y: ringY}}
+            aria-hidden="true"
+          />
+          <motion.div
+            className="absolute right-[13%] top-1/2 z-0 hidden h-44 w-44 -translate-y-1/2 rounded-full border border-white/10 lg:block"
+            animate={{rotate: -360}}
+            transition={{duration: 32, repeat: Infinity, ease: "linear"}}
+            style={{x: dotsX, y: dotsY}}
             aria-hidden="true"
           />
           <motion.div
@@ -181,7 +252,7 @@ export function LandingPage() {
 
         <motion.section
           id="center"
-          className="scroll-mt-20 border-b border-emerald-900/10 bg-white py-20"
+          className="relative z-10 scroll-mt-20 border-b border-emerald-900/10 bg-white py-20"
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
@@ -232,7 +303,7 @@ export function LandingPage() {
 
         <motion.section
           id="services"
-          className="scroll-mt-20 bg-[#f7faf8] py-20"
+          className="relative z-10 scroll-mt-20 bg-[#f7faf8]/95 py-20"
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
@@ -276,7 +347,7 @@ export function LandingPage() {
 
         <motion.section
           id="appointment"
-          className="scroll-mt-20 bg-white py-20"
+          className="relative z-10 scroll-mt-20 bg-white py-20"
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
@@ -399,7 +470,7 @@ export function LandingPage() {
 
         <motion.section
           id="contact"
-          className="scroll-mt-20 bg-[#102f2a] py-14 text-white"
+          className="relative z-10 scroll-mt-20 bg-[#102f2a] py-14 text-white"
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
@@ -415,6 +486,14 @@ export function LandingPage() {
                 <p className="mt-1 text-sm leading-6 text-emerald-50">
                   {t("contact.location.value")}
                 </p>
+                <a
+                  href={MAP_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex text-sm font-semibold text-[#d7b56d] underline-offset-4 transition hover:text-[#f0d894] hover:underline"
+                >
+                  {t("contact.location.mapLink")}
+                </a>
               </div>
             </motion.div>
             <motion.div className="flex gap-3" variants={sectionCard}>
@@ -473,5 +552,54 @@ function Field({
         />
       </span>
     </label>
+  );
+}
+
+function AmbientDots({
+  dots,
+  className,
+  style,
+}: {
+  dots: ReadonlyArray<{
+    left: string;
+    top: string;
+    size: number;
+    delay: number;
+    duration: number;
+  }>;
+  className: string;
+  style?: MotionStyle;
+}) {
+  return (
+    <motion.div
+      className={`pointer-events-none ${className}`}
+      style={style}
+      aria-hidden="true"
+    >
+      {dots.map((dot, index) => (
+        <motion.span
+          key={`${dot.left}-${dot.top}-${index}`}
+          className="absolute rounded-full bg-current shadow-[0_0_24px_currentColor]"
+          style={{
+            left: dot.left,
+            top: dot.top,
+            width: dot.size,
+            height: dot.size,
+          }}
+          animate={{
+            opacity: [0.18, 0.75, 0.18],
+            x: [0, 18, -8, 0],
+            y: [0, -16, 10, 0],
+            scale: [1, 1.4, 0.9, 1],
+          }}
+          transition={{
+            duration: dot.duration,
+            delay: dot.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </motion.div>
   );
 }

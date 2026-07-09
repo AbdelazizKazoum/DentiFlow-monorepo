@@ -124,7 +124,8 @@
     "contact": {
       "location": {
         "title": "Localisation du centre",
-        "value": "Accueil et bureau des rendez-vous"
+        "value": "X4WX+498, Avenue Ibn Sina, Rabat",
+        "mapLink": "Ouvrir dans Google Maps"
       },
       "phone": {
         "title": "Bureau des rendez-vous",
