@@ -5,88 +5,137 @@
     "about": "About Us"
   },
   "landing": {
-    "hero": {
-      "badge": "Trusted by 500+ Dental Clinics",
-      "headline": "Modern Dental Clinic Management",
-      "subheadline": "Streamline appointments, manage patients, and grow your practice with our all-in-one dental SaaS platform.",
-      "cta_primary": "Book a Demo",
-      "cta_secondary": "Learn More"
+    "navbar": {
+      "brand": "Odontology Center",
+      "agency": "Royal Gendarmerie",
+      "language": "Language",
+      "portal": "Staff portal",
+      "openMenu": "Open navigation menu",
+      "closeMenu": "Close navigation menu",
+      "links": {
+        "home": "Home",
+        "center": "Center",
+        "services": "Services",
+        "appointment": "Request appointment",
+        "contact": "Contact"
+      }
     },
-    "features": {
-      "title": "Everything Your Clinic Needs",
-      "subtitle": "Powerful tools designed for modern dental practices",
-      "items": {
-        "scheduling": {
-          "title": "Smart Scheduling",
-          "description": "Intelligent appointment booking with automated reminders and conflict detection."
+    "hero": {
+      "badge": "Royal Gendarmerie Odontology Center",
+      "headline": "Coordinated dental care for Royal Gendarmerie personnel and families",
+      "subheadline": "A secure clinical pathway for consultations, treatment planning, follow-up visits, and patient records, designed for disciplined healthcare operations.",
+      "primaryCta": "Request an appointment",
+      "secondaryCta": "View clinical services",
+      "stats": {
+        "access": {
+          "label": "Access",
+          "value": "By request"
         },
-        "patients": {
-          "title": "Patient Management",
-          "description": "Complete patient profiles, medical history, and treatment records at your fingertips."
+        "pathway": {
+          "label": "Care pathway",
+          "value": "Triage"
         },
-        "billing": {
-          "title": "Billing & Invoicing",
-          "description": "Automated billing, insurance claims, and payment tracking in one place."
+        "records": {
+          "label": "Records",
+          "value": "Digital"
+        }
+      },
+      "panel": {
+        "kicker": "Appointment pathway",
+        "title": "Before your visit"
+      }
+    },
+    "center": {
+      "eyebrow": "Institutional dental service",
+      "title": "A professional center built for reliable care coordination",
+      "description": "The center brings together dental consultations, procedures, clinical handoffs, appointment planning, and patient follow-up in one organized environment for authorized patients.",
+      "cards": {
+        "continuity": {
+          "title": "Continuity of care",
+          "description": "Each visit is connected to the patient record, clinical notes, and treatment history."
         },
-        "analytics": {
-          "title": "Real-Time Analytics",
-          "description": "Data-driven insights to monitor revenue, appointments, and clinic performance."
-        },
-        "security": {
-          "title": "Data Security",
-          "description": "HIPAA-compliant data storage with end-to-end encryption and audit logs."
-        },
-        "notifications": {
-          "title": "Smart Notifications",
-          "description": "Automated SMS and email reminders reduce no-shows by up to 60%."
+        "records": {
+          "title": "Structured documentation",
+          "description": "Clinical teams can prepare, review, and complete treatment information with clear accountability."
         }
       }
     },
-    "testimonials": {
-      "title": "What Our Clients Say",
-      "subtitle": "Trusted by dental professionals worldwide"
-    },
-    "pricing": {
-      "title": "Simple, Transparent Pricing",
-      "subtitle": "Choose the plan that fits your practice",
-      "per_month": "/month",
-      "get_started": "Get Started",
-      "contact_sales": "Contact Sales",
-      "most_popular": "Most Popular",
-      "custom": "Custom",
-      "plans": {
-        "starter": {
-          "name": "Starter",
-          "description": "Perfect for small clinics just getting started.",
-          "features": {
-            "f1": "Up to 2 practitioners",
-            "f2": "500 patient records",
-            "f3": "Basic scheduling",
-            "f4": "Email support"
-          }
+    "services": {
+      "eyebrow": "Clinical services",
+      "title": "Dental services aligned with center operations",
+      "items": {
+        "consultation": {
+          "title": "Initial consultation",
+          "description": "Assessment, diagnosis, orientation, and treatment planning for eligible patients."
         },
-        "professional": {
-          "name": "Professional",
-          "description": "Ideal for growing practices with advanced needs.",
-          "features": {
-            "f1": "Up to 10 practitioners",
-            "f2": "Unlimited patient records",
-            "f3": "Advanced analytics",
-            "f4": "SMS & email reminders",
-            "f5": "Priority support"
-          }
+        "care": {
+          "title": "Dental treatment",
+          "description": "Routine dental care, restorative procedures, and follow-up treatment sessions."
         },
-        "enterprise": {
-          "name": "Enterprise",
-          "description": "For large clinics and multi-branch practices.",
-          "features": {
-            "f1": "Unlimited practitioners",
-            "f2": "Multi-branch management",
-            "f3": "Custom integrations",
-            "f4": "Dedicated account manager",
-            "f5": "SLA guarantee"
-          }
+        "radiology": {
+          "title": "Clinical records",
+          "description": "Support for documents, radiology references, notes, and visit handoffs."
+        },
+        "emergency": {
+          "title": "Priority requests",
+          "description": "Appointment requests can identify urgent symptoms for faster administrative review."
         }
+      }
+    },
+    "appointment": {
+      "eyebrow": "Patient appointment request",
+      "title": "Fulfill your appointment request before visiting the center",
+      "description": "Patients can submit the essential information needed by the center team to identify the patient, understand the reason for the visit, and confirm the appointment slot.",
+      "toast": "Appointment request captured. The center team will review it.",
+      "process": {
+        "identify": {
+          "title": "Identify the patient",
+          "description": "Provide your full name and service or registration reference."
+        },
+        "triage": {
+          "title": "Describe the need",
+          "description": "Select the visit reason and add symptoms or useful notes."
+        },
+        "confirm": {
+          "title": "Wait for confirmation",
+          "description": "The center validates availability and confirms the appointment."
+        }
+      },
+      "form": {
+        "fullName": "Full name",
+        "fullNamePlaceholder": "Patient full name",
+        "registration": "Registration or service ID",
+        "registrationPlaceholder": "Matricule / CIN",
+        "phone": "Phone number",
+        "phonePlaceholder": "Contact phone",
+        "date": "Preferred date",
+        "time": "Preferred time",
+        "reason": "Reason for visit",
+        "reasonPlaceholder": "Select a reason",
+        "reasons": {
+          "consultation": "Initial consultation",
+          "followUp": "Follow-up visit",
+          "urgentCare": "Urgent dental care",
+          "document": "Medical document request"
+        },
+        "notes": "Additional notes",
+        "notesPlaceholder": "Symptoms, constraints, or administrative notes",
+        "privacy": "Your request will be reviewed by authorized center staff.",
+        "submit": "Submit request"
+      }
+    },
+    "contact": {
+      "location": {
+        "title": "Center location",
+        "value": "Royal Gendarmerie Odontology Center"
+      },
+      "phone": {
+        "title": "Appointments desk",
+        "value": "Available during service hours"
+      },
+      "hours": {
+        "title": "Service hours",
+        "value": "Monday to Friday, by confirmed appointment"
       }
     }
   },
