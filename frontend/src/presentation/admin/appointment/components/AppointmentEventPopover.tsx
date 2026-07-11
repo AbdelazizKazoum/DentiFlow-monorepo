@@ -38,15 +38,7 @@ function formatDate(date: Date, locale: string): string {
 }
 
 function isEligibleForCheckIn(appointment: Appointment): boolean {
-  if (!["PENDING", "CONFIRMED"].includes(appointment.status)) return false;
-
-  const today = new Date();
-  const apptDate = new Date(appointment.startAt);
-  return (
-    apptDate.getFullYear() === today.getFullYear() &&
-    apptDate.getMonth() === today.getMonth() &&
-    apptDate.getDate() === today.getDate()
-  );
+  return ["PENDING", "CONFIRMED"].includes(appointment.status);
 }
 
 export function AppointmentEventPopover({

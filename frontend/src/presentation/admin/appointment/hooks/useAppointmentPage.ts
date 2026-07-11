@@ -244,18 +244,8 @@ export function useAppointmentPage() {
 
   const canCheckInForm = useMemo(() => {
     if (!form.id || !form.patientId) return false;
-    if (!["PENDING", "CONFIRMED"].includes(form.status)) return false;
-
-    const appointmentDate = new Date(form.startAt);
-    if (Number.isNaN(appointmentDate.getTime())) return false;
-
-    const today = new Date();
-    return (
-      appointmentDate.getFullYear() === today.getFullYear() &&
-      appointmentDate.getMonth() === today.getMonth() &&
-      appointmentDate.getDate() === today.getDate()
-    );
-  }, [form.id, form.patientId, form.startAt, form.status]);
+    return ["PENDING", "CONFIRMED"].includes(form.status);
+  }, [form.id, form.patientId, form.status]);
 
   const openCheckInFromForm = useCallback(() => {
     if (!canCheckInForm) return;
