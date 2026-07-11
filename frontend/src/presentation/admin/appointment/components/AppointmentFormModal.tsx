@@ -15,7 +15,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {X} from "lucide-react";
+import {LogIn, X} from "lucide-react";
 import {useTranslations} from "next-intl";
 import type {AppointmentStatus} from "@/domain/appointment/entities/appointment";
 import type {AppointmentProvider} from "../appointmentConfig";
@@ -33,6 +33,8 @@ interface AppointmentFormModalProps {
   onChange: (form: AppointmentFormState) => void;
   onSave: () => void;
   onDelete: () => void;
+  canCheckIn?: boolean;
+  onCheckIn?: () => void;
 }
 
 function initials(name: string): string {
@@ -54,6 +56,8 @@ export function AppointmentFormModal({
   onChange,
   onSave,
   onDelete,
+  canCheckIn = false,
+  onCheckIn,
 }: AppointmentFormModalProps) {
   const t = useTranslations("admin.appointments.form");
   const statusT = useTranslations("admin.appointments.status");
@@ -329,18 +333,40 @@ export function AppointmentFormModal({
       >
         <div>
           {form.id && (
-            <Button
-              color="error"
-              variant="text"
-              onClick={onDelete}
-              sx={{
-                textTransform: "none",
-                fontWeight: 600,
-                borderRadius: "8px",
-              }}
-            >
-              {t("delete")}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                color="error"
+                variant="text"
+                onClick={onDelete}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+              >
+                {t("delete")}
+              </Button>
+              {canCheckIn && (
+                <Button
+                  variant="contained"
+                  onClick={onCheckIn}
+                  startIcon={<LogIn size={15} />}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    borderRadius: "8px",
+                    backgroundColor: "#279C41",
+                    boxShadow: "0 1px 4px rgba(39,156,65,0.3)",
+                    "&:hover": {
+                      backgroundColor: "#1e7a32",
+                      boxShadow: "0 2px 8px rgba(39,156,65,0.4)",
+                    },
+                  }}
+                >
+                  {t("checkIn")}
+                </Button>
+              )}
+            </div>
           )}
         </div>
         <div className="flex gap-2">

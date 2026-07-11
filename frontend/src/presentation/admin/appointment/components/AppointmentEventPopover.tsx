@@ -38,7 +38,7 @@ function formatDate(date: Date, locale: string): string {
 }
 
 function isEligibleForCheckIn(appointment: Appointment): boolean {
-  if (appointment.status !== "CONFIRMED") return false;
+  if (!["PENDING", "CONFIRMED"].includes(appointment.status)) return false;
 
   const today = new Date();
   const apptDate = new Date(appointment.startAt);

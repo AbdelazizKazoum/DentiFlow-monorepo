@@ -30,12 +30,18 @@ export function staffToAppointmentProviders(
     "#059669",
     "#7c3aed",
   ];
-  return staff.map((member, index) => ({
-    id: member.userId,
-    name: member.fullName,
-    avatar: member.avatar || `https://i.pravatar.cc/150?img=${index + 1}`,
-    color: colors[index % colors.length],
-  }));
+  return staff
+    .filter(
+      (member) =>
+        String(member.role).toUpperCase() === "DOCTOR" &&
+        member.isActiveStaff(),
+    )
+    .map((member, index) => ({
+      id: member.userId,
+      name: member.fullName,
+      avatar: member.avatar || `https://i.pravatar.cc/150?img=${index + 1}`,
+      color: colors[index % colors.length],
+    }));
 }
 
 export const APPOINTMENT_STATUS_CONFIG: Record<

@@ -24,7 +24,7 @@ interface AppointmentStoreState {
   isLoadingDoctors: boolean;
   isSearchingPatients: boolean;
   loadCalendar: (clinicId: string, start: Date, end: Date) => Promise<void>;
-  loadDoctors: () => Promise<void>;
+  loadDoctors: (clinicId?: string) => Promise<void>;
   searchPatients: (query: string) => Promise<void>;
   addAppointment: (command: CreateAppointmentCommand) => Promise<Appointment>;
   editAppointment: (appointment: Appointment) => Promise<Appointment>;
@@ -62,10 +62,10 @@ export const useAppointmentStore = create<AppointmentStoreState>((set) => ({
     }
   },
 
-  loadDoctors: async () => {
+  loadDoctors: async (clinicId) => {
     set({isLoadingDoctors: true});
     try {
-      const doctors = await getAllStaffUseCase.execute();
+      const doctors = await getAllStaffUseCase.execute(clinicId);
       set({doctors, isLoadingDoctors: false});
     } catch (error) {
       set({isLoadingDoctors: false});

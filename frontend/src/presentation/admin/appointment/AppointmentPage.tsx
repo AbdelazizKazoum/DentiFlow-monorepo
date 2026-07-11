@@ -60,6 +60,8 @@ export default function AppointmentPage() {
         onChange={hook.setForm}
         onSave={hook.saveForm}
         onDelete={hook.deleteForm}
+        canCheckIn={hook.canCheckInForm}
+        onCheckIn={hook.openCheckInFromForm}
       />
 
       <CheckInDialog

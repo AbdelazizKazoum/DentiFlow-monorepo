@@ -989,6 +989,7 @@
         "notes": "Notes / commentaires",
         "notesPlaceholder": "ex. Le patient signale une sensibilité dentaire...",
         "delete": "Supprimer",
+        "checkIn": "Enregistrer l'arrivée",
         "cancel": "Annuler",
         "saving": "Enregistrement...",
         "saveChanges": "Enregistrer",

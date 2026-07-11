@@ -1172,6 +1172,7 @@
         "notes": "Notes / Comments",
         "notesPlaceholder": "e.g. Patient mentioned tooth sensitivity...",
         "delete": "Delete",
+        "checkIn": "Check In",
         "cancel": "Cancel",
         "saving": "Saving...",
         "saveChanges": "Save Changes",

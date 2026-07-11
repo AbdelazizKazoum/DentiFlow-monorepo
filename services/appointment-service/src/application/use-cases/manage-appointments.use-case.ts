@@ -158,7 +158,7 @@ export class ManageAppointmentsUseCase {
 
   private async validateDoctor(userId: string, clinicId: string): Promise<void> {
     const staff = await this.clinic.getStaffMember(userId, clinicId);
-    if (staff.clinicId !== clinicId || staff.role !== "DOCTOR") {
+    if (staff.clinicId !== clinicId || staff.role.toUpperCase() !== "DOCTOR") {
       throw new BadRequestException("Doctor does not belong to this clinic");
     }
   }

@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
+import {useSession} from "next-auth/react";
 import type {Appointment} from "@/domain/appointment/entities/appointment";
 import {useAppointmentStore} from "@/presentation/stores/appointmentStore";
 import {useQueueStore} from "@/presentation/stores/queueStore";
@@ -16,6 +17,8 @@ import {
 import {AppError} from "@/infrastructure/http/httpErrorHandler";
 
 export function useAppointmentPage() {
+  const {data: session, status: sessionStatus} = useSession();
+  const clinicId = session?.user?.clinic_id || APPOINTMENT_CLINIC_ID;
   const {
     appointments,
     doctors,
@@ -146,7 +149,7 @@ export function useAppointmentPage() {
 
     const payload = {
       id: form.id,
-      clinicId: APPOINTMENT_CLINIC_ID,
+      clinicId,
       patientId: form.patientId,
       patientName: form.patientName,
       patientPhone: form.patientPhone || undefined,
@@ -171,7 +174,7 @@ export function useAppointmentPage() {
           : "Failed to save appointment.";
       setFormError(message);
     }
-  }, [addAppointment, editAppointment, form]);
+  }, [addAppointment, clinicId, editAppointment, form]);
 
   const deleteForm = useCallback(async () => {
     if (!form.id) return;
@@ -209,7 +212,7 @@ export function useAppointmentPage() {
     setCheckInError("");
     try {
       await checkInPatient({
-        clinicId: APPOINTMENT_CLINIC_ID,
+        clinicId,
         appointmentId: checkInAppointment.id,
         patientId: checkInAppointment.patientId,
         patientName: checkInAppointment.patientName,
@@ -230,24 +233,61 @@ export function useAppointmentPage() {
           : "Failed to check in patient.";
       setCheckInError(message);
     }
-  }, [checkInAppointment, checkInForm, checkInPatient]);
+  }, [checkInAppointment, checkInForm, checkInPatient, clinicId]);
 
   const navigateCalendar = useCallback(
     (start: Date, end: Date) => {
-      loadCalendar(APPOINTMENT_CLINIC_ID, start, end);
+      loadCalendar(clinicId, start, end);
     },
-    [loadCalendar],
+    [clinicId, loadCalendar],
   );
+
+  const canCheckInForm = useMemo(() => {
+    if (!form.id || !form.patientId) return false;
+    if (!["PENDING", "CONFIRMED"].includes(form.status)) return false;
+
+    const appointmentDate = new Date(form.startAt);
+    if (Number.isNaN(appointmentDate.getTime())) return false;
+
+    const today = new Date();
+    return (
+      appointmentDate.getFullYear() === today.getFullYear() &&
+      appointmentDate.getMonth() === today.getMonth() &&
+      appointmentDate.getDate() === today.getDate()
+    );
+  }, [form.id, form.patientId, form.startAt, form.status]);
+
+  const openCheckInFromForm = useCallback(() => {
+    if (!canCheckInForm) return;
+    openCheckIn({
+      id: form.id,
+      clinicId,
+      patientId: form.patientId,
+      patientName: form.patientName,
+      patientPhone: form.patientPhone || undefined,
+      doctorId: form.doctorId,
+      doctorName: form.doctorName,
+      startAt: new Date(form.startAt),
+      endAt: new Date(form.endAt),
+      isEmergency: form.isEmergency,
+      type: form.type || undefined,
+      channel: form.channel,
+      status: form.status,
+      notes: form.notes || undefined,
+    });
+    setModalOpen(false);
+  }, [canCheckInForm, clinicId, form, openCheckIn]);
 
   // Load doctors and initial week on mount
   useEffect(() => {
-    loadDoctors();
+    if (sessionStatus === "loading") return;
+    loadDoctors(clinicId);
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const end = new Date(start);
     end.setDate(end.getDate() + 7);
-    loadCalendar(APPOINTMENT_CLINIC_ID, start, end);
-  }, [loadDoctors, loadCalendar]);
+    loadCalendar(clinicId, start, end);
+  }, [clinicId, loadDoctors, loadCalendar, sessionStatus]);
 
   return {
     appointments,
@@ -278,5 +318,7 @@ export function useAppointmentPage() {
     submitCheckIn,
     setCheckInOpen,
     setCheckInForm,
+    canCheckInForm,
+    openCheckInFromForm,
   };
 }

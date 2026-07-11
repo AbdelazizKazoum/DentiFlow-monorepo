@@ -4,7 +4,10 @@ import {StaffRepository} from "@/domain/staff/repositories/staffRepository";
 export class GetAllStaff {
   constructor(private readonly repository: StaffRepository) {}
 
-  async execute(): Promise<Staff[]> {
+  async execute(clinicId?: string): Promise<Staff[]> {
+    if (clinicId) {
+      return this.repository.findByClinicId(clinicId);
+    }
     return this.repository.findAll();
   }
 }

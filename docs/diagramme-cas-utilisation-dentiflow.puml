@@ -1,0 +1,177 @@
+@startuml
+title Diagramme de cas d'utilisation - DentiFlow
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam shadowing false
+
+actor "Patient" as Patient
+actor "Secretaire" as Secretaire
+actor "Medecin dentiste" as Medecin
+actor "Assistant dentaire" as Assistant
+actor "Administrateur" as Admin
+
+rectangle "DentiFlow" {
+
+  package "Authentification" {
+    usecase "Creer un compte" as UC_Register
+    usecase "Se connecter" as UC_Login
+    usecase "Se deconnecter" as UC_Logout
+    usecase "Verifier les droits d'acces" as UC_RBAC
+  }
+
+  package "Gestion des patients" {
+    usecase "Gerer les patients" as UC_ManagePatients
+    usecase "Creer un dossier patient" as UC_CreatePatient
+    usecase "Modifier un dossier patient" as UC_UpdatePatient
+    usecase "Rechercher un patient" as UC_SearchPatient
+    usecase "Consulter un dossier patient" as UC_ViewPatient
+    usecase "Supprimer ou restaurer un patient" as UC_DeletePatient
+    usecase "Gerer les documents patient" as UC_PatientDocs
+    usecase "Gerer les assurances patient" as UC_PatientInsurance
+    usecase "Consulter l'historique medical" as UC_MedicalHistory
+  }
+
+  package "Gestion des rendez-vous" {
+    usecase "Consulter les disponibilites" as UC_ViewSlots
+    usecase "Reserver un rendez-vous en ligne" as UC_BookOnline
+    usecase "Gerer les rendez-vous" as UC_ManageAppointments
+    usecase "Ajouter un rendez-vous" as UC_CreateAppointment
+    usecase "Modifier un rendez-vous" as UC_UpdateAppointment
+    usecase "Annuler un rendez-vous" as UC_CancelAppointment
+    usecase "Consulter le planning" as UC_ViewSchedule
+    usecase "Prevenir les conflits de creneaux" as UC_PreventConflicts
+  }
+
+  package "Salle d'attente" {
+    usecase "Gerer la file d'attente" as UC_ManageQueue
+    usecase "Marquer un patient comme arrive" as UC_CheckIn
+    usecase "Changer le statut du patient" as UC_UpdateQueueStatus
+    usecase "Consulter la file d'attente en temps reel" as UC_ViewQueue
+  }
+
+  package "Gestion des traitements" {
+    usecase "Consulter le dossier clinique" as UC_ViewClinicalRecord
+    usecase "Consulter le schema dentaire" as UC_DentalChart
+    usecase "Ajouter un diagnostic" as UC_AddDiagnosis
+    usecase "Saisir un acte dentaire" as UC_AddTreatment
+    usecase "Ajouter des notes ou pieces jointes" as UC_AddClinicalNotes
+    usecase "Confirmer les actes dentaires" as UC_ConfirmTreatment
+    usecase "Cloturer une visite" as UC_CloseVisit
+  }
+
+  package "Administration" {
+    usecase "Gerer le personnel" as UC_ManageStaff
+    usecase "Gerer les roles et permissions" as UC_ManageRoles
+    usecase "Configurer la clinique" as UC_ClinicConfig
+    usecase "Configurer les horaires de travail" as UC_WorkingHours
+    usecase "Gerer le catalogue des actes" as UC_ActCatalog
+    usecase "Gerer les prestataires d'assurance" as UC_InsuranceProviders
+    usecase "Gerer les modeles d'assurance" as UC_InsuranceTemplates
+    usecase "Consulter le tableau de bord" as UC_Dashboard
+  }
+
+  package "Notifications" {
+    usecase "Recevoir une confirmation de rendez-vous" as UC_Confirmation
+    usecase "Recevoir un rappel de rendez-vous" as UC_Reminder
+    usecase "Envoyer des notifications" as UC_SendNotifications
+  }
+}
+
+' Associations des acteurs
+Patient --> UC_Register
+Patient --> UC_Login
+Patient --> UC_Logout
+Patient --> UC_ViewSlots
+Patient --> UC_BookOnline
+Patient --> UC_ViewSchedule
+Patient --> UC_ViewPatient
+Patient --> UC_MedicalHistory
+Patient --> UC_Confirmation
+Patient --> UC_Reminder
+
+Secretaire --> UC_Login
+Secretaire --> UC_Logout
+Secretaire --> UC_ManagePatients
+Secretaire --> UC_ManageAppointments
+Secretaire --> UC_ManageQueue
+Secretaire --> UC_SendNotifications
+
+Medecin --> UC_Login
+Medecin --> UC_Logout
+Medecin --> UC_ViewSchedule
+Medecin --> UC_ViewQueue
+Medecin --> UC_ViewClinicalRecord
+Medecin --> UC_DentalChart
+Medecin --> UC_AddDiagnosis
+Medecin --> UC_AddTreatment
+Medecin --> UC_ConfirmTreatment
+Medecin --> UC_CloseVisit
+
+Assistant --> UC_Login
+Assistant --> UC_Logout
+Assistant --> UC_ViewQueue
+Assistant --> UC_ViewClinicalRecord
+Assistant --> UC_AddTreatment
+Assistant --> UC_AddClinicalNotes
+
+Admin --> UC_Login
+Admin --> UC_Logout
+Admin --> UC_Dashboard
+Admin --> UC_ManageStaff
+Admin --> UC_ManageRoles
+Admin --> UC_ClinicConfig
+Admin --> UC_WorkingHours
+Admin --> UC_ActCatalog
+Admin --> UC_InsuranceProviders
+Admin --> UC_InsuranceTemplates
+Admin --> UC_ManagePatients
+Admin --> UC_ManageAppointments
+
+' Relations include
+UC_Register ..> UC_RBAC : <<include>>
+UC_Login ..> UC_RBAC : <<include>>
+
+UC_ManagePatients ..> UC_CreatePatient : <<include>>
+UC_ManagePatients ..> UC_UpdatePatient : <<include>>
+UC_ManagePatients ..> UC_SearchPatient : <<include>>
+UC_ManagePatients ..> UC_ViewPatient : <<include>>
+UC_ManagePatients ..> UC_DeletePatient : <<include>>
+UC_ManagePatients ..> UC_PatientDocs : <<include>>
+UC_ManagePatients ..> UC_PatientInsurance : <<include>>
+
+UC_BookOnline ..> UC_ViewSlots : <<include>>
+UC_BookOnline ..> UC_PreventConflicts : <<include>>
+UC_BookOnline ..> UC_Confirmation : <<include>>
+
+UC_ManageAppointments ..> UC_CreateAppointment : <<include>>
+UC_ManageAppointments ..> UC_UpdateAppointment : <<include>>
+UC_ManageAppointments ..> UC_CancelAppointment : <<include>>
+UC_ManageAppointments ..> UC_ViewSchedule : <<include>>
+UC_CreateAppointment ..> UC_PreventConflicts : <<include>>
+UC_CreateAppointment ..> UC_SendNotifications : <<include>>
+
+UC_ManageQueue ..> UC_CheckIn : <<include>>
+UC_ManageQueue ..> UC_UpdateQueueStatus : <<include>>
+UC_ManageQueue ..> UC_ViewQueue : <<include>>
+
+UC_AddTreatment ..> UC_ViewClinicalRecord : <<include>>
+UC_ConfirmTreatment ..> UC_AddTreatment : <<extend>>
+UC_CloseVisit ..> UC_ConfirmTreatment : <<include>>
+
+UC_ClinicConfig ..> UC_WorkingHours : <<include>>
+UC_SendNotifications ..> UC_Confirmation : <<include>>
+UC_SendNotifications ..> UC_Reminder : <<include>>
+
+note right of UC_RBAC
+  Les actions sont protegees par JWT
+  et limitees selon le role utilisateur.
+end note
+
+note bottom of UC_ViewQueue
+  La salle d'attente est synchronisee
+  en temps reel entre les roles concernes.
+end note
+
+@enduml
